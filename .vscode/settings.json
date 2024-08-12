@@ -1,0 +1,10 @@
+{
+  "editor.inlineSuggest.showToolbar": "always",
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#463b6d",
+    "activityBar.background": "#463b6d",
+    "activityBarBadge.background": "#2d1313",
+    "statusBar.background": "#463b6d",
+    "statusBarItem.remoteBackground": "#463b6d",
+  }
+}

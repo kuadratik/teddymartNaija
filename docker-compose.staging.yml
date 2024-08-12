@@ -1,0 +1,25 @@
+version: '3'
+services:
+  teddymart-staging:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+      args:
+          PHP_FPM_PORT: 9020
+    container_name: teddymart-staging
+    restart: unless-stopped
+    ports:
+      - "9020"
+      - "1220:1215"
+    volumes:
+      - .:/var/www
+    networks:
+      tednet:
+        ipv4_address: 172.23.0.4
+networks:
+  tednet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.23.0.0/24
