@@ -61,7 +61,6 @@ RUN echo 'pm.max_children = 50' >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
 
 # Expose PHP-fpm and Swoole port
 EXPOSE $PHP_FPM_PORT
-EXPOSE 1215
 
 WORKDIR /var/www
 COPY .docker/supervisord.conf /etc/supervisord.conf
