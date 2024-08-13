@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    // return view('welcome');
+    return view('welcome');
     // return Hash::make('TE-485527');
 });
 
