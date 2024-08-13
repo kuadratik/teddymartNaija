@@ -5,12 +5,11 @@ services:
       context: .
       dockerfile: .docker/Dockerfile
       args:
-          PHP_FPM_PORT: 9020
+          PHP_FPM_PORT: 9010
     container_name: teddymart-staging
     restart: unless-stopped
     ports:
-      - "9020"
-      - "1220:1215"
+      - "9010:9010"
     volumes:
       - .:/var/www
     networks:
