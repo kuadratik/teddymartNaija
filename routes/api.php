@@ -1,8 +1,27 @@
 <?php
 
+use App\Http\Controllers\Auth\FrontAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "api" middleware group. Make something great!
+|
+*/
+
+Route::prefix('front')->group(function () {
+    Route::post('login', [FrontAuthController::class, 'login']);
+    Route::post('register', [FrontAuthController::class, 'register']);
+    Route::post('social', [FrontAuthController::class, 'social']);
+});
+
+
+Route::prefix('console')->group(function () {
+});
+
