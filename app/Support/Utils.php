@@ -131,7 +131,7 @@ class Utils
 
     /**
      * Json success response helper without extra headers
-     * and body ---
+     * and body 
      * 
      * @param  mixed  $message
      * @param  mixed  $data

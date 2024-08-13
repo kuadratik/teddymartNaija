@@ -1,0 +1,24 @@
+name: Production
+
+on:
+  push:
+    branches: [production]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            cd /var/www/backend/production
+            git stash
+            git stash clear
+            git pull origin production
+            chmod +x .docker/deploy.sh
+            sh .docker/deploy.sh teddymart-prod

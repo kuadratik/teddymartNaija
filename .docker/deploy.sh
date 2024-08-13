@@ -9,7 +9,7 @@ fi
 
 # Validate the application name
 case $1 in
-prod-app | staging-app) ;;
+teddymart-prod | teddymart-staging) ;;
 *)
    echo "Wrong container name"
    exit 1
@@ -28,13 +28,9 @@ docker exec ${APP_NAME} composer install --no-ansi --no-dev --no-interaction --n
 
 docker exec ${APP_NAME} php artisan optimize:clear
 docker exec ${APP_NAME} php artisan queue:restart
-docker exec ${APP_NAME} php artisan swoole:http reload
 
 # Migrate database
 docker exec ${APP_NAME} php artisan migrate --force
-
-# Seed necessary seeder
-docker exec ${APP_NAME} php artisan db:seed --class=FormElementSeeder
 
 # Exit maintenance mode
 docker exec ${APP_NAME} php artisan up

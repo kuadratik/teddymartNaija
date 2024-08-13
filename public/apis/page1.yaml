@@ -1,0 +1,241 @@
+openapi: '3.0.0'
+info:
+  description: Teddyed apis
+  version: 1.0.0
+  title: Teddyed
+
+servers:
+  - url: /api
+    description: v1 baseUrl
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: login users
+      description: login users
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userid:
+                  type: string
+                  example: 'school-one@teddyed.com'
+                password:
+                  type: string
+                  example: 'teddy767112##'
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /mobile/login:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Authentication
+      summary: Login for driver
+      description: "Login credentials: email: driver1@teddyed.tech password: driver767##"
+      operationId: DriverLogin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: "driver1@teddyed.tech"
+                password:
+                  type: string
+                  example: "driver767##"
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /minconfig/{schoolDomain}:
+    get:
+      tags:
+        - Authentication
+      summary: school login config
+      description: 'school login config'
+      operationId: schoolLoginConfig
+      parameters:
+        - in: path
+          name: schoolDomain
+          schema:
+            type: string
+            example: 'kings'
+          required: true
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /logout:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Authentication
+      summary: logout user
+      description: logout currently authenticated user'
+      operationId: logout
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+
+  /password/reset-link:
+    post:
+      tags:
+        - Authentication
+      summary: Send password reset link
+      description:  Send password reset link
+      operationId: passwordResetLink
+      parameters:
+        - in: header
+          name: school
+          schema:
+            type: number
+            example: 2621
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: 'school-one@teddyed.com'
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+
+  /password/reset:
+    post:
+      tags:
+        - Authentication
+      summary: reset user password
+      description: reset user password
+      operationId: resetPassword
+      parameters:
+        - in: header
+          name: school
+          schema:
+            type: number
+            example: 2621
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: "da125..."                
+                password: 
+                  type: string
+                  example: 'Shipper123'
+                password_confirmation: 
+                  type: string
+                  example: 'Shipper123'
+                email:
+                  type: string
+                  example: 'shipbro@example.com'
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+
+  /countries:
+    get:
+      servers:
+        - url: /api/location
+      tags:
+        - Map
+      summary: get all countries
+      description: 'get all countries with an optional search'
+      operationId: getAllCountries
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: 'benin'
+          required: false
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  
+  /countries/{country}/divisions:
+    get:
+      servers:
+        - url: /api/location
+      tags:
+        - Map
+      summary: country division
+      description: 'get countries by country primary ID with an optional search'
+      operationId: countryDivision
+      parameters:
+        - in: path
+          name: country
+          schema:
+            type: number
+            example: 2
+          required: true
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: 'Atakora'
+          required: false
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
