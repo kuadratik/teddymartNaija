@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class RegisterRequest extends FormRequest
 {
@@ -24,8 +25,18 @@ class RegisterRequest extends FormRequest
         return [
             'first_name' =>  ['required', 'string'],
             'last_name' =>  ['required', 'string'],
-            'email' => ['required', 'email', 'unique:user,email'],
+            'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
+    }
+
+    /**
+     *  registration attributes
+     */
+    public function registerAttribute(): array
+    {
+        return collect($this->safe())->merge([
+            "uid" => Str::uuid()
+        ])->toArray();
     }
 }
