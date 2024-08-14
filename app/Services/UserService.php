@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Otp;
 use App\Models\User;
 use App\Notifications\SendEmailVerificationOtp;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class UserService
 {
@@ -46,5 +48,19 @@ class UserService
     {
         $user = User::where('email', $email)->firstOrFail();
         $this->sendOtpForEmailVerification($user);
+    }
+
+    /**
+     * Login user and send token, handle authentication failure with a validation error.
+     */
+    public function login(array $data)
+    {
+        if (!Auth::attempt($data)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+        $token = auth()->user()->createToken('authToken')->plainTextToken;
+        return ['token' => $token];
     }
 }

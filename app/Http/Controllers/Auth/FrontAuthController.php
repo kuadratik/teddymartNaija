@@ -11,6 +11,7 @@ use App\Http\Requests\Auth\VerifyOtpRequest;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FrontAuthController extends Controller
 {
@@ -45,7 +46,11 @@ class FrontAuthController extends Controller
     /**
      * Login and federate user into our application
      */
-    public function login(LoginRequest $request) {}
+    public function login(LoginRequest $request, UserService $service)
+    {
+        $login = $service->login($request->validated());
+        return $this->success($login);
+    }
 
     /**
      * social authentication
