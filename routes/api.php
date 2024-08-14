@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('front')->group(function () {
     Route::post('login', [FrontAuthController::class, 'login']);
     Route::post('register', [FrontAuthController::class, 'register']);
-    Route::post('social', [FrontAuthController::class, 'social']);
+    Route::post('otp/verify', [FrontAuthController::class, 'verifyEmailOtp']);
+    Route::post('otp/resend', [FrontAuthController::class, 'resendEmailOtp']);
 });
 
 
