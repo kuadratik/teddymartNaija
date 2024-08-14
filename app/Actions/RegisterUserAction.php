@@ -3,6 +3,8 @@
 namespace App\Actions;
 
 use App\Models\User;
+use App\Notifications\SendEmailVerificationOtp;
+use Illuminate\Support\Str;
 
 class RegisterUserAction
 {
@@ -12,7 +14,7 @@ class RegisterUserAction
     public function handle(array $attr)
     {
         $user = User::create($attr);
-        $this->sendOtpForEmailVerification();
+        $this->sendOtpForEmailVerification($user);
         return $user;
     }
 
@@ -20,5 +22,9 @@ class RegisterUserAction
     /**
      * sends otp for email verification
      */
-    private function sendOtpForEmailVerification() {}
+    private function sendOtpForEmailVerification(User $user)
+    {
+        $otp = mt_rand(10000, 99999);
+        $user->notify(new SendEmailVerificationOtp($otp));
+    }
 }
