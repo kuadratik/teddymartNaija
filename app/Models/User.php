@@ -24,6 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'offers_product',
         'offers_service',
+        'has_store',
         'password',
     ];
 
@@ -49,6 +50,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'offers_product' => 'boolean',
             'offers_service' => 'boolean',
+            'has_store' => 'boolean',
         ];
     }
 }

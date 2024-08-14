@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('last_name');
             $table->boolean('offers_product')->default(false);
             $table->boolean('offers_service')->default(false);
+            $table->boolean('has_store')->default(false);
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
