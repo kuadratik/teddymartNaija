@@ -38,8 +38,6 @@ class VerifyOtpRequest extends FormRequest
      */
     public function registerAttribute(): array
     {
-        return collect($this->safe())->merge([
-            "uid" => Str::uuid()
-        ])->toArray();
+        return $this->safe()->all();
     }
 }
