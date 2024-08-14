@@ -6,9 +6,9 @@ use App\Models\Otp;
 use App\Models\User;
 use App\Notifications\SendEmailVerificationOtp;
 use App\Notifications\ResetPasswordNotification;
-use Illuminate\Support\Facades\Auth;
+use App\Support\Utils;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 
 class AuthenticationService
@@ -50,15 +50,16 @@ class AuthenticationService
      */
     public function login(array $data)
     {
-        if (!Auth::attempt($data)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
+        $user = User::where('email', $data['email'])->first();
+
+        if (!Hash::check($data['password'], $user->password)) {
+            return Utils::validateResp(['email' => ['The provided credentials are invalid.']]);
         }
 
-        $token = auth()->user()->createToken('authToken')->plainTextToken;
-
-        return ['token' => $token];
+        return [
+            'token' => $user->createToken('authToken')->plainTextToken,
+            'user' => $user->load('store')
+        ];
     }
 
     /**
