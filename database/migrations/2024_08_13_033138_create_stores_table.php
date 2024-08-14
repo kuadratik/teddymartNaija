@@ -14,6 +14,18 @@ return new class extends Migration
         Schema::create('stores', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
+            $table->string('name')->index();
+            $table->string('slug')->index();
+            $table->string('contact_number')->index();
+            $table->string('whatsapp_number')->index();
+            $table->string('profile_picture_path');
+            $table->string('banner_path');
+            $table->longText('description')->index();
+            $table->text('address1')->index();
+            $table->text('address2')->index();
+            $table->string('state');
+            $table->string('city');
+            $table->string('postal_code');
             $table->timestamps();
         });
     }

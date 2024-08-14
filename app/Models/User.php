@@ -18,11 +18,12 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<int, string>
      */
     protected $fillable = [
-        'uid',
         'first_name',
         'last_name',
         'email',
-        'user_type',
+        'offers_product',
+        'offers_service',
+        'has_store',
         'password',
     ];
 
@@ -46,6 +47,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'offers_product' => 'boolean',
+            'offers_service' => 'boolean',
+            'has_store' => 'boolean',
         ];
     }
 }
