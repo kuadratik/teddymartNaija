@@ -28,14 +28,9 @@ class ValidOtp implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $user = User::where('email', $this->email)->first();
 
-        if (!$user) {
-            $fail('No user found with this email.');
-            return;
-        }
 
-        $otpRecord = Otp::where('user_id', $user->id)->first();
+        $otpRecord = Otp::where('email', $this->email)->first();
 
         if (!$otpRecord) {
             $fail('The provided OTP is invalid.');

@@ -18,11 +18,11 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('front')->group(function () {
     Route::post('login', [FrontAuthController::class, 'login']);
     Route::post('register', [FrontAuthController::class, 'register']);
-    Route::post('otp/verify', [FrontAuthController::class, 'verifyEmailOtp']);
-    Route::post('otp/resend', [FrontAuthController::class, 'resendEmailOtp']);
+    Route::post('register/verify', [FrontAuthController::class, 'verifyEmailOtp']);
+    Route::post('register/otp-resend', [FrontAuthController::class, 'resendEmailOtp']);
+    Route::post('reset/send-otp', [FrontAuthController::class, 'resetPasswordSendOtp']);
+    Route::post('reset', [FrontAuthController::class, 'resetPassword']);
 });
 
 
-Route::prefix('console')->group(function () {
-});
-
+Route::prefix('console')->group(function () {});

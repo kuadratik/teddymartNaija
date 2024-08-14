@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('otps', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class);
+            $table->string('email')->index();
             $table->string('otp');
             $table->boolean('is_used')->default(false);
             $table->dateTime('expires_at');
