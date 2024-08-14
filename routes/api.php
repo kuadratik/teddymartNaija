@@ -20,7 +20,6 @@ Route::prefix('front')->group(function () {
     Route::post('register', [FrontAuthController::class, 'register']);
     Route::post('otp/verify', [FrontAuthController::class, 'verifyEmailOtp']);
     Route::post('otp/resend', [FrontAuthController::class, 'resendEmailOtp']);
-    Route::post('social', [FrontAuthController::class, 'social']);
 });
 
 
