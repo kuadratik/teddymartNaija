@@ -14,7 +14,7 @@ class StoreSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::where('email' , 'teddyedward@teddyed.com')->select('id')->first();
+        $user = User::where('email', 'teddyedward@teddyed.com')->select('id')->first();
 
         Store::create([
             "name" => "Amala Sky",
@@ -29,6 +29,12 @@ class StoreSeeder extends Seeder
             "city" => "ibadan",
             "postal_code" => "100001",
             'user_id'     => $user->id
+        ]);
+
+        $user->update([
+            'offers_service' => false,
+            'offers_product' =>  true,
+            'has_store' => true
         ]);
     }
 }
