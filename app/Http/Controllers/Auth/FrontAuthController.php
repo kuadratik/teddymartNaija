@@ -72,4 +72,14 @@ class FrontAuthController extends Controller
         $this->authService->resetPasswordWithOtp($request->validated());
         return $this->success();
     }
+
+
+    /**
+     * logout
+     */
+    public function logout()
+    {
+        $this->authService->logout();
+        return $this->success();
+    }
 }

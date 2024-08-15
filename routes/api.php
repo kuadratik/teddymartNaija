@@ -25,16 +25,18 @@ Route::prefix('front')->group(function () {
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:api')->group(function () {
 
     Route::prefix('store')->controller(StoresController::class)->group(function () {
         Route::post('create', 'create');
-        Route::get('user-store' ,'showUserStore');
+        Route::get('user-store', 'showUserStore');
         Route::post('{userStore}/update', 'update');
     });
 
+    Route::prefix('front')->group(function () {
+        Route::post('logout', [FrontAuthController::class, 'logout']);
+    });
 });
 
 
-Route::prefix('console')->group(function () {
-});
+Route::prefix('console')->group(function () {});
