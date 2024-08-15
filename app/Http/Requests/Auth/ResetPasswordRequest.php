@@ -24,7 +24,7 @@ class ResetPasswordRequest extends FormRequest
     {
         return [
             'email' => ['required', 'email', 'exists:users,email'],
-            'password' => ['required', 'string', 'confirmed'],
+            'new_password' => ['required', 'string', 'confirmed'],
             'otp' => ['required', 'string', 'min:5', 'max:5', new ValidOtp($this->email)]
         ];
     }

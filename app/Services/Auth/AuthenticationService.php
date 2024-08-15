@@ -34,7 +34,6 @@ class AuthenticationService
     {
         return DB::transaction(function () use ($data) {
             $otpRecord = Otp::where('email', $data['email'])->firstOrFail();
-
             $user = User::create($data);
 
             $user->markEmailAsVerified();
@@ -82,7 +81,7 @@ class AuthenticationService
         return DB::transaction(function () use ($data) {
             $otpRecord = Otp::where('email', $data['email'])->firstOrFail();
             $user = User::where('email', $data['email'])->firstOrFail();
-            $user->update(['password' => bcrypt($data['password'])]);
+            $user->update(['password' => bcrypt($data['new_password'])]);
             $otpRecord->delete();
             return true;
         });

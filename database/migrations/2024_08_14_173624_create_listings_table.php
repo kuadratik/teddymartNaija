@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('slug')->index();
             $table->string('type')->index();
             $table->decimal('price')->nullable();
-            $table->longText('description')->index();
+            $table->longText('description');
             $table->longText('additional_information')->nullable();
             $table->json('images');
             $table->timestamps();

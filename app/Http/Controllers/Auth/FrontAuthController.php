@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResendVerifyOtpRequest;
 use App\Http\Requests\Auth\ResetPasswordOtpRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
 use App\Services\Auth\AuthenticationService;
 
@@ -66,7 +67,7 @@ class FrontAuthController extends Controller
     /**
      * verify reset password otp
      */
-    public function resetPassword(VerifyOtpRequest $request)
+    public function resetPassword(ResetPasswordRequest $request)
     {
         $this->authService->resetPasswordWithOtp($request->validated());
         return $this->success();
