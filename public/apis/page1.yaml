@@ -17,7 +17,7 @@ components:
 
 paths:
 
-  /api/front/register:
+  /front/register:
     post:
       tags:
         - Authentication
@@ -54,7 +54,7 @@ paths:
               schema:
                 type: object
 
-  /api/front/register/verify:
+  /front/register/verify:
     post:
       tags:
         - Authentication
@@ -94,7 +94,7 @@ paths:
               schema:
                 type: object
 
-  /api/front/register/otp-resend:
+  /front/register/otp-resend:
     post:
       tags:
         - Authentication
@@ -119,7 +119,7 @@ paths:
               schema:
                 type: object
 
-  /api/front/login:
+  /front/login:
     post:
       tags:
         - Authentication
@@ -132,9 +132,9 @@ paths:
             schema:
               type: object
               properties:
-                userid:
+                email:
                   type: string
-                  example: teddyedward@teddyed.com'
+                  example: teddyedward@teddyed.com
                 password:
                   type: string
                   example: '12345678'
@@ -145,7 +145,8 @@ paths:
             application/json:
               schema:
                 type: object
-  /api/front/reset/send-otp:
+
+  /front/reset/send-otp:
     post:
       tags:
         - Authentication
@@ -168,7 +169,7 @@ paths:
             application/json:
               schema:
                 type: object
-  /api/front/reset:
+  /front/reset:
     post:
       tags:
         - Authentication

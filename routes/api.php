@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\FrontAuthController;
+use App\Http\Controllers\StoresController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,5 +25,16 @@ Route::prefix('front')->group(function () {
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
 });
 
+Route::middleware('auth:sanctum')->group(function () {
 
-Route::prefix('console')->group(function () {});
+    Route::prefix('store')->controller(StoresController::class)->group(function () {
+        Route::post('create', 'create');
+        Route::get('user-store' ,'showUserStore');
+        Route::post('{userStore}/update', 'update');
+    });
+
+});
+
+
+Route::prefix('console')->group(function () {
+});
