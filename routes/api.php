@@ -23,6 +23,6 @@ Route::prefix('front')->group(function () {
 });
 
 
-Route::prefix('console')->group(function () {
-});
 
+
+Route::prefix('console')->group(function () {});
