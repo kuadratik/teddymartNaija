@@ -20,9 +20,9 @@ return new class extends Migration
             $table->string('whatsapp_number')->index();
             $table->string('profile_picture_path');
             $table->string('banner_path');
-            $table->longText('description')->index();
-            $table->text('address1')->index();
-            $table->text('address2')->index();
+            $table->longText('description');
+            $table->string('address1')->index();
+            $table->string('address2')->index();
             $table->string('state');
             $table->string('city');
             $table->string('postal_code');
