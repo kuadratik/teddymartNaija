@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Rules\ValidOtp;
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginRequest extends FormRequest
+class ResetPasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +24,8 @@ class LoginRequest extends FormRequest
     {
         return [
             'email' => ['required', 'email', 'exists:users,email'],
-            'password' => ['required', 'string', 'min:8'],
+            'new_password' => ['required', 'string', 'confirmed'],
+            'otp' => ['required', 'string', 'min:5', 'max:5', new ValidOtp($this->email)]
         ];
     }
 }

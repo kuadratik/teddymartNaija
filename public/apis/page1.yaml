@@ -16,7 +16,110 @@ components:
       bearerFormat: JWT
 
 paths:
-  /login:
+
+  /api/front/register:
+    post:
+      tags:
+        - Authentication
+      summary: register users step one
+      description: register users step one
+      operationId: RegisterStepOne
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: 'Teddy'
+                last_name:
+                  type: string
+                  example: 'Edward'
+                email:
+                  type: string
+                  example: 'teddyedward@teddyed.com'
+                password:
+                  type: string
+                  example: 'teddy767112##'
+                password_confirmation:
+                  type: string
+                  example: 'teddy767112##'
+
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/front/register/verify:
+    post:
+      tags:
+        - Authentication
+      summary: register users step two verify otp
+      description: register users step two verify otp
+      operationId: RegisterStepTwo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: 'Teddy'
+                last_name:
+                  type: string
+                  example: 'Edward'
+                email:
+                  type: string
+                  example: 'teddyedward@teddyed.com'
+                password:
+                  type: string
+                  example: 'teddy767112##'
+                password_confirmation:
+                  type: string
+                  example: 'teddy767112##'
+                code:
+                  type: string
+                  example: '123456'
+
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/front/register/otp-resend:
+    post:
+      tags:
+        - Authentication
+      summary: register users step two resend otp
+      description: register users step two resend otp
+      operationId: RegisterStepTwoResend
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: 'teddyedward@teddyed.com'
+
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/front/login:
     post:
       tags:
         - Authentication
@@ -31,10 +134,10 @@ paths:
               properties:
                 userid:
                   type: string
-                  example: 'school-one@teddyed.com'
+                  example: teddyedward@teddyed.com'
                 password:
                   type: string
-                  example: 'teddy767112##'
+                  example: '12345678'
       responses:
         default:
           description: 'success'
@@ -42,16 +145,13 @@ paths:
             application/json:
               schema:
                 type: object
-
-  /mobile/login:
+  /api/front/reset/send-otp:
     post:
-      security:
-        - bearerAuth: []
       tags:
         - Authentication
-      summary: Login for driver
-      description: "Login credentials: email: driver1@teddyed.tech password: driver767##"
-      operationId: DriverLogin
+      summary: send otp to reset password
+      description: send otp to reset password
+      operationId: sendOtpToResetPassword
       requestBody:
         content:
           application/json:
@@ -60,10 +160,7 @@ paths:
               properties:
                 email:
                   type: string
-                  example: "driver1@teddyed.tech"
-                password:
-                  type: string
-                  example: "driver767##"
+                  example: 'teddyedward@teddyed.com'
       responses:
         default:
           description: 'success'
@@ -71,167 +168,31 @@ paths:
             application/json:
               schema:
                 type: object
-
-  /minconfig/{schoolDomain}:
-    get:
-      tags:
-        - Authentication
-      summary: school login config
-      description: 'school login config'
-      operationId: schoolLoginConfig
-      parameters:
-        - in: path
-          name: schoolDomain
-          schema:
-            type: string
-            example: 'kings'
-          required: true
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /logout:
-    post:
-      security:
-        - bearerAuth: []
-      tags:
-        - Authentication
-      summary: logout user
-      description: logout currently authenticated user'
-      operationId: logout
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-
-  /password/reset-link:
+  /api/front/reset:
     post:
       tags:
         - Authentication
-      summary: Send password reset link
-      description:  Send password reset link
-      operationId: passwordResetLink
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  example: 'school-one@teddyed.com'
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-
-  /password/reset:
-    post:
-      tags:
-        - Authentication
-      summary: reset user password
-      description: reset user password
+      summary: reset password
+      description: reset password
       operationId: resetPassword
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                token:
-                  type: string
-                  example: "da125..."                
-                password: 
-                  type: string
-                  example: 'Shipper123'
-                password_confirmation: 
-                  type: string
-                  example: 'Shipper123'
                 email:
                   type: string
-                  example: 'shipbro@example.com'
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-
-  /countries:
-    get:
-      servers:
-        - url: /api/location
-      tags:
-        - Map
-      summary: get all countries
-      description: 'get all countries with an optional search'
-      operationId: getAllCountries
-      parameters:
-        - in: query
-          name: search
-          schema:
-            type: string
-            example: 'benin'
-          required: false
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  
-  /countries/{country}/divisions:
-    get:
-      servers:
-        - url: /api/location
-      tags:
-        - Map
-      summary: country division
-      description: 'get countries by country primary ID with an optional search'
-      operationId: countryDivision
-      parameters:
-        - in: path
-          name: country
-          schema:
-            type: number
-            example: 2
-          required: true
-        - in: query
-          name: search
-          schema:
-            type: string
-            example: 'Atakora'
-          required: false
+                  example: 'teddyedward@teddyed.com'
+                password:
+                  type: string
+                  example: '12345678'
+                password_confirmation:
+                  type: string
+                  example: '12345678'
+                otp:
+                  type: string
+                  example: '123456'
       responses:
         default:
           description: 'success'

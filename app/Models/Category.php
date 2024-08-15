@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Store extends Model
+class Category extends Model
 {
     use HasFactory;
 
@@ -14,13 +14,10 @@ class Store extends Model
      * 
      * @var array<string, string>
      */
-    protected $fillable = [];
-
-    /**
-     * Get the store owner
-     */
-    public function user()
-    {
-        return $this->belongsTo(user::class);
-    }
+    protected $fillable = [
+        'name',
+        'slug',
+        'type',
+        'description',
+    ];
 }
