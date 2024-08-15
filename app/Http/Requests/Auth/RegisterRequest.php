@@ -30,13 +30,5 @@ class RegisterRequest extends FormRequest
         ];
     }
 
-    /**
-     *  registration attributes
-     */
-    public function registerAttribute(): array
-    {
-        return collect($this->safe())->merge([
-            "uid" => Str::uuid()
-        ])->toArray();
-    }
+
 }

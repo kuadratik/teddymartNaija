@@ -8,14 +8,15 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SendEmailVerificationOtp extends Notification implements ShouldQueue
+class ResetPasswordNotification extends Notification implements ShouldQueue
 {
     use Queueable;
+
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(protected $otp, protected $data) {}
+    public function __construct(protected $otp) {}
 
     /**
      * Get the notification's delivery channels.
@@ -35,11 +36,12 @@ class SendEmailVerificationOtp extends Notification implements ShouldQueue
     {
 
         return (new MailMessage)
-            ->subject('Email Verification OTP')
+            ->subject('Password Reset OTP')
             ->priority(1)
-            ->line('Your OTP for email verification is: ' . $this->otp)
+            ->line('You have requested to reset your password.')
+            ->line('Your OTP for resetting your password is: ' . $this->otp)
             ->line('This OTP will expire in 5 minutes.')
-            ->line('If you did not request this OTP, please ignore this email.')
+            ->line('If you did not request this password reset, please ignore this email.')
             ->line('Thank you for using our application!');
     }
 
@@ -63,9 +65,9 @@ class SendEmailVerificationOtp extends Notification implements ShouldQueue
     protected function storeOtp($notifiable)
     {
         Otp::UpdateOrCreate(
-            ['email' => $this->data->email],
+            ['email' => $notifiable->email],
             [
-                'email' => $this->data->email,
+                'email' => $notifiable->email,
                 'otp' => bcrypt($this->otp),
                 'expires_at' => now()->addMinutes(5),
                 'is_used' => false,

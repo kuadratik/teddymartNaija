@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -18,11 +19,12 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<int, string>
      */
     protected $fillable = [
-        'uid',
         'first_name',
         'last_name',
         'email',
-        'user_type',
+        'offers_product',
+        'offers_service',
+        'has_store',
         'password',
     ];
 
@@ -46,6 +48,21 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'offers_product' => 'boolean',
+            'offers_service' => 'boolean',
+            'has_store' => 'boolean',
         ];
+    }
+
+
+
+    /**
+     * Get the store associated with the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function store(): HasOne
+    {
+        return $this->hasOne(Store::class);
     }
 }

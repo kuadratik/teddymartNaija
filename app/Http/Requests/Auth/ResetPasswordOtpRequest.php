@@ -4,7 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ResendVerifyOtpRequest extends FormRequest
+class ResetPasswordOtpRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,7 @@ class ResendVerifyOtpRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'exists:users,email']
         ];
     }
 }

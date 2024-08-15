@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->index();
             $table->string('slug')->index();
-            $table->string('type')->index();
+            $table->string('type')->index()->comment('service,product');
             $table->string('description')->index()->nullable();
             $table->timestamps();
         });

@@ -13,17 +13,16 @@ return new class extends Migration
     {
         Schema::create('listings', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('store_id')->index();
+            $table->foreignId('user_id')->index();
+            $table->foreignId('category_id')->index();
             $table->string('name')->index();
             $table->string('slug')->index();
             $table->string('type')->index();
-            $table->string('price')->nullable();
-            $table->longText('description')->index();
+            $table->decimal('price')->nullable();
+            $table->longText('description');
             $table->longText('additional_information')->nullable();
             $table->json('images');
-
-            $table->foreignId('store_id')->index();
-            $table->foreignId('user_id')->index();
-
             $table->timestamps();
         });
     }
