@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -31,10 +32,29 @@ class Store extends Model
     ];
 
     /**
+     * The booted method of the model.
+     */
+    protected static function booted()
+    {
+        static::saving(function (Store $model) {
+            $model->slug = str($model->name)->slug();
+        });
+    }
+
+    /**
      * Get the store owner
      */
     public function user()
     {
         return $this->belongsTo(user::class);
+    }
+
+     /**
+     * Get the store owner
+     */
+    public function scopebyUser(Builder $query , $userId){
+
+        $query->where('user_id', $userId);
+    
     }
 }

@@ -3,21 +3,50 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Store\CreateStoreRequest;
+use App\Http\Requests\Store\UpdateStoreRequest;
 use App\Models\Store;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StoresController extends Controller
 {
+    /**
+     * Creates a store based on the provided request.
+     */
     public function create(CreateStoreRequest $request)
     {
-        Store::create($request->storeAttributes());
+        $user = $request->user();
+
+        if (Store::query()->byUser($user->id)->exists()) {
+            return $this->failure('You can not have more than one store!', 403);
+        }
+
+        DB::transaction(function () use ($request, $user) {
+            Store::create($request->storeAttributes());
+            $user->update([
+                'offers_service' => $request->offers_service,
+                'offers_product' => $request->offers_product,
+                'has_store' => true
+            ]);
+        });
+
         return $this->success();
     }
 
-    public function show(Store $store)
+    /**
+     * Display the specified store.
+     */
+    public function showUserStore(Request $request)
     {
-        return $this->success($store);
+        return $this->success($request->user()->store);
     }
 
-    
+    /**
+     * Update the specified store.
+     */
+    public function update(UpdateStoreRequest $request, Store $userStore)
+    {
+        $userStore->update($request->validated());
+        return $this->success();
+    }
 }

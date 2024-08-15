@@ -4,14 +4,14 @@ namespace App\Http\Requests\Store;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateStoreRequest extends FormRequest
+class UpdateStoreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->userStore->user_id === $this->user()->id; 
     }
 
     /**
@@ -33,18 +33,6 @@ class CreateStoreRequest extends FormRequest
             'state' => ['required', 'string'],
             'city' => ['required', 'string'],
             'postal_code' => ['required', 'string'],
-            'offers_service' => ['required', 'boolean'],
-            'offers_product' => ['required' ,'boolean']
         ];
-    }
-
-    /**
-     * Prepare store record to save
-     */
-    public function storeAttributes()
-    {
-        return collect($this->safe())->merge([
-            'user_id' => $this->user()->id
-        ])->toArray();
     }
 }
