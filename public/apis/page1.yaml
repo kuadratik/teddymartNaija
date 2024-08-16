@@ -169,6 +169,7 @@ paths:
             application/json:
               schema:
                 type: object
+
   /front/reset:
     post:
       tags:
@@ -201,3 +202,49 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /front/category:
+    get:
+      tags:
+        - Category
+      summary: get all category
+      description: get all category
+      operationId: GetAllCategory
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/category/product:
+    get:
+      tags:
+        - Category
+      summary: get all product category
+      description: get all product category
+      operationId: GetAllProductCategory
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/category/service:
+    get:
+      tags:
+        - Category
+      summary: get all service category
+      description: get all service category
+      operationId: GetAllServiceCategory
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+

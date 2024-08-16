@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Store\CreateStoreRequest;
 use App\Http\Requests\Store\UpdateStoreRequest;
 use App\Models\Store;
+use App\Utils\FileUploader;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
 
 class StoresController extends Controller
 {
@@ -48,5 +50,15 @@ class StoresController extends Controller
     {
         $userStore->update($request->validated());
         return $this->success();
+    }
+
+
+    /**
+     * upload temp file to spaces
+     */
+    public function uploadTempFile(Request $request)
+    {
+        $path = FileUploader::uploadTemporary($request->file('images'));
+        return $this->success($path);
     }
 }
