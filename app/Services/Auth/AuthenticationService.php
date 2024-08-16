@@ -72,7 +72,6 @@ class AuthenticationService
         return true;
     }
 
-
     /**
      * reset password with otp
      */
@@ -85,5 +84,14 @@ class AuthenticationService
             $otpRecord->delete();
             return true;
         });
+    }
+
+    /**
+     * logout user
+     */
+    public function logout()
+    {
+        auth()->user()->currentAccessToken()->delete();
+        return true;
     }
 }
