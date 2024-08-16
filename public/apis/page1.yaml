@@ -266,7 +266,7 @@ paths:
                 type: object
 
   /front/user/profile/update:
-    patch:
+    put:
       tags:
         - User
       summary: update user profile
@@ -283,12 +283,47 @@ paths:
                 first_name:
                   type: string
                   example: 'Teddy'
+                  required: true
                 last_name:
                   type: string
                   example: 'Edward'
+                  required: true
                 email:
                   type: string
                   example: 'teddyedward@teddyed.com'
+                  required: true
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/user/change-password:
+    patch:
+      tags:
+        - User
+      summary: change user password
+      description: change user password
+      operationId: ChangeUserPassword
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_password:
+                  type: string
+                  example: '12345678'
+                new_password:
+                  type: string
+                  example: '12345678'
+                new_password_confirmation:
+                  type: string
+                  example: '12345678'
       responses:
         default:
           description: 'success'

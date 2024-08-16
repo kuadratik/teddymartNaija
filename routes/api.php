@@ -45,7 +45,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('file-upload', [GeneralController::class], 'uploadTempFile');
         Route::prefix('user')->controller(UserController::class)->group(function () {
             Route::get('profile', 'getUserProfile');
-            Route::patch('profile/update', 'updateUserProfile');
+            Route::put('profile/update', 'updateUserProfile');
             Route::patch('change-password', 'updateUserPassword');
         });
     });
