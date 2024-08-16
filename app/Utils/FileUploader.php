@@ -2,6 +2,7 @@
 
 namespace App\Utils;
 
+use App\Support\Utils;
 use Illuminate\Support\Facades\Storage;
 
 class FileUploader
@@ -17,7 +18,7 @@ class FileUploader
         $tempPaths = [];
 
         foreach ($files as $file) {
-            $fileName = 'temp/' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $fileName = Utils::fileNamer($file);
 
             Storage::disk('spaces')->put($fileName, file_get_contents($file));
 
