@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\StoresController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -40,7 +42,12 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('front')->group(function () {
         Route::post('logout', [FrontAuthController::class, 'logout']);
-
+        Route::post('file-upload', [GeneralController::class], 'uploadTempFile');
+        Route::prefix('user')->controller(UserController::class)->group(function () {
+            Route::get('profile', 'getUserProfile');
+            Route::put('profile/update', 'updateUserProfile');
+            Route::patch('change-password', 'updateUserPassword');
+        });
     });
 });
 
