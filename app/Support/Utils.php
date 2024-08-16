@@ -2,7 +2,6 @@
 
 namespace App\Support;
 
-use App\Traits\RespondsWithHttpStatus;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -10,8 +9,6 @@ use Illuminate\Validation\ValidationException;
 
 class Utils
 {
-    use RespondsWithHttpStatus;
-
     /**
      * Throw validation with json repoonse
      *
@@ -116,6 +113,7 @@ class Utils
 
         return $permanentPaths;
     }
+    
     /**
      * Creates a replace callback using regex
      */
