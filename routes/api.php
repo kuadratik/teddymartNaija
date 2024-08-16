@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\StoresController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::prefix('front')->group(function () {
         Route::post('logout', [FrontAuthController::class, 'logout']);
+        Route::post('file-upload', [GeneralController::class], 'TempUploadFile');
 
     });
 });
