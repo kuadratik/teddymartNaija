@@ -12,6 +12,9 @@ class UserService
 
 
 
+    /**
+     * update users password
+     */
     public function updateUserPassword($request)
     {
         $user = User::find(auth('api')->user()->id);
