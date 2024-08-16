@@ -2,15 +2,13 @@
 
 namespace App\Support;
 
-use App\Traits\RespondsWithHttpStatus;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class Utils
 {
-    use RespondsWithHttpStatus;
-
     /**
      * Throw validation with json repoonse
      *
@@ -41,7 +39,7 @@ class Utils
 
     /**
      * Upload or abort with http Exception
-     * 
+     *
      * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public static function uploadOrFail(UploadedFile $file, $path = 'images')
@@ -58,7 +56,7 @@ class Utils
 
     /**
      * Upload and return path
-     * 
+     *
      * @return string|false
      */
     public static function upload(UploadedFile $file, $path = 'images')
@@ -74,7 +72,48 @@ class Utils
     {
         return "https://kuadratik.nyc3.digitaloceanspaces.com/teddymart{$path}";
     }
+    /**
+     * Upload multiple images temporarily to DigitalOcean Spaces.
+     *
+     * @param array $files
+     * @return array
+     */
+    public static function uploadTemporary(array $files)
+    {
+        $tempPaths = [];
 
+        foreach ($files as $file) {
+            $uploadedPath = self::uploadOrFail($file, 'teddymart/temp/uploads');
+            $tempPaths[] = $uploadedPath;
+        }
+
+        return $tempPaths;
+    }
+
+    /**
+     * Move multiple images from the temporary location to a permanent directory.
+     *
+     * @param array $tempPaths
+     * @param string $permanentDirectory
+     * @return array
+     */
+    public static function moveToPermanentPath(array $tempPaths, $permanentDirectory)
+    {
+        $permanentPaths = [];
+
+        foreach ($tempPaths as $tempPath) {
+            $fileName = basename('teddymart/temp/uploads' . $tempPath);
+
+            $permanentPath = "{$permanentDirectory}/{$fileName}";
+
+            Storage::disk('spaces')->move($tempPath, 'teddymart/' . $permanentPath);
+
+            $permanentPaths[] = $permanentPath;
+        }
+
+        return $permanentPaths;
+    }
+    
     /**
      * Creates a replace callback using regex
      */
@@ -131,8 +170,8 @@ class Utils
 
     /**
      * Json success response helper without extra headers
-     * and body 
-     * 
+     * and body
+     *
      * @param  mixed  $message
      * @param  mixed  $data
      * @return \Illuminate\Http\JsonResponse

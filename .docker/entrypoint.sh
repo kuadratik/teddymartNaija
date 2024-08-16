@@ -9,7 +9,7 @@ composer install --no-ansi --no-dev --no-interaction --no-plugins --no-scripts -
 # Set permissions
 chown -R www-data:www-data .
 chown -R www-data:www-data storage
-chmod 755 -R storage bootstrap/cache
+chmod 755 -R storage bootstrap/cache storage/logs
 
 # Start Redis
 service redis-server start
