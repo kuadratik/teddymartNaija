@@ -8,8 +8,6 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-
-
     /**
      *get all product category
      */
