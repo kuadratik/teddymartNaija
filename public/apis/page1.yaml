@@ -248,3 +248,51 @@ paths:
               schema:
                 type: object
 
+  /front/user/profile:
+    get:
+      tags:
+        - User
+      summary: get user profile
+      description: get user profile
+      operationId: GetUserProfile
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/user/profile/update:
+    patch:
+      tags:
+        - User
+      summary: update user profile
+      description: update user profile
+      operationId: UpdateUserProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: 'Teddy'
+                last_name:
+                  type: string
+                  example: 'Edward'
+                email:
+                  type: string
+                  example: 'teddyedward@teddyed.com'
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
