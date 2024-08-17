@@ -14,7 +14,7 @@ class GeneralController extends Controller
      */
     public function uploadTempFile(UploadTempFileRequest $request)
     {
-        $path = Utils::uploadTemporary($request->file('images'));
+        $path = Utils::uploadTemporary($request->validated('images'));
         return $this->success($path);
     }
 
