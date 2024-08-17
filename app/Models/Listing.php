@@ -35,6 +35,16 @@ class Listing extends Model
     ];
 
     /**
+     * The booted method of the model.
+     */
+    protected static function booted()
+    {
+        static::saving(function (Listing $model) {
+            $model->slug = str($model->name)->slug();
+        });
+    }
+
+    /**
      * Get the store listing owner
      */
     public function store()
