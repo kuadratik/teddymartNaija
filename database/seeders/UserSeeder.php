@@ -13,9 +13,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->count(20)->create();
-
-        User::factory()->create([
+        User::create([
             'first_name' => 'Teddy',
             'last_name' => 'Edward',
             'email' => 'teddyedward@teddyed.com',
@@ -25,7 +23,7 @@ class UserSeeder extends Seeder
             'has_store' => false,
         ]);
 
-        User::factory()->create([
+        User::create([
             'first_name' => 'Richard',
             'last_name' => 'Ejike',
             'email' => 'richardejike0172@gmail.com',

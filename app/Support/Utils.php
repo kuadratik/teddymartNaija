@@ -2,7 +2,6 @@
 
 namespace App\Support;
 
-use App\Traits\RespondsWithHttpStatus;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -10,8 +9,6 @@ use Illuminate\Validation\ValidationException;
 
 class Utils
 {
-    use RespondsWithHttpStatus;
-
     /**
      * Throw validation with json repoonse
      *
@@ -94,7 +91,7 @@ class Utils
     }
 
     /**
-     * Move multiple images from the temporary location to a permanent directory.
+     * Move multiple images from the temporary location to a permanent directory, avoiding duplicates.
      *
      * @param array $tempPaths
      * @param string $permanentDirectory
@@ -109,6 +106,10 @@ class Utils
 
             $permanentPath = "{$permanentDirectory}/{$fileName}";
 
+            if (Storage::disk('spaces')->exists('teddymart/' . $permanentPath)) {
+                continue;
+            }
+
             Storage::disk('spaces')->move($tempPath, 'teddymart/' . $permanentPath);
 
             $permanentPaths[] = $permanentPath;
@@ -116,6 +117,40 @@ class Utils
 
         return $permanentPaths;
     }
+
+    /**
+     * Delete multiple files from a permanent directory.
+     *
+     * @param array $filePaths
+     * @param string $permanentDirectory
+     * @return void
+     */
+    public static function deletePermanentFiles(array $filePaths, $permanentDirectory)
+    {
+        foreach ($filePaths as $filePath) {
+            $fullPath = 'teddymart/' . $permanentDirectory . '/' . $filePath;
+
+            if (Storage::disk('spaces')->exists($fullPath)) {
+                Storage::disk('spaces')->delete($fullPath);
+            }
+        }
+    }
+
+    /**
+     * Delete multiple temporary files.
+     *
+     * @param array $tempPaths
+     * @return void
+     */
+    public static function deleteTemporaryFiles(array $tempPaths)
+    {
+        foreach ($tempPaths as $tempPath) {
+            if (Storage::disk('spaces')->exists($tempPath)) {
+                Storage::disk('spaces')->delete($tempPath);
+            }
+        }
+    }
+
     /**
      * Creates a replace callback using regex
      */

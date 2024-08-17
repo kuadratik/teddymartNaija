@@ -86,12 +86,4 @@ class AuthenticationService
         });
     }
 
-    /**
-     * logout user
-     */
-    public function logout()
-    {
-        auth()->user()->currentAccessToken()->delete();
-        return true;
-    }
 }

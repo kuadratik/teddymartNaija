@@ -248,3 +248,161 @@ paths:
               schema:
                 type: object
 
+  /front/user/profile:
+    get:
+      tags:
+        - User
+      summary: get user profile
+      description: get user profile
+      operationId: GetUserProfile
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/user/profile/update:
+    put:
+      tags:
+        - User
+      summary: update user profile
+      description: update user profile
+      operationId: UpdateUserProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: 'Teddy'
+                  required: true
+                last_name:
+                  type: string
+                  example: 'Edward'
+                  required: true
+                email:
+                  type: string
+                  example: 'teddyedward@teddyed.com'
+                  required: true
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/user/change-password:
+    patch:
+      tags:
+        - User
+      summary: change user password
+      description: change user password
+      operationId: ChangeUserPassword
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_password:
+                  type: string
+                  example: '12345678'
+                new_password:
+                  type: string
+                  example: '12345678'
+                new_password_confirmation:
+                  type: string
+                  example: '12345678'
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/user/logout:
+    post:
+      tags:
+        - User
+      summary: logout user
+      description: logout user
+      operationId: LogoutUser
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/file-upload:
+    post:
+      tags:
+        - General
+      summary: upload Image file
+      description: upload Image file
+      operationId: UploadImageFile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/file-delete:
+    post:
+      tags:
+        - General
+      summary: delete Image file
+      description: delete Image file
+      operationId: DeleteImageFile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    example: 'https://your-space-url/image-path.jpg'
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
