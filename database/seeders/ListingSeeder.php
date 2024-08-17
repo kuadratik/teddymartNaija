@@ -17,7 +17,7 @@ class ListingSeeder extends Seeder
     {
         $user = User::where('email', 'teddyedward@teddyed.com')->select('id')->first();
 
-        $store = Store::where('name', 'Amala Sky')->select('id')->first();
+        $store = Store::byUser($user->id)->select('id')->first();
 
         $listings = collect([
             [
