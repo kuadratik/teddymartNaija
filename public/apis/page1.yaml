@@ -331,3 +331,78 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /front/user/logout:
+    post:
+      tags:
+        - User
+      summary: logout user
+      description: logout user
+      operationId: LogoutUser
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/file-upload:
+    post:
+      tags:
+        - General
+      summary: upload Image file
+      description: upload Image file
+      operationId: UploadImageFile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/file-delete:
+    post:
+      tags:
+        - General
+      summary: delete Image file
+      description: delete Image file
+      operationId: DeleteImageFile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    example: 'https://your-space-url/image-path.jpg'
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
