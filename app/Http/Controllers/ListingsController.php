@@ -20,10 +20,10 @@ class ListingsController extends Controller
     /**
      * Display a listing of user store listing.
      */
-    public function getUserStoreListings()
+    public function getUserStoreListings(Request $request)
     {
         $userStoreListings = $this->user->store->listings()
-            ->latest()->get();
+            ->latest()->byType($request->header('listingType'))->get();
         return $this->success($userStoreListings);
     }
 

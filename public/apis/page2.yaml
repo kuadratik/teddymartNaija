@@ -170,6 +170,13 @@ paths:
       summary: Get User Store Listings
       description: 'Get User Store Listings'
       operationId: GetUserStoreListings
+      parameters:
+        - in: header
+          name: listingType
+          schema:
+            type: string
+            example: 'product'
+          required: true
 
       responses:
         default:
