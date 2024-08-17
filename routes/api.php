@@ -37,16 +37,19 @@ Route::middleware('auth:api')->group(function () {
         Route::post('create', 'create');
         Route::get('user-store', 'showUserStore');
         Route::post('{userStore}/update', 'update');
-        Route::post('file-upload', 'TempUploadFile');
     });
 
     Route::prefix('front')->group(function () {
-        Route::post('logout', [FrontAuthController::class, 'logout']);
-        Route::post('file-upload', [GeneralController::class], 'uploadTempFile');
+        Route::controller(GeneralController::class)->group(function () {
+            Route::post('file-upload', 'uploadTempFile');
+            Route::post('file-delete', 'deleteTempFiles');
+        });
+
         Route::prefix('user')->controller(UserController::class)->group(function () {
             Route::get('profile', 'getUserProfile');
             Route::put('profile/update', 'updateUserProfile');
             Route::patch('change-password', 'updateUserPassword');
+            Route::post('logout',  'logout');
         });
     });
 });
