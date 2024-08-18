@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Store;
 
+use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateStoreRequest extends FormRequest
@@ -11,7 +12,7 @@ class UpdateStoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->userStore->user_id === $this->user()->id; 
+        return $this->userStore->user_id === $this->user()->id;
     }
 
     /**
@@ -34,5 +35,19 @@ class UpdateStoreRequest extends FormRequest
             'city' => ['required', 'string'],
             'postal_code' => ['required', 'string'],
         ];
+    }
+
+    /**
+     * Prepare store record to save
+     */
+    public function storeAttributes()
+    {
+        return collect($this->safe()->except(['profile_picture_path', 'banner_path']))
+            ->merge([
+                'banner_path' => Utils::moveToPermanentPath([$this->safe()->banner_path], 'images')[0]
+                    ?? $this->safe()->banner_path,
+                'profile_picture_path' => Utils::moveToPermanentPath([$this->safe()->profile_picture_path], 'images')[0]
+                    ?? $this->safe()->profile_picture_path
+            ])->toArray();
     }
 }
