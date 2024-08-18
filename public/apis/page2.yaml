@@ -263,6 +263,47 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /store/listings/{userStore}/listing/{listing}/set-availability:
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Set Availability User Store Listing
+      description: Set Availability User Store Listing
+      operationId: SetAvailabilityUserStoreListing
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: number
+            example: 1
+          required: true
+        - in: path
+          name: listing
+          schema:
+            type: number
+            example: 1
+          required: true
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_available:
+                  type: number
+                  example: 0      
+                
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
   
   /store/listings/{userStore}/listing/{listing}/update:
     patch:

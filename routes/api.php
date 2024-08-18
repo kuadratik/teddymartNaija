@@ -45,6 +45,7 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/', [ListingsController::class, 'getUserStoreListings']);
             Route::post('create', [ListingsController::class, 'create']);
             Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'show']);
+            Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
             Route::patch('{userStore}/listing/{listing}/update', [ListingsController::class, 'update']);
             Route::delete('{userStore}/listing/{listing}/delete', [ListingsController::class, 'delete']);
         });

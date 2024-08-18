@@ -25,6 +25,7 @@ class Listing extends Model
         'price',
         'description',
         'additional_information',
+        'is_available',
         'images'
     ];
 
@@ -33,6 +34,7 @@ class Listing extends Model
      */
     protected $casts = [
         'images' => 'array',
+        'is_available' => 'boolean'
     ];
 
     /**

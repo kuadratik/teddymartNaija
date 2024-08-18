@@ -53,6 +53,16 @@ class ListingsController extends Controller
     }
 
     /**
+     * Set availabilty to the specified user store listing.
+     */
+    public function setAvailability(Request $request, Store $userStore, Listing $listing)
+    {
+        $validatedData = $request->validate(['is_available' => ['required', 'boolean']]);
+        $listing->update(['is_available' => $validatedData['is_available']]);
+        return $this->success();
+    }
+
+    /**
      * Update the specified user store listing.
      */
     public function update(UpdateListingRequest $request, Store $userStore, Listing $listing)
