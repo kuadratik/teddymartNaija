@@ -83,12 +83,14 @@ class Utils
         $tempPaths = [];
 
         foreach ($files as $file) {
-            $uploadedPath = self::uploadOrFail($file, 'teddymart/temp/uploads');
+            $path = self::filePath('/temp/uploads');
+            $uploadedPath = self::uploadOrFail($file, $path);
             $tempPaths[] = $uploadedPath;
         }
 
         return $tempPaths;
     }
+
 
     /**
      * Move multiple images from the temporary location to a permanent directory, avoiding duplicates.

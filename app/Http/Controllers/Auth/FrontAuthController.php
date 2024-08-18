@@ -75,11 +75,13 @@ class FrontAuthController extends Controller
 
 
     /**
-     * logout
+     * logout user
      */
     public function logout()
     {
         $this->authService->logout();
         return $this->success();
     }
+
+
 }
