@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Listing extends Model
@@ -24,15 +25,35 @@ class Listing extends Model
         'price',
         'description',
         'additional_information',
+        'is_available',
         'images'
     ];
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     /**
      * The attributes that should be casts
      */
     protected $casts = [
         'images' => 'array',
+        'is_available' => 'boolean'
     ];
+
+    /**
+     * The booted method of the model.
+     */
+    protected static function booted()
+    {
+        static::saving(function (Listing $model) {
+            $model->slug = str($model->name)->slug();
+        });
+    }
 
     /**
      * Get the store listing owner
@@ -56,5 +77,13 @@ class Listing extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Scope by type
+     */
+    public function scopeByType(Builder $query, string $type)
+    {
+        $query->where('type', $type);
     }
 }

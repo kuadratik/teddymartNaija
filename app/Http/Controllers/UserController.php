@@ -42,4 +42,13 @@ class UserController extends Controller
         $this->userService->updateUserPassword($request->validated());
         return $this->success();
     }
+
+    /**
+     * logout user
+     */
+    public function logout()
+    {
+        $this->userService->logout();
+        return $this->success();
+    }
 }

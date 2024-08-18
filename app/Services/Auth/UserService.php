@@ -24,4 +24,15 @@ class UserService
         $user->update(['password' => bcrypt($request['new_password'])]);
         return true;
     }
+
+    /**
+     * logout user
+     */
+    public function logout()
+    {
+        auth()->user()->currentAccessToken()->delete();
+        return true;
+    }
+
+
 }

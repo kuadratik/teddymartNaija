@@ -32,6 +32,14 @@ class Store extends Model
     ];
 
     /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
      * The booted method of the model.
      */
     protected static function booted()
@@ -46,15 +54,20 @@ class Store extends Model
      */
     public function user()
     {
-        return $this->belongsTo(user::class);
+        return $this->belongsTo(User::class);
     }
 
-     /**
+    public function listings()
+    {
+        return $this->hasMany(Listing::class);
+    }
+
+    /**
      * Get the store owner
      */
-    public function scopebyUser(Builder $query , $userId){
+    public function scopebyUser(Builder $query, $userId)
+    {
 
         $query->where('user_id', $userId);
-    
     }
 }

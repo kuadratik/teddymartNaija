@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\StoresController;
 use App\Http\Controllers\UserController;
@@ -26,27 +27,38 @@ Route::prefix('front')->group(function () {
     Route::post('register/otp-resend', [FrontAuthController::class, 'resendEmailOtp']);
     Route::post('reset/send-otp', [FrontAuthController::class, 'resetPasswordSendOtp']);
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
-    Route::get('category/product', [CategoryController::class, 'getProductCategory']);
-    Route::get('category/service', [CategoryController::class, 'getServiceCategory']);
-    Route::get('category', [CategoryController::class, 'getAllCategory']);
+    Route::get('category', [GeneralController::class, 'getCategories']);
 });
 
 Route::middleware('auth:api')->group(function () {
 
-    Route::prefix('store')->controller(StoresController::class)->group(function () {
-        Route::post('create', 'create');
-        Route::get('user-store', 'showUserStore');
-        Route::post('{userStore}/update', 'update');
-        Route::post('file-upload', 'TempUploadFile');
+    Route::prefix('store')->group(function () {
+
+        Route::post('create', [StoresController::class, 'create']);
+        Route::get('user-store', [StoresController::class, 'showUserStore']);
+        Route::patch('{userStore}/update', [StoresController::class, 'update']);
+        Route::post('file-upload', [StoresController::class, 'uploadTempFile']);
+
+        Route::prefix('listings')->group(function () {
+            Route::get('/', [ListingsController::class, 'getUserStoreListings']);
+            Route::post('create', [ListingsController::class, 'create']);
+            Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'show']);
+            Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
+            Route::patch('{userStore}/listing/{listing}/update', [ListingsController::class, 'update']);
+            Route::delete('{userStore}/listing/{listing}/delete', [ListingsController::class, 'delete']);
+        });
     });
 
     Route::prefix('front')->group(function () {
-        Route::post('logout', [FrontAuthController::class, 'logout']);
-        Route::post('file-upload', [GeneralController::class], 'uploadTempFile');
+
+        Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
+        Route::post('file-delete', [GeneralController::class, 'deleteTempFiles']);
+
         Route::prefix('user')->controller(UserController::class)->group(function () {
             Route::get('profile', 'getUserProfile');
             Route::put('profile/update', 'updateUserProfile');
             Route::patch('change-password', 'updateUserPassword');
+            Route::post('logout',  'logout');
         });
     });
 });

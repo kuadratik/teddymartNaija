@@ -99,7 +99,7 @@ paths:
                 type: object
 
   /store/{userStore}/update:
-    post:
+    patch:
       security:
         - bearerAuth: []
       tags:
@@ -111,8 +111,8 @@ paths:
         - in: path
           name: userStore
           schema:
-            type: number
-            example: 0
+            type: string
+            example: amala-sky
           required: true
       requestBody:
         content:
@@ -160,3 +160,238 @@ paths:
             application/json:
               schema:
                 type: object
+  
+  /store/listings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Get User Store Listings
+      description: 'Get User Store Listings'
+      operationId: GetUserStoreListings
+      parameters:
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: 'product'
+          required: true
+
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+  
+  /store/listings/create:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Create User Store Listing
+      description: Create User Store Listing
+      operationId: CreateUserStoreListing
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Amala Full plate"
+                type:
+                  type: string
+                  example: "product"
+                price:
+                  type: string
+                  example: "1000"
+                description:
+                  type: string
+                  example: "dnndvs"
+                additional_information:
+                  type: string
+                  example: "fdsgrrwg"
+                images:
+                  type: array
+                  items:
+                    type: string
+                category:
+                  type: number
+                  example: 11
+                
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+  
+  /store/listings/{userStore}/listing/{listing}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Get User Store Listing
+      description: 'Get User Store Listing'
+      operationId: GetUserStoreListing
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: pounded-yam
+          required: true
+
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/listings/{userStore}/listing/{listing}/set-availability:
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Set Availability User Store Listing
+      description: Set Availability User Store Listing
+      operationId: SetAvailabilityUserStoreListing
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: pounded-yam
+          required: true
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_available:
+                  type: number
+                  example: 0      
+                
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+  
+  /store/listings/{userStore}/listing/{listing}/update:
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Update User Store Listing
+      description: Update User Store Listing
+      operationId: UpdateUserStoreListing
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: pounded-yam
+          required: true
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Amala Full plate"
+                type:
+                  type: string
+                  example: "product"
+                price:
+                  type: string
+                  example: "1000"
+                description:
+                  type: string
+                  example: "dnndvs"
+                additional_information:
+                  type: string
+                  example: "fdsgrrwg"
+                images:
+                  type: array
+                  items:
+                    type: string
+                category:
+                  type: number
+                  example: 11
+                
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+  
+  /store/listings/{userStore}/listing/{listing}/delete:
+     delete:
+        security:
+          - bearerAuth: []
+        tags:
+          - User Store Listings
+        summary: Delete User Store Listing
+        description: 'Delete User Store Listing'
+        operationId: DeleteUserStoreListing
+        parameters:
+          - in: path
+            name: userStore
+            schema:
+              type: string
+              example: amala-sky
+            required: true
+          - in: path
+            name: listing
+            schema:
+              type: string
+              example: pounded-yam
+            required: true
+
+        responses:
+          default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
