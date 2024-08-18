@@ -83,7 +83,7 @@ class Utils
         $tempPaths = [];
 
         foreach ($files as $file) {
-            $path = self::filePath('/temp/uploads');
+            $path = '/temp/uploads';
             $uploadedPath = self::uploadOrFail($file, $path);
             $tempPaths[] = $uploadedPath;
         }
@@ -149,6 +149,8 @@ class Utils
         foreach ($tempPaths as $tempPath) {
             if (Storage::disk('spaces')->exists($tempPath)) {
                 Storage::disk('spaces')->delete($tempPath);
+            } else {
+                abort(500, 'path' . $tempPath . ' not found');
             }
         }
     }
