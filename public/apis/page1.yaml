@@ -204,49 +204,26 @@ paths:
                 type: object
 
   /front/category:
-    get:
-      tags:
-        - Category
-      summary: get all category
-      description: get all category
-      operationId: GetAllCategory
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /front/category/product:
-    get:
-      tags:
-        - Category
-      summary: get all product category
-      description: get all product category
-      operationId: GetAllProductCategory
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /front/category/service:
-    get:
-      tags:
-        - Category
-      summary: get all service category
-      description: get all service category
-      operationId: GetAllServiceCategory
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
+      get:
+        tags:
+          - Category
+        summary: get all category
+        description: get all category
+        operationId: GetAllCategory
+        parameters:
+          - name: type
+            in: query
+            description: Filter categories by type Service or product
+            required: false
+            schema:
+              type: string
+        responses:
+          default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
 
   /front/user/profile:
     get:

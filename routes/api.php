@@ -27,9 +27,7 @@ Route::prefix('front')->group(function () {
     Route::post('register/otp-resend', [FrontAuthController::class, 'resendEmailOtp']);
     Route::post('reset/send-otp', [FrontAuthController::class, 'resetPasswordSendOtp']);
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
-    Route::get('category/product', [CategoryController::class, 'getProductCategory']);
-    Route::get('category/service', [CategoryController::class, 'getServiceCategory']);
-    Route::get('category', [CategoryController::class, 'getAllCategory']);
+    Route::get('category', [GeneralController::class, 'getCategories']);
 });
 
 Route::middleware('auth:api')->group(function () {
@@ -67,5 +65,4 @@ Route::middleware('auth:api')->group(function () {
 });
 
 
-Route::prefix('console')->group(function () {
-});
+Route::prefix('console')->group(function () {});
