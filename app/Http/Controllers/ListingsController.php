@@ -23,7 +23,7 @@ class ListingsController extends Controller
     public function getUserStoreListings(Request $request)
     {
         $userStoreListings = $this->user->store->listings()
-            ->latest()->byType($request->header('listingType'))->get();
+            ->latest()->byType($request->listingType)->paginate();
         return $this->success($userStoreListings);
     }
 
@@ -32,15 +32,7 @@ class ListingsController extends Controller
      */
     public function create(CreateListingRequest $request)
     {
-        Listing::create(array_merge(
-            $request->validated(),
-            [
-                'store_id' => $this->user->store->id,
-                'user_id' => $this->user->id,
-                'category_id' => $request->category
-            ]
-        ));
-
+        Listing::create($request->listingAttributes());
         return $this->success();
     }
 
@@ -66,8 +58,9 @@ class ListingsController extends Controller
      * Update the specified user store listing.
      */
     public function update(UpdateListingRequest $request, Store $userStore, Listing $listing)
-    {
-        $listing->update($request->validated());
+    { 
+        return $request->listingAttributes();
+        $listing->update($request->listingAttributes());
         return $this->success();
     }
 

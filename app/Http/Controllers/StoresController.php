@@ -48,7 +48,7 @@ class StoresController extends Controller
      */
     public function update(UpdateStoreRequest $request, Store $userStore)
     {
-        $userStore->update($request->validated());
+        $userStore->update($request->storeAttributes());
         return $this->success();
     }
 

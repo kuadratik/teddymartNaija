@@ -48,7 +48,7 @@ class UpdateListingRequest extends FormRequest
     public function listingAttributes()
     {
         return collect($this->safe()->except(['images', 'category']))->merge([
-            'images' => $this->images(),
+            'images' => $this->images() ?: $this->safe()->images,
             'category_id' => $this->category
         ])->toArray();
     }

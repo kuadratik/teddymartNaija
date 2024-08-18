@@ -30,6 +30,14 @@ class Listing extends Model
     ];
 
     /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
      * The attributes that should be casts
      */
     protected $casts = [

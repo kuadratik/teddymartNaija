@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Store;
 
+use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateStoreRequest extends FormRequest
@@ -34,7 +35,7 @@ class CreateStoreRequest extends FormRequest
             'city' => ['required', 'string'],
             'postal_code' => ['required', 'string'],
             'offers_service' => ['required', 'boolean'],
-            'offers_product' => ['required' ,'boolean']
+            'offers_product' => ['required', 'boolean']
         ];
     }
 
@@ -43,8 +44,11 @@ class CreateStoreRequest extends FormRequest
      */
     public function storeAttributes()
     {
-        return collect($this->safe())->merge([
-            'user_id' => $this->user()->id
-        ])->toArray();
+        return collect($this->safe()->except(['profile_picture_path', 'banner_path']))
+            ->merge([
+                'user_id' => $this->user()->id,
+                'banner_path' => Utils::moveToPermanentPath([$this->safe()->banner_path], 'images')[0],
+                'profile_picture_path' => Utils::moveToPermanentPath([$this->safe()->profile_picture_path], 'images')[0]
+            ])->toArray();
     }
 }
