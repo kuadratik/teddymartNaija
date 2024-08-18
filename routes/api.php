@@ -50,10 +50,9 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('front')->group(function () {
-        Route::controller(GeneralController::class)->group(function () {
-            Route::post('file-upload', 'uploadTempFile');
-            Route::post('file-delete', 'deleteTempFiles');
-        });
+
+        Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
+        Route::post('file-delete', [GeneralController::class, 'deleteTempFiles']);
 
         Route::prefix('user')->controller(UserController::class)->group(function () {
             Route::get('profile', 'getUserProfile');

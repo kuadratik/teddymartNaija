@@ -373,11 +373,11 @@ paths:
             schema:
               type: object
               properties:
-                images:
+                paths:
                   type: array
                   items:
                     type: string
-                    example: 'https://your-space-url/image-path.jpg'
+                    example: '/your-space-url/image-path.jpg'
       responses:
         default:
           description: 'success'

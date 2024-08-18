@@ -149,6 +149,8 @@ class Utils
         foreach ($tempPaths as $tempPath) {
             if (Storage::disk('spaces')->exists($tempPath)) {
                 Storage::disk('spaces')->delete($tempPath);
+            } else {
+                abort(500, 'path' . $tempPath . ' not found');
             }
         }
     }
