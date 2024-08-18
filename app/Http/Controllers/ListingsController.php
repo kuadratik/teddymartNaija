@@ -59,7 +59,6 @@ class ListingsController extends Controller
      */
     public function update(UpdateListingRequest $request, Store $userStore, Listing $listing)
     { 
-        return $request->listingAttributes();
         $listing->update($request->listingAttributes());
         return $this->success();
     }

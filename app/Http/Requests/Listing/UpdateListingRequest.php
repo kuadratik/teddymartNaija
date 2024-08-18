@@ -39,7 +39,15 @@ class UpdateListingRequest extends FormRequest
      */
     public function images()
     {
-        return Utils::moveToPermanentPath($this->safe()->images, 'images');
+        $images = $this->safe()->images;
+
+        $newlyMovedImages = Utils::moveToPermanentPath($images, 'images');
+        $unchangedImages =  array_filter(
+            $images,
+            fn ($image) => !str_starts_with($image, 'temp/') && str_starts_with($image, 'images/')
+        );
+
+        return array_merge($newlyMovedImages, $unchangedImages);
     }
 
     /**
@@ -48,7 +56,7 @@ class UpdateListingRequest extends FormRequest
     public function listingAttributes()
     {
         return collect($this->safe()->except(['images', 'category']))->merge([
-            'images' => $this->images() ?: $this->safe()->images,
+            'images' => $this->images(),
             'category_id' => $this->category
         ])->toArray();
     }
