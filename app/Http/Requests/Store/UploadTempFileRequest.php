@@ -28,7 +28,7 @@ class UploadTempFileRequest extends FormRequest
     {
         return [
             'images' => ['required', 'array'],
-            'image' => ['nullable', 'image', 'max:2048']
+            'images.*' => ['required', 'image', 'max:2048']
         ];
     }
 
