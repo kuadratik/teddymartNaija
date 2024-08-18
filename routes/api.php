@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\StoresController;
 use App\Http\Controllers\UserController;
@@ -33,10 +34,21 @@ Route::prefix('front')->group(function () {
 
 Route::middleware('auth:api')->group(function () {
 
-    Route::prefix('store')->controller(StoresController::class)->group(function () {
-        Route::post('create', 'create');
-        Route::get('user-store', 'showUserStore');
-        Route::post('{userStore}/update', 'update');
+    Route::prefix('store')->group(function () {
+
+        Route::post('create', [StoresController::class, 'create']);
+        Route::get('user-store', [StoresController::class, 'showUserStore']);
+        Route::patch('{userStore}/update', [StoresController::class, 'update']);
+        Route::post('file-upload', [StoresController::class, 'uploadTempFile']);
+
+        Route::prefix('listings')->group(function () {
+            Route::get('/', [ListingsController::class, 'getUserStoreListings']);
+            Route::post('create', [ListingsController::class, 'create']);
+            Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'show']);
+            Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
+            Route::patch('{userStore}/listing/{listing}/update', [ListingsController::class, 'update']);
+            Route::delete('{userStore}/listing/{listing}/delete', [ListingsController::class, 'delete']);
+        });
     });
 
     Route::prefix('front')->group(function () {
@@ -55,4 +67,5 @@ Route::middleware('auth:api')->group(function () {
 });
 
 
-Route::prefix('console')->group(function () {});
+Route::prefix('console')->group(function () {
+});
