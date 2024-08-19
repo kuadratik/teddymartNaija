@@ -87,11 +87,11 @@ class Listing extends Model
         $query->where('type', $type);
     }
 
-     /**
+    /**
      * Scope by availability
      */
     public function scopeAvailability(Builder $query, $isAvailable)
     {
-        $query->where('is_available',  filter_var($isAvailable , FILTER_VALIDATE_BOOL));
+        $query->where('is_available',  filter_var($isAvailable, FILTER_VALIDATE_BOOL));
     }
 }
