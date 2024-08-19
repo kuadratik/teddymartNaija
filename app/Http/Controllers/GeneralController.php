@@ -59,24 +59,19 @@ class GeneralController extends Controller
     }
 
 
-
     /**
      * Get all countries
      */
     public function countries(Request $request)
     {
-        $cacheKey = 'countries_' . $request->search ?? 'all';
-
-        $countries = Cache::remember($cacheKey, now()->addMinutes(60), function () use ($request) {
-            return DB::table('countries')
+        $countries = DB::table('countries')
             ->select('id', 'name', 'emoji', 'currency_code', 'phonecode')
             ->where(function ($query) use ($request) {
                 if ($request->has('search')) {
                     $query->where('name', 'LIKE', "%$request->search%")
                     ->orWhere('phonecode', 'LIKE', "%$request->search%");
                 }
-            })->get();
-        });
+        })->get();
 
         return $this->success($countries);
     }
@@ -86,17 +81,14 @@ class GeneralController extends Controller
      */
     public function countryDivision(Request $request)
     {
-        $cacheKey = 'country_divisions_' . $request->country . '_' . $request->search ?? 'all';
-
-        $divisions = Cache::remember($cacheKey, now()->addMinutes(60), function () use ($request) {
-            return DB::table('states')
+        $divisions = DB::table('states')
             ->where('country_id', $request->country)
-                ->where(function ($query) use ($request) {
-                    if ($request->has('search')) {
-                        $query->where('name', 'LIKE', "%$request->search%");
-                    }
-                })->get();
-        });
+            ->where(function ($query) use ($request) {
+                if ($request->has('search')) {
+                    $query->where('name', 'LIKE', "%$request->search%");
+                }
+            })
+            ->get();
 
         return $this->success($divisions);
     }
