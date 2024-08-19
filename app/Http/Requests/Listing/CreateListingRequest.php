@@ -52,7 +52,8 @@ class CreateListingRequest extends FormRequest
             'category_id' => $this->category,
             'store_id' => $this->user()->store->id,
             'user_id' => $this->user()->id,
-            'images' => $this->images()
+            'images' => $this->images(),
+            'is_available' => true
         ])->toArray();
     }
 }
