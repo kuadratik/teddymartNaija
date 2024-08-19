@@ -24,7 +24,7 @@ class UpdateUserRequest extends FormRequest
         return [
             'first_name' => ['nullable', 'string'],
             'last_name' => ['nullable', 'string'],
-            'email' => ['nullable', 'email', 'unique:users,email,' . auth('api')->id()],
+            'email' => ['nullable', 'email', 'unique:users,email,' . auth()->id()],
         ];
     }
 }
