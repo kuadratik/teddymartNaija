@@ -49,8 +49,11 @@ class CreateListingRequest extends FormRequest
     public function listingAttributes()
     {
         return collect($this->safe()->except(['images', 'category']))->merge([
+            'category_id' => $this->category,
+            'store_id' => $this->user()->store->id,
+            'user_id' => $this->user()->id,
             'images' => $this->images(),
-            'category_id' => $this->category
+            'is_available' => true
         ])->toArray();
     }
 }

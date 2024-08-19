@@ -111,8 +111,8 @@ paths:
         - in: path
           name: userStore
           schema:
-            type: number
-            example: 0
+            type: string
+            example: amala-sky
           required: true
       requestBody:
         content:
@@ -171,11 +171,17 @@ paths:
       description: 'Get User Store Listings'
       operationId: GetUserStoreListings
       parameters:
-        - in: header
+        - in: query
           name: listingType
           schema:
             type: string
             example: 'product'
+          required: true
+        - in: query
+          name: availability
+          schema:
+            type: boolean
+            example: true
           required: true
 
       responses:
@@ -222,8 +228,8 @@ paths:
                   items:
                     type: string
                 category:
-                  type: string
-                  example: "oluyole ibadan"
+                  type: number
+                  example: 11
                 
       responses:
         default:
@@ -246,14 +252,14 @@ paths:
         - in: path
           name: userStore
           schema:
-            type: number
-            example: 1
+            type: string
+            example: amala-sky
           required: true
         - in: path
           name: listing
           schema:
-            type: number
-            example: 1
+            type: string
+            example: pounded-yam
           required: true
 
       responses:
@@ -277,14 +283,14 @@ paths:
         - in: path
           name: userStore
           schema:
-            type: number
-            example: 1
+            type: string
+            example: amala-sky
           required: true
         - in: path
           name: listing
           schema:
-            type: number
-            example: 1
+            type: string
+            example: pounded-yam
           required: true
 
       requestBody:
@@ -318,14 +324,14 @@ paths:
         - in: path
           name: userStore
           schema:
-            type: number
-            example: 1
+            type: string
+            example: amala-sky
           required: true
         - in: path
           name: listing
           schema:
-            type: number
-            example: 1
+            type: string
+            example: pounded-yam
           required: true
 
       requestBody:
@@ -354,8 +360,8 @@ paths:
                   items:
                     type: string
                 category:
-                  type: string
-                  example: "oluyole ibadan"
+                  type: number
+                  example: 11
                 
       responses:
         default:
@@ -378,14 +384,14 @@ paths:
           - in: path
             name: userStore
             schema:
-              type: number
-              example: 1
+              type: string
+              example: amala-sky
             required: true
           - in: path
             name: listing
             schema:
-              type: number
-              example: 1
+              type: string
+              example: pounded-yam
             required: true
 
         responses:

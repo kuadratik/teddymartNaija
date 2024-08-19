@@ -30,6 +30,14 @@ class Listing extends Model
     ];
 
     /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
      * The attributes that should be casts
      */
     protected $casts = [
@@ -77,5 +85,13 @@ class Listing extends Model
     public function scopeByType(Builder $query, string $type)
     {
         $query->where('type', $type);
+    }
+
+    /**
+     * Scope by availability
+     */
+    public function scopeAvailability(Builder $query, $isAvailable)
+    {
+        $query->where('is_available',  filter_var($isAvailable, FILTER_VALIDATE_BOOL));
     }
 }
