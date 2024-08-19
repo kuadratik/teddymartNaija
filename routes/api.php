@@ -51,11 +51,11 @@ Route::middleware('auth:api')->group(function () {
         Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
         Route::post('file-delete', [GeneralController::class, 'deleteTempFiles']);
 
-        Route::prefix('user')->controller(UserController::class)->group(function () {
-            Route::get('profile', 'getUserProfile');
-            Route::put('profile/update', 'updateUserProfile');
-            Route::patch('change-password', 'updateUserPassword');
-            Route::post('logout',  'logout');
+        Route::prefix('user')->group(function () {
+            Route::get('profile', [UserController::class, 'getUserProfile']);
+            Route::put('profile/update', [UserController::class, 'updateUserProfile']);
+            Route::patch('change-password', [UserController::class, 'updateUserPassword']);
+            Route::post('logout',  [UserController::class, 'logout']);
         });
     });
 });
