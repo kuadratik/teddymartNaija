@@ -19,9 +19,9 @@ class UserController extends Controller
     /**
      * get users profile details
      */
-    public function getUserProfile()
+    public function getUserProfile(Request $request)
     {
-        $user = auth('api')->user();
+        $user = $request->user('api')->load('store');
         return  $this->success($user);
     }
 
