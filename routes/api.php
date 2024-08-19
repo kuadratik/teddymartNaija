@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Common\CountryController;
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\StoresController;
@@ -31,6 +32,11 @@ Route::prefix('front')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('location')->group(function () {
+        Route::get('countries', [GeneralController::class, 'countries']);
+        Route::get('countries/{country}/divisions', [GeneralController::class, 'countryDivision']);
+    });
+
     Route::prefix('store')->group(function () {
         Route::post('create', [StoresController::class, 'create']);
         Route::get('user-store', [StoresController::class, 'showUserStore']);

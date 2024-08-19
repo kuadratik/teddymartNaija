@@ -383,3 +383,58 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /countries:
+    get:
+      servers:
+        - url: /api/location
+      tags:
+        - Map
+      summary: get all countries
+      description: 'get all countries with an optional search'
+      operationId: getAllCountries
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: 'benin'
+          required: false
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /countries/{country}/divisions:
+    get:
+      servers:
+        - url: /api/location
+      tags:
+        - Map
+      summary: country division
+      description: 'get countries by country primary ID with an optional search'
+      operationId: countryDivision
+      parameters:
+        - in: path
+          name: country
+          schema:
+            type: number
+            example: 2
+          required: true
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: 'Atakora'
+          required: false
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
