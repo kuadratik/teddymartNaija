@@ -35,7 +35,7 @@ class UpdateListingRequest extends FormRequest
     }
 
     /**
-     *  Move images to permanent storage.
+     *  Prepare images.
      */
     public function images()
     {
