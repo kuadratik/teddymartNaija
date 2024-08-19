@@ -31,9 +31,7 @@ Route::prefix('front')->group(function () {
 });
 
 Route::middleware('auth:api')->group(function () {
-
     Route::prefix('store')->group(function () {
-
         Route::post('create', [StoresController::class, 'create']);
         Route::get('user-store', [StoresController::class, 'showUserStore']);
         Route::patch('{userStore}/update', [StoresController::class, 'update']);
@@ -50,7 +48,6 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('front')->group(function () {
-
         Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
         Route::post('file-delete', [GeneralController::class, 'deleteTempFiles']);
 
