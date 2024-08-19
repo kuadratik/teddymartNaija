@@ -38,14 +38,13 @@ paths:
                   example: 'Edward'
                 email:
                   type: string
-                  example: 'teddyedward@teddyed.com'
+                  example: 'kings@eki.market'
                 password:
                   type: string
-                  example: 'teddy767112##'
+                  example: '12345678'
                 password_confirmation:
                   type: string
-                  example: 'teddy767112##'
-
+                  example: '12345678'
       responses:
         default:
           description: 'success'
@@ -75,17 +74,16 @@ paths:
                   example: 'Edward'
                 email:
                   type: string
-                  example: 'teddyedward@teddyed.com'
+                  example: 'kings@eki.market'
                 password:
                   type: string
-                  example: 'teddy767112##'
+                  example: '12345678'
                 password_confirmation:
                   type: string
-                  example: 'teddy767112##'
+                  example: '12345678'
                 code:
                   type: string
                   example: '123456'
-
       responses:
         default:
           description: 'success'

@@ -30,11 +30,13 @@ Route::prefix('front')->group(function () {
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
     Route::get('category', [GeneralController::class, 'getCategories']);
 });
-Route::group(['prefix' => 'location'], function () {
-    Route::get('countries', [GeneralController::class, 'countries']);
-    Route::get('countries/{country}/divisions', [GeneralController::class, 'countryDivision']);
-});
-Route::middleware('auth:api')->group(function () {
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('location')->group(function () {
+        Route::get('countries', [GeneralController::class, 'countries']);
+        Route::get('countries/{country}/divisions', [GeneralController::class, 'countryDivision']);
+    });
+
     Route::prefix('store')->group(function () {
         Route::post('create', [StoresController::class, 'create']);
         Route::get('user-store', [StoresController::class, 'showUserStore']);
