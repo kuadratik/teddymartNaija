@@ -18,7 +18,9 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             StoreSeeder::class,
             CategorySeeder::class,
-            ListingSeeder::class
+            ListingSeeder::class,
+            CountriesTableSeeder::class,
+            StatesTableSeeder::class,
         ]);
     }
 }

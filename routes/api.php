@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Common\CountryController;
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\StoresController;
@@ -29,7 +30,10 @@ Route::prefix('front')->group(function () {
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
     Route::get('category', [GeneralController::class, 'getCategories']);
 });
-
+Route::group(['prefix' => 'location'], function () {
+    Route::get('countries', [GeneralController::class, 'countries']);
+    Route::get('countries/{country}/divisions', [GeneralController::class, 'countryDivision']);
+});
 Route::middleware('auth:api')->group(function () {
     Route::prefix('store')->group(function () {
         Route::post('create', [StoresController::class, 'create']);
