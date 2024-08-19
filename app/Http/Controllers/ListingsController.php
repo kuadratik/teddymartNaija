@@ -23,7 +23,9 @@ class ListingsController extends Controller
     public function getUserStoreListings(Request $request)
     {
         $userStoreListings = $this->user->store->listings()
-            ->latest()->byType($request->listingType)->paginate();
+            ->latest()->byType($request->listingType)
+            ->availability($request->availability)
+            ->paginate();
         return $this->success($userStoreListings);
     }
 
@@ -58,7 +60,7 @@ class ListingsController extends Controller
      * Update the specified user store listing.
      */
     public function update(UpdateListingRequest $request, Store $userStore, Listing $listing)
-    { 
+    {
         $listing->update($request->listingAttributes());
         return $this->success();
     }

@@ -177,6 +177,12 @@ paths:
             type: string
             example: 'product'
           required: true
+        - in: query
+          name: availability
+          schema:
+            type: boolean
+            example: true
+          required: true
 
       responses:
         default:
