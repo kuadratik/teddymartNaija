@@ -91,8 +91,8 @@ class CategorySeeder extends Seeder
                 'description' => null,
             ],
             [
-                'name' => 'Home Services',
-                'slug' => Str::slug('Home Services'),
+                'name' => 'Personal Services',
+                'slug' => Str::slug('Personal Services'),
                 'type' => ListingType::SERVICE,
                 'description' => null,
             ],
