@@ -38,14 +38,13 @@ paths:
                   example: 'Edward'
                 email:
                   type: string
-                  example: 'teddyedward@teddyed.com'
+                  example: 'kings@eki.market'
                 password:
                   type: string
-                  example: 'teddy767112##'
+                  example: '12345678'
                 password_confirmation:
                   type: string
-                  example: 'teddy767112##'
-
+                  example: '12345678'
       responses:
         default:
           description: 'success'
@@ -75,17 +74,16 @@ paths:
                   example: 'Edward'
                 email:
                   type: string
-                  example: 'teddyedward@teddyed.com'
+                  example: 'kings@eki.market'
                 password:
                   type: string
-                  example: 'teddy767112##'
+                  example: '12345678'
                 password_confirmation:
                   type: string
-                  example: 'teddy767112##'
+                  example: '12345678'
                 code:
                   type: string
                   example: '123456'
-
       responses:
         default:
           description: 'success'
@@ -385,3 +383,58 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /countries:
+    get:
+      servers:
+        - url: /api/location
+      tags:
+        - Map
+      summary: get all countries
+      description: 'get all countries with an optional search'
+      operationId: getAllCountries
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: 'benin'
+          required: false
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /countries/{country}/divisions:
+    get:
+      servers:
+        - url: /api/location
+      tags:
+        - Map
+      summary: country division
+      description: 'get countries by country primary ID with an optional search'
+      operationId: countryDivision
+      parameters:
+        - in: path
+          name: country
+          schema:
+            type: number
+            example: 2
+          required: true
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: 'Atakora'
+          required: false
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
