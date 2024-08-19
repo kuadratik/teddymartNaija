@@ -30,7 +30,7 @@ Route::prefix('front')->group(function () {
     Route::get('category', [GeneralController::class, 'getCategories']);
 });
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('store')->group(function () {
         Route::post('create', [StoresController::class, 'create']);
         Route::get('user-store', [StoresController::class, 'showUserStore']);
