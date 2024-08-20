@@ -83,7 +83,7 @@ class Utils
         $tempPaths = [];
 
         foreach ($files as $file) {
-            $path = '/temp/uploads';
+            $path = 'teddymart/temp/uploads';
             $uploadedPath = self::uploadOrFail($file, $path);
             $tempPaths[] = $uploadedPath;
         }
@@ -114,7 +114,7 @@ class Utils
 
             Storage::disk('spaces')->move($tempPath, 'teddymart/' . $permanentPath);
 
-            $permanentPaths[] = $permanentPath;
+            $permanentPaths[] = 'teddymart/' . $permanentPath;
         }
 
         return $permanentPaths;
