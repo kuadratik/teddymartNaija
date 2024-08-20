@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckIfUserHasStore;
 use App\Http\Middleware\RespondWithJson;
 use App\Support\Utils;
 use Illuminate\Foundation\Application;
@@ -28,8 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->appendToGroup('api', [RespondWithJson::class]);
-        $middleware->alias([
-        ]);
+        $middleware->alias(['hasStore' => CheckIfUserHasStore::class]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (Throwable $exception, Request $request) {

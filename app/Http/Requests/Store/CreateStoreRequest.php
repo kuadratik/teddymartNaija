@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Store;
 
+use App\Rules\UniqueStoreName;
 use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,7 +24,7 @@ class CreateStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string'],
+            'name' => ['required', 'string' , new UniqueStoreName()],
             'contact_number' => ['required', 'string'],
             'whatsapp_number' => ['required', 'string'],
             'profile_picture_path' => ['required', 'string'],

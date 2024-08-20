@@ -45,9 +45,9 @@ class UpdateStoreRequest extends FormRequest
         return collect($this->safe()->except(['profile_picture_path', 'banner_path']))
             ->merge([
                 'banner_path' => Utils::moveToPermanentPath([$this->safe()->banner_path], 'images')[0]
-                    ?? $this->safe()->banner_path,
+                    ?? $this->userStore->banner_path,
                 'profile_picture_path' => Utils::moveToPermanentPath([$this->safe()->profile_picture_path], 'images')[0]
-                    ?? $this->safe()->profile_picture_path
+                    ?? $this->userStore->profile_picture_path
             ])->toArray();
     }
 }
