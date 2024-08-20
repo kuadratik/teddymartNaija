@@ -35,9 +35,10 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('store')->group(function () {
 
         Route::post('create', [StoresController::class, 'create']);
-        Route::get('user-store', [StoresController::class, 'showUserStore']);
-        Route::patch('{userStore}/update', [StoresController::class, 'update']);
-        Route::post('file-upload', [StoresController::class, 'uploadTempFile']);
+        Route::middleware('hasStore')->group(function () {
+            Route::get('user-store', [StoresController::class, 'showUserStore']);
+            Route::patch('{userStore}/update', [StoresController::class, 'update']);
+        });
 
         Route::prefix('listings')->middleware('hasStore')->group(function () {
             Route::get('/', [ListingsController::class, 'getUserStoreListings']);
@@ -65,4 +66,5 @@ Route::middleware('auth:api')->group(function () {
 });
 
 
-Route::prefix('console')->group(function () {});
+Route::prefix('console')->group(function () {
+});
