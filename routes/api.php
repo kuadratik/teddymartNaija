@@ -39,7 +39,7 @@ Route::middleware('auth:api')->group(function () {
         Route::patch('{userStore}/update', [StoresController::class, 'update']);
         Route::post('file-upload', [StoresController::class, 'uploadTempFile']);
 
-        Route::prefix('listings')->group(function () {
+        Route::prefix('listings')->middleware('hasStore')->group(function () {
             Route::get('/', [ListingsController::class, 'getUserStoreListings']);
             Route::get('/total', [ListingsController::class, 'getUserStoreListingsCount']);
             Route::post('create', [ListingsController::class, 'create']);
