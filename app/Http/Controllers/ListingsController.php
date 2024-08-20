@@ -29,6 +29,17 @@ class ListingsController extends Controller
         return $this->success($userStoreListings);
     }
 
+     /**
+     * Display a listing of user store listing count.
+     */
+    public function getUserStoreListingsCount(Request $request)
+    {
+        $userStoreListingsCount = $this->user->store->listings()
+            ->latest()->byType($request->listingType)->count();
+
+        return $this->success(["total" => $userStoreListingsCount]);
+    }
+
     /**
      * Creates an user store listing based on the provided request.
      */

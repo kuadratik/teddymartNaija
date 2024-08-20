@@ -41,6 +41,7 @@ Route::middleware('auth:api')->group(function () {
 
         Route::prefix('listings')->group(function () {
             Route::get('/', [ListingsController::class, 'getUserStoreListings']);
+            Route::get('/total', [ListingsController::class, 'getUserStoreListingsCount']);
             Route::post('create', [ListingsController::class, 'create']);
             Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'show']);
             Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
