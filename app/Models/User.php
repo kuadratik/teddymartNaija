@@ -65,4 +65,16 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Store::class);
     }
+
+
+    /**
+     * get the clips belong to user
+     */
+    public function clips()
+    {
+        return $this->hasMany(Clip::class);
+    }
+
+
+
 }

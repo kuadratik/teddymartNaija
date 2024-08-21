@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('clip_product', function (Blueprint $table) {
+        Schema::create('clip_listing', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Clip::class)->constrained()->onDelete('cascade');
             $table->foreignIdFor(Listing::class)->constrained()->onDelete('cascade');

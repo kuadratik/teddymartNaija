@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Models\Clip;
+use App\Models\Listing;
 use App\Models\User;
 use App\Services\Auth\UserService;
 use Illuminate\Http\Request;
@@ -28,7 +30,7 @@ class UserController extends Controller
     /**
      * update users profile
      */
-    public function updateUserProfile(UpdateUserRequest $request)
+    public function updateUserProfile(UpdateUserRequest $request,)
     {
         User::where('id', auth('api')->user()->id)->update($request->validated());
         return $this->success();
@@ -43,12 +45,32 @@ class UserController extends Controller
         return $this->success();
     }
 
+
     /**
-     * logout user
+     * add product to clips
      */
-    public function logout()
+    public function  addToClip(Listing $product)
     {
-        $this->userService->logout();
+        $clip = $this->userService->addToClip(auth()->user(), $product->id);
         return $this->success();
+    }
+
+    /**
+     * get clips data
+     */
+    public function getClips()
+    {
+        $clips = $this->userService->getClips();
+        return $this->success($clips);
+    }
+
+
+    /**
+     * view clip items
+     */
+    public function viewClipItems(Clip $clip)
+    {
+        $clips = $this->userService->getClipItems($clip);
+        return $this->success($clips);
     }
 }
