@@ -39,12 +39,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('store')->group(function () {
         Route::post('create', [StoresController::class, 'create']);
-        Route::get('user-store', [StoresController::class, 'showUserStore']);
-        Route::patch('{userStore}/update', [StoresController::class, 'update']);
-        Route::post('file-upload', [StoresController::class, 'uploadTempFile']);
+        Route::middleware('hasStore')->group(function () {
+            Route::get('user-store', [StoresController::class, 'showUserStore']);
+            Route::patch('{userStore}/update', [StoresController::class, 'update']);
+        });
 
-        Route::prefix('listings')->group(function () {
+        Route::prefix('listings')->middleware('hasStore')->group(function () {
             Route::get('/', [ListingsController::class, 'getUserStoreListings']);
+            Route::get('/total', [ListingsController::class, 'getUserStoreListingsCount']);
             Route::post('create', [ListingsController::class, 'create']);
             Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'show']);
             Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
@@ -67,4 +69,5 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-Route::prefix('console')->group(function () {});
+Route::prefix('console')->group(function () {
+});
