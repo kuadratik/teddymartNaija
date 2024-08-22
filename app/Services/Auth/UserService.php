@@ -44,18 +44,25 @@ class UserService
             if (!$product) {
                 return Utils::validateResp(['error' => ['Product not found']]);
             }
-            $uid = $request->header('Clip-Uid') ?? Str::uuid();
+            $uid = $request->header('Clip-Uid');
             $storeId = $product->store->id;
 
             if (auth()->user()) {
                 $customerId = auth()->user()->id;
             }
 
-            $clip = Clip::firstOrCreate([
-                'store_id' => $storeId,
-                'user_id' => @$customerId,
-                'uid' => $uid
-            ]);
+            $clip = Clip::updateOrCreate(
+                [
+                    'store_id' => $storeId,
+                    'uid' => $uid,
+                ],
+                [
+                    'store_id' => $storeId,
+                    'user_id' => @$customerId,
+                    'uid' => $uid,
+                ]
+            );
+
 
             $result = $clip->addProduct($product);
 
