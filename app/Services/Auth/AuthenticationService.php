@@ -56,15 +56,16 @@ class AuthenticationService
             return Utils::validateResp(['email' => ['The provided credentials are invalid.']]);
         }
 
-        return [
-            'token' => $user->createToken('authToken')->plainTextToken,
-            'user' => $user->load('store')
-        ];
-
         $user->updateOrCreate(
             ['email' => $data['email']],
-            ['clippers_uid' => $uid]
+            ['clipper_uid' => $uid]
         );
+
+        return [
+            'token' => $user->createToken('authToken')->plainTextToken,
+            'user' => $user->load('store'),
+            'clipper_uid' => $uid,
+        ];
     }
 
     /**
@@ -100,6 +101,4 @@ class AuthenticationService
         auth()->user()->currentAccessToken()->delete();
         return true;
     }
-
-
 }
