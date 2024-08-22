@@ -26,6 +26,7 @@ class ListingsController extends Controller
             ->latest()->byType($request->listingType)
             ->availability($request->availability)
             ->paginate();
+
         return $this->success($userStoreListings);
     }
 
@@ -52,7 +53,15 @@ class ListingsController extends Controller
     /**
      * Display the specified user store listing.
      */
-    public function show(Store $userStore, Listing $listing)
+    public function showUserStoreListing(Store $userStore, Listing $listing)
+    {
+        return $this->success($listing);
+    }
+
+    /**
+     * Display the specified store listing.
+     */
+    public function show(Store $Store, Listing $listing)
     {
         return $this->success($listing);
     }

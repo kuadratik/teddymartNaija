@@ -13,6 +13,21 @@ use Illuminate\Support\Facades\DB;
 class StoresController extends Controller
 {
     /**
+     *  Search for stores
+     */
+    public function getStores(Request $request)
+    {
+        $stores = Store::query()->byListingType($request->listingType)->when(
+            $request->search,
+            fn ($query) => $query->search($request->search)
+        )->when(
+            $request->category,
+            fn ($query) => $query->byCategory($request->category)
+        )->get();
+
+        return $this->success($stores);
+    }
+    /**
      * Creates a store based on the provided request.
      */
     public function create(CreateStoreRequest $request)
@@ -44,6 +59,18 @@ class StoresController extends Controller
     }
 
     /**
+     * Display the specified store listing.
+     */
+    public function showStoreListing(Store $store, Request $request)
+    {
+        $storeListing = $store->with(['listings' => function ($query) use ($request) {
+            $query->where('type', $request->listingType);
+        }])->first();
+
+        return $this->success($storeListing);
+    }
+
+    /**
      * Update the specified store.
      */
     public function update(UpdateStoreRequest $request, Store $userStore)
@@ -51,7 +78,4 @@ class StoresController extends Controller
         $userStore->update($request->storeAttributes());
         return $this->success();
     }
-
-
-
 }
