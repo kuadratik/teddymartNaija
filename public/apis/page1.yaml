@@ -400,6 +400,7 @@ paths:
             type: string
             example: 'benin'
           required: false
+
       responses:
         default:
           description: 'success'
@@ -430,6 +431,36 @@ paths:
             type: string
             example: 'Atakora'
           required: false
+          
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+  
+  /front/stores/{store}/listings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        -  Stores
+      summary: Get Specified Store Listings
+      description: 'Get Specified Store Listings'
+      operationId: GetSpecifiedStoreListings
+      parameters:
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: 'product'
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+            
       responses:
         default:
           description: 'success'
@@ -438,3 +469,67 @@ paths:
               schema:
                 type: object
 
+  /front/stores:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        -  Stores
+      summary: Get Store Lists
+      description: 'Get Store Lists'
+      operationId: GetStoreLists
+      parameters:
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: 'product'
+        - in: query
+          name: category
+          schema:
+            type: number
+            example: 1
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "amala"
+
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/stores/{store}/listings/{listing}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        -  Stores
+      summary: Get Specified Store Listing
+      description: 'Get Specified Store Listing'
+      operationId: GetSpecifiedStoreListing
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: "amala-with-afang"
+          required: true
+
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object

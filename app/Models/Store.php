@@ -70,4 +70,31 @@ class Store extends Model
 
         $query->where('user_id', $userId);
     }
+
+    /**
+     * Scope by listing type
+     */
+    public function scopeByListingType($query, $listingType)
+    {
+        return $query->whereHas('listings', fn ($query) => $query->where('type', $listingType));
+    }
+
+    /**
+     * Scope by search
+     */
+    public function scopeSearch($query, $search)
+    {
+        return $query->whereLike('name', "%$search%")->orWhereHas(
+            'listings',
+            fn ($query) => $query->whereLike('name', "%$search%")
+        );
+    }
+
+    /**
+     * Scope by category
+     */
+    public function scopeByCategory($query, $category)
+    {
+        return $query->whereHas('listings', fn ($query) => $query->where('category_id', $category));
+    }
 }

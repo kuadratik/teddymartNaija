@@ -29,6 +29,12 @@ Route::prefix('front')->group(function () {
     Route::post('reset/send-otp', [FrontAuthController::class, 'resetPasswordSendOtp']);
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
     Route::get('category', [GeneralController::class, 'getCategories']);
+
+    Route::prefix('stores')->group(function () {
+        Route::get('/', [StoresController::class, 'getStores']);
+        Route::get('{store}/listings', [StoresController::class, 'showStoreListing']);
+        Route::get('{store}/listings/{listing}', [ListingsController::class, 'show']);
+    });
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -44,14 +50,17 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::patch('{userStore}/update', [StoresController::class, 'update']);
         });
 
-        Route::prefix('listings')->middleware('hasStore')->group(function () {
-            Route::get('/', [ListingsController::class, 'getUserStoreListings']);
-            Route::get('/total', [ListingsController::class, 'getUserStoreListingsCount']);
-            Route::post('create', [ListingsController::class, 'create']);
-            Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'show']);
-            Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
-            Route::patch('{userStore}/listing/{listing}/update', [ListingsController::class, 'update']);
-            Route::delete('{userStore}/listing/{listing}/delete', [ListingsController::class, 'delete']);
+        Route::prefix('listings')->group(function () {
+
+            Route::middleware('hasStore')->group(function () {
+                Route::get('/', [ListingsController::class, 'getUserStoreListings']);
+                Route::get('/total', [ListingsController::class, 'getUserStoreListingsCount']);
+                Route::post('create', [ListingsController::class, 'create']);
+                Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'showUserStoreListing']);
+                Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
+                Route::patch('{userStore}/listing/{listing}/update', [ListingsController::class, 'update']);
+                Route::delete('{userStore}/listing/{listing}/delete', [ListingsController::class, 'delete']);
+            });
         });
     });
 
