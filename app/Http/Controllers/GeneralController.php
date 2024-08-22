@@ -10,6 +10,7 @@ use App\Models\Listing;
 use App\Models\Store;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class GeneralController extends Controller
 {
@@ -56,5 +57,40 @@ class GeneralController extends Controller
         });
 
         return $this->success($categories);
+    }
+
+
+    /**
+     * Get all countries
+     */
+    public function countries(Request $request)
+    {
+        $countries = DB::table('countries')
+            ->select('id', 'name', 'emoji', 'currency_code', 'phonecode')
+            ->where(function ($query) use ($request) {
+                if ($request->has('search')) {
+                    $query->where('name', 'LIKE', "%$request->search%")
+                    ->orWhere('phonecode', 'LIKE', "%$request->search%");
+                }
+        })->get();
+
+        return $this->success($countries);
+    }
+
+    /**
+     * Get country divisions
+     */
+    public function countryDivision(Request $request)
+    {
+        $divisions = DB::table('states')
+            ->where('country_id', $request->country)
+            ->where(function ($query) use ($request) {
+                if ($request->has('search')) {
+                    $query->where('name', 'LIKE', "%$request->search%");
+                }
+            })
+            ->get();
+
+        return $this->success($divisions);
     }
 }

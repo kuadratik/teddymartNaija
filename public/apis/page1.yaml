@@ -38,14 +38,13 @@ paths:
                   example: 'Edward'
                 email:
                   type: string
-                  example: 'teddyedward@teddyed.com'
+                  example: 'kings@eki.market'
                 password:
                   type: string
-                  example: 'teddy767112##'
+                  example: '12345678'
                 password_confirmation:
                   type: string
-                  example: 'teddy767112##'
-
+                  example: '12345678'
       responses:
         default:
           description: 'success'
@@ -75,17 +74,16 @@ paths:
                   example: 'Edward'
                 email:
                   type: string
-                  example: 'teddyedward@teddyed.com'
+                  example: 'kings@eki.market'
                 password:
                   type: string
-                  example: 'teddy767112##'
+                  example: '12345678'
                 password_confirmation:
                   type: string
-                  example: 'teddy767112##'
+                  example: '12345678'
                 code:
                   type: string
                   example: '123456'
-
       responses:
         default:
           description: 'success'
@@ -386,32 +384,54 @@ paths:
               schema:
                 type: object
 
-  /front/stores:
+  /countries:
     get:
-      security:
-        - bearerAuth: []
+      servers:
+        - url: /api/location
       tags:
-        -  Stores
-      summary: Get Store Lists
-      description: 'Get Store Lists'
-      operationId: GetStoreLists
+        - Map
+      summary: get all countries
+      description: 'get all countries with an optional search'
+      operationId: getAllCountries
       parameters:
-        - in: query
-          name: listingType
-          schema:
-            type: string
-            example: 'product'
-        - in: query
-          name: category
-          schema:
-            type: number
-            example: 1
         - in: query
           name: search
           schema:
             type: string
-            example: "amala"
+            example: 'benin'
+          required: false
 
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /countries/{country}/divisions:
+    get:
+      servers:
+        - url: /api/location
+      tags:
+        - Map
+      summary: country division
+      description: 'get countries by country primary ID with an optional search'
+      operationId: countryDivision
+      parameters:
+        - in: path
+          name: country
+          schema:
+            type: number
+            example: 2
+          required: true
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: 'Atakora'
+          required: false
+          
       responses:
         default:
           description: 'success'
@@ -440,6 +460,40 @@ paths:
           schema:
             type: string
             example: "amala-sky"
+            
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/stores:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        -  Stores
+      summary: Get Store Lists
+      description: 'Get Store Lists'
+      operationId: GetStoreLists
+      parameters:
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: 'product'
+        - in: query
+          name: category
+          schema:
+            type: number
+            example: 1
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "amala"
 
       responses:
         default:

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Common\CountryController;
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\StoresController;
@@ -36,7 +37,11 @@ Route::prefix('front')->group(function () {
     });
 });
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('location')->group(function () {
+        Route::get('countries', [GeneralController::class, 'countries']);
+        Route::get('countries/{country}/divisions', [GeneralController::class, 'countryDivision']);
+    });
 
     Route::prefix('store')->group(function () {
         Route::post('create', [StoresController::class, 'create']);
@@ -60,15 +65,14 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('front')->group(function () {
-
         Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
         Route::post('file-delete', [GeneralController::class, 'deleteTempFiles']);
 
-        Route::prefix('user')->controller(UserController::class)->group(function () {
-            Route::get('profile', 'getUserProfile');
-            Route::put('profile/update', 'updateUserProfile');
-            Route::patch('change-password', 'updateUserPassword');
-            Route::post('logout',  'logout');
+        Route::prefix('user')->group(function () {
+            Route::get('profile', [UserController::class, 'getUserProfile']);
+            Route::put('profile/update', [UserController::class, 'updateUserProfile']);
+            Route::patch('change-password', [UserController::class, 'updateUserPassword']);
+            Route::post('logout',  [UserController::class, 'logout']);
         });
     });
 });
