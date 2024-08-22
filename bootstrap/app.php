@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckIfUserHasStore;
 use App\Http\Middleware\EnsureClipUidHeader;
 use App\Http\Middleware\RespondWithJson;
 use App\Support\Utils;
@@ -29,8 +30,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->appendToGroup('api', [RespondWithJson::class]);
-    $middleware->alias([
-        'hasUid' => EnsureClipUidHeader::class
+        $middleware->alias([]);
+        $middleware->alias([
+            'hasUid' => EnsureClipUidHeader::class,
+            'hasStore' => CheckIfUserHasStore::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

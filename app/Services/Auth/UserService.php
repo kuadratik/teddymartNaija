@@ -98,7 +98,7 @@ class UserService
 
         $clipUid = request()->header('Clip-Uid');
 
-        $clip = Clip::query()
+        $clipData = Clip::query()
             ->when($customerId, function ($query) use ($customerId, $clip) {
                 return $query->where('user_id', $customerId)->where('id', $clip->id);
             })
@@ -106,7 +106,9 @@ class UserService
                 return $query->where('uid', $clipUid)->where('id', $clip->id);
             })
             ->with('products')
-            ->firstOrFail();
+        ->firstOrFail();
+
+
 
         $products = $clip->products->map(function ($product) {
             return new ClipItemsResource($product);
