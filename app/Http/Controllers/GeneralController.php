@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Support\Utils;
 use App\Http\Requests\Store\UploadTempFileRequest;
 use App\Models\Category;
+use App\Models\Listing;
+use App\Models\Store;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
 
@@ -37,7 +39,6 @@ class GeneralController extends Controller
         Utils::deleteTemporaryFiles($request->input('paths'));
         return $this->success();
     }
-
 
     /**
      *  get categories and filter by service and product
