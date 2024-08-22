@@ -29,6 +29,12 @@ Route::prefix('front')->group(function () {
     Route::post('reset/send-otp', [FrontAuthController::class, 'resetPasswordSendOtp']);
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
     Route::get('category', [GeneralController::class, 'getCategories']);
+    Route::middleware(['hasUid'])->group(function () {
+        Route::post('add-to-clip/{product:slug}', [UserController::class, 'addToClip']);
+        Route::get('clips', [UserController::class, 'getClips']);
+        Route::get('clip/{clip}', [UserController::class, 'viewClipItems']);
+        Route::post('clip/{clip}/order', [UserController::class, 'order']);
+    });
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -56,17 +62,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('front')->group(function () {
         Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
         Route::post('file-delete', [GeneralController::class, 'deleteTempFiles']);
-        Route::post('add-to-clip/{product:slug}', [UserController::class, 'addToClip']);
-        Route::get('clips', [UserController::class, 'getClips']);
-        Route::get('clip/{clip}', [UserController::class, 'viewClipItems']);
+
+
+
+
 
         Route::prefix('user')->group(function () {
             Route::get('profile', [UserController::class, 'getUserProfile']);
             Route::put('profile/update', [UserController::class, 'updateUserProfile']);
             Route::patch('change-password', [UserController::class, 'updateUserPassword']);
             Route::post('logout',  [FrontAuthController::class, 'logout']);
-
-
         });
     });
 });

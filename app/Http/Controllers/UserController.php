@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ClipRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\Clip;
@@ -49,9 +50,9 @@ class UserController extends Controller
     /**
      * add product to clips
      */
-    public function  addToClip(Listing $product)
+    public function  addToClip(Request $request, Listing $product)
     {
-        $clip = $this->userService->addToClip(auth()->user(), $product->id);
+        $clip = $this->userService->addToClip($request, $product->id);
         return $this->success();
     }
 

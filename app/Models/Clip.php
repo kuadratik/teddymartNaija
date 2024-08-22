@@ -11,6 +11,7 @@ class Clip extends Model
     protected $fillable = [
         'store_id',
         'user_id',
+        'uid'
     ];
 
 
@@ -44,7 +45,9 @@ class Clip extends Model
      */
     public function addProduct(Listing $listing)
     {
-        $existingProduct = $this->products()->where('listing_id', $listing->id)->exists();
+        $existingProduct = $this->products()
+            ->where('listing_id', $listing->id)
+            ->exists();
 
         if ($existingProduct) {
             return false;

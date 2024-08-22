@@ -455,6 +455,12 @@ paths:
             type: string
             example: 'pounded-yam'
           required: true
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
       responses:
         default:
           description: 'success'
@@ -472,6 +478,13 @@ paths:
       operationId: GetAllClip
       security:
         - bearerAuth: []
+      parameters:
+      - in: header
+        name: Clip-Uid
+        schema:
+          type: string
+          example:
+        required: true
       responses:
         default:
           description: 'success'
@@ -495,6 +508,12 @@ paths:
           schema:
             type: integer
             example: 1
+          required: true
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
           required: true
       responses:
         default:

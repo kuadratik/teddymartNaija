@@ -17,15 +17,16 @@ return new class extends Migration
     {
         Schema::create('clips', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Store::class)->constrained()->onDelete('cascade');
-            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
+            $table->string('uid')->nullable()->index();
+            $table->foreignId('store_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
 
         Schema::create('clip_listing', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Clip::class)->constrained()->onDelete('cascade');
-            $table->foreignIdFor(Listing::class)->constrained()->onDelete('cascade');
+            $table->foreignId('clip_id')->constrained()->onDelete('cascade');
+            $table->foreignId('listing_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

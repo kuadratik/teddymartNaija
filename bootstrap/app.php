@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureClipUidHeader;
 use App\Http\Middleware\RespondWithJson;
 use App\Support\Utils;
 use Illuminate\Foundation\Application;
@@ -28,7 +29,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->appendToGroup('api', [RespondWithJson::class]);
-        $middleware->alias([
+    $middleware->alias([
+        'hasUid' => EnsureClipUidHeader::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

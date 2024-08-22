@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Clip::class)->constrained()->onDelete('cascade');
+            $table->foreignId('clip_id')->constrained()->onDelete('cascade');
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email');
