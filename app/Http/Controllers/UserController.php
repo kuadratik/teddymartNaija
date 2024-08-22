@@ -65,7 +65,6 @@ class UserController extends Controller
         return $this->success($clips);
     }
 
-
     /**
      * view clip items
      */
@@ -74,4 +73,27 @@ class UserController extends Controller
         $clips = $this->userService->getClipItems($clip);
         return $this->success($clips);
     }
+
+
+    /**
+     * delete a product in a clip
+     */
+    public function deleteClipItem(Request $request, Clip $clip, Listing $product)
+    {
+        $clip->products()->detach($product->id);
+        return $this->success();
+
+    }
+
+    /**
+     * delete a clip
+     */
+    public function deleteClip(Clip $clip)
+    {
+        $clip->delete();
+        return $this->success();
+    }
+
+
+
 }

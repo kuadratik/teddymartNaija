@@ -449,7 +449,7 @@ paths:
   /front/add-to-clip/{product}:
     post:
       tags:
-        - Customer
+        - Clip
       summary: add product to clip
       description: add product to clip
       operationId: AddProductToClip
@@ -479,7 +479,7 @@ paths:
   /front/clips:
     get:
       tags:
-        - Customer
+        - Clip
       summary: get all clip
       description: get all clip
       operationId: GetAllClip
@@ -503,7 +503,7 @@ paths:
   /front/clip/{clip}:
     get:
       tags:
-        - Customer
+        - Clip
       summary: view clip by id
       description: view clip by id
       operationId: ViewClipById
@@ -529,6 +529,73 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /front/clips/{clip}/items/{product}:
+    delete:
+      tags:
+        - Clip
+      summary: remove product from clip
+      description: remove product from clip
+      operationId: RemoveProductFromClip
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: clip
+          schema:
+            type: string
+            example: "1"
+          required: true
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/clips/{clip}:
+    delete:
+      tags:
+        - Clip
+      summary: remove clip
+      description: remove clip
+      operationId: RemoveClip
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: clip
+          schema:
+            type: string
+            example: "1"
+          required: true
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/stores/{store}/listings:
     get:
       security:

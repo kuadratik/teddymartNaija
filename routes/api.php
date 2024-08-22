@@ -35,6 +35,8 @@ Route::prefix('front')->group(function () {
         Route::get('clips', [UserController::class, 'getClips']);
         Route::get('clip/{clip}', [UserController::class, 'viewClipItems']);
         Route::post('clip/{clip}/order', [UserController::class, 'order']);
+        Route::delete('clips/{clip}', [UserController::class, 'deleteClip']);
+        Route::delete('clips/{clip}/items/{product:slug}', [UserController::class, 'deleteClipItem']);
     });
 
     Route::prefix('stores')->group(function () {

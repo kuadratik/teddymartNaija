@@ -14,48 +14,45 @@ use Illuminate\Support\Str;
 use App\Models\Listing;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
-
-
-
     /**
-     * update users password
+     * Update user's password.
      */
-    public function updateUserPassword($request)
+    public function updateUserPassword(array $request): bool
     {
         $user = User::find(auth('api')->user()->id);
+
         if (!password_verify($request['old_password'], $user->password)) {
             return Utils::validateResp(['new_password' => ['The provided old password is incorrect.']]);
         }
-        $user->update(['password' => bcrypt($request['new_password'])]);
+
+        $user->update(['password' => Hash::make($request['new_password'])]);
         return true;
     }
 
-
     /**
-     * add product to clip
+     * Add product to clip.
      */
-    public function addToClip(Request $request, $productId)
+    public function addToClip(Request $request, int $productId)
     {
-        DB::transaction(function () use ($request, $productId) {
+        return DB::transaction(function () use ($request, $productId) {
             $product = Listing::where('id', $productId)->where('type', ListingType::PRODUCT)->with('store')->first();
+
             if (!$product) {
                 return Utils::validateResp(['error' => ['Product not found']]);
             }
-            $uid = $request->header('Clip-Uid') ?? Str::uuid();
+
+            $uid = $request->header('Clip-Uid');
             $storeId = $product->store->id;
+            $customerId = auth()->id();
 
-            if (auth()->user()) {
-                $customerId = auth()->user()->id;
-            }
-
-            $clip = Clip::firstOrCreate([
-                'store_id' => $storeId,
-                'user_id' => @$customerId,
-                'uid' => $uid
-            ]);
+            $clip = Clip::updateOrCreate(
+                ['store_id' => $storeId, 'uid' => $uid],
+                ['store_id' => $storeId, 'user_id' => $customerId, 'uid' => $uid]
+            );
 
             $result = $clip->addProduct($product);
 
@@ -74,45 +71,37 @@ class UserService
     {
         $customerId = auth()->id();
         $clipUid = request()->header('Clip-Uid');
-        $clips = Clip::query()
-            ->when($customerId, function ($query) use ($customerId) {
-                return $query->where('user_id', $customerId);
-            })
-            ->when(!$customerId && $clipUid, function ($query) use ($clipUid) {
-                return $query->where('uid', $clipUid);
-            })
+
+        $clips = Clip::when($customerId, fn($query) => $query->where('user_id', $customerId))
+            ->when(!$customerId && $clipUid, fn($query) => $query->where('uid', $clipUid))
             ->with('products')
             ->get();
 
         return ClipResource::collection($clips);
     }
 
-
-
     /**
      * Get a clip by ID with product details.
      */
-    public function getClipItems(Clip $clip)
+    public function getClipItems(Clip $clip): array
     {
         $customerId = auth()->id();
-
         $clipUid = request()->header('Clip-Uid');
 
-        $clipData = Clip::query()
-            ->when($customerId, function ($query) use ($customerId, $clip) {
-                return $query->where('user_id', $customerId)->where('id', $clip->id);
-            })
-            ->when(!$customerId && $clipUid, function ($query) use ($clipUid, $clip) {
-                return $query->where('uid', $clipUid)->where('id', $clip->id);
-            })
-            ->with('products')->firstOrFail();
+        $clipData = Clip::when($customerId, fn($query) => $query->where('user_id', $customerId))
+            ->when(!$customerId && $clipUid, fn($query) => $query->where('uid', $clipUid))
+            ->where('id', $clip->id)
+            ->with('products')
+            ->firstOrFail();
 
-
-
-        $products = $clipData->products->map(function ($product) {
-            return new ClipItemsResource($product);
-        });
-
-        return $products;
+        return $clipData->products->map(fn($product) => [
+            'name' => $product->name,
+            'slug' =>  $product->slug,
+            'image' => $product->images[0],
+            'price' => $product->price,
+        ])->all();
     }
+
+
+
 }
