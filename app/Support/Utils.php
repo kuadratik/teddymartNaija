@@ -85,7 +85,7 @@ class Utils
         foreach ($files as $file) {
             $path = 'teddymart/temp/uploads';
             $uploadedPath = self::uploadOrFail($file, $path);
-            $tempPaths[] = $uploadedPath;
+            $tempPaths[] = str_replace('teddymart/', '', $uploadedPath);
         }
 
         return $tempPaths;

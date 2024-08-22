@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 class StoresController extends Controller
 {
     /**
-     *  Search for stores
+     *  Get stores
      */
     public function getStores(Request $request)
     {
