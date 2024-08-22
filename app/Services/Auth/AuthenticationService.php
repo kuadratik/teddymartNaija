@@ -49,15 +49,22 @@ class AuthenticationService
      */
     public function login(array $data)
     {
+        $uid = request()->header('Clip-Uid');
         $user = User::where('email', $data['email'])->first();
 
         if (!Hash::check($data['password'], $user->password)) {
             return Utils::validateResp(['email' => ['The provided credentials are invalid.']]);
         }
 
+        $user->updateOrCreate(
+            ['email' => $data['email']],
+            ['clipper_uid' => $uid]
+        );
+
         return [
             'token' => $user->createToken('authToken')->plainTextToken,
-            'user' => $user->load('store')
+            'user' => $user->load('store'),
+            'clipper_uid' => $uid,
         ];
     }
 
@@ -86,4 +93,12 @@ class AuthenticationService
         });
     }
 
+    /**
+     * logout user
+     */
+    public function logout()
+    {
+        auth()->user()->currentAccessToken()->delete();
+        return true;
+    }
 }
