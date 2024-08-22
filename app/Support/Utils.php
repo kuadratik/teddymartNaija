@@ -83,7 +83,7 @@ class Utils
         $tempPaths = [];
 
         foreach ($files as $file) {
-            $path = 'teddymart/temp/uploads';
+            $path = 'temp/uploads';
             $uploadedPath = self::uploadOrFail($file, $path);
             $tempPaths[] = $uploadedPath;
         }
