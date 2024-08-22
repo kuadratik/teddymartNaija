@@ -19,6 +19,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<int, string>
      */
     protected $fillable = [
+        'clipper_uid',
         'first_name',
         'last_name',
         'email',
@@ -65,4 +66,16 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Store::class);
     }
+
+
+    /**
+     * get the clips belong to user
+     */
+    public function clips()
+    {
+        return $this->hasMany(Clip::class);
+    }
+
+
+
 }

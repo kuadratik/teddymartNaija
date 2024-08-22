@@ -1,4 +1,4 @@
-openapi: '3.0.0'
+openapi: "3.0.0"
 info:
   description: Teddyed apis
   version: 1.0.0
@@ -16,7 +16,6 @@ components:
       bearerFormat: JWT
 
 paths:
-
   /front/register:
     post:
       tags:
@@ -32,22 +31,22 @@ paths:
               properties:
                 first_name:
                   type: string
-                  example: 'Teddy'
+                  example: "Teddy"
                 last_name:
                   type: string
-                  example: 'Edward'
+                  example: "Edward"
                 email:
                   type: string
-                  example: 'kings@eki.market'
+                  example: "kings@eki.market"
                 password:
                   type: string
-                  example: '12345678'
+                  example: "12345678"
                 password_confirmation:
                   type: string
-                  example: '12345678'
+                  example: "12345678"
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -68,25 +67,25 @@ paths:
               properties:
                 first_name:
                   type: string
-                  example: 'Teddy'
+                  example: "Teddy"
                 last_name:
                   type: string
-                  example: 'Edward'
+                  example: "Edward"
                 email:
                   type: string
-                  example: 'kings@eki.market'
+                  example: "kings@eki.market"
                 password:
                   type: string
-                  example: '12345678'
+                  example: "12345678"
                 password_confirmation:
                   type: string
-                  example: '12345678'
+                  example: "12345678"
                 code:
                   type: string
-                  example: '123456'
+                  example: "123456"
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -107,11 +106,11 @@ paths:
               properties:
                 email:
                   type: string
-                  example: 'teddyedward@teddyed.com'
+                  example: "teddyedward@teddyed.com"
 
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -124,6 +123,13 @@ paths:
       summary: login users
       description: login users
       operationId: login
+      parameters:
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
       requestBody:
         content:
           application/json:
@@ -135,10 +141,10 @@ paths:
                   example: teddyedward@teddyed.com
                 password:
                   type: string
-                  example: '12345678'
+                  example: "12345678"
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -159,10 +165,10 @@ paths:
               properties:
                 email:
                   type: string
-                  example: 'teddyedward@teddyed.com'
+                  example: "teddyedward@teddyed.com"
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -183,45 +189,45 @@ paths:
               properties:
                 email:
                   type: string
-                  example: 'teddyedward@teddyed.com'
+                  example: "teddyedward@teddyed.com"
                 password:
                   type: string
-                  example: '12345678'
+                  example: "12345678"
                 password_confirmation:
                   type: string
-                  example: '12345678'
+                  example: "12345678"
                 otp:
                   type: string
-                  example: '123456'
+                  example: "123456"
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
                 type: object
 
   /front/category:
-      get:
-        tags:
-          - Category
-        summary: get all category
-        description: get all category
-        operationId: GetAllCategory
-        parameters:
-          - name: type
-            in: query
-            description: Filter categories by type Service or product
-            required: false
-            schema:
-              type: string
-        responses:
-          default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
+    get:
+      tags:
+        - Category
+      summary: get all category
+      description: get all category
+      operationId: GetAllCategory
+      parameters:
+        - name: type
+          in: query
+          description: Filter categories by type Service or product
+          required: false
+          schema:
+            type: string
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /front/user/profile:
     get:
@@ -234,7 +240,7 @@ paths:
         - bearerAuth: []
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -257,19 +263,19 @@ paths:
               properties:
                 first_name:
                   type: string
-                  example: 'Teddy'
+                  example: "Teddy"
                   required: true
                 last_name:
                   type: string
-                  example: 'Edward'
+                  example: "Edward"
                   required: true
                 email:
                   type: string
-                  example: 'teddyedward@teddyed.com'
+                  example: "teddyedward@teddyed.com"
                   required: true
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -292,16 +298,16 @@ paths:
               properties:
                 old_password:
                   type: string
-                  example: '12345678'
+                  example: "12345678"
                 new_password:
                   type: string
-                  example: '12345678'
+                  example: "12345678"
                 new_password_confirmation:
                   type: string
-                  example: '12345678'
+                  example: "12345678"
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -318,7 +324,7 @@ paths:
         - bearerAuth: []
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -345,11 +351,11 @@ paths:
                   items:
                     type: string
                     description: Base64 encoded image string
-                    example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII'
+                    example: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
 
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -375,10 +381,10 @@ paths:
                   type: array
                   items:
                     type: string
-                    example: '/your-space-url/image-path.jpg'
+                    example: "/your-space-url/image-path.jpg"
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -391,18 +397,19 @@ paths:
       tags:
         - Map
       summary: get all countries
-      description: 'get all countries with an optional search'
+      description: "get all countries with an optional search"
       operationId: getAllCountries
       parameters:
         - in: query
           name: search
           schema:
             type: string
-            example: 'benin'
+            example: "benin"
           required: false
+
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -415,7 +422,7 @@ paths:
       tags:
         - Map
       summary: country division
-      description: 'get countries by country primary ID with an optional search'
+      description: "get countries by country primary ID with an optional search"
       operationId: countryDivision
       parameters:
         - in: path
@@ -428,13 +435,257 @@ paths:
           name: search
           schema:
             type: string
-            example: 'Atakora'
+            example: "Atakora"
           required: false
+
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
                 type: object
 
+  /front/add-to-clip/{product}:
+    post:
+      tags:
+        - Clip
+      summary: add product to clip
+      description: add product to clip
+      operationId: AddProductToClip
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/clips:
+    get:
+      tags:
+        - Clip
+      summary: get all clip
+      description: get all clip
+      operationId: GetAllClip
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/clip/{clip}:
+    get:
+      tags:
+        - Clip
+      summary: view clip by id
+      description: view clip by id
+      operationId: ViewClipById
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: clip
+          schema:
+            type: integer
+            example: 1
+          required: true
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/clips/{clip}/items/{product}:
+    delete:
+      tags:
+        - Clip
+      summary: remove product from clip
+      description: remove product from clip
+      operationId: RemoveProductFromClip
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: clip
+          schema:
+            type: string
+            example: "1"
+          required: true
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/clips/{clip}:
+    delete:
+      tags:
+        - Clip
+      summary: remove clip
+      description: remove clip
+      operationId: RemoveClip
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: clip
+          schema:
+            type: string
+            example: "1"
+          required: true
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/stores/{store}/listings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Specified Store Listings
+      description: "Get Specified Store Listings"
+      operationId: GetSpecifiedStoreListings
+      parameters:
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: "product"
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/stores:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Store Lists
+      description: "Get Store Lists"
+      operationId: GetStoreLists
+      parameters:
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: "product"
+        - in: query
+          name: category
+          schema:
+            type: number
+            example: 1
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "amala"
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/stores/{store}/listings/{listing}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Specified Store Listing
+      description: "Get Specified Store Listing"
+      operationId: GetSpecifiedStoreListing
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: "amala-with-afang"
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object

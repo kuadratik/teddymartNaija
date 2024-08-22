@@ -79,6 +79,15 @@ class Listing extends Model
         return $this->belongsTo(Category::class);
     }
 
+
+    /**
+     * Scope by category
+     */
+    public function scopeByCategory(Builder $query, string|null $category)
+    {
+        $query->when($category, fn (Builder $query) =>  $query->where('category_id', $category));
+    }
+
     /**
      * Scope by type
      */

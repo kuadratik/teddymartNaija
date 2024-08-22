@@ -29,6 +29,21 @@ Route::prefix('front')->group(function () {
     Route::post('reset/send-otp', [FrontAuthController::class, 'resetPasswordSendOtp']);
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
     Route::get('category', [GeneralController::class, 'getCategories']);
+
+    Route::middleware(['hasUid', 'optionalAuth'])->group(function () {
+        Route::post('add-to-clip/{product:slug}', [UserController::class, 'addToClip']);
+        Route::get('clips', [UserController::class, 'getClips']);
+        Route::get('clip/{clip}', [UserController::class, 'viewClipItems']);
+        Route::post('clip/{clip}/order', [UserController::class, 'order']);
+        Route::delete('clips/{clip}', [UserController::class, 'deleteClip']);
+        Route::delete('clips/{clip}/items/{product:slug}', [UserController::class, 'deleteClipItem']);
+    });
+
+    Route::prefix('stores')->group(function () {
+        Route::get('/', [StoresController::class, 'getStores']);
+        Route::get('{store}/listings', [StoresController::class, 'showStoreListing']);
+        Route::get('{store}/listings/{listing}', [ListingsController::class, 'show']);
+    });
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -44,30 +59,31 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::patch('{userStore}/update', [StoresController::class, 'update']);
         });
 
-        Route::prefix('listings')->middleware('hasStore')->group(function () {
-            Route::get('/', [ListingsController::class, 'getUserStoreListings']);
-            Route::get('/total', [ListingsController::class, 'getUserStoreListingsCount']);
-            Route::post('create', [ListingsController::class, 'create']);
-            Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'show']);
-            Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
-            Route::patch('{userStore}/listing/{listing}/update', [ListingsController::class, 'update']);
-            Route::delete('{userStore}/listing/{listing}/delete', [ListingsController::class, 'delete']);
+        Route::prefix('listings')->group(function () {
+
+            Route::middleware('hasStore')->group(function () {
+                Route::get('/', [ListingsController::class, 'getUserStoreListings']);
+                Route::get('/total', [ListingsController::class, 'getUserStoreListingsCount']);
+                Route::post('create', [ListingsController::class, 'create']);
+                Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'showUserStoreListing']);
+                Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
+                Route::patch('{userStore}/listing/{listing}/update', [ListingsController::class, 'update']);
+                Route::delete('{userStore}/listing/{listing}/delete', [ListingsController::class, 'delete']);
+            });
         });
     });
 
     Route::prefix('front')->group(function () {
         Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
         Route::post('file-delete', [GeneralController::class, 'deleteTempFiles']);
-
         Route::prefix('user')->group(function () {
             Route::get('profile', [UserController::class, 'getUserProfile']);
             Route::put('profile/update', [UserController::class, 'updateUserProfile']);
             Route::patch('change-password', [UserController::class, 'updateUserPassword']);
-            Route::post('logout',  [UserController::class, 'logout']);
+            Route::post('logout',  [FrontAuthController::class, 'logout']);
         });
     });
 });
 
 
-Route::prefix('console')->group(function () {
-});
+Route::prefix('console')->group(function () {});
