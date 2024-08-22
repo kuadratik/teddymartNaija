@@ -124,6 +124,13 @@ paths:
       summary: login users
       description: login users
       operationId: login
+      parameters:
+      - in: header
+        name: Clip-Uid
+        schema:
+          type: string
+          example:
+        required: true
       requestBody:
         content:
           application/json:

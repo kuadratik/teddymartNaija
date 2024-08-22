@@ -49,6 +49,7 @@ class AuthenticationService
      */
     public function login(array $data)
     {
+        $uid = request()->header('Clip-Uid');
         $user = User::where('email', $data['email'])->first();
 
         if (!Hash::check($data['password'], $user->password)) {
@@ -59,6 +60,11 @@ class AuthenticationService
             'token' => $user->createToken('authToken')->plainTextToken,
             'user' => $user->load('store')
         ];
+
+        $user->updateOrCreate(
+            ['email' => $data['email']],
+            ['clippers_uid' => $uid]
+        );
     }
 
     /**

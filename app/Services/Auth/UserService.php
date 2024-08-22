@@ -105,17 +105,14 @@ class UserService
             ->when(!$customerId && $clipUid, function ($query) use ($clipUid, $clip) {
                 return $query->where('uid', $clipUid)->where('id', $clip->id);
             })
-            ->with('products')
-        ->firstOrFail();
+            ->with('products')->firstOrFail();
 
 
 
-        $products = $clip->products->map(function ($product) {
+        $products = $clipData->products->map(function ($product) {
             return new ClipItemsResource($product);
         });
 
         return $products;
     }
-
-
 }

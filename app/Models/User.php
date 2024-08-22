@@ -19,6 +19,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<int, string>
      */
     protected $fillable = [
+        'clipper_uid',
         'first_name',
         'last_name',
         'email',
