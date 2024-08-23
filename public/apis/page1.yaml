@@ -644,7 +644,7 @@ paths:
           name: category
           schema:
             type: number
-            example: 1
+            example: 11
         - in: query
           name: search
           schema:

@@ -79,7 +79,6 @@ class Listing extends Model
         return $this->belongsTo(Category::class);
     }
 
-
     /**
      * Scope by category
      */
