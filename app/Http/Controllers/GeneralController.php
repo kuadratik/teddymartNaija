@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\RecordUserIntercationAction;
 use Illuminate\Http\Request;
 use App\Support\Utils;
 use App\Http\Requests\Store\UploadTempFileRequest;
@@ -59,6 +60,18 @@ class GeneralController extends Controller
         return $this->success($categories);
     }
 
+    /**
+     *  Record User interaction
+     */
+    public function recordUserInteraction(
+        Request $request,
+        RecordUserIntercationAction $recordUserIntercationAction
+    ) {
+       $validatedData = $request->validate(['category' => ['required','exists:categories']]);
+
+       $recordUserIntercationAction->record($validatedData['category'], $request->header());
+       return $this->success();
+    }
 
     /**
      * Get all countries
@@ -70,9 +83,9 @@ class GeneralController extends Controller
             ->where(function ($query) use ($request) {
                 if ($request->has('search')) {
                     $query->where('name', 'LIKE', "%$request->search%")
-                    ->orWhere('phonecode', 'LIKE', "%$request->search%");
+                        ->orWhere('phonecode', 'LIKE', "%$request->search%");
                 }
-        })->get();
+            })->get();
 
         return $this->success($countries);
     }
