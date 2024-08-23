@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('user_interactions', function (Blueprint $table) {
             $table->id();
             $table->string('user_uid');
-            $table->json('interactions');
+            $table->json('interactions')->nullable();
             $table->timestamps();
         });
     }
