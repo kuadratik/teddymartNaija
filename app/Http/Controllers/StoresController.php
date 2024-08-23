@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 class StoresController extends Controller
 {
     /**
-     *  Search for stores
+     *  Get stores
      */
     public function getStores(Request $request)
     {
@@ -63,9 +63,9 @@ class StoresController extends Controller
      */
     public function showStoreListing(Store $store, Request $request)
     {
-        $storeListing = $store->with(['listings' => function ($query) use ($request) {
+        $storeListing = $store->load(['listings' => function ($query) use ($request) {
             $query->where('type', $request->listingType);
-        }])->first();
+        }]);
 
         return $this->success($storeListing);
     }
