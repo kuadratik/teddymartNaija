@@ -223,6 +223,28 @@ paths:
                 schema:
                   type: object
 
+  /front/record-interaction:
+      get:
+        tags:
+          - Category
+        summary: Record category interaction
+        description: Record category interaction
+        operationId: RecordCategoryInteraction
+        parameters:
+          - name: category
+            in: path
+            required: true
+            schema:
+              type: string
+
+        responses:
+          default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
+
   /front/user/profile:
     get:
       tags:

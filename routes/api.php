@@ -29,6 +29,7 @@ Route::prefix('front')->group(function () {
     Route::post('reset/send-otp', [FrontAuthController::class, 'resetPasswordSendOtp']);
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
     Route::get('category', [GeneralController::class, 'getCategories']);
+    Route::get('record-interaction/{category}' , [GeneralController::class , 'recordUserInteraction']);
 
     Route::prefix('stores')->group(function () {
         Route::get('/', [StoresController::class, 'getStores']);

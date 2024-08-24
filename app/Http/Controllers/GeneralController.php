@@ -65,10 +65,11 @@ class GeneralController extends Controller
      */
     public function recordUserInteraction(
         Request $request,
+        Category $category,
         RecordUserIntercationAction $recordUserIntercationAction
     ) {
-        $validatedData = $request->validate(['category' => ['required', 'exists:categories']]);
-        $recordUserIntercationAction->record($validatedData['category'], $request->header());
+        $category = ['category' => $category->id, 'interaction_count' => 1];
+        $recordUserIntercationAction->record($category, $request->header());
 
         return $this->success();
     }
