@@ -1,8 +1,8 @@
 openapi: "3.0.0"
 info:
-  description: Teddyed apis
+  description: Teddymart apis
   version: 1.0.0
-  title: Teddyed
+  title: Teddmart
 
 servers:
   - url: /api
@@ -587,6 +587,82 @@ paths:
           schema:
             type: string
             example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/clip/{clip}/order:
+    post:
+      tags:
+        - Clip
+      summary: order clip
+      description: order clip
+      operationId: OrderClip
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: clip
+          schema:
+            type: string
+            example: "1"
+          required: true
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: "Teddy"
+                  required: true
+                last_name:
+                  type: string
+                  example: "Edwardson"
+                  required: true
+                email:
+                  type: string
+                  example: "teddyedward@teddyed.com"
+                  required: true
+                phone:
+                  type: string
+                  example: "2348012345678"
+                  required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/stores/{store}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Specified Store
+      description: "Get Specified Store"
+      operationId: GetSpecifiedStore
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
           required: true
       responses:
         default:

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ClipRequest;
+use App\Http\Requests\User\StoreClipOrderRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\Clip;
@@ -93,6 +94,17 @@ class UserController extends Controller
         $clip->delete();
         return $this->success();
     }
+
+
+    /**
+     * store customer info on a clip to send to vendor
+     */
+    public function storeClipOrder(StoreClipOrderRequest $request, Clip $clip)
+    {
+        $this->userService->storeClipOrder($request, $clip);
+        return $this->success();
+    }
+
 
 
 

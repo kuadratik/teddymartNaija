@@ -34,7 +34,7 @@ Route::prefix('front')->group(function () {
         Route::post('add-to-clip/{product:slug}', [UserController::class, 'addToClip']);
         Route::get('clips', [UserController::class, 'getClips']);
         Route::get('clip/{clip}', [UserController::class, 'viewClipItems']);
-        Route::post('clip/{clip}/order', [UserController::class, 'order']);
+        Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         Route::delete('clips/{clip}', [UserController::class, 'deleteClip']);
         Route::delete('clips/{clip}/items/{product:slug}', [UserController::class, 'deleteClipItem']);
     });
