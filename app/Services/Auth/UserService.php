@@ -3,12 +3,9 @@
 namespace App\Services\Auth;
 
 use App\Enums\ListingType;
-use App\Http\Requests\ClipRequest;
 use App\Http\Requests\User\StoreClipOrderRequest;
 use App\Models\User;
 use App\Support\Utils;
-use App\Http\Requests\User\UpdateUserRequest;
-use App\Http\Resources\ClipItemsResource;
 use App\Http\Resources\ClipResource;
 use App\Models\Clip;
 use Illuminate\Support\Str;
@@ -26,7 +23,7 @@ class UserService
      */
     public function updateUserPassword(array $request): bool
     {
-        $user = User::find(auth('api')->user()->id);
+        $user = User::find(auth()->user()->id);
 
         if (!password_verify($request['old_password'], $user->password)) {
             return Utils::validateResp(['new_password' => ['The provided old password is incorrect.']]);
@@ -79,8 +76,12 @@ class UserService
             ->when(!$customerId && $clipUid, fn($query) => $query->where('uid', $clipUid))
             ->with('products')
             ->get();
+        $totalProductCount = $clips->sum(fn($clip) => $clip->products->count());
 
-        return ClipResource::collection($clips);
+        return [
+            'total_product_count' => $totalProductCount,
+            'clips' => ClipResource::collection($clips),
+        ];
     }
 
     /**
@@ -107,7 +108,7 @@ class UserService
 
 
     /**
-     * store users order and order details
+     * Store users order and order details
      */
     public function storeClipOrder(StoreClipOrderRequest $request, Clip $clip)
     {
