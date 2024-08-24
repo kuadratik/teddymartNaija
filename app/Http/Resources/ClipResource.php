@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ClipResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'store_id' => $this->store->id,
+            'store_name' => $this->store->name,
+            'number_of_listings' => $this->products->count(),
+            'total_amount' => $this->products->sum('price'),
+            'store_image' => $this->store->profile_picture_path,
+        ];
+    }
+}
