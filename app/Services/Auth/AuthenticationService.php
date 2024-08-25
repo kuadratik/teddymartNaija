@@ -16,7 +16,7 @@ class AuthenticationService
     /**
      * Send OTP for email verification.
      */
-    public function sendOtpForRegistration(array $data)
+    public function sendOtpForRegistration(array $data): object
     {
         $otp = random_int(10000, 99999);
 
@@ -47,12 +47,12 @@ class AuthenticationService
     /**
      * Login user and send token, handle authentication failure with a validation error.
      */
-    public function login(array $data)
+    public function login(array $data): array
     {
         $uid = request()->header('Clip-Uid');
         $user = User::where('email', $data['email'])->first();
 
-        if (!Hash::check($data['password'], $user->password)) {
+        if (!Hash::check($data['password'], optional($user)->password)) {
             return Utils::validateResp(['email' => ['The provided credentials are invalid.']]);
         }
 
@@ -71,7 +71,7 @@ class AuthenticationService
     /**
      * send password reset otp
      */
-    public function sendPasswordResetOtp(string $email)
+    public function sendPasswordResetOtp(string $email): bool
     {
         $user = User::where('email', $email)->firstOrFail();
         $otp = random_int(10000, 99999);
@@ -82,7 +82,7 @@ class AuthenticationService
     /**
      * reset password with otp
      */
-    public function resetPasswordWithOtp(array $data)
+    public function resetPasswordWithOtp(array $data): bool
     {
         return DB::transaction(function () use ($data) {
             $otpRecord = Otp::where('email', $data['email'])->firstOrFail();
@@ -96,7 +96,7 @@ class AuthenticationService
     /**
      * logout user
      */
-    public function logout()
+    public function logout(): bool
     {
         auth()->user()->currentAccessToken()->delete();
         return true;

@@ -11,7 +11,12 @@ class Clip extends Model
     protected $fillable = [
         'store_id',
         'user_id',
-        'uid'
+        'uid',
+        'has_orders'
+    ];
+
+    protected $casts = [
+        'has_orders' => 'boolean'
     ];
 
 
@@ -21,7 +26,7 @@ class Clip extends Model
     public function products()
     {
         return $this->belongsToMany(Listing::class, 'clip_listing', 'clip_id', 'listing_id')
-        ->withTimestamps();
+            ->withTimestamps();
     }
 
     /**
@@ -55,5 +60,15 @@ class Clip extends Model
             $this->products()->attach($listing->id);
             return true;
         }
+    }
+
+
+    /**
+     * set has_order in clip to be true
+     */
+    public function setAddOrder()
+    {
+        $this->has_orders = true;
+        $this->save();
     }
 }

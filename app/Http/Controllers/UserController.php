@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ClipRequest;
+use App\Http\Requests\User\StoreClipOrderRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\Clip;
@@ -13,32 +13,31 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-
     public function __construct(public UserService $userService)
     {
         //
     }
 
     /**
-     * get users profile details
+     * Get user's profile details
      */
     public function getUserProfile(Request $request)
     {
-        $user = $request->user('api')->load('store');
-        return  $this->success($user);
+        $user = $request->user()->load('store');
+        return $this->success($user);
     }
 
     /**
-     * update users profile
+     * Update user's profile
      */
-    public function updateUserProfile(UpdateUserRequest $request,)
+    public function updateUserProfile(UpdateUserRequest $request)
     {
-        User::where('id', auth('api')->user()->id)->update($request->validated());
+        User::find(auth()->id())->update($request->validated());
         return $this->success();
     }
 
     /**
-     * update users password
+     * Update user's password
      */
     public function updateUserPassword(UpdateUserPasswordRequest $request)
     {
@@ -46,18 +45,17 @@ class UserController extends Controller
         return $this->success();
     }
 
-
     /**
-     * add product to clips
+     * Add product to clips
      */
-    public function  addToClip(Request $request, Listing $product)
+    public function addToClip(Request $request, Listing $product)
     {
-        $clip = $this->userService->addToClip($request, $product->id);
+        $this->userService->addToClip($request, $product->id);
         return $this->success();
     }
 
     /**
-     * get clips data
+     * Get clips data
      */
     public function getClips()
     {
@@ -66,7 +64,7 @@ class UserController extends Controller
     }
 
     /**
-     * view clip items
+     * View clip items
      */
     public function viewClipItems(Clip $clip)
     {
@@ -74,19 +72,20 @@ class UserController extends Controller
         return $this->success($clips);
     }
 
-
     /**
-     * delete a product in a clip
+     * Delete a product in a clip
      */
     public function deleteClipItem(Request $request, Clip $clip, Listing $product)
     {
         $clip->products()->detach($product->id);
+        if ($clip->products()->count() === 0) {
+            $clip->delete();
+        }
         return $this->success();
-
     }
 
     /**
-     * delete a clip
+     * Delete a clip
      */
     public function deleteClip(Clip $clip)
     {
@@ -94,6 +93,12 @@ class UserController extends Controller
         return $this->success();
     }
 
-
-
+    /**
+     * Store customer info on a clip to send to vendor
+     */
+    public function storeClipOrder(StoreClipOrderRequest $request, Clip $clip)
+    {
+        $order = $this->userService->storeClipOrder($request, $clip);
+        return $this->success($order);
+    }
 }
