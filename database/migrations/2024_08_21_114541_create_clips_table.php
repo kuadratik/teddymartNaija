@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('uid')->nullable()->index();
             $table->foreignId('store_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->boolean('has_orders')->default(false);
             $table->timestamps();
         });
 
@@ -36,7 +37,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('clip_product');
+        Schema::dropIfExists('clip_listing');
         Schema::dropIfExists('clips');
     }
 };

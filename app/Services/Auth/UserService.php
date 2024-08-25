@@ -3,15 +3,15 @@
 namespace App\Services\Auth;
 
 use App\Enums\ListingType;
-use App\Http\Requests\ClipRequest;
+use App\Http\Requests\User\StoreClipOrderRequest;
 use App\Models\User;
 use App\Support\Utils;
-use App\Http\Requests\User\UpdateUserRequest;
-use App\Http\Resources\ClipItemsResource;
 use App\Http\Resources\ClipResource;
 use App\Models\Clip;
 use Illuminate\Support\Str;
 use App\Models\Listing;
+use App\Models\Order;
+use App\Models\OrderDetail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -23,7 +23,7 @@ class UserService
      */
     public function updateUserPassword(array $request): bool
     {
-        $user = User::find(auth('api')->user()->id);
+        $user = User::find(auth()->user()->id);
 
         if (!password_verify($request['old_password'], $user->password)) {
             return Utils::validateResp(['new_password' => ['The provided old password is incorrect.']]);
@@ -76,8 +76,12 @@ class UserService
             ->when(!$customerId && $clipUid, fn($query) => $query->where('uid', $clipUid))
             ->with('products')
             ->get();
+        $totalProductCount = $clips->sum(fn($clip) => $clip->products->count());
 
-        return ClipResource::collection($clips);
+        return [
+            'total_product_count' => $totalProductCount,
+            'clips' => ClipResource::collection($clips),
+        ];
     }
 
     /**
@@ -103,5 +107,37 @@ class UserService
     }
 
 
+    /**
+     * Store users order and order details
+     */
+    public function storeClipOrder(StoreClipOrderRequest $request, Clip $clip)
+    {
+        return DB::transaction(function () use ($request, $clip) {
+            $order = Order::create([
+                'store_id' => $clip->store_id,
+                'customer_uid' => $request->header('Clip-Uid'),
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'order_number' => Str::uuid()->toString(),
+                'total_amount' => $clip->products->sum('price'),
+            ]);
 
+            $orderDetails = $clip->products->map(function ($product) use ($order) {
+                return [
+                    'order_id' => $order->id,
+                    'listing_id' => $product->id,
+                    'listing_price' => $product->price,
+                    'listing_name' => $product->name,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            });
+
+            OrderDetail::insert($orderDetails->all());
+            $clip->setAddOrder();
+            return $order->load('orderDetails');
+        });
+    }
 }

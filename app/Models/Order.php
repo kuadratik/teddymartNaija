@@ -15,18 +15,49 @@ class Order extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'clip_id',
+        'store_id',
+        'customer_uid',
         'first_name',
         'last_name',
         'email',
         'phone',
+        'order_number',
+        'total_amount',
+    ];
+
+
+    protected $cast =  [
+        'total_amount' => 'decimal:2',
+        'created_at' => 'datetime:Y-m-d H:i:s',
+        'updated_at' => 'datetime:Y-m-d H:i:s',
     ];
 
     /**
-     * Get the clip that owns the order.
+     * Get the details for  the order.
      */
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class);
+    }
+    /**
+     * Get the store that owns  the order.
+     */
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
+    }
+    /**
+     * Get the customer that owns  the order.
+     */
+    public function customer()
+    {
+        return $this->belongsTo(User::class, 'customer_uid', 'clipper_uid');
+    }
     public function clip()
     {
         return $this->belongsTo(Clip::class);
     }
+
+
+
 }
