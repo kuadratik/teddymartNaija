@@ -35,6 +35,31 @@ paths:
               schema:
                 type: object
 
+  /store/user-store/metrics:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Get User Store Metrics
+      description: 'Get User Store Metrics'
+      operationId: GetUserStoreMetrics
+      parameters:
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: product
+          required: true
+
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
   /store/create:
     post:
       security:
@@ -188,31 +213,6 @@ paths:
           schema:
             type: boolean
             example: true
-          required: true
-
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /store/listings/total:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - User Store Listings
-      summary: Get User Store Listings Total
-      description: 'Get User Store Listings Total'
-      operationId: GetUserStoreListingsTotal
-      parameters:
-        - in: query
-          name: listingType
-          schema:
-            type: string
-            example: 'product'
           required: true
 
       responses:

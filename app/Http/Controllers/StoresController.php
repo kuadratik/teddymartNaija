@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\DB;
 class StoresController extends Controller
 {
     /**
+     * Display a store metrics 
+     */
+    public function getUserStoreMetrics(Request $request)
+    {
+        $userStoreListingsCount = $request->user()->store->listings()->byType($request->listingType)->count();
+        return $this->success(["totalListingsCount" => $userStoreListingsCount]);
+    }
+
+    /**
      *  Get stores
      */
     public function getStores(Request $request)
