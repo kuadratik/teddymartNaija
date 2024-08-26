@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\RecordUserIntercationAction;
+use App\Actions\RecordUserInteractionAction;
 use Illuminate\Http\Request;
 use App\Support\Utils;
 use App\Http\Requests\Store\UploadTempFileRequest;
@@ -65,10 +65,11 @@ class GeneralController extends Controller
      */
     public function recordUserInteraction(
         Request $request,
-        RecordUserIntercationAction $recordUserIntercationAction
+        Category $category,
+        RecordUserInteractionAction $recordUserInteractionAction
     ) {
-        $validatedData = $request->validate(['category' => ['required', 'exists:categories']]);
-        $recordUserIntercationAction->record($validatedData['category'], $request->header());
+        $category = [['category' => $category->id, 'interaction_count' => 1]];
+        $recordUserInteractionAction->record($category, $request->header('Interact_Uid'));
 
         return $this->success();
     }
