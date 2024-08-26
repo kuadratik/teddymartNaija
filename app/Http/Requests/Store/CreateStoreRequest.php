@@ -31,10 +31,11 @@ class CreateStoreRequest extends FormRequest
             'banner_path' => ['required', 'string'],
             'description' => ['required', 'string'],
             'address1' => ['required', 'string'],
-            'address2' => ['required', 'string'],
+            'address2' => ['nullable', 'string'],
             'state' => ['required', 'string'],
             'city' => ['required', 'string'],
-            'postal_code' => ['required', 'string'],
+            'postal_code' => ['nullable', 'string'],
+            'country' => ['nullable', 'integer' , 'exists:countries,id'],
             'offers_service' => ['required', 'boolean'],
             'offers_product' => ['required', 'boolean']
         ];
@@ -45,11 +46,12 @@ class CreateStoreRequest extends FormRequest
      */
     public function storeAttributes()
     {
-        return collect($this->safe()->except(['profile_picture_path', 'banner_path']))
+        return collect($this->safe()->except(['profile_picture_path', 'banner_path' , 'country']))
             ->merge([
                 'user_id' => $this->user()->id,
                 'banner_path' => Utils::moveToPermanentPath([$this->safe()->banner_path], 'images')[0],
-                'profile_picture_path' => Utils::moveToPermanentPath([$this->safe()->profile_picture_path], 'images')[0]
+                'profile_picture_path' => Utils::moveToPermanentPath([$this->safe()->profile_picture_path], 'images')[0],
+                'country_id' => $this->safe()->country
             ])->toArray();
     }
 }

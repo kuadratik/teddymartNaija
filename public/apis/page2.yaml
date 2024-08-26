@@ -84,6 +84,9 @@ paths:
                 postal_code:
                   type: string
                   example: "100001"
+                country:
+                  type: integer
+                  example: 38
                 offers_service:
                   type: string
                   example: false
@@ -153,6 +156,9 @@ paths:
                 postal_code:
                   type: string
                   example: "100001"
+                country:
+                  type: integer
+                  example: 38
       responses:
         default:
           description: 'success'
