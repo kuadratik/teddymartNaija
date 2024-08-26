@@ -59,5 +59,22 @@ class Order extends Model
     }
 
 
+    /**
+     * Get the full name of the user.
+     *
+     * @return string
+     */
+    public function getCustomerNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
 
+
+    /**
+     * Get the full name of the store user.
+     */
+    public function getFullNameAttribute(): string
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
 }

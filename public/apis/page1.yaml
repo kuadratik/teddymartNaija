@@ -648,6 +648,38 @@ paths:
               schema:
                 type: object
 
+  /front/clip/{order}/send-to-vendor:
+    post:
+      tags:
+        - Clip
+      summary: send clip order to vendor
+      description:  send clip order to vendor
+      operationId: SendOrderClip
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: order
+          schema:
+            type: string
+            example: "1"
+          required: true
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
+
   /front/stores/{store}:
     get:
       security:
