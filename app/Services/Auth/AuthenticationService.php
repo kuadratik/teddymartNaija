@@ -56,15 +56,17 @@ class AuthenticationService
             return Utils::validateResp(['email' => ['The provided credentials are invalid.']]);
         }
 
-        $user->updateOrCreate(
-            ['email' => $data['email']],
-            ['clipper_uid' => $uid]
-        );
+        $user->when($uid, function ($query) use ($data, $uid) {
+            $query->updateOrCreate(
+                ['email' => $data['email']],
+                ['clipper_uid' => $uid]
+            );
+        });
 
         return [
             'token' => $user->createToken('authToken')->plainTextToken,
             'user' => $user->load('store'),
-            'clipper_uid' => $uid,
+            'clipper_uid' => @$uid,
         ];
     }
 
