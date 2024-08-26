@@ -129,7 +129,7 @@ paths:
           schema:
             type: string
             example:
-          required: true
+          required: false
       requestBody:
         content:
           application/json:
