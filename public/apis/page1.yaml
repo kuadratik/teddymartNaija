@@ -229,6 +229,33 @@ paths:
               schema:
                 type: object
 
+  /front/record-interaction/{category}:
+      get:
+        tags:
+          - Category
+        summary: Record category interaction
+        description: Record category interaction
+        operationId: RecordCategoryInteraction
+        parameters:
+          - name: Interact_Uid
+            in: header
+            required: true
+            schema:
+              type: string
+          - name: category
+            in: path
+            required: true
+            schema:
+              type: string
+
+        responses:
+          default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
+
   /front/user/profile:
     get:
       tags:
@@ -727,6 +754,30 @@ paths:
             type: string
             example: "amala"
 
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/stores/recommended-stores:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Recommended Store Lists
+      description: "Get Recommended Store Lists"
+      operationId: GetRecommendedStoreLists
+      parameters:
+        - name: Interact_Uid
+          in: header
+          required: true
+          schema:
+            type: string
+      
       responses:
         default:
           description: "success"

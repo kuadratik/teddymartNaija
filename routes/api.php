@@ -29,6 +29,7 @@ Route::prefix('front')->group(function () {
     Route::post('reset/send-otp', [FrontAuthController::class, 'resetPasswordSendOtp']);
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
     Route::get('category', [GeneralController::class, 'getCategories']);
+    Route::get('record-interaction/{category}' , [GeneralController::class , 'recordUserInteraction']);
 
     Route::middleware(['hasUid', 'optionalAuth'])->group(function () {
         Route::post('add-to-clip/{product:slug}', [UserController::class, 'addToClip']);
@@ -41,6 +42,7 @@ Route::prefix('front')->group(function () {
 
     Route::prefix('stores')->group(function () {
         Route::get('/', [StoresController::class, 'getStores']);
+        Route::get('recommended-stores', [StoresController::class, 'getRecommendedStores']);
         Route::get('{store}/listings', [StoresController::class, 'showStoreListing']);
         Route::get('{store}/listings/{listing}', [ListingsController::class, 'show']);
     });
@@ -56,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('create', [StoresController::class, 'create']);
         Route::middleware('hasStore')->group(function () {
             Route::get('user-store', [StoresController::class, 'showUserStore']);
+            Route::get('user-store/metrics', [StoresController::class, 'getUserStoreMetrics']);
             Route::patch('{userStore}/update', [StoresController::class, 'update']);
         });
 
@@ -63,7 +66,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::middleware('hasStore')->group(function () {
                 Route::get('/', [ListingsController::class, 'getUserStoreListings']);
-                Route::get('/total', [ListingsController::class, 'getUserStoreListingsCount']);
                 Route::post('create', [ListingsController::class, 'create']);
                 Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'showUserStoreListing']);
                 Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
