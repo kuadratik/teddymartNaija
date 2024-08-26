@@ -7,6 +7,7 @@ use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\Clip;
 use App\Models\Listing;
+use App\Models\Order;
 use App\Models\User;
 use App\Services\Auth\UserService;
 use Illuminate\Http\Request;
@@ -100,5 +101,15 @@ class UserController extends Controller
     {
         $order = $this->userService->storeClipOrder($request, $clip);
         return $this->success($order);
+    }
+
+
+    /**
+     * send order to vendor
+     */
+    public function sendOrderToVendor(Request $request, Order $order)
+    {
+        $this->userService->sendOrderToVendor($order);
+        return $this->success();
     }
 }

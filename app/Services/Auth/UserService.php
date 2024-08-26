@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use App\Models\Listing;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Notifications\SendOrderToVendorNotificaion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -139,5 +140,16 @@ class UserService
             $clip->setAddOrder();
             return $order->load('orderDetails');
         });
+    }
+
+
+    /**
+     * Send order to vendor
+     */
+    public function sendOrderToVendor(Order $order)
+    {
+        $order->store->user->notify(new SendOrderToVendorNotificaion($order));
+        Clip::where('store_id',  $order->store_id)->where('uid', $order->customer_uid)->delete();
+        return true;
     }
 }
