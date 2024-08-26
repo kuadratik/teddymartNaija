@@ -4,7 +4,7 @@ namespace App\Actions;
 
 use App\Models\UserInteraction;
 
-class RecordUserIntercationAction
+class RecordUserInteractionAction
 {
     /**
      * Record category interaction count
@@ -15,7 +15,7 @@ class RecordUserIntercationAction
 
         if ($userInteraction) {
 
-            $interactions = collect($userInteraction->interactions);
+            $interactions = collect(json_decode($userInteraction->interactions, true));
             $categoriesMap = collect($categories)->keyBy('category');
 
             // Update category interaction

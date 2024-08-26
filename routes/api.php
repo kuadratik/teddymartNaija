@@ -42,6 +42,7 @@ Route::prefix('front')->group(function () {
 
     Route::prefix('stores')->group(function () {
         Route::get('/', [StoresController::class, 'getStores']);
+        Route::get('recommended-stores', [StoresController::class, 'getRecommendedStores']);
         Route::get('{store}/listings', [StoresController::class, 'showStoreListing']);
         Route::get('{store}/listings/{listing}', [ListingsController::class, 'show']);
     });

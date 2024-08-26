@@ -73,6 +73,7 @@ class ListingsController extends Controller
     {
         $validatedData = $request->validate(['is_available' => ['required', 'boolean']]);
         $listing->update(['is_available' => $validatedData['is_available']]);
+        
         return $this->success();
     }
 

@@ -27,6 +27,17 @@ class StoresController extends Controller
 
         return $this->success($stores);
     }
+
+    /**
+     *  Get recommended stores
+     */
+    public function getRecommendedStores(Request $request)
+    {
+        $stores = Store::query()->recommended()->inRandomOrder()->paginate();
+
+        return $this->success($stores);
+    }
+
     /**
      * Creates a store based on the provided request.
      */

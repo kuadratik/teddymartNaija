@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Actions\FetchUserMostInteractedCategoriesAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Store extends Model
 {
@@ -67,24 +69,23 @@ class Store extends Model
      */
     public function scopebyUser(Builder $query, $userId)
     {
-
         $query->where('user_id', $userId);
     }
 
     /**
      * Scope by listing type
      */
-    public function scopeByListingType($query, $listingType)
+    public function scopeByListingType(Builder $query, $listingType)
     {
-        return $query->whereHas('listings', fn ($query) => $query->where('type', $listingType));
+        $query->whereHas('listings', fn ($query) => $query->where('type', $listingType));
     }
 
     /**
      * Scope by search
      */
-    public function scopeSearch($query, $search)
+    public function scopeSearch(Builder $query, $search)
     {
-        return $query->whereLike('name', "%$search%")->orWhereHas(
+        $query->whereLike('name', "%$search%")->orWhereHas(
             'listings',
             fn ($query) => $query->whereLike('name', "%$search%")
         );
@@ -93,8 +94,21 @@ class Store extends Model
     /**
      * Scope by category
      */
-    public function scopeByCategory($query, $category)
+    public function scopeByCategory(Builder $query, $category)
     {
-        return $query->whereHas('listings', fn ($query) => $query->where('category_id', $category));
+        $query->whereHas('listings', fn ($query) => $query->where('category_id', $category));
+    }
+
+    /**
+     * Scope by recommended
+     */
+    public function scopeRecommended(Builder $query)
+    {
+        $mostUsedCategories = app(FetchUserMostInteractedCategoriesAction::class)->fetch();
+        $query->whereHas(
+            'listings',
+            fn ($query) => $query->whereIntegerInRaw('category_id', $mostUsedCategories)
+                ->orderByRaw("FIELD(category_id, " . implode(',', $mostUsedCategories) . ") DESC")
+        );
     }
 }
