@@ -112,4 +112,16 @@ class UserController extends Controller
         $this->userService->sendOrderToVendor($order);
         return $this->success();
     }
+
+
+
+    /**
+     * get store customer count from orders
+     */
+    public function getStoreCustomerCount(Request $request)
+    {
+        $count = $this->userService->getStoreCustomerCount($request->user()->store);
+        return $this->success($count);
+    }
+
 }

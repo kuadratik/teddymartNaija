@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use App\Models\Listing;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\Store;
 use App\Notifications\SendOrderToVendorNotificaion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -151,5 +152,15 @@ class UserService
         $order->store->user->notify(new SendOrderToVendorNotificaion($order));
         Clip::where('store_id',  $order->store_id)->where('uid', $order->customer_uid)->delete();
         return true;
+    }
+
+
+    /**
+     * get store customer count from orders
+     */
+    public function getStoreCustomerCount(Store $store)
+    {
+        $store_count = Order::where('store_id', $store->id)->distinct('customer_uid')->count('customer_uid');
+        return ['customer_count' => $store_count];
     }
 }
