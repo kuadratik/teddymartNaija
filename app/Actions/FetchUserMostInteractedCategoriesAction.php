@@ -9,7 +9,7 @@ class FetchUserMostInteractedCategoriesAction
 {
     public function fetch()
     {
-        $userInteraction = UserInteraction::where('user_uid', request()->header('Interact_Uid'))->first();
+        $userInteraction = UserInteraction::where('user_uid', request()->header('interactUid'))->first();
 
         if (is_null($userInteraction)) {
            abort(404, 'User interaction not found for the given Interact UID.');

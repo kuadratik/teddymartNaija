@@ -237,7 +237,7 @@ paths:
         description: Record category interaction
         operationId: RecordCategoryInteraction
         parameters:
-          - name: Interact_Uid
+          - name: interactUid
             in: header
             required: true
             schema:
@@ -696,7 +696,7 @@ paths:
       description: "Get Recommended Store Lists"
       operationId: GetRecommendedStoreLists
       parameters:
-        - name: Interact_Uid
+        - name: interactUid
           in: header
           required: true
           schema:
