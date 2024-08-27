@@ -69,9 +69,9 @@ class GeneralController extends Controller
         RecordUserInteractionAction $recordUserInteractionAction
     ) {
         $category = [['category' => $category->id, 'interaction_count' => 1]];
-        $recordUserInteractionAction->record($category, $request->header('Interact_Uid'));
+        $recordUserInteractionAction->record($category, $request->header('interactUid'));
 
-        return $this->success($request->header('Interact_Uid'));
+        return $this->success();
     }
 
     /**
