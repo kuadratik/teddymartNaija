@@ -160,7 +160,25 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
+  /store/total-customers:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Get Total Customers
+      description: "Get Total Customers"
+      operationId: GetTotalCustomers
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
   /store/listings:
     get:
       security:
@@ -216,7 +234,7 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
   /store/listings/create:
     post:
       security:
@@ -255,7 +273,7 @@ paths:
                 category:
                   type: number
                   example: 11
-                
+
       responses:
         default:
           description: 'success'
@@ -263,7 +281,7 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
   /store/listings/{userStore}/listing/{listing}:
     get:
       security:
@@ -326,8 +344,8 @@ paths:
               properties:
                 is_available:
                   type: number
-                  example: 0      
-                
+                  example: 0
+
       responses:
         default:
           description: 'success'
@@ -335,7 +353,7 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
   /store/listings/{userStore}/listing/{listing}/update:
     patch:
       security:
@@ -387,7 +405,7 @@ paths:
                 category:
                   type: number
                   example: 11
-                
+
       responses:
         default:
           description: 'success'
@@ -395,7 +413,7 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
   /store/listings/{userStore}/listing/{listing}/delete:
      delete:
         security:
@@ -426,5 +444,5 @@ paths:
               application/json:
                 schema:
                   type: object
-  
-  
+
+

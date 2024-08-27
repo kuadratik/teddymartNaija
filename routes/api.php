@@ -38,7 +38,6 @@ Route::prefix('front')->group(function () {
         Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
         Route::delete('clips/{clip}', [UserController::class, 'deleteClip']);
         Route::delete('clips/{clip}/items/{product:slug}', [UserController::class, 'deleteClipItem']);
-
     });
 
     Route::prefix('stores')->group(function () {
@@ -59,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::middleware('hasStore')->group(function () {
             Route::get('user-store', [StoresController::class, 'showUserStore']);
             Route::patch('{userStore}/update', [StoresController::class, 'update']);
+            Route::get('total-customers', [UserController::class, 'getStoreCustomerCount']);
         });
 
         Route::prefix('listings')->group(function () {
