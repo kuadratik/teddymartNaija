@@ -31,17 +31,6 @@ class ListingsController extends Controller
     }
 
     /**
-     * Display a listing of user store listing count.
-     */
-    public function getUserStoreListingsCount(Request $request)
-    {
-        $userStoreListingsCount = $this->user->store->listings()
-            ->byType($request->listingType)->count();
-
-        return $this->success(["total" => $userStoreListingsCount]);
-    }
-
-    /**
      * Creates an user store listing based on the provided request.
      */
     public function create(CreateListingRequest $request)
@@ -73,6 +62,7 @@ class ListingsController extends Controller
     {
         $validatedData = $request->validate(['is_available' => ['required', 'boolean']]);
         $listing->update(['is_available' => $validatedData['is_available']]);
+        
         return $this->success();
     }
 

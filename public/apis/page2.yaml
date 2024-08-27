@@ -35,6 +35,31 @@ paths:
               schema:
                 type: object
 
+  /store/user-store/metrics:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Get User Store Metrics
+      description: 'Get User Store Metrics'
+      operationId: GetUserStoreMetrics
+      parameters:
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: product
+          required: true
+
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
   /store/create:
     post:
       security:
@@ -84,6 +109,9 @@ paths:
                 postal_code:
                   type: string
                   example: "100001"
+                country:
+                  type: integer
+                  example: 38
                 offers_service:
                   type: string
                   example: false
@@ -153,6 +181,9 @@ paths:
                 postal_code:
                   type: string
                   example: "100001"
+                country:
+                  type: integer
+                  example: 38
       responses:
         default:
           description: 'success'
@@ -200,31 +231,6 @@ paths:
           schema:
             type: boolean
             example: true
-          required: true
-
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /store/listings/total:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - User Store Listings
-      summary: Get User Store Listings Total
-      description: 'Get User Store Listings Total'
-      operationId: GetUserStoreListingsTotal
-      parameters:
-        - in: query
-          name: listingType
-          schema:
-            type: string
-            example: 'product'
           required: true
 
       responses:

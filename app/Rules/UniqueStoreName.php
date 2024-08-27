@@ -17,8 +17,7 @@ class UniqueStoreName implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (Store::where('name', $value)->exists()) {
-
+        if (Store::where('name', $value)->where('user_id', '!=', auth()->id())->exists()) {
             $fail("{$value} is taken, try " . $this->suggestAnotherName($value));
         }
     }
