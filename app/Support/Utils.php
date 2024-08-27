@@ -104,15 +104,18 @@ class Utils
         $permanentPaths = [];
 
         foreach ($tempPaths as $tempPath) {
-            $fileName = basename('temp/uploads' . $tempPath);
+            $fileName = basename($tempPath);
 
             $permanentPath = "{$permanentDirectory}/{$fileName}";
 
             if (Storage::disk('spaces')->exists('teddymart/' . $permanentPath)) {
                 continue;
             }
+            $move = Storage::disk('spaces')->move('teddymart/' . $tempPath, 'teddymart/' . $permanentPath);
 
-            Storage::disk('spaces')->move($tempPath, 'teddymart/' . $permanentPath);
+            if (!$move) {
+                abort(500, 'Unable to move file to permanent directory.');
+            }
 
             $permanentPaths[] = 'teddymart/' . $permanentPath;
         }
