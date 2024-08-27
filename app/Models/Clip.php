@@ -12,7 +12,8 @@ class Clip extends Model
         'store_id',
         'user_id',
         'uid',
-        'has_orders'
+        'has_orders',
+        'order_id'
     ];
 
     protected $casts = [
@@ -64,11 +65,12 @@ class Clip extends Model
 
 
     /**
-     * set has_order in clip to be true
+     * set has_order in clip to be true and order_id
      */
     public function setAddOrder()
     {
         $this->has_orders = true;
+        $this->order_id = $this->id;
         $this->save();
     }
 }
