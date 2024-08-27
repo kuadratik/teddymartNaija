@@ -104,7 +104,7 @@ class Utils
         $permanentPaths = [];
 
         foreach ($tempPaths as $tempPath) {
-            $fileName = basename('teddymart/temp/uploads' . $tempPath);
+            $fileName = basename('temp/uploads' . $tempPath);
 
             $permanentPath = "{$permanentDirectory}/{$fileName}";
 
