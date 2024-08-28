@@ -29,7 +29,7 @@ Route::prefix('front')->group(function () {
     Route::post('reset/send-otp', [FrontAuthController::class, 'resetPasswordSendOtp']);
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
     Route::get('category', [GeneralController::class, 'getCategories']);
-    Route::get('record-interaction/{category}' , [GeneralController::class , 'recordUserInteraction']);
+    Route::get('record-interaction/{category}', [GeneralController::class, 'recordUserInteraction']);
 
     Route::middleware(['hasUid', 'optionalAuth'])->group(function () {
         Route::post('add-to-clip/{product:slug}', [UserController::class, 'addToClip']);
@@ -61,11 +61,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('user-store', [StoresController::class, 'showUserStore']);
             Route::get('user-store/metrics', [StoresController::class, 'getUserStoreMetrics']);
             Route::patch('{userStore}/update', [StoresController::class, 'update']);
-            Route::get('total-customers', [UserController::class, 'getStoreCustomerCount']);
         });
 
         Route::prefix('listings')->group(function () {
-
             Route::middleware('hasStore')->group(function () {
                 Route::get('/', [ListingsController::class, 'getUserStoreListings']);
                 Route::post('create', [ListingsController::class, 'create']);

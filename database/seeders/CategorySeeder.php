@@ -121,8 +121,8 @@ class CategorySeeder extends Seeder
                 'description' => null,
             ],
             [
-                'name' => 'Transportation Services',
-                'slug' => Str::slug('Transportation Services'),
+                'name' => 'Logistics Services',
+                'slug' => Str::slug('Logistics Services'),
                 'type' => ListingType::SERVICE,
                 'description' => null,
             ],
