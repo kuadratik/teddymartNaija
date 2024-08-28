@@ -662,6 +662,11 @@ paths:
       description: "Get Store Lists"
       operationId: GetStoreLists
       parameters:
+        - in: header
+          name: interactUid
+          schema:
+            type: string
+            example: ""
         - in: query
           name: listingType
           schema:

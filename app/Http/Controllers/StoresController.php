@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Actions\RecordCategoryInteractionsAction;
 use App\Http\Requests\Store\CreateStoreRequest;
 use App\Http\Requests\Store\UpdateStoreRequest;
 use App\Models\Store;
@@ -24,8 +24,10 @@ class StoresController extends Controller
     /**
      *  Get stores
      */
-    public function getStores(Request $request)
-    {
+    public function getStores(
+        Request $request,
+        RecordCategoryInteractionsAction $recordCategoryInteractionsAction
+    ) {
         $stores = Store::query()->byListingType($request->listingType)->when(
             $request->search,
             fn ($query) => $query->search($request->search)
@@ -34,6 +36,7 @@ class StoresController extends Controller
             fn ($query) => $query->byCategory($request->category)
         )->get();
 
+        $recordCategoryInteractionsAction->record($request);
         return $this->success($stores);
     }
 
