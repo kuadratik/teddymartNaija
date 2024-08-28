@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Store\CreateStoreRequest;
 use App\Http\Requests\Store\UpdateStoreRequest;
 use App\Models\Store;
+use App\Services\Auth\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,12 +14,13 @@ use Illuminate\Support\Facades\DB;
 class StoresController extends Controller
 {
     /**
-     * Display a store metrics 
+     * Display a store metrics
      */
-    public function getUserStoreMetrics(Request $request)
+    public function getUserStoreMetrics(Request $request, UserService $userService)
     {
         $userStoreListingsCount = $request->user()->store->listings()->byType($request->listingType)->count();
-        return $this->success(["totalListingsCount" => $userStoreListingsCount]);
+        $customersCount = $userService->getStoreCustomerCount($request->user()->store);
+        return $this->success(["totalListingsCount" => $userStoreListingsCount, "totalCustomerCount" => $customersCount]);
     }
 
     /**
@@ -28,10 +30,10 @@ class StoresController extends Controller
     {
         $stores = Store::query()->byListingType($request->listingType)->when(
             $request->search,
-            fn ($query) => $query->search($request->search)
+            fn($query) => $query->search($request->search)
         )->when(
             $request->category,
-            fn ($query) => $query->byCategory($request->category)
+            fn($query) => $query->byCategory($request->category)
         )->get();
 
         return $this->success($stores);
