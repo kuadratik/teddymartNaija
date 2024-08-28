@@ -667,6 +667,7 @@ paths:
           schema:
             type: string
             example: ""
+          required: true
         - in: query
           name: listingType
           schema:
