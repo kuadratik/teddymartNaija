@@ -21,6 +21,8 @@ class ClipResource extends JsonResource
             'number_of_listings' => $this->products->count(),
             'total_amount' => $this->products->sum('price'),
             'store_image' => $this->store->profile_picture_path,
+            'store_whatsapp_number' => $this->store->whatsapp_number,
+            'store_contact_number' => $this->store->contact_number,
             'has_orders' => $this->has_orders,
             'order_id' => $this->order_id,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
