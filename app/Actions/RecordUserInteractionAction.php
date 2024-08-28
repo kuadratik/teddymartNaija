@@ -7,7 +7,7 @@ use App\Models\UserInteraction;
 class RecordUserInteractionAction
 {
     /**
-     * Record category interaction count
+     * Record user interaction
      */
     public function record($categories, $userUid)
     {

@@ -87,10 +87,10 @@ paths:
                   example: "1234567890"
                 profile_picture_path:
                   type: string
-                  example: "dnndvs"
+                  example: ""
                 banner_path:
                   type: string
-                  example: "fdsgrrwg"
+                  example: ""
                 description:
                   type: string
                   example: "The best amala in ibadan"
@@ -159,10 +159,10 @@ paths:
                   example: "1234567890"
                 profile_picture_path:
                   type: string
-                  example: "ccvv"
+                  example: ""
                 banner_path:
                   type: string
-                  example: "srggerv"
+                  example: ""
                 description:
                   type: string
                   example: "The best amala in ibadan"
