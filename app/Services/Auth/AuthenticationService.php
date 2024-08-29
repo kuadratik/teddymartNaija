@@ -4,6 +4,7 @@ namespace App\Services\Auth;
 
 use App\Models\Otp;
 use App\Models\User;
+use App\Notifications\OnboardingUserNotification;
 use App\Notifications\SendEmailVerificationOtp;
 use App\Notifications\ResetPasswordNotification;
 use App\Support\Utils;
@@ -39,6 +40,8 @@ class AuthenticationService
             $user->markEmailAsVerified();
 
             $otpRecord->delete();
+
+            $user->notify(new OnboardingUserNotification());
 
             return $user;
         });
