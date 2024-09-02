@@ -166,7 +166,7 @@ class UserService
      */
     public function getStoreCustomerCount(Store $store)
     {
-        $store_count = Order::where('store_id', $store->id)->distinct('customer_uid')->count('customer_uid');
+        $store_count = Order::where('store_id', $store->id)->distinct('user_id')->count('user_id');
         return ['customer_count' => $store_count];
     }
 }
