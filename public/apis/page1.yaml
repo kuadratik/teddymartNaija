@@ -60,12 +60,6 @@ paths:
       description: register users step two verify otp
       operationId: RegisterStepTwo
       parameters:
-      - in: header
-        name: Clip-Uid
-        schema:
-          type: string
-          example:
-        required: false
       requestBody:
         content:
           application/json:

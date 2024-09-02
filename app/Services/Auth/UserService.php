@@ -47,7 +47,7 @@ class UserService
                 return Utils::validateResp(['error' => ['Product not found']]);
             }
 
-            $uid = $request->header('Clip-Uid');
+            $uid = auth()->user()->clipper_uid ?? $request->header('Clip-Uid');
             $storeId = $product->store->id;
             $customerId = auth()->id();
 
@@ -73,11 +73,23 @@ class UserService
     {
         $customerId = auth()->id();
         $clipUid = request()->header('Clip-Uid');
+        $authClipperUid = @auth()->user()->clipper_uid;
 
-        $clips = Clip::when($customerId, fn($query) => $query->where('user_id', $customerId))
-            ->when(!$customerId && $clipUid, fn($query) => $query->where('uid', $clipUid))
+        $clips = Clip::query()
+            ->when($customerId, function ($query) use ($customerId) {
+                $query->where('user_id', $customerId);
+            })
+            ->when(!$customerId && $clipUid, function ($query) use ($clipUid) {
+                $query->where('uid', $clipUid);
+            })
+            ->orWhere(function ($query) use ($authClipperUid) {
+                $query->where('uid', $authClipperUid);
+            })
             ->with('products')
             ->get();
+
+        $clips = $clips->unique('id');
+
         $totalProductCount = $clips->sum(fn($clip) => $clip->products->count());
 
         return [
@@ -85,6 +97,7 @@ class UserService
             'clips' => ClipResource::collection($clips),
         ];
     }
+
 
     /**
      * Get a clip by ID with product details.

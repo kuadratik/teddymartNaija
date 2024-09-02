@@ -34,7 +34,6 @@ class AuthenticationService
     public function verifyOtpAndCreateUser(array $data): array
     {
         return DB::transaction(function () use ($data) {
-            $uid = request()->header('Clip-Uid');
             $otpRecord = Otp::where('email', $data['email'])->firstOrFail();
             $user = User::create($data);
             $user->markEmailAsVerified();
@@ -43,17 +42,9 @@ class AuthenticationService
 
             $user->notify(new OnboardingUserNotification());
 
-            $user->when($uid, function ($query) use ($data, $uid) {
-                $query->updateOrCreate(
-                    ['email' => $data['email']],
-                    ['clipper_uid' => $uid]
-                );
-            });
-
             return [
                 'token' => $user->createToken('authToken')->plainTextToken,
                 'user' => $user->load('store'),
-                'clipper_uid' => $uid,
             ];
         });
     }
