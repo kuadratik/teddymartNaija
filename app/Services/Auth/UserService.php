@@ -47,7 +47,7 @@ class UserService
                 return Utils::validateResp(['error' => ['Product not found']]);
             }
 
-            $uid = $request->header('Clip-Uid');
+            $uid = auth()->user()->clipper_uid ?? $request->header('Clip-Uid');
             $storeId = $product->store->id;
             $customerId = auth()->id();
 
@@ -73,11 +73,16 @@ class UserService
     {
         $customerId = auth()->id();
         $clipUid = request()->header('Clip-Uid');
+        $authClipperUid = optional(auth()->user())->clipper_uid;
 
-        $clips = Clip::when($customerId, fn($query) => $query->where('user_id', $customerId))
+        $clips = Clip::query()
+            ->when($customerId, fn($query) => $query->where('user_id', $customerId))
             ->when(!$customerId && $clipUid, fn($query) => $query->where('uid', $clipUid))
+            ->orWhere(fn($query) => $query->where('uid', $authClipperUid))
             ->with('products')
-            ->get();
+            ->get()
+            ->unique('id');
+
         $totalProductCount = $clips->sum(fn($clip) => $clip->products->count());
 
         return [
@@ -103,7 +108,7 @@ class UserService
         return $clipData->products->map(fn($product) => [
             'name' => $product->name,
             'slug' =>  $product->slug,
-            'image' => $product->images[0],
+            'image' => @$product->images[0],
             'price' => $product->price,
         ])->all();
     }
@@ -114,10 +119,11 @@ class UserService
      */
     public function storeClipOrder(StoreClipOrderRequest $request, Clip $clip)
     {
+
         return DB::transaction(function () use ($request, $clip) {
             $order = Order::create([
                 'store_id' => $clip->store_id,
-                'customer_uid' => $request->header('Clip-Uid'),
+                'user_id' => auth()->user()->id,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
@@ -150,7 +156,7 @@ class UserService
     public function sendOrderToVendor(Order $order)
     {
         $order->store->user->notify(new SendOrderToVendorNotificaion($order));
-        Clip::where('store_id',  $order->store_id)->where('uid', $order->customer_uid)->delete();
+        Clip::where('store_id',  $order->store_id)->where('order_id', $order->id)->delete();
         return true;
     }
 

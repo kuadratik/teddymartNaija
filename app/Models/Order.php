@@ -16,7 +16,7 @@ class Order extends Model
      */
     protected $fillable = [
         'store_id',
-        'customer_uid',
+        'user_id',
         'first_name',
         'last_name',
         'email',
@@ -51,7 +51,7 @@ class Order extends Model
      */
     public function customer()
     {
-        return $this->belongsTo(User::class, 'customer_uid', 'clipper_uid');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
     public function clip()
     {

@@ -35,8 +35,6 @@ Route::prefix('front')->group(function () {
         Route::post('add-to-clip/{product:slug}', [UserController::class, 'addToClip']);
         Route::get('clips', [UserController::class, 'getClips']);
         Route::get('clip/{clip}', [UserController::class, 'viewClipItems']);
-        Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
-        Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
         Route::delete('clips/{clip}', [UserController::class, 'deleteClip']);
         Route::delete('clips/{clip}/items/{product:slug}', [UserController::class, 'deleteClipItem']);
     });
@@ -78,6 +76,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('front')->group(function () {
         Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
         Route::post('file-delete', [GeneralController::class, 'deleteTempFiles']);
+        Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
+        Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
         Route::prefix('user')->group(function () {
             Route::get('profile', [UserController::class, 'getUserProfile']);
             Route::put('profile/update', [UserController::class, 'updateUserProfile']);
