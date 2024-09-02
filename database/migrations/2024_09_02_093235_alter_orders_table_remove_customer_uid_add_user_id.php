@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             $table->dropColumn('customer_uid');
-            $table->foreignId('user_id')->after('id')->constrained();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade')->after('id');
         });
     }
 
