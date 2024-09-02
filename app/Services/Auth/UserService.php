@@ -144,7 +144,7 @@ class UserService
             });
 
             OrderDetail::insert($orderDetails->all());
-            $clip->setAddOrder();
+            $clip->setAddOrder($order->id);
             return $order->load('orderDetails');
         });
     }

@@ -67,10 +67,10 @@ class Clip extends Model
     /**
      * set has_order in clip to be true and order_id
      */
-    public function setAddOrder()
+    public function setAddOrder(int $id)
     {
         $this->has_orders = true;
-        $this->order_id = $this->id;
+        $this->order_id = $id;
         $this->save();
     }
 }
