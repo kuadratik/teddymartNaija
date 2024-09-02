@@ -108,7 +108,7 @@ class UserService
         return $clipData->products->map(fn($product) => [
             'name' => $product->name,
             'slug' =>  $product->slug,
-            'image' => $product->images[0],
+            'image' => @$product->images[0],
             'price' => $product->price,
         ])->all();
     }
