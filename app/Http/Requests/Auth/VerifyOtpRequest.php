@@ -38,6 +38,8 @@ class VerifyOtpRequest extends FormRequest
      */
     public function registerAttribute(): array
     {
-        return $this->safe()->all();
+        return collect($this->validated())->merge([
+            'clipper_uid' => Str::uuid()->toString()
+        ])->toArray();
     }
 }
