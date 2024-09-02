@@ -114,10 +114,11 @@ class UserService
      */
     public function storeClipOrder(StoreClipOrderRequest $request, Clip $clip)
     {
+
         return DB::transaction(function () use ($request, $clip) {
             $order = Order::create([
                 'store_id' => $clip->store_id,
-                'customer_uid' => $request->header('Clip-Uid'),
+                'user_id' => auth()->user()->id,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
@@ -150,7 +151,7 @@ class UserService
     public function sendOrderToVendor(Order $order)
     {
         $order->store->user->notify(new SendOrderToVendorNotificaion($order));
-        Clip::where('store_id',  $order->store_id)->where('uid', $order->customer_uid)->delete();
+        Clip::where('store_id',  $order->store_id)->where('order_id', $order->id)->delete();
         return true;
     }
 

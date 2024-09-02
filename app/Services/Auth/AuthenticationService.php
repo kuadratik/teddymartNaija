@@ -31,19 +31,30 @@ class AuthenticationService
     /**
      * Verify OTP and create the user after verification.
      */
-    public function verifyOtpAndCreateUser(array $data): User
+    public function verifyOtpAndCreateUser(array $data): array
     {
         return DB::transaction(function () use ($data) {
+            $uid = request()->header('Clip-Uid');
             $otpRecord = Otp::where('email', $data['email'])->firstOrFail();
             $user = User::create($data);
-
             $user->markEmailAsVerified();
 
             $otpRecord->delete();
 
             $user->notify(new OnboardingUserNotification());
 
-            return $user;
+            $user->when($uid, function ($query) use ($data, $uid) {
+                $query->updateOrCreate(
+                    ['email' => $data['email']],
+                    ['clipper_uid' => $uid]
+                );
+            });
+
+            return [
+                'token' => $user->createToken('authToken')->plainTextToken,
+                'user' => $user->load('store'),
+                'clipper_uid' => $uid,
+            ];
         });
     }
 
@@ -58,18 +69,9 @@ class AuthenticationService
         if (!Hash::check($data['password'], optional($user)->password)) {
             return Utils::validateResp(['email' => ['The provided credentials are invalid.']]);
         }
-
-        $user->when($uid, function ($query) use ($data, $uid) {
-            $query->updateOrCreate(
-                ['email' => $data['email']],
-                ['clipper_uid' => $uid]
-            );
-        });
-
         return [
             'token' => $user->createToken('authToken')->plainTextToken,
             'user' => $user->load('store'),
-            'clipper_uid' => @$uid,
         ];
     }
 

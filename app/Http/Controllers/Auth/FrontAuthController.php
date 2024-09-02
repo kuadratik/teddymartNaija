@@ -33,8 +33,8 @@ class FrontAuthController extends Controller
      */
     public function verifyEmailOtp(VerifyOtpRequest $request)
     {
-        $this->authService->verifyOtpAndCreateUser($request->registerAttribute());
-        return $this->success();
+        $response = $this->authService->verifyOtpAndCreateUser($request->registerAttribute());
+        return $this->success($response);
     }
 
     /**
