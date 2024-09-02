@@ -44,7 +44,7 @@ class UpdateListingRequest extends FormRequest
         $newlyMovedImages = Utils::moveToPermanentPath($images, 'images');
         $unchangedImages =  array_filter(
             $images,
-            fn ($image) => !str_starts_with($image, 'temp/') && str_starts_with($image, 'images/')
+            fn ($image) => !str_starts_with($image, 'temp/') && str_starts_with($image, 'teddymart/images/')
         );
 
         return array_merge($newlyMovedImages, $unchangedImages);
