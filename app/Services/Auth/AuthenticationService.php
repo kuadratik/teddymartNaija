@@ -54,7 +54,6 @@ class AuthenticationService
      */
     public function login(array $data): array
     {
-        $uid = request()->header('Clip-Uid');
         $user = User::where('email', $data['email'])->first();
 
         if (!Hash::check($data['password'], optional($user)->password)) {
