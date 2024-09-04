@@ -66,22 +66,20 @@ class UserService
         });
     }
 
+
     /**
      * Get all clips for a user.
      */
-    public function getClips()
+    public function getClips(): array
     {
-        $customerId = auth()->id();
         $clipUid = request()->header('Clip-Uid');
         $authClipperUid = optional(auth()->user())->clipper_uid;
 
         $clips = Clip::query()
-            ->when($customerId, fn($query) => $query->where('user_id', $customerId))
-            ->when(!$customerId && $clipUid, fn($query) => $query->where('uid', $clipUid))
-            ->orWhere(fn($query) => $query->where('uid', $authClipperUid))
+            ->whereIn('uid', [$clipUid, $authClipperUid])
             ->with('products')
             ->get()
-            ->unique('id');
+            ->unique('uid');
 
         $totalProductCount = $clips->sum(fn($clip) => $clip->products->count());
 
@@ -90,6 +88,7 @@ class UserService
             'clips' => ClipResource::collection($clips),
         ];
     }
+
 
     /**
      * Get a clip by ID with product details.
@@ -123,7 +122,7 @@ class UserService
         return DB::transaction(function () use ($request, $clip) {
             $order = Order::create([
                 'store_id' => $clip->store_id,
-                'user_id' => auth()->user()->id,
+                'user_id' => auth()->id(),
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $request->email,
@@ -162,7 +161,7 @@ class UserService
 
 
     /**
-     * get store customer count from orders
+     * Get store customer count from orders
      */
     public function getStoreCustomerCount(Store $store)
     {
