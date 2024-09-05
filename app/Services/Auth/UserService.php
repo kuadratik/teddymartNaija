@@ -41,26 +41,37 @@ class UserService
     public function addToClip(Request $request, int $productId)
     {
         return DB::transaction(function () use ($request, $productId) {
-            $product = Listing::where('id', $productId)->where('type', ListingType::PRODUCT)->with('store')->first();
+            $product = Listing::where('id', $productId)
+                ->where('type', ListingType::PRODUCT)
+                ->with('store')
+                ->first();
 
             if (!$product) {
                 return Utils::validateResp(['error' => ['Product not found']]);
             }
 
             $uid = auth()->user()->clipper_uid ?? $request->header('Clip-Uid');
+            $clipId =  $request->header('Clip-Uid');
             $storeId = $product->store->id;
             $customerId = auth()->id();
 
-            $clip = Clip::updateOrCreate(
-                ['store_id' => $storeId, 'uid' => $uid],
-                ['store_id' => $storeId, 'user_id' => $customerId, 'uid' => $uid]
-            );
-
-            $result = $clip->addProduct($product);
-
-            if (!$result) {
+            $existingClip = Clip::where('store_id', $storeId)
+                ->where(function ($query) use ($clipId, $uid, $customerId) {
+                    $query->where('uid', $uid)
+                        ->orWhere('user_id', $customerId)
+                        ->orWhere('uid', $clipId);
+                })
+                ->first();
+            if ($existingClip && $existingClip->products()->where('listing_id', $productId)->exists()) {
                 return Utils::validateResp(['error' => ['Product already clipped.']]);
             }
+
+            $clip = Clip::updateOrCreate(
+                ['store_id' => $storeId, 'uid' => $uid],
+                ['user_id' => $customerId, 'uid' => $uid]
+            );
+
+            $clip->products()->attach($product->id);
 
             return $clip;
         });
@@ -68,7 +79,7 @@ class UserService
 
 
     /**
-     * Get all clips for a user.
+     * Get  all clips
      */
     public function getClips(): array
     {
@@ -78,14 +89,36 @@ class UserService
         $clips = Clip::query()
             ->whereIn('uid', [$clipUid, $authClipperUid])
             ->with('products')
-            ->get()
-            ->unique('uid');
+            ->get();
 
-        $totalProductCount = $clips->sum(fn($clip) => $clip->products->count());
+        $mergedClips = $clips->groupBy('store_id')->map(function ($storeClips) {
+            if ($storeClips->count() > 1) {
+                $primaryClip = $storeClips->first();
+                $otherClips = $storeClips->slice(1);
+
+                foreach ($otherClips as $otherClip) {
+                    foreach ($otherClip->products as $product) {
+                        $primaryClip->addProduct($product);
+                    }
+                    $otherClip->delete();
+                }
+
+                return $primaryClip->fresh('products');
+            }
+
+            return $storeClips->first()->fresh('products');
+        });
+
+        $refreshedClips = Clip::query()
+            ->whereIn('id', $mergedClips->pluck('id')->toArray())
+            ->with('products')
+            ->get();
+
+        $totalProductCount = $refreshedClips->sum(fn($clip) => $clip->products->count());
 
         return [
             'total_product_count' => $totalProductCount,
-            'clips' => ClipResource::collection($clips),
+            'clips' => ClipResource::collection($refreshedClips),
         ];
     }
 
