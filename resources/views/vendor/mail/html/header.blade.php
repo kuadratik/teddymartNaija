@@ -5,14 +5,14 @@
             <img src="{{ asset('images/logo.png') }}" alt="Eki Logo" style="height: 50px;">
         </a>
     </div>
-    <div style="flex: 1; text-align: right;">
-        <a href="https://twitter.com" style="margin: 0 10px;">
+    <div style="flex: 1; display:flex; align-items:center; justify-content: space-between; text-align: right;">
+        <a href="https://twitter.com" style="margin: 0 5px;">
             <img src="{{ asset('images/SocialIconTwitter.png') }}" alt="Twitter" style="height: 24px;">
         </a>
-        <a href="https://facebook.com" style="margin: 0 10px;">
-            <img src="{{ asset('pimages/SocialIconFB.png') }}" alt="Facebook" style="height: 24px;">
+        <a href="https://facebook.com" style="margin: 0 5px;">
+            <img src="{{ asset('images/SocialIconFB.png') }}" alt="Facebook" style="height: 24px;">
         </a>
-        <a href="https://instagram.com" style="margin: 0 10px;">
+        <a href="https://instagram.com" style="margin: 0 5px;">
             <img src="{{ asset('images/SocialIconIG.png') }}" alt="Instagram" style="height: 24px;">
         </a>
     </div>
