@@ -61,7 +61,7 @@ class SendOrderToVendorNotificaion extends Notification implements ShouldQueue
 
 
         $orderDetailsTable =
-        "<table border='1' cellpadding='8' cellspacing='0' style='border-collapse: collapse; width: 100%; max-width: 600px; margin: auto; margin-top: 20px;'>
+            "<table border='1' cellpadding='8' cellspacing='0' style='border-collapse: collapse; width: 100%; max-width: 600px; margin: auto; margin-top: 20px;'>
             <thead>
                 <tr>
                     <th style='background-color: #f2f2f2; text-align: left;'>Product Name</th>
@@ -89,7 +89,8 @@ class SendOrderToVendorNotificaion extends Notification implements ShouldQueue
             ->line("You have received a new order request from a customer. Below are the details of the order:")
             ->line(new HtmlString($details))
             ->line(new HtmlString($orderDetailsTable))
-            ->line('Thank you for your prompt attention to this request!');
+            ->line('Thank you for your prompt attention to this request!')
+            ->salutation('Best Regards, The Eki Team');
     }
 
     /**
