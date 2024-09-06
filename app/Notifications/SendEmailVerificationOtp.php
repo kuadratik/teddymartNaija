@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
 class SendEmailVerificationOtp extends Notification implements ShouldQueue
 {
@@ -40,7 +41,8 @@ class SendEmailVerificationOtp extends Notification implements ShouldQueue
             ->line('Your OTP for email verification is: ' . $this->otp)
             ->line('This OTP will expire in 5 minutes.')
             ->line('If you did not request this OTP, please ignore this email.')
-            ->line('Thank you for using our application!');
+            ->line('Thank you for using our application!')
+            ->salutation(new HtmlString('Best Regards,<br>The TeddyMart Team'));
     }
 
     /**
