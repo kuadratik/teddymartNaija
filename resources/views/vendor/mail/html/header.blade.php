@@ -1,6 +1,6 @@
 @props(['url'])
-<div style="width: 100%; background-color: #f6f6f6; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
-    <div style="flex: 1;">
+<div style="width: 100%;  padding:20px; display: flex; justify-content: center; align-items: center;">
+    <div style="flex: 1;text-align: left ;">
         <a href="{{ url('/') }}" style="display: inline-block;">
             <img src="{{ asset('images/logo.png') }}" alt="Eki Logo" style="height: 50px;">
         </a>
