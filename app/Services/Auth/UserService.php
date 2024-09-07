@@ -81,11 +81,8 @@ class UserService
     public function getClips(): array
     {
         $clipUid = request()->header('Clip-Uid');
-        $authClipperUid = optional(auth()->user())->clipper_uid;
-
         $clips = Clip::query()
             ->where('uid', $clipUid)
-            ->orWhere('uid', $authClipperUid)
             ->with('products')
             ->get();
 
