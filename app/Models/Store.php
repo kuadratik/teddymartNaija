@@ -35,6 +35,13 @@ class Store extends Model
     ];
 
     /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['user:id,offers_product,offers_service'];
+
+    /**
      * Get the route key for the model.
      */
     public function getRouteKeyName(): string
