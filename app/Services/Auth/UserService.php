@@ -50,18 +50,15 @@ class UserService
                 return Utils::validateResp(['error' => ['Product not found']]);
             }
 
-            $uid = auth()->user()->clipper_uid ?? $request->header('Clip-Uid');
-            $clipId =  $request->header('Clip-Uid');
+            $uid = $request->header('Clip-Uid');
             $storeId = $product->store->id;
             $customerId = auth()->id();
 
             $existingClip = Clip::where('store_id', $storeId)
-                ->where(function ($query) use ($clipId, $uid, $customerId) {
+                ->where(function ($query) use ($uid, $customerId) {
                     $query->where('uid', $uid)
-                        ->orWhere('user_id', $customerId)
-                        ->orWhere('uid', $clipId);
-                })
-                ->first();
+                        ->orWhere('user_id', $customerId);
+                })->first();
             if ($existingClip && $existingClip->products()->where('listing_id', $productId)->exists()) {
                 return Utils::validateResp(['error' => ['Product already clipped.']]);
             }
@@ -87,38 +84,16 @@ class UserService
         $authClipperUid = optional(auth()->user())->clipper_uid;
 
         $clips = Clip::query()
-            ->whereIn('uid', [$clipUid, $authClipperUid])
+            ->where('uid', $clipUid)
+            ->orWhere('uid', $authClipperUid)
             ->with('products')
             ->get();
 
-        $mergedClips = $clips->groupBy('store_id')->map(function ($storeClips) {
-            if ($storeClips->count() > 1) {
-                $primaryClip = $storeClips->first();
-                $otherClips = $storeClips->slice(1);
-
-                foreach ($otherClips as $otherClip) {
-                    foreach ($otherClip->products as $product) {
-                        $primaryClip->addProduct($product);
-                    }
-                    $otherClip->delete();
-                }
-
-                return $primaryClip->fresh('products');
-            }
-
-            return $storeClips->first()->fresh('products');
-        });
-
-        $refreshedClips = Clip::query()
-            ->whereIn('id', $mergedClips->pluck('id')->toArray())
-            ->with('products')
-            ->get();
-
-        $totalProductCount = $refreshedClips->sum(fn($clip) => $clip->products->count());
+        $totalProductCount = $clips->sum(fn($clip) => $clip->products->count());
 
         return [
             'total_product_count' => $totalProductCount,
-            'clips' => ClipResource::collection($refreshedClips),
+            'clips' => ClipResource::collection($clips),
         ];
     }
 
