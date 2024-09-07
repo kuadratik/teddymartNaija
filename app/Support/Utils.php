@@ -2,15 +2,13 @@
 
 namespace App\Support;
 
-use App\Traits\RespondsWithHttpStatus;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class Utils
 {
-    use RespondsWithHttpStatus;
-
     /**
      * Throw validation with json repoonse
      *
@@ -41,7 +39,7 @@ class Utils
 
     /**
      * Upload or abort with http Exception
-     * 
+     *
      * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public static function uploadOrFail(UploadedFile $file, $path = 'images')
@@ -58,7 +56,7 @@ class Utils
 
     /**
      * Upload and return path
-     * 
+     *
      * @return string|false
      */
     public static function upload(UploadedFile $file, $path = 'images')
@@ -73,6 +71,91 @@ class Utils
     public static function filePath(String $path)
     {
         return "https://kuadratik.nyc3.digitaloceanspaces.com/teddymart{$path}";
+    }
+    /**
+     * Upload multiple images temporarily to DigitalOcean Spaces.
+     *
+     * @param array $files
+     * @return array
+     */
+    public static function uploadTemporary(array $files)
+    {
+        $tempPaths = [];
+
+        foreach ($files as $file) {
+            $path = 'teddymart/temp/uploads';
+            $uploadedPath = self::uploadOrFail($file, $path);
+            $tempPaths[] = str_replace('teddymart/', '', $uploadedPath);
+        }
+
+        return $tempPaths;
+    }
+
+
+    /**
+     * Move multiple images from the temporary location to a permanent directory, avoiding duplicates.
+     *
+     * @param array $tempPaths
+     * @param string $permanentDirectory
+     * @return array
+     */
+    public static function moveToPermanentPath(array $tempPaths, $permanentDirectory)
+    {
+        $permanentPaths = [];
+
+        foreach ($tempPaths as $tempPath) {
+            $fileName = basename($tempPath);
+
+            $permanentPath = "{$permanentDirectory}/{$fileName}";
+
+            if (Storage::disk('spaces')->exists('teddymart/' . $permanentPath)) {
+                continue;
+            }
+            $move = Storage::disk('spaces')->move('teddymart/' . $tempPath, 'teddymart/' . $permanentPath);
+
+            if (!$move) {
+                abort(500, 'Unable to move file to permanent directory.');
+            }
+
+            $permanentPaths[] = 'teddymart/' . $permanentPath;
+        }
+
+        return $permanentPaths;
+    }
+
+    /**
+     * Delete multiple files from a permanent directory.
+     *
+     * @param array $filePaths
+     * @param string $permanentDirectory
+     * @return void
+     */
+    public static function deletePermanentFiles(array $filePaths, $permanentDirectory)
+    {
+        foreach ($filePaths as $filePath) {
+            $fullPath = 'teddymart/' . $permanentDirectory . '/' . $filePath;
+
+            if (Storage::disk('spaces')->exists($fullPath)) {
+                Storage::disk('spaces')->delete($fullPath);
+            }
+        }
+    }
+
+    /**
+     * Delete multiple temporary files.
+     *
+     * @param array $tempPaths
+     * @return void
+     */
+    public static function deleteTemporaryFiles(array $tempPaths)
+    {
+        foreach ($tempPaths as $tempPath) {
+            if (Storage::disk('spaces')->exists($tempPath)) {
+                Storage::disk('spaces')->delete($tempPath);
+            } else {
+                abort(500, 'path' . $tempPath . ' not found');
+            }
+        }
     }
 
     /**
@@ -131,8 +214,8 @@ class Utils
 
     /**
      * Json success response helper without extra headers
-     * and body 
-     * 
+     * and body
+     *
      * @param  mixed  $message
      * @param  mixed  $data
      * @return \Illuminate\Http\JsonResponse

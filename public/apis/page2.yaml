@@ -16,22 +16,17 @@ components:
       bearerFormat: JWT
 
 paths:
-  /parents:
+
+  /store/user-store:
     get:
       security:
         - bearerAuth: []
       tags:
-        - parent
-      summary: Get school parents
-      description: 'Get school parents'
-      operationId: getSchoolParent
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
+        - User Store
+      summary: Get User Store Info
+      description: 'Get User Store Info'
+      operationId: GetUserStoreTnfo
+
       responses:
         default:
           description: 'success'
@@ -40,22 +35,23 @@ paths:
               schema:
                 type: object
 
-  /parents/guardians/list:
+  /store/user-store/metrics:
     get:
       security:
         - bearerAuth: []
       tags:
-        - parent
-      summary: Get school guardians with app access
-      description: Get school guardians with app access
-      operationId: getSchoolParentGuardians
+        - User Store
+      summary: Get User Store Metrics
+      description: 'Get User Store Metrics'
+      operationId: GetUserStoreMetrics
       parameters:
-        - in: header
-          name: school
+        - in: query
+          name: listingType
           schema:
-            type: number
-            example: 2621
+            type: string
+            example: product
           required: true
+
       responses:
         default:
           description: 'success'
@@ -64,51 +60,87 @@ paths:
               schema:
                 type: object
 
-  /parents/{parent}:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - parent
-      summary: Get school parent information
-      description: 'Get school parent information'
-      operationId: getSchoolParentDetails
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: path
-          name: parent
-          schema:
-            type: number
-            example: 0
-          required: true
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /parents/create:
+  /store/create:
     post:
       security:
         - bearerAuth: []
       tags:
-        - parent
-      summary: Create school parent
-      description: Create school parent
-      operationId: CreateParentDetails
+        - User Store
+      summary: Create User Store
+      description: Create User Store
+      operationId: CreateUserStore
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Amala Sky"
+                contact_number:
+                  type: string
+                  example: "1234567898"
+                whatsapp_number:
+                  type: string
+                  example: "1234567890"
+                profile_picture_path:
+                  type: string
+                  example: ""
+                banner_path:
+                  type: string
+                  example: ""
+                description:
+                  type: string
+                  example: "The best amala in ibadan"
+                address1:
+                  type: string
+                  example: "oluyole ibadan"
+                address2:
+                  type: string
+                  example: "Good arena , eleyele ibadan"
+                state:
+                  type: string
+                  example: "oyo"
+                city:
+                  type: string
+                  example: "ibadan"
+                postal_code:
+                  type: string
+                  example: "100001"
+                country:
+                  type: integer
+                  example: 38
+                offers_service:
+                  type: string
+                  example: false
+                offers_product:
+                  type: string
+                  example: true
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/{userStore}/update:
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Update User Store
+      description:  Update User Store
+      operationId: UpdateUserStore
       parameters:
-        - in: header
-          name: school
+        - in: path
+          name: userStore
           schema:
-            type: number
-            example: 2621
+            type: string
+            example: amala-sky
           required: true
       requestBody:
         content:
@@ -116,45 +148,42 @@ paths:
             schema:
               type: object
               properties:
-                first_name:
+                name:
                   type: string
-                  example: "jon"
-                last_name:
+                  example: "Amala Sky"
+                contact_number:
                   type: string
-                  example: "bellion"
-                other_name:
+                  example: "1234567898"
+                whatsapp_number:
                   type: string
-                  example: "jamie"
-                email:
-                  type: string
-                  example: "jamie@gmail.com"
-                mobile_number:
-                  type: string
-                  example: "4545454545"
-                home_number:
-                  type: string
-                  example: "451268787545"
-                address_one:
-                  type: string
-                  example: "good valley"
-                address_two:
-                  type: string
-                  example: "Good arena"
-                country_id:
+                  example: "1234567890"
+                profile_picture_path:
                   type: string
                   example: ""
-                state_id:
+                banner_path:
                   type: string
                   example: ""
+                description:
+                  type: string
+                  example: "The best amala in ibadan"
+                address1:
+                  type: string
+                  example: "oluyole ibadan"
+                address2:
+                  type: string
+                  example: "Good arena , eleyele ibadan"
+                state:
+                  type: string
+                  example: "oyo"
                 city:
                   type: string
-                  example: ""
+                  example: "ibadan"
                 postal_code:
                   type: string
-                  example: ""
-                login_mail:
-                  type: string
-                  example: "jenssen007@example.com"
+                  example: "100001"
+                country:
+                  type: integer
+                  example: 38
       responses:
         default:
           description: 'success'
@@ -163,158 +192,15 @@ paths:
               schema:
                 type: object
 
-  /parents/{parent}/update:
-    post:
-      security:
-        - bearerAuth: []
-      tags:
-        - parent
-      summary: Update parent information
-      description:  Update parent information
-      operationId: updateSchoolParentDetails
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: path
-          name: parent
-          schema:
-            type: number
-            example: 0
-          required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                first_name:
-                  type: string
-                  example: "jon"
-                last_name:
-                  type: string
-                  example: "bellion"
-                other_name:
-                  type: string
-                  example: "jamie"
-                email:
-                  type: string
-                  example: "jamie@gmail.com"
-                mobile_number:
-                  type: string
-                  example: "4545454545"
-                home_number:
-                  type: string
-                  example: "451268787545"
-                address_one:
-                  type: string
-                  example: "good valley"
-                address_two:
-                  type: string
-                  example: "Good arena"
-                country_id:
-                  type: string
-                  example: ""
-                state_id:
-                  type: string
-                  example: ""
-                city:
-                  type: string
-                  example: ""
-                postal_code:
-                  type: string
-                  example: ""
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-  
-# =================================================================================================================================================
-# Attendances endpoint
-# =================================================================================================================================================
-  /attendances/grades:
+  /store/total-customers:
     get:
       security:
         - bearerAuth: []
       tags:
-        - attendance
-      summary: Get school classes with  attendance
-      description: ' Get school classes with  attendance'
-      operationId: getSchoolClasses
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: query
-          name: from
-          schema:
-            type: date
-            example: '2023-03-21 00:00:00'
-        - in: query
-          name: to
-          schema:
-            type: date
-            example: '2023-03-21 23:59:59'
-        - in: query
-          name: session
-          schema:
-            type: number
-            example: 
-          required: false
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /attendances/{date}/marked:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - attendance
-      summary: Get atttendance taken for a date
-      description: "Get atttendance taken for a date"
-      operationId: getDateAttendance
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: path
-          name: date
-          schema:
-            type: string
-            example: "2023-04-03"
-          required: true
-        - in: query
-          name: grade
-          schema:
-            type: number
-            example: ""
-        - in: query
-          name: status
-          schema:
-            type: string
-            example: ""
-        - in: query
-          name: search
-          schema:
-            type: string
-            example: ""
+        - User Store
+      summary: Get Total Customers
+      description: "Get Total Customers"
+      operationId: GetTotalCustomers
       responses:
         default:
           description: "success"
@@ -323,86 +209,77 @@ paths:
               schema:
                 type: object
 
-  /attendances/grades/{grade}/mark:
-    put:
+
+  /store/listings:
+    get:
       security:
         - bearerAuth: []
       tags:
-        - attendance
-      summary: Mark attendance for class
-      description: "Mark attendance for class"
-      operationId: markAttendance
+        - User Store Listings
+      summary: Get User Store Listings
+      description: 'Get User Store Listings'
+      operationId: GetUserStoreListings
       parameters:
-        - in: header
-          name: school
+        - in: query
+          name: listingType
           schema:
-            type: number
-            example: 2621
+            type: string
+            example: 'product'
           required: true
-        - in: path
-          name: grade
+        - in: query
+          name: availability
           schema:
-            type: number
-            example: ""
+            type: boolean
+            example: true
           required: true
+
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/listings/create:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Create User Store Listing
+      description: Create User Store Listing
+      operationId: CreateUserStoreListing
+
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                date:
+                name:
                   type: string
-                  example: "2023-04-03"
-                students:
+                  example: "Amala Full plate"
+                type:
+                  type: string
+                  example: "product"
+                price:
+                  type: string
+                  example: "1000"
+                description:
+                  type: string
+                  example: "dnndvs"
+                additional_information:
+                  type: string
+                  example: "fdsgrrwg"
+                images:
                   type: array
-                  example:
-                    [
-                      {
-                        "student_id": 5,
-                        "status": "present",
-                        "reason": "sick",
-                        "is_compliance": true,
-                        "compliance_reason": "wrong shoe",
-                        "is_late": false,
-                        "late_reason": null,
-                      },
-                    ]
-      responses:
-        default:
-          description: "success"
-          content:
-            application/json:
-              schema:
-                type: object
+                  items:
+                    type: string
+                category:
+                  type: number
+                  example: 11
 
-  /attendances/grades/{grade}/students:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - attendance
-      summary: Get class student for attendance
-      description: Get class student for attendance
-      operationId: getGradeStudents
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: path
-          name: grade
-          schema:
-            type: number
-            example: 2
-          required: true
-        - in: query
-          name: date
-          schema:
-            type: date
-            example: '2023-03-21'
       responses:
         default:
           description: 'success'
@@ -411,221 +288,70 @@ paths:
               schema:
                 type: object
 
-  /attendances/{attendance}/update:
+  /store/listings/{userStore}/listing/{listing}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Get User Store Listing
+      description: 'Get User Store Listing'
+      operationId: GetUserStoreListing
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: pounded-yam
+          required: true
+
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/listings/{userStore}/listing/{listing}/set-availability:
     patch:
       security:
         - bearerAuth: []
       tags:
-        - attendance
-      summary: Update attendance for single student on admin
-      description: Update attendance for single student on admin
-      operationId: markSingleAttendance
+        - User Store Listings
+      summary: Set Availability User Store Listing
+      description: Set Availability User Store Listing
+      operationId: SetAvailabilityUserStoreListing
       parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: query
-          name: attendance
-          schema:
-            type: number
-            example: 0
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  example: "present"
-                is_compliance:
-                  type: boolean
-                  example: false
-                half_day:
-                  type: boolean
-                  example: false
-                reason:
-                  type: string
-                  example: "sick"
-                compliance_reason:
-                  type: string
-                  example: "Torn shirt"
-                academic_date:
-                  type: string
-                  example: "2020-03-03"
-                is_late:
-                  type: boolean
-                  example: false
-                late_reason:
-                  type: string
-                  example: null
-      responses:
-        default:
-          description: "success"
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /attendances/presence-reports:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - attendance
-      summary: All grouped absence reports
-      description: All grouped absence reports
-      operationId: AllGroupedAbsenceReports
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: query
-          name: search
+        - in: path
+          name: userStore
           schema:
             type: string
-            example: 
-        - in: query
-          name: grade
-          schema:
-            type: string
-            example: 
-        - in: query
-          name: type
-          schema:
-            type: string
-            description: lateness|absence
-            example: absence
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-
-  /attendances/chart:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - attendance
-      summary: Get Attendance chart
-      description: "Get Attendance chart"
-      operationId: getAttendanceChart
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: query
-          name: date_from
-          schema:
-            type: string
-            example: "2023-04-30"
-          required: true
-        - in: query
-          name: date_to
-          schema:
-            type: string
-            example: "2023-04-30"
-          required: true
-        - in: query
-          name: grade
-          schema:
-            type: number
-            description: "optional remove from param if not needed"
-            example: 2
-      responses:
-        default:
-          description: "success"
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /attendances/grades/{grade}/reports:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - attendance
-      summary: Get Attendance table report for attendance admin
-      description: Get Attendance table report for attendance admin
-      operationId: getTableReport
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
+            example: amala-sky
           required: true
         - in: path
-          name: grade
-          schema:
-            type: number
-            example: 2
-          required: true
-        - in: query
-          name: range
+          name: listing
           schema:
             type: string
-            enum:
-              - months
-              - weekdays
+            example: pounded-yam
           required: true
-      responses:
-        default:
-          description: "success"
-          content:
-            application/json:
-              schema:
-                type: object
 
-
-# =================================================================================================================================================
-# School grade management
-# =================================================================================================================================================
-  /grades/create:
-    post:
-      security:
-        - bearerAuth: []
-      tags:
-        - grade
-      summary: Create new Grade
-      description: ' Create new Grade'
-      operationId: createSchoolGrade
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                academic_session_id:
+                is_available:
                   type: number
-                  example: 1
-                grade_name: 
-                  type: string
-                  example: "Grade 7"
-                ranking:
-                  type: number
-                  example: "1"
+                  example: 0
+
       responses:
         default:
           description: 'success'
@@ -634,96 +360,58 @@ paths:
               schema:
                 type: object
 
-  /grades/search:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - grade
-      summary: Get searchable classes for dropdowns
-      description: Get searchable classes for dropdowns
-      operationId: searchclasses
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: query
-          name: qry
-          schema:
-            type: string
-            example: 'grade 1'
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /grades/session:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - grade
-      summary: Get school grades via session
-      description: Get school grades via session
-      operationId: SessionGrade
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /grades/{grade}/update:
+  /store/listings/{userStore}/listing/{listing}/update:
     patch:
       security:
         - bearerAuth: []
       tags:
-        - grade
-      summary: Update Grade for school
-      description: Update Grade for school
-      operationId: updateSchoolGrade
+        - User Store Listings
+      summary: Update User Store Listing
+      description: Update User Store Listing
+      operationId: UpdateUserStoreListing
       parameters:
-        - in: header
-          name: school
+        - in: path
+          name: userStore
           schema:
-            type: number
-            example: 2621
+            type: string
+            example: amala-sky
           required: true
         - in: path
-          name: grade
+          name: listing
           schema:
-            type: number
-            example: 
+            type: string
+            example: pounded-yam
           required: true
+
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                academic_session_id:
-                  type: number
-                  example: 1
-                grade_name: 
+                name:
                   type: string
-                  example: "Grade 7"
-                ranking:
+                  example: "Amala Full plate"
+                type:
+                  type: string
+                  example: "product"
+                price:
+                  type: string
+                  example: "1000"
+                description:
+                  type: string
+                  example: "dnndvs"
+                additional_information:
+                  type: string
+                  example: "fdsgrrwg"
+                images:
+                  type: array
+                  items:
+                    type: string
+                category:
                   type: number
-                  example: "1"
+                  example: 11
+
       responses:
         default:
           description: 'success'
@@ -732,238 +420,35 @@ paths:
               schema:
                 type: object
 
-  /grades/{grade}/delete:
-    delete:
-      security:
-        - bearerAuth: []
-      tags:
-        - grade
-      summary: Delete Grade for school
-      description: Delete Grade for school
-      operationId: DeletechoolGrade
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: path
-          name: grade
-          schema:
-            type: number
-            example: 
-          required: true
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /grades/{grade}/batch-details:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - grade
-      summary: Batch details
-      description: Batch details
-      operationId: SchoolBatchDetails
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: path
-          name: grade
-          schema:
-            type: number
-            example: 
-          required: true
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /grades/{grade}/assign-staff:
-    put:
-      security:
-        - bearerAuth: []
-      tags:
-        - grade
-      summary: Assign staff to Batch
-      description: Assign staff to Batch
-      operationId: AssignStaffBatch
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: path
-          name: grade
-          schema:
-            type: number
-            example: 9
-          required: true
-      requestBody:
-        content:
-          application/json:
+  /store/listings/{userStore}/listing/{listing}/delete:
+     delete:
+        security:
+          - bearerAuth: []
+        tags:
+          - User Store Listings
+        summary: Delete User Store Listing
+        description: 'Delete User Store Listing'
+        operationId: DeleteUserStoreListing
+        parameters:
+          - in: path
+            name: userStore
             schema:
-              type: object
-              properties:
-                employee_id:
-                  type: number
-                  example: 145
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /grades/{grade}/primary-staff:
-    put:
-      security:
-        - bearerAuth: []
-      tags:
-        - grade
-      summary: Assign primary staff to Batch
-      description: Assign primary staff to Batch
-      operationId: PrimaryStaffBatch
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: path
-          name: grade
-          schema:
-            type: number
-            example: 9
-          required: true
-      requestBody:
-        content:
-          application/json:
+              type: string
+              example: amala-sky
+            required: true
+          - in: path
+            name: listing
             schema:
-              type: object
-              properties:
-                employee_id:
-                  type: number
-                  example: 145
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
+              type: string
+              example: pounded-yam
+            required: true
 
-  /grades/{grade}/remove-staff:
-    put:
-      security:
-        - bearerAuth: []
-      tags:
-        - grade
-      summary: Assign staff to Batch
-      description: Assign staff to Batch
-      operationId: RemoveStaffBatch
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: path
-          name: grade
-          schema:
-            type: number
-            example: 9
-          required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                employee_id:
-                  type: number
-                  example: 145
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
+        responses:
+          default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
 
-  /grades/{grade}/class-history:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - grade
-      summary: Get school classes history
-      description: ' Get school classes history'
-      operationId: gradeClassHistory
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: path
-          name: grade
-          schema:
-            type: number
-            example: 2
-          required: true
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
 
-  /grades/{grade}/details:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - grade
-      summary: Grade information dashboard table report
-      description:  Grade information dashboard table report
-      operationId: getClassInformation
-      parameters:
-        - in: header
-          name: school
-          schema:
-            type: number
-            example: 2621
-          required: true
-        - in: path
-          name: grade
-          schema:
-            type: number
-            example: 
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
