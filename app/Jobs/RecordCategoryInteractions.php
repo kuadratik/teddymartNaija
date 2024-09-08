@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 
 class RecordCategoryInteractions implements ShouldQueue
 {
-    use Queueable, InteractsWithQueue, Queueable, SerializesModels;
+    use Queueable, InteractsWithQueue, Dispatchable, SerializesModels;
 
     /**
      * Create a new job instance.
