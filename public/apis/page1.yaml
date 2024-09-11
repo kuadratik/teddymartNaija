@@ -806,6 +806,23 @@ paths:
               schema:
                 type: object
 
+  /front/stores/popular-stores:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Popular Store Lists
+      description: "Get Popular Store Lists"
+      operationId: GetPopularStoreLists
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/stores/{store}/listings/{listing}:
     get:
       security:
