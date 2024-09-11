@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Actions\FetchPopularRecommenationAction;
 use App\Actions\FetchUserMostInteractedCategoriesAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,7 @@ class Store extends Model
 
     /**
      * The attributes that are mass assignable.
-     * 
+     *
      * @var array<string, string>
      */
     protected $fillable = [
@@ -85,7 +86,7 @@ class Store extends Model
      */
     public function scopeByListingType(Builder $query, $listingType)
     {
-        $query->whereHas('listings', fn ($query) => $query->where('type', $listingType));
+        $query->whereHas('listings', fn($query) => $query->where('type', $listingType));
     }
 
     /**
@@ -95,7 +96,7 @@ class Store extends Model
     {
         $query->whereLike('name', "%$search%")->orWhereHas(
             'listings',
-            fn ($query) => $query->whereLike('name', "%$search%")
+            fn($query) => $query->whereLike('name', "%$search%")
         );
     }
 
@@ -104,7 +105,7 @@ class Store extends Model
      */
     public function scopeByCategory(Builder $query, $category)
     {
-        $query->whereHas('listings', fn ($query) => $query->where('category_id', $category));
+        $query->whereHas('listings', fn($query) => $query->where('category_id', $category));
     }
 
     /**
@@ -115,8 +116,22 @@ class Store extends Model
         $mostUsedCategories = app(FetchUserMostInteractedCategoriesAction::class)->fetch();
         $query->whereHas(
             'listings',
-            fn ($query) => $query->whereIntegerInRaw('category_id', $mostUsedCategories)
+            fn($query) => $query->whereIntegerInRaw('category_id', $mostUsedCategories)
                 ->orderByRaw("FIELD(category_id, " . implode(',', $mostUsedCategories) . ") DESC")
         );
+    }
+    /**
+     * Scope by popular or random
+     */
+    public function scopePopular(Builder $query)
+    {
+        $mostUsedCategories = app(FetchPopularRecommenationAction::class)->fetch();
+        if (!empty($mostUsedCategories)) {
+            $query->whereHas(
+                'listings',
+                fn($query) => $query->whereIntegerInRaw('category_id', $mostUsedCategories)
+                    ->orderByRaw("FIELD(category_id, " . implode(',', $mostUsedCategories) . ") DESC")
+            );
+        }
     }
 }

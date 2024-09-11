@@ -50,6 +50,17 @@ class StoresController extends Controller
 
         return $this->success($stores);
     }
+    /**
+     *  Get popular stores
+     */
+    public function getPopularStores(Request $request)
+    {
+        $stores = Store::query()->popular()->inRandomOrder()->paginate();
+
+        return $this->success($stores);
+    }
+
+
 
     /**
      * Creates a store based on the provided request.
