@@ -10,7 +10,7 @@ Whether you're here to promote your brand, support a cause, or simply share your
 Thanks,<br>
 The TeddyMart Team
 
-@component('mail::button', ['url' => url('/')])
+@component('mail::button', ['url' => url(env('APP_URL'))])
 Let's Get Started
 @endcomponent
 
