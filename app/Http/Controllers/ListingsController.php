@@ -99,7 +99,7 @@ class ListingsController extends Controller
      */
     public function getPopularListing(Request $request)
     {
-        $listing = Listing::query()->popular($request->query('listingType'))->get();
+        $listing = Listing::query()->popular($request->query('listingType'))->with('store')->get();
         return $this->success($listing);
     }
 }
