@@ -53,13 +53,21 @@ class StoresController extends Controller
     /**
      *  Get popular recommended stores
      */
-    public function getPopularStores(Request $request)
+    public function getPopularRecommendedStores(Request $request)
     {
-        $stores = Store::query()->popular()->inRandomOrder()->paginate();
+        $stores = Store::query()->popularRecommended()->inRandomOrder()->paginate();
 
         return $this->success($stores);
     }
 
+    /**
+     * get popular store based on views
+     */
+    public function getPopularStores()
+    {
+        $store = Store::query()->popular()->orderBy('views_count','desc')->get();
+        return $this->success($store);
+    }
     /**
      * add store views count
      */

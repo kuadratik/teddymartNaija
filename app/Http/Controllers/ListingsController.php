@@ -93,4 +93,13 @@ class ListingsController extends Controller
         $listing->increment('views_count');
         return $this->success();
     }
+
+    /**
+     * get popular store based on views
+     */
+    public function getPopularListing(Request $request)
+    {
+        $listing = Listing::query()->popular($request->query('listingType'))->get();
+        return $this->success($listing);
+    }
 }

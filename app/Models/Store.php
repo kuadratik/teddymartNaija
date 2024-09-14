@@ -122,9 +122,9 @@ class Store extends Model
         );
     }
     /**
-     * Scope by popular or random
+     * Scope by popular recommended
      */
-    public function scopePopular(Builder $query)
+    public function scopePopularRecommended(Builder $query)
     {
         $mostUsedCategories = app(FetchPopularRecommenationAction::class)->fetch();
         if (!empty($mostUsedCategories)) {
@@ -134,5 +134,15 @@ class Store extends Model
                     ->orderByRaw("FIELD(category_id, " . implode(',', $mostUsedCategories) . ") DESC")
             );
         }
+    }
+
+    /**
+     * Scope by popular with limit
+     */
+    public function scopePopular(Builder $query)
+    {
+        $query->whereHas(
+            'listings',
+        )->take(10);
     }
 }

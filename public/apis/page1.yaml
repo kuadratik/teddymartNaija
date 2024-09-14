@@ -806,15 +806,15 @@ paths:
               schema:
                 type: object
 
-  /front/stores/popular-stores:
+  /front/stores/popular-recommended-stores:
     get:
       security:
         - bearerAuth: []
       tags:
         - Stores
-      summary: Get Popular Store Lists
-      description: "Get Popular Store Lists"
-      operationId: GetPopularStoreLists
+      summary: Get Popular Recommended Store Lists
+      description: "Get Popular Recommended Store Lists"
+      operationId: GetPopularRecommendedStoreLists
       responses:
         default:
           description: "success"
@@ -903,3 +903,44 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /front/stores/popular:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Popular Store Lists
+      description: "Get Popular Store Lists"
+      operationId: GetPopularStoreLists
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/stores/listing/popular:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Popular Store Listing
+      description: "Get Popular Store Listing"
+      operationId: GetPopularStoreListing
+      parameters:
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: "product"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+

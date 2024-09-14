@@ -85,7 +85,7 @@ class Listing extends Model
      */
     public function scopeByCategory(Builder $query, string|null $category)
     {
-        $query->when($category, fn (Builder $query) =>  $query->where('category_id', $category));
+        $query->when($category, fn(Builder $query) =>  $query->where('category_id', $category));
     }
 
     /**
@@ -102,5 +102,20 @@ class Listing extends Model
     public function scopeAvailability(Builder $query, $isAvailable)
     {
         $query->where('is_available',  filter_var($isAvailable, FILTER_VALIDATE_BOOL));
+    }
+
+
+    /**
+     * Scope by popularity (available products or services with highest views_count)
+     */
+    public function scopePopular(Builder $query, string $type = null)
+    {
+        $query->where('is_available', true);
+
+        if ($type === 'product' || $type === 'service') {
+            $query->where('type', $type);
+        }
+
+        $query->orderByDesc('views_count');
     }
 }
