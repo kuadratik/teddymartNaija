@@ -42,9 +42,14 @@ Route::prefix('front')->group(function () {
     Route::prefix('stores')->group(function () {
         Route::get('/', [StoresController::class, 'getStores']);
         Route::get('recommended-stores', [StoresController::class, 'getRecommendedStores']);
-        Route::get('popular-stores', [StoresController::class, 'getPopularStores']);
+        Route::get('popular-recommended-stores', [StoresController::class, 'getPopularRecommendedStores']);
+        Route::post('{store}/add-view', [StoresController::class, 'addStoreViewsCount']);
         Route::get('{store}/listings', [StoresController::class, 'showStoreListing']);
         Route::get('{store}/listings/{listing}', [ListingsController::class, 'show']);
+        Route::get('popular', [StoresController::class, 'getPopularStores']);
+        Route::get('listing/popular', [ListingsController::class, 'getPopularListing']);
+        Route::post('listings/{listing}/add-view', [ListingsController::class, 'addListingViewsCount']);
+
     });
 });
 
