@@ -32,7 +32,8 @@ class Store extends Model
         'state',
         'city',
         'postal_code',
-        'country_id'
+        'country_id',
+        'views_count',
     ];
 
     /**

@@ -12,7 +12,7 @@ class Listing extends Model
 
     /**
      * The attributes that are mass assignable.
-     * 
+     *
      * @var array<string, string>
      */
     protected $fillable = [
@@ -26,6 +26,7 @@ class Listing extends Model
         'description',
         'additional_information',
         'is_available',
+        'views_count',
         'images'
     ];
 

@@ -51,7 +51,7 @@ class StoresController extends Controller
         return $this->success($stores);
     }
     /**
-     *  Get popular stores
+     *  Get popular recommended stores
      */
     public function getPopularStores(Request $request)
     {
@@ -60,6 +60,14 @@ class StoresController extends Controller
         return $this->success($stores);
     }
 
+    /**
+     * add store views count
+     */
+    public function addStoreViewsCount(Request $request, Store $store)
+    {
+        $store->increment('views_count');
+        return $this->success();
+    }
 
 
     /**

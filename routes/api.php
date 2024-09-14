@@ -43,8 +43,11 @@ Route::prefix('front')->group(function () {
         Route::get('/', [StoresController::class, 'getStores']);
         Route::get('recommended-stores', [StoresController::class, 'getRecommendedStores']);
         Route::get('popular-stores', [StoresController::class, 'getPopularStores']);
+        Route::post('{store}/add-view', [StoresController::class, 'addStoreViewsCount']);
         Route::get('{store}/listings', [StoresController::class, 'showStoreListing']);
         Route::get('{store}/listings/{listing}', [ListingsController::class, 'show']);
+        Route::post('listings/{listing}/add-view', [ListingsController::class, 'addListingViewsCount']);
+
     });
 });
 

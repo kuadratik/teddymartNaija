@@ -854,3 +854,52 @@ paths:
               schema:
                 type: object
 
+
+  /front/stores/{store}/add-view:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Add Store View
+      description: "Add Store View"
+      operationId: AddStoreView
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/stores/listings/{listing}/add-view:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Add Store Listing View
+      description: "Add Store Listing View"
+      operationId: AddStoreListingView
+      parameters:
+
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object

@@ -62,7 +62,7 @@ class ListingsController extends Controller
     {
         $validatedData = $request->validate(['is_available' => ['required', 'boolean']]);
         $listing->update(['is_available' => $validatedData['is_available']]);
-        
+
         return $this->success();
     }
 
@@ -81,6 +81,16 @@ class ListingsController extends Controller
     public function delete(Store $userStore, Listing $listing)
     {
         $listing->delete();
+        return $this->success();
+    }
+
+
+    /**
+     * add listing views count
+     */
+    public function addListingViewsCount(Listing $listing)
+    {
+        $listing->increment('views_count');
         return $this->success();
     }
 }
