@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('front')->group(function () {
     Route::post('login', [FrontAuthController::class, 'login']);
+    Route::post('google-auth', [FrontAuthController::class, 'googleAuth']);
     Route::post('register', [FrontAuthController::class, 'register']);
     Route::post('register/verify', [FrontAuthController::class, 'verifyEmailOtp']);
     Route::post('register/otp-resend', [FrontAuthController::class, 'resendEmailOtp']);
