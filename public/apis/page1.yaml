@@ -640,6 +640,30 @@ paths:
               schema:
                 type: object
 
+  /front/delete-all-clip:
+    delete:
+      tags:
+        - Clip
+      summary: remove all clip
+      description: remove all clip
+      operationId: RemoveAllClips
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/clip/{clip}/order:
     post:
       tags:
