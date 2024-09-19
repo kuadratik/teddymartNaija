@@ -55,10 +55,14 @@ class UserService
             $customerId = auth()->id();
 
             $existingClip = Clip::where('store_id', $storeId)
-                ->where(function ($query) use ($uid, $customerId) {
-                    $query->where('uid', $uid)
-                        ->orWhere('user_id', $customerId);
-                })->first();
+            ->where(function ($query) use ($uid, $customerId) {
+                $query->where('uid', $uid)
+                ->orWhere(function ($q) use ($customerId) {
+                    $q->whereNotNull('user_id')
+                        ->where('user_id', $customerId);
+                });
+            })
+                ->first();
             if ($existingClip && $existingClip->products()->where('listing_id', $productId)->exists()) {
                 return Utils::validateResp(['error' => ['Product already clipped.']]);
             }

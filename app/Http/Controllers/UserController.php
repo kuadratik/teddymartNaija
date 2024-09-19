@@ -95,6 +95,25 @@ class UserController extends Controller
     }
 
     /**
+     * Delete all clips by Clip-Uid or user_id (if user_id is not null).
+     */
+    public function deleteAllClip(Request $request)
+    {
+        $clipUid = $request->header('Clip-Uid');
+        $userId = auth()->id();
+
+        Clip::where('uid', $clipUid)
+            ->orWhere(function ($query) use ($userId) {
+                $query->whereNotNull('user_id')
+                ->where('user_id', $userId);
+            })
+            ->delete();
+
+        return $this->success();
+    }
+
+
+    /**
      * Store customer info on a clip to send to vendor
      */
     public function storeClipOrder(StoreClipOrderRequest $request, Clip $clip)
