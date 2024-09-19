@@ -10,6 +10,8 @@ use App\Http\Requests\Auth\ResetPasswordOtpRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
 use App\Services\Auth\AuthenticationService;
+use Illuminate\Http\Request;
+use Laravel\Socialite\Facades\Socialite;
 
 class FrontAuthController extends Controller
 {
@@ -26,6 +28,16 @@ class FrontAuthController extends Controller
         $data = $request->validated();
         $this->authService->sendOtpForRegistration($data);
         return $this->success();
+    }
+
+    /**
+     * login or register user with google
+     */
+    public function googleAuth(Request $request)
+    {
+        $request->validate(['token' => 'required']);
+        $user = $this->authService->loginOrRegisterWithGoogle($request->token);
+        return $this->success($user);
     }
 
     /**

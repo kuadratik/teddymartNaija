@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('front')->group(function () {
     Route::post('login', [FrontAuthController::class, 'login']);
+    Route::post('google-auth', [FrontAuthController::class, 'googleAuth']);
     Route::post('register', [FrontAuthController::class, 'register']);
     Route::post('register/verify', [FrontAuthController::class, 'verifyEmailOtp']);
     Route::post('register/otp-resend', [FrontAuthController::class, 'resendEmailOtp']);
@@ -36,6 +37,7 @@ Route::prefix('front')->group(function () {
         Route::get('clips', [UserController::class, 'getClips']);
         Route::get('clip/{clip}', [UserController::class, 'viewClipItems']);
         Route::delete('clips/{clip}', [UserController::class, 'deleteClip']);
+        Route::delete('delete-all-clip', [UserController::class, 'deleteAllClip']);
         Route::delete('clips/{clip}/items/{product:slug}', [UserController::class, 'deleteClipItem']);
     });
 

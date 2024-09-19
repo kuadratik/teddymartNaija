@@ -52,6 +52,29 @@ paths:
               schema:
                 type: object
 
+  /front/google-auth:
+    post:
+      tags:
+        - Authentication
+      summary: Login or register with google
+      description: Verify Google token To Login or register a User
+      operationId: GoogleAuth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/register/verify:
     post:
       tags:
@@ -603,6 +626,30 @@ paths:
             type: string
             example: "1"
           required: true
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/delete-all-clip:
+    delete:
+      tags:
+        - Clip
+      summary: remove all clip
+      description: remove all clip
+      operationId: RemoveAllClips
+      security:
+        - bearerAuth: []
+      parameters:
         - in: header
           name: Clip-Uid
           schema:
