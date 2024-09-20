@@ -110,14 +110,15 @@ class Listing extends Model
         return $query->where('type', $listingType);
     }
 
+
     /**
      * Scope to search by name or store name
      */
     public function scopeSearch($query, $search)
     {
         return $query->where(function ($query) use ($search) {
-            $query->where('name', 'like', '%' . $search . '%')
-                ->orWhereHas('store', fn($query) => $query->where('name', 'like', '%' . $search . '%'));
+            $query->where('name', 'like', "%{$search}%")
+            ->orWhereHas('store', fn($query) => $query->where('name', 'like', "%{$search}%"));
         });
     }
 
