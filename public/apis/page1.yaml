@@ -710,6 +710,36 @@ paths:
               schema:
                 type: object
 
+  /front/store/{store}/service/{listing}/order:
+    post:
+      tags:
+        - Clip
+      summary: order service
+      description: customer service order endpoint
+      operationId: OrderService
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: "house-party-cooking"
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/clip/{order}/send-to-vendor:
     post:
       tags:
