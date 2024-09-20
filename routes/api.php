@@ -53,6 +53,13 @@ Route::prefix('front')->group(function () {
         Route::post('listings/{listing}/add-view', [ListingsController::class, 'addListingViewsCount']);
 
     });
+
+        Route::prefix('listings')->group(function () {
+        Route::get('/', [ListingsController::class, 'getListings']);
+
+        });
+
+
 });
 
 Route::middleware('auth:sanctum')->group(function () {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Listing\CreateListingRequest;
 use App\Http\Requests\Listing\UpdateListingRequest;
+use App\Jobs\RecordCategoryInteractions;
 use App\Models\Listing;
 use App\Models\Store;
 use Illuminate\Http\Request;
@@ -101,5 +102,20 @@ class ListingsController extends Controller
     {
         $listing = Listing::query()->popular($request->query('listingType'))->with('store')->get();
         return $this->success($listing);
+    }
+    /**
+     *   Listing by type with search
+     */
+    public function getListings(Request $request)
+    {
+        $listings = Listing::query()->byListingType($request->listingType)->when(
+            $request->search,
+            fn($query) => $query->search($request->search)
+        )->when(
+            $request->category,
+            fn($query) => $query->byCategory($request->category)
+        )->get();
+        RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
+        return $this->success($listings);
     }
 }
