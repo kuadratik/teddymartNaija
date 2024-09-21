@@ -81,15 +81,19 @@ class UserService
 
 
     /**
-     * Get  all clips
+     * Get all clips, update user_id if authenticated, and retrieve clips by user_id or Clip-Uid
      */
     public function getClips(): array
     {
         $clipUid = request()->header('Clip-Uid');
-        $clips = Clip::query()
-            ->where('uid', $clipUid)
-            ->with('products')
-            ->get();
+        $userId = auth()->check() ? auth()->id() : null;
+
+        if ($userId) {
+            Clip::query()->where('uid', $clipUid)->whereNull('user_id')->update(['user_id' => $userId]);
+            $clips = Clip::query()->where('user_id', $userId)->with('products')->get();
+        } else {
+            $clips = Clip::query()->where('uid', $clipUid)->with('products')->get();
+        }
 
         $totalProductCount = $clips->sum(fn($clip) => $clip->products->count());
 
@@ -98,7 +102,6 @@ class UserService
             'clips' => ClipResource::collection($clips),
         ];
     }
-
 
     /**
      * Get a clip by ID with product details.
