@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ListingType;
 use App\Http\Requests\User\StoreClipOrderRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\Clip;
 use App\Models\Listing;
 use App\Models\Order;
+use App\Models\Store;
 use App\Models\User;
 use App\Services\Auth\UserService;
 use Illuminate\Http\Request;
@@ -105,7 +107,7 @@ class UserController extends Controller
         Clip::where('uid', $clipUid)
             ->orWhere(function ($query) use ($userId) {
                 $query->whereNotNull('user_id')
-                ->where('user_id', $userId);
+                    ->where('user_id', $userId);
             })
             ->delete();
 
@@ -122,6 +124,15 @@ class UserController extends Controller
         return $this->success($order);
     }
 
+    /**
+     * store customer info for service enquiry
+     */
+    public function storeServiceEnquiry(Store $store, Listing $listing)
+    {
+        abort_if($listing->type !== ListingType::SERVICE->value, 404, 'Listing must be a service');
+        $order = $this->userService->storeServiceEnquiry($listing);
+        return $this->success($order);
+    }
 
     /**
      * send order to vendor

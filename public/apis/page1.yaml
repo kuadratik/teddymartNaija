@@ -710,6 +710,36 @@ paths:
               schema:
                 type: object
 
+  /front/store/{store}/service/{listing}/order:
+    post:
+      tags:
+        - Clip
+      summary: order service
+      description: customer service order endpoint
+      operationId: OrderService
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: "house-party-cooking"
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/clip/{order}/send-to-vendor:
     post:
       tags:
@@ -983,6 +1013,46 @@ paths:
           schema:
             type: string
             example: "product"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/listings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Listing Lists
+      description: "Get Listing Lists"
+      operationId: GetListings
+      parameters:
+        - in: header
+          name: interactUid
+          schema:
+            type: string
+            example: ""
+          required: true
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: "product"
+        - in: query
+          name: category
+          schema:
+            type: number
+            example: 11
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "amala"
+
       responses:
         default:
           description: "success"

@@ -53,6 +53,13 @@ Route::prefix('front')->group(function () {
         Route::post('listings/{listing}/add-view', [ListingsController::class, 'addListingViewsCount']);
 
     });
+
+        Route::prefix('listings')->group(function () {
+        Route::get('/', [ListingsController::class, 'getListings']);
+
+        });
+
+
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -85,6 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
         Route::post('file-delete', [GeneralController::class, 'deleteTempFiles']);
         Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
+        Route::post('store/{store}/service/{listing}/order', [UserController::class, 'storeServiceEnquiry']);
         Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
         Route::prefix('user')->group(function () {
             Route::get('profile', [UserController::class, 'getUserProfile']);
