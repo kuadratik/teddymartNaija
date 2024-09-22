@@ -11,6 +11,8 @@ use App\Support\Utils;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
 
 class AuthenticationService
 {
@@ -62,6 +64,36 @@ class AuthenticationService
         return [
             'token' => $user->createToken('authToken')->plainTextToken,
             'user' => $user->load('store'),
+        ];
+    }
+    /**
+     * Verify gogle token and create or login account
+     */
+    public function loginOrRegisterWithGoogle(string $token): array
+    {
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->userFromToken($token);
+        } catch (\Exception $e) {
+            throw new \Illuminate\Auth\AuthenticationException('Google authentication failed: ' . $e->getMessage());
+        }
+
+        $user = User::firstOrNew(['email' => $googleUser->getEmail()], [
+            'first_name' => explode(' ', $googleUser->getName())[0],
+            'last_name' => implode(' ', array_slice(explode(' ', $googleUser->getName()), 1)),
+            'google_id' => $googleUser->getId(),
+            'password' => bcrypt(Str::random(16)),
+        ]);
+
+        if ($user->exists && empty($user->google_id)) {
+            $user->google_id = $googleUser->getId();
+            $user->save();
+        }
+
+        $token = $user->createToken('Google OAuth')->plainTextToken;
+
+        return [
+            'user' => $user->fresh(),
+            'token' => $token,
         ];
     }
 

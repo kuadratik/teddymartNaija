@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Listing\CreateListingRequest;
 use App\Http\Requests\Listing\UpdateListingRequest;
+use App\Jobs\RecordCategoryInteractions;
 use App\Models\Listing;
 use App\Models\Store;
 use Illuminate\Http\Request;
@@ -62,7 +63,7 @@ class ListingsController extends Controller
     {
         $validatedData = $request->validate(['is_available' => ['required', 'boolean']]);
         $listing->update(['is_available' => $validatedData['is_available']]);
-        
+
         return $this->success();
     }
 
@@ -82,5 +83,39 @@ class ListingsController extends Controller
     {
         $listing->delete();
         return $this->success();
+    }
+
+
+    /**
+     * add listing views count
+     */
+    public function addListingViewsCount(Listing $listing)
+    {
+        $listing->increment('views_count');
+        return $this->success();
+    }
+
+    /**
+     * get popular store based on views
+     */
+    public function getPopularListing(Request $request)
+    {
+        $listing = Listing::query()->popular($request->query('listingType'))->with('store')->get();
+        return $this->success($listing);
+    }
+    /**
+     *   Listing by type with search
+     */
+    public function getListings(Request $request)
+    {
+        $listings = Listing::query()->byListingType($request->listingType)->when(
+            $request->search,
+            fn($query) => $query->search($request->search)
+        )->when(
+            $request->category,
+            fn($query) => $query->byCategory($request->category)
+        )->get();
+        RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
+        return $this->success($listings);
     }
 }

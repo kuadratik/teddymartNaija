@@ -14,6 +14,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Store;
 use App\Notifications\SendOrderToVendorNotificaion;
+use App\Notifications\SendServiceOrderToVendorNotificaion;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -57,8 +58,12 @@ class UserService
             $existingClip = Clip::where('store_id', $storeId)
                 ->where(function ($query) use ($uid, $customerId) {
                     $query->where('uid', $uid)
-                        ->orWhere('user_id', $customerId);
-                })->first();
+                        ->orWhere(function ($q) use ($customerId) {
+                            $q->whereNotNull('user_id')
+                                ->where('user_id', $customerId);
+                        });
+                })
+                ->first();
             if ($existingClip && $existingClip->products()->where('listing_id', $productId)->exists()) {
                 return Utils::validateResp(['error' => ['Product already clipped.']]);
             }
@@ -76,15 +81,19 @@ class UserService
 
 
     /**
-     * Get  all clips
+     * Get all clips, update user_id if authenticated, and retrieve clips by user_id or Clip-Uid
      */
     public function getClips(): array
     {
         $clipUid = request()->header('Clip-Uid');
-        $clips = Clip::query()
-            ->where('uid', $clipUid)
-            ->with('products')
-            ->get();
+        $userId = auth()->check() ? auth()->id() : null;
+
+        if ($userId) {
+            Clip::query()->where('uid', $clipUid)->whereNull('user_id')->update(['user_id' => $userId]);
+            $clips = Clip::query()->where('user_id', $userId)->with('products')->get();
+        } else {
+            $clips = Clip::query()->where('uid', $clipUid)->with('products')->get();
+        }
 
         $totalProductCount = $clips->sum(fn($clip) => $clip->products->count());
 
@@ -93,7 +102,6 @@ class UserService
             'clips' => ClipResource::collection($clips),
         ];
     }
-
 
     /**
      * Get a clip by ID with product details.
@@ -130,6 +138,7 @@ class UserService
                 'user_id' => auth()->id(),
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
+                'type' => ListingType::PRODUCT->value,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'order_number' => Str::uuid()->toString(),
@@ -153,15 +162,53 @@ class UserService
         });
     }
 
+    /**
+     * save customer service enquiry
+     */
+    public function storeServiceEnquiry(Listing $service)
+    {
+        return DB::transaction(
+            function () use ($service) {
+                $user = auth()->user();
+                $order = Order::create([
+                    'store_id' => $service->store_id,
+                    'user_id' => auth()->id(),
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'type' => ListingType::SERVICE->value,
+                    'email' => $user->email,
+                    'order_number' => Str::uuid()->toString(),
+                    'total_amount' => $service->price,
+                ]);
+
+                OrderDetail::create([
+                    'order_id' => $order->id,
+                    'listing_id' => $service->id,
+                    'listing_price' => $service->price,
+                    'listing_name' => $service->name,
+                ]);
+
+                $this->sendOrderToVendor($order);
+
+                return $order->load('orderDetails');
+            }
+        );
+    }
+
 
     /**
      * Send order to vendor
      */
     public function sendOrderToVendor(Order $order)
     {
-        $order->store->user->notify(new SendOrderToVendorNotificaion($order));
-        Clip::where('store_id',  $order->store_id)->where('order_id', $order->id)->delete();
-        return true;
+        if ($order->type == ListingType::PRODUCT->value) {
+            $order->store->user->notify(new SendOrderToVendorNotificaion($order));
+            Clip::where('store_id',  $order->store_id)->where('order_id', $order->id)->delete();
+            return true;
+        } elseif ($order->type == ListingType::SERVICE->value) {
+            $order->store->user->notify(new SendServiceOrderToVendorNotificaion($order->load(['orderDetails', 'store', 'customer'])));
+            return true;
+        }
     }
 
 

@@ -52,6 +52,29 @@ paths:
               schema:
                 type: object
 
+  /front/google-auth:
+    post:
+      tags:
+        - Authentication
+      summary: Login or register with google
+      description: Verify Google token To Login or register a User
+      operationId: GoogleAuth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/register/verify:
     post:
       tags:
@@ -617,6 +640,30 @@ paths:
               schema:
                 type: object
 
+  /front/delete-all-clip:
+    delete:
+      tags:
+        - Clip
+      summary: remove all clip
+      description: remove all clip
+      operationId: RemoveAllClips
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Clip-Uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/clip/{clip}/order:
     post:
       tags:
@@ -655,6 +702,36 @@ paths:
                   type: string
                   example: "2348012345678"
                   required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/store/{store}/service/{listing}/order:
+    post:
+      tags:
+        - Clip
+      summary: order service
+      description: customer service order endpoint
+      operationId: OrderService
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: "house-party-cooking"
+          required: true
       responses:
         default:
           description: "success"
@@ -806,15 +883,15 @@ paths:
               schema:
                 type: object
 
-  /front/stores/popular-stores:
+  /front/stores/popular-recommended-stores:
     get:
       security:
         - bearerAuth: []
       tags:
         - Stores
-      summary: Get Popular Store Lists
-      description: "Get Popular Store Lists"
-      operationId: GetPopularStoreLists
+      summary: Get Popular Recommended Store Lists
+      description: "Get Popular Recommended Store Lists"
+      operationId: GetPopularRecommendedStoreLists
       responses:
         default:
           description: "success"
@@ -845,6 +922,136 @@ paths:
             type: string
             example: "amala-with-afang"
           required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
+  /front/stores/{store}/add-view:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Add Store View
+      description: "Add Store View"
+      operationId: AddStoreView
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/stores/listings/{listing}/add-view:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Add Store Listing View
+      description: "Add Store Listing View"
+      operationId: AddStoreListingView
+      parameters:
+
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/stores/popular:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Popular Store Lists
+      description: "Get Popular Store Lists"
+      operationId: GetPopularStoreLists
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/stores/listing/popular:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Popular Store Listing
+      description: "Get Popular Store Listing"
+      operationId: GetPopularStoreListing
+      parameters:
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: "product"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/listings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Listing Lists
+      description: "Get Listing Lists"
+      operationId: GetListings
+      parameters:
+        - in: header
+          name: interactUid
+          schema:
+            type: string
+            example: ""
+          required: true
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: "product"
+        - in: query
+          name: category
+          schema:
+            type: number
+            example: 11
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "amala"
 
       responses:
         default:

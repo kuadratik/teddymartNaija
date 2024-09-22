@@ -21,6 +21,7 @@ class Order extends Model
         'last_name',
         'email',
         'phone',
+        'type',
         'order_number',
         'total_amount',
     ];

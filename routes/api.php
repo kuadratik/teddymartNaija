@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('front')->group(function () {
     Route::post('login', [FrontAuthController::class, 'login']);
+    Route::post('google-auth', [FrontAuthController::class, 'googleAuth']);
     Route::post('register', [FrontAuthController::class, 'register']);
     Route::post('register/verify', [FrontAuthController::class, 'verifyEmailOtp']);
     Route::post('register/otp-resend', [FrontAuthController::class, 'resendEmailOtp']);
@@ -36,16 +37,29 @@ Route::prefix('front')->group(function () {
         Route::get('clips', [UserController::class, 'getClips']);
         Route::get('clip/{clip}', [UserController::class, 'viewClipItems']);
         Route::delete('clips/{clip}', [UserController::class, 'deleteClip']);
+        Route::delete('delete-all-clip', [UserController::class, 'deleteAllClip']);
         Route::delete('clips/{clip}/items/{product:slug}', [UserController::class, 'deleteClipItem']);
     });
 
     Route::prefix('stores')->group(function () {
         Route::get('/', [StoresController::class, 'getStores']);
         Route::get('recommended-stores', [StoresController::class, 'getRecommendedStores']);
-        Route::get('popular-stores', [StoresController::class, 'getPopularStores']);
+        Route::get('popular-recommended-stores', [StoresController::class, 'getPopularRecommendedStores']);
+        Route::post('{store}/add-view', [StoresController::class, 'addStoreViewsCount']);
         Route::get('{store}/listings', [StoresController::class, 'showStoreListing']);
         Route::get('{store}/listings/{listing}', [ListingsController::class, 'show']);
+        Route::get('popular', [StoresController::class, 'getPopularStores']);
+        Route::get('listing/popular', [ListingsController::class, 'getPopularListing']);
+        Route::post('listings/{listing}/add-view', [ListingsController::class, 'addListingViewsCount']);
+
     });
+
+        Route::prefix('listings')->group(function () {
+        Route::get('/', [ListingsController::class, 'getListings']);
+
+        });
+
+
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -78,6 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
         Route::post('file-delete', [GeneralController::class, 'deleteTempFiles']);
         Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
+        Route::post('store/{store}/service/{listing}/order', [UserController::class, 'storeServiceEnquiry']);
         Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
         Route::prefix('user')->group(function () {
             Route::get('profile', [UserController::class, 'getUserProfile']);
