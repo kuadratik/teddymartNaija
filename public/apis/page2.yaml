@@ -198,7 +198,7 @@ paths:
               schema:
                 type: object
 
-  /store/listings:
+  /store/{userStore}/listings:
     get:
       security:
         - bearerAuth: []
@@ -208,6 +208,13 @@ paths:
       description: 'Get User Store Listings'
       operationId: GetUserStoreListings
       parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+
         - in: query
           name: listingType
           schema:
