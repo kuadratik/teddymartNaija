@@ -85,10 +85,6 @@ class StoresController extends Controller
     {
         $user = $request->user();
 
-        if (Store::query()->byUser($user->id)->exists()) {
-            return $this->failure('You can not have more than one store!', 403);
-        }
-
         DB::transaction(function () use ($request, $user) {
             Store::create($request->storeAttributes());
             $user->update([
