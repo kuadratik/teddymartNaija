@@ -35,7 +35,7 @@ paths:
               schema:
                 type: object
 
-  /store/user-store/metrics:
+  /store/user-store/{userStore}/metrics:
     get:
       security:
         - bearerAuth: []
@@ -45,6 +45,12 @@ paths:
       description: 'Get User Store Metrics'
       operationId: GetUserStoreMetrics
       parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
         - in: query
           name: listingType
           schema:
@@ -191,24 +197,6 @@ paths:
             application/json:
               schema:
                 type: object
-
-  /store/total-customers:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - User Store
-      summary: Get Total Customers
-      description: "Get Total Customers"
-      operationId: GetTotalCustomers
-      responses:
-        default:
-          description: "success"
-          content:
-            application/json:
-              schema:
-                type: object
-
 
   /store/listings:
     get:
