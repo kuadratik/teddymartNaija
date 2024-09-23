@@ -15,14 +15,17 @@ use Illuminate\Support\Facades\DB;
 class StoresController extends Controller
 {
     /**
-     * Display a store metrics
+     * Display store metrics including listings count and customer count
      */
-    public function getUserStoreMetrics(Request $request, UserService $userService)
+    public function getUserStoreMetrics(Request $request, UserService $userService, Store $userStore)
     {
-        $userStoreListingsCount = $request->user()->store->listings()->byType($request->listingType)->count();
-        $customersCount = $userService->getStoreCustomerCount($request->user()->store);
+
+        abort_if($userStore->user_id !== $request->user()->id,402, "Unauthorized");
+        $userStoreListingsCount = $userStore->listings()->byType($request->listingType)->count();
+        $customersCount = $userService->getStoreCustomerCount($userStore);
         return $this->success(["totalListingsCount" => $userStoreListingsCount, "totalCustomerCount" => $customersCount]);
     }
+
 
     /**
      *  Get stores
