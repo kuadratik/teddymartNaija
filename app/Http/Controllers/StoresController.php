@@ -15,14 +15,17 @@ use Illuminate\Support\Facades\DB;
 class StoresController extends Controller
 {
     /**
-     * Display a store metrics
+     * Display store metrics including listings count and customer count
      */
-    public function getUserStoreMetrics(Request $request, UserService $userService)
+    public function getUserStoreMetrics(Request $request, UserService $userService, Store $userStore)
     {
-        $userStoreListingsCount = $request->user()->store->listings()->byType($request->listingType)->count();
-        $customersCount = $userService->getStoreCustomerCount($request->user()->store);
+
+        abort_if($userStore->user_id !== $request->user()->id,402, "Unauthorized");
+        $userStoreListingsCount = $userStore->listings()->byType($request->listingType)->count();
+        $customersCount = $userService->getStoreCustomerCount($userStore);
         return $this->success(["totalListingsCount" => $userStoreListingsCount, "totalCustomerCount" => $customersCount]);
     }
+
 
     /**
      *  Get stores
@@ -84,10 +87,6 @@ class StoresController extends Controller
     public function create(CreateStoreRequest $request)
     {
         $user = $request->user();
-
-        if (Store::query()->byUser($user->id)->exists()) {
-            return $this->failure('You can not have more than one store!', 403);
-        }
 
         DB::transaction(function () use ($request, $user) {
             Store::create($request->storeAttributes());
