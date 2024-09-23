@@ -21,9 +21,10 @@ class ListingsController extends Controller
     /**
      * Display a listing of user store listing.
      */
-    public function getUserStoreListings(Request $request)
+    public function getUserStoreListings(Request $request,Store $userStore)
     {
-        $userStoreListings = $this->user->store->listings()
+        abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
+        $userStoreListings = $userStore->listings()
             ->latest()->byType($request->listingType)
             ->availability($request->availability)
             ->paginate();

@@ -74,11 +74,12 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('user-store', [StoresController::class, 'showUserStore']);
             Route::get('user-store/{userStore}/metrics', [StoresController::class, 'getUserStoreMetrics']);
             Route::patch('{userStore}/update', [StoresController::class, 'update']);
+            Route::get('{userStore}/listings', [ListingsController::class, 'getUserStoreListings']);
+
         });
 
         Route::prefix('listings')->group(function () {
             Route::middleware('hasStore')->group(function () {
-                Route::get('/', [ListingsController::class, 'getUserStoreListings']);
                 Route::post('create', [ListingsController::class, 'create']);
                 Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'showUserStoreListing']);
                 Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
