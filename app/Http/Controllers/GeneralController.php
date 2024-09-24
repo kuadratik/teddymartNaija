@@ -114,7 +114,7 @@ class GeneralController extends Controller
      */
     public function contactUs(ContactUsRequest $request)
     {
-        Notification::route('mail', config('mail.inquiry_email'))
+        Notification::route('mail', config('services.inquiry.email'))
             ->notify(new ContactUsNotification($request->validated()));
         return $this->success('Thank you for your inquiry. We will get back to you shortly.');
     }
