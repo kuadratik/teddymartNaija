@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Actions\RecordUserInteractionAction;
+use App\Http\Requests\ContactUsRequest;
 use Illuminate\Http\Request;
 use App\Support\Utils;
 use App\Http\Requests\Store\UploadTempFileRequest;
 use App\Models\Category;
-use App\Models\Listing;
-use App\Models\Store;
+use App\Notifications\ContactUsNotification;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -106,5 +107,15 @@ class GeneralController extends Controller
             ->get();
 
         return $this->success($divisions);
+    }
+
+    /**
+     * Send contact us message to our contact email
+     */
+    public function contactUs(ContactUsRequest $request)
+    {
+        Notification::route('mail', config('services.inquiry.email'))
+            ->notify(new ContactUsNotification($request->validated()));
+        return $this->success('Thank you for your inquiry. We will get back to you shortly.');
     }
 }
