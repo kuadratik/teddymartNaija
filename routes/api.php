@@ -31,6 +31,7 @@ Route::prefix('front')->group(function () {
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
     Route::get('category', [GeneralController::class, 'getCategories']);
     Route::get('record-interaction/{category}', [GeneralController::class, 'recordUserInteraction']);
+    Route::post('contact-us', [GeneralController::class, 'contactUs']);
 
     Route::middleware(['hasUid', 'optionalAuth'])->group(function () {
         Route::post('add-to-clip/{product:slug}', [UserController::class, 'addToClip']);
