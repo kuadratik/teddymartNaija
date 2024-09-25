@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Listing;
 
 use App\Enums\ListingType;
+use App\Models\Store;
 use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -46,11 +47,11 @@ class CreateListingRequest extends FormRequest
     /**
      * Prepare store record to save
      */
-    public function listingAttributes()
+    public function listingAttributes(Store $userStore)
     {
         return collect($this->safe()->except(['images', 'category']))->merge([
             'category_id' => $this->category,
-            'store_id' => $this->user()->store->id,
+            'store_id' => $userStore->id,
             'user_id' => $this->user()->id,
             'images' => $this->images(),
             'is_available' => true

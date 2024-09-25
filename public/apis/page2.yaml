@@ -236,7 +236,7 @@ paths:
               schema:
                 type: object
 
-  /store/listings/create:
+  /store/{userStore}/listings/create:
     post:
       security:
         - bearerAuth: []
@@ -245,7 +245,13 @@ paths:
       summary: Create User Store Listing
       description: Create User Store Listing
       operationId: CreateUserStoreListing
-
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
       requestBody:
         content:
           application/json:
