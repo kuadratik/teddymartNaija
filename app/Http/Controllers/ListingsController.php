@@ -35,9 +35,10 @@ class ListingsController extends Controller
     /**
      * Creates an user store listing based on the provided request.
      */
-    public function create(CreateListingRequest $request)
+    public function create(CreateListingRequest $request, Store $userStore)
     {
-        Listing::create($request->listingAttributes());
+        abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
+        Listing::create($request->listingAttributes($userStore));
         return $this->success();
     }
 
