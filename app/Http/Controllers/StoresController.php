@@ -20,7 +20,7 @@ class StoresController extends Controller
     public function getUserStoreMetrics(Request $request, UserService $userService, Store $userStore)
     {
 
-        abort_if($userStore->user_id !== $request->user()->id,402, "Unauthorized");
+        abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
         $userStoreListingsCount = $userStore->listings()->byType($request->listingType)->count();
         $customersCount = $userService->getStoreCustomerCount($userStore);
         return $this->success(["totalListingsCount" => $userStoreListingsCount, "totalCustomerCount" => $customersCount]);
@@ -68,7 +68,7 @@ class StoresController extends Controller
      */
     public function getPopularStores()
     {
-        $store = Store::query()->popular()->orderBy('views_count','desc')->get();
+        $store = Store::query()->popular()->orderBy('views_count', 'desc')->get();
         return $this->success($store);
     }
     /**
@@ -87,18 +87,20 @@ class StoresController extends Controller
     public function create(CreateStoreRequest $request)
     {
         $user = $request->user();
+        $store = null;
 
-        DB::transaction(function () use ($request, $user) {
-            Store::create($request->storeAttributes());
+        DB::transaction(function () use ($request, $user, &$store) {
+            $store = Store::create($request->storeAttributes());
             $user->update([
                 'offers_service' => $request->offers_service,
                 'offers_product' => $request->offers_product,
-                'has_store' => true
+                'has_store' => true,
             ]);
         });
 
-        return $this->success();
+        return $this->success(['store' => $store]);
     }
+
 
     /**
      * Display the specified store.
