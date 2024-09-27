@@ -520,32 +520,7 @@ paths:
               schema:
                 type: object
 
-  /front/add-to-clip:
-    post:
-      tags:
-        - Clip
-      summary: add product to clip
-      description: add product to clip
-      operationId: AddProductToClip
-      security:
-        - bearerAuth: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                product:
-                  type: string
-                  example: "pounded-yam"
-                  required: true
-      responses:
-        default:
-          description: "success"
-          content:
-            application/json:
-              schema:
-                type: object
+
   /front/add-to-clip/{product}:
     post:
       tags:

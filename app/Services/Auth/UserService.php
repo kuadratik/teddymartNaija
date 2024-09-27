@@ -220,4 +220,5 @@ class UserService
         $store_count = Order::where('store_id', $store->id)->distinct('user_id')->count('user_id');
         return ['customer_count' => $store_count];
     }
+
 }

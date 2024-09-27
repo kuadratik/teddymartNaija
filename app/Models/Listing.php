@@ -135,4 +135,15 @@ class Listing extends Model
 
         $query->orderByDesc('views_count');
     }
+
+
+   /**
+    * get cart that belongs to the listings
+    */
+    public function carts()
+    {
+        return $this->belongsToMany(Cart::class, 'cart_listing')
+        ->withPivot('quantity')
+        ->withTimestamps();
+    }
 }
