@@ -25,7 +25,7 @@ class CartController extends Controller
      */
     public function getCart(Request $request)
     {
-        $cart = $this->cartService->getCart($request);
-        return  $this->success($cart->load('products'));
+        $cart = $this->cartService->getCartDetails($request);
+        return  $this->success($cart);
     }
 }

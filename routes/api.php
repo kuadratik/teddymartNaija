@@ -46,6 +46,7 @@ Route::prefix('front')->group(function () {
     Route::middleware(['hasSessionUid', 'optionalAuth'])->group(function () {
         Route::prefix('cart')->group(function () {
             Route::post('add/{product:slug}', [CartController::class, 'addToCart']);
+            Route::get('/', [CartController::class, 'getCart']);
         });
     });
 

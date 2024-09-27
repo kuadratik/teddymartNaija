@@ -12,6 +12,33 @@ use Illuminate\Http\Request;
 class CartService
 {
     /**
+     * Get detailed cart information including total items and product details
+     */
+    public function getCartDetails(Request $request)
+    {
+        $cart = $this->getCart($request)->load('products');
+        $totalCartPrice = $cart->products->sum(function ($product) {
+            return $product->pivot->quantity * $product->price;
+        });
+        $cartDetails = [
+            'cart_id' => $cart->id,
+            'total_items' => $cart->products->sum('pivot.quantity'),
+            'total_quantity' => $cart->products->count(),
+            'total_price' => $totalCartPrice,
+            'products' => $cart->products->map(function ($product) {
+                return [
+                    'listing_id' => $product->id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'quantity' => $product->pivot->quantity,
+                    'total_price' => $product->pivot->quantity * $product->price
+                ];
+            })
+        ];
+
+        return $cartDetails;
+    }
+    /**
      * Add a product to the user's cart
      */
     public function addToCart(Request $request, Listing $product): Cart
