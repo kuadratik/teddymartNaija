@@ -1083,7 +1083,11 @@ paths:
           schema:
             type: string
             example: "amala"
-
+        - in: query
+          name: availability
+          schema:
+            type: boolean
+            example: true
       responses:
         default:
           description: "success"
