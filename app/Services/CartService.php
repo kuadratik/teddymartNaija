@@ -57,8 +57,9 @@ class CartService
         return $cart->fresh(['products']);
     }
 
-
-
+    /**
+     * Edit the quantity of a specific product in the cart.
+     */
     public function editCartQuantity(Request $request, Listing $product): Cart
     {
         $cart = $this->getCart($request);
@@ -73,6 +74,36 @@ class CartService
         ]);
 
         return $cart->fresh(['products']);
+    }
+
+    /**
+     * Delete a product from the cart.
+     */
+    public function removeProductFromCart(Request $request, Listing $product): Cart|array
+    {
+        $cart = $this->getCart($request);
+
+        abort_if(!$cart->products->contains($product), 404, 'Product not found in the cart');
+
+        $cart->products()->detach($product->id);
+
+        if ($cart->products()->count() === 0) {
+            $this->deleteCartById($cart->id);
+            return [];
+        }
+
+        return $cart->fresh(['products']);
+    }
+
+    /**
+     * Clear the cart by removing all products.
+     */
+    public function clearCart(Request $request): array
+    {
+        $cart = $this->getCart($request);
+        $cart->products()->detach();
+        $this->deleteCartById($cart->id);
+        return [];
     }
 
     /**
@@ -113,5 +144,13 @@ class CartService
                 ]
             ]);
         }
+    }
+
+    /**
+     * delete a cart by id
+     */
+    private function deleteCartById(int $cartId): void
+    {
+        Cart::where('id', $cartId)->delete();
     }
 }

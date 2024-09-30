@@ -85,7 +85,59 @@ paths:
               schema:
                 type: object
 
+  /front/cart/remove/{product}:
+    delete:
+      tags:
+        - Cart
+      summary: remove product from cart
+      description: remove product from cart
+      operationId: RemoveCart
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
+  /front/cart/clear:
+    delete:
+      tags:
+        - Cart
+      summary: clear cart
+      description: clear cart
+      operationId: ClearCart
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /front/cart:
     get:
