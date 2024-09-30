@@ -44,23 +44,19 @@ class CartController extends Controller
     /**
      * Delete cart item
      */
-     public function removeCartItem(Request $request, Listing $product)
-     {
-         $data = $this->cartService->removeProductFromCart($request, $product);
-         return $this->success($data);
-     }
+    public function removeCartItem(Request $request, Listing $product)
+    {
+        $data = $this->cartService->removeProductFromCart($request, $product);
+        return $this->success($data);
+    }
 
 
-     /**
-      * clear all cart items
-      */
-      public function clearCart(Request $request)
-      {
-          $data = $this->cartService->clearCart($request);
-          return $this->success($data);
-      }
-
-
-
-
+    /**
+     * clear all cart items
+     */
+    public function clearCart(Request $request)
+    {
+        $data = $this->cartService->clearCart($request);
+        return $this->success($data);
+    }
 }

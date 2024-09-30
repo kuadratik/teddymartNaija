@@ -118,7 +118,7 @@ class Listing extends Model
     {
         return $query->where(function ($query) use ($search) {
             $query->where('name', 'like', "%{$search}%")
-            ->orWhereHas('store', fn($query) => $query->where('name', 'like', "%{$search}%"));
+                ->orWhereHas('store', fn($query) => $query->where('name', 'like', "%{$search}%"));
         });
     }
 
@@ -137,13 +137,13 @@ class Listing extends Model
     }
 
 
-   /**
-    * get cart that belongs to the listings
-    */
+    /**
+     * get cart that belongs to the listings
+     */
     public function carts()
     {
         return $this->belongsToMany(Cart::class, 'cart_listing')
-        ->withPivot('quantity')
-        ->withTimestamps();
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 }
