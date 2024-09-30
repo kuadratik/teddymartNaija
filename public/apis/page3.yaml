@@ -1,0 +1,72 @@
+openapi: '3.0.0'
+info:
+  description: myEki apis
+  version: 1.0.0
+  title: myeki
+
+servers:
+  - url: /api
+    description: v1 baseUrl
+
+components:
+  securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+
+paths:
+  /front/cart/add/{product}:
+    post:
+      tags:
+        - Cart
+      summary: add product to cart
+      description: add product to cart
+      operationId: AddProductToCart
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/cart:
+    get:
+      tags:
+        - Cart
+      summary: get cart
+      description: get cart
+      operationId: GetCart
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+

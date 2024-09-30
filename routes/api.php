@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\FrontAuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Common\CountryController;
 use App\Http\Controllers\ListingsController;
@@ -42,6 +43,13 @@ Route::prefix('front')->group(function () {
         Route::delete('clips/{clip}/items/{product:slug}', [UserController::class, 'deleteClipItem']);
     });
 
+    Route::middleware(['hasSessionUid', 'optionalAuth'])->group(function () {
+        Route::prefix('cart')->group(function () {
+            Route::post('add/{product:slug}', [CartController::class, 'addToCart']);
+            Route::get('/', [CartController::class, 'getCart']);
+        });
+    });
+
     Route::prefix('stores')->group(function () {
         Route::get('/', [StoresController::class, 'getStores']);
         Route::get('recommended-stores', [StoresController::class, 'getRecommendedStores']);
@@ -52,15 +60,11 @@ Route::prefix('front')->group(function () {
         Route::get('popular', [StoresController::class, 'getPopularStores']);
         Route::get('listing/popular', [ListingsController::class, 'getPopularListing']);
         Route::post('listings/{listing}/add-view', [ListingsController::class, 'addListingViewsCount']);
-
     });
 
-        Route::prefix('listings')->group(function () {
+    Route::prefix('listings')->group(function () {
         Route::get('/', [ListingsController::class, 'getListings']);
-
-        });
-
-
+    });
 });
 
 Route::middleware('auth:sanctum')->group(function () {
