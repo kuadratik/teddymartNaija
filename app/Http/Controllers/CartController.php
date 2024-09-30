@@ -28,4 +28,15 @@ class CartController extends Controller
         $cart = $this->cartService->getCartDetails($request);
         return  $this->success($cart);
     }
+
+
+    /**
+     * Edit cart quantiy
+     */
+    public function editCart(Request $request, Listing $product)
+    {
+        $request->validate(['quantity' => 'required|numeric|min:1']);
+        $data = $this->cartService->editCartQuantity($request, $product);
+        return $this->success($data);
+    }
 }

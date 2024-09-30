@@ -22,7 +22,6 @@ paths:
         - Cart
       summary: add product to cart
       description: add product to cart
-      operationId: AddProductToCart
       security:
         - bearerAuth: []
       parameters:
@@ -45,6 +44,48 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /front/cart/edit/{product}:
+    put:
+      tags:
+        - Cart
+      summary: edit the quantity of a cart
+      description: edit the quantity of a cart
+      operationId: EditCart
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  example: 1
+                  required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
 
   /front/cart:
     get:

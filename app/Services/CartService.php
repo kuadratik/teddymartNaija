@@ -38,97 +38,80 @@ class CartService
 
         return $cartDetails;
     }
+
     /**
-     * Add a product to the user's cart
+     * Add a product to the cart if it's a valid product type.
      */
     public function addToCart(Request $request, Listing $product): Cart
     {
-        return DB::transaction(function () use ($request, $product) {
-            if ($product->type !== ListingType::PRODUCT->value) {
-                return Utils::validateResp(['error' => ['Product not found']]);
-            }
+        if ($product->type !== ListingType::PRODUCT->value) {
+            return Utils::validateResp(['error' => ['Product not found']]);
+        }
 
-            // Get the current cart (either guest or authenticated)
-            $cart = $this->getCart($request);
+        $cart = $this->getCart($request);
 
-            // Check if the product is already in the cart
-            $cartItem = $cart->products()->where('listing_id', $product->id)->first();
+        $cart->products()->syncWithoutDetaching([
+            $product->id => ['quantity' => DB::raw('COALESCE(quantity, 0) + 1')]
+        ]);
 
-            if ($cartItem) {
-                // If the product exists, increase the quantity
-                $newQuantity = $cartItem->pivot->quantity + 1;
-                $cart->products()->updateExistingPivot($product->id, ['quantity' => $newQuantity]);
-            } else {
-                // If it doesn't exist, add it to the cart with quantity 1
-                $cart->products()->syncWithoutDetaching([
-                    $product->id => ['quantity' => 1]
-                ]);
-            }
-
-            return $cart->fresh(['products']);
-        });
+        return $cart->fresh(['products']);
     }
 
+
+
+    public function editCartQuantity(Request $request, Listing $product): Cart
+    {
+        $cart = $this->getCart($request);
+
+        if ($request->quantity <= 0) {
+            $cart->products()->detach($product->id);
+            return $cart->fresh(['products']);
+        }
+
+        $cart->products()->syncWithoutDetaching([
+            $product->id => ['quantity' => $request->quantity]
+        ]);
+
+        return $cart->fresh(['products']);
+    }
+
+    /**
+     * Get the user's cart based on the provided request.
+     */
     private function getCart(Request $request): Cart
     {
         $sessionUid = $request->header('session-uid');
         $user = $request->user();
 
-        // If the user is logged in
-        if ($user) {
-            // First check if the user already has a cart associated with both session_uid and user_id
-            $existingCart = Cart::where('session_uid', $sessionUid)->where('user_id', $user->id)->first();
-
-            if ($existingCart) {
-                // If a cart exists with both session_uid and user_id, no need for merging, return it directly
-                return $existingCart;
-            }
-
-            // Find the guest cart by session UID (for logged-in users who may have added items as a guest)
-            $guestCart = Cart::where('session_uid', $sessionUid)->whereNull('user_id')->first();
-            // Find the user's cart by user ID (for logged-in users who already have a cart)
-            $userCart = Cart::where('user_id', $user->id)->first();
-
-            if ($guestCart && $userCart) {
-                // Merge the guest cart into the user cart
-                foreach ($guestCart->products as $guestProduct) {
-                    $userCartItem = $userCart->products()->where('listing_id', $guestProduct->id)->first();
-
-                    if ($userCartItem) {
-                        // If the product exists in the user cart, increase the quantity
-                        $newQuantity = $userCartItem->pivot->quantity + $guestProduct->pivot->quantity;
-                        $userCart->products()->updateExistingPivot($guestProduct->id, ['quantity' => $newQuantity]);
-                    } else {
-                        // If the product doesn't exist in the user cart, add it
-                        $userCart->products()->attach($guestProduct->id, ['quantity' => $guestProduct->pivot->quantity]);
-                    }
-                }
-                // Delete the guest cart after merging
-                $guestCart->delete();
-
-                return $userCart;
-            }
-
-            if ($guestCart && !$userCart) {
-                // If there's a guest cart but no user cart, assign the guest cart to the user
-                $guestCart->user_id = $user->id;
-                $guestCart->session_uid = $sessionUid; // Keep the session UID for tracking
-                $guestCart->save();
-
-                return $guestCart;
-            }
-
-            if (!$guestCart && $userCart) {
-                // If there's no guest cart but the user has a cart, return the user's cart
-                return $userCart;
-            }
-
-            // If no cart exists for either guest or user, create a new cart for the user
-            return Cart::create(['user_id' => $user->id, 'session_uid' => $sessionUid]);
+        if (!$user) {
+            return Cart::firstOrCreate(['session_uid' => $sessionUid]);
         }
 
-        // If the user is not logged in, get or create a cart based on the session UID
-        return Cart::firstOrCreate(['session_uid' => $sessionUid]);
+        $userCart = Cart::firstOrCreate(['user_id' => $user->id]);
+        $guestCart = Cart::where('session_uid', $sessionUid)->whereNull('user_id')->first();
+
+        if ($guestCart) {
+            $this->mergeGuestCart($userCart->load('products'), $guestCart->load('products'));
+            $guestCart->delete();
+        }
+
+        $userCart->session_uid = $sessionUid;
+        $userCart->save();
+
+        return $userCart;
     }
 
+    /**
+     * Merge products from a guest cart into the user's cart without detaching existing products.
+     */
+    private function mergeGuestCart(Cart $userCart, Cart $guestCart): void
+    {
+        foreach ($guestCart->products as $product) {
+            $userCart->products()->syncWithoutDetaching([
+                $product->id => [
+                    'quantity' => DB::raw("COALESCE(quantity, 0) + {$product->pivot->quantity}")
+                ]
+            ]);
+        }
+    }
 }
