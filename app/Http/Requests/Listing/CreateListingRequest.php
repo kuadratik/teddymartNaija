@@ -29,8 +29,8 @@ class CreateListingRequest extends FormRequest
             'name' => ['required', 'string'],
             'type' => ['required', 'string', Rule::enum(ListingType::class)],
             'price' => ['required_if:type,product', 'numeric'],
-            'description' => ['required', 'string', 'max:200'],
-            'additional_information' => ['nullable', 'string', 'max:200'],
+            'description' => ['required', 'string', 'max:500'],
+            'additional_information' => ['nullable', 'string', 'max:1000'],
             'images' => ['required', 'array'],
             'category' => ['required', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)]
         ];

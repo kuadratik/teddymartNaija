@@ -46,6 +46,10 @@ Route::prefix('front')->group(function () {
     Route::middleware(['hasSessionUid', 'optionalAuth'])->group(function () {
         Route::prefix('cart')->group(function () {
             Route::post('add/{product:slug}', [CartController::class, 'addToCart']);
+            Route::post('/{product:slug}', [CartController::class, 'addToCart']);
+            Route::put('edit/{product:slug}', [CartController::class, 'editCart']);
+            Route::delete('remove/{product:slug}', [CartController::class, 'removeCartItem']);
+            Route::delete('clear', [CartController::class, 'clearCart']);
             Route::get('/', [CartController::class, 'getCart']);
         });
     });
@@ -85,7 +89,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::prefix('listings')->group(function () {
             Route::middleware('hasStore')->group(function () {
-
                 Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'showUserStoreListing']);
                 Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
                 Route::patch('{userStore}/listing/{listing}/update', [ListingsController::class, 'update']);

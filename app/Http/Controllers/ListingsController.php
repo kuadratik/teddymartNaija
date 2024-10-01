@@ -121,6 +121,6 @@ class ListingsController extends Controller
             fn($query) => $query->availability($request->availability)
         )->get();
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
-        return $this->success($listings);
+        return $this->success($listings->load('store'));
     }
 }
