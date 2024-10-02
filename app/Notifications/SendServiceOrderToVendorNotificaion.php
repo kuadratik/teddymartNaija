@@ -42,10 +42,10 @@ class SendServiceOrderToVendorNotificaion extends Notification implements Should
             ->line("**Name:** {$this->order->getCustomerNameAttribute()}")
             ->line("**Email:** {$this->order->customer->email}")
             ->line("**Service Requested:** {$this->order->orderDetails()->first()->listing_name}")
-            ->action('View Service', env('FRONT_URL') . '/' . $this->order->store->slug . '/listings/' . $this->order->orderDetails()->first()->listing->slug)
+            ->action('View Service', env('FRONT_URL') . '/' .  'store/details/'. $this->order->store->slug . '?slug=' . $this->order->orderDetails()->first()->listing->slug)
             ->line('Please reach out to the customer within 24-48 hours to confirm availability and discuss the next steps.')
             ->line('Thank you for using TeddyMart!')
-            ->salutation(new HtmlString('Best Regards,<br>The TeddyMart Team'));
+            ->salutation(new HtmlString('Best Regards,<br>The myEki Team'));
     }
 
     /**
