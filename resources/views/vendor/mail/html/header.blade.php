@@ -3,7 +3,7 @@
     <tr>
         <td style="text-align: center; padding: 20px;">
             <a href="#" style="display: inline-block;">
-                <img src="{{ asset('images/logo2.png') }}" alt="Eki Logo" style="height: 50px;">
+                <img src="{{ asset('images/logo.png') }}" alt="Eki Logo" style="height: 50px;">
             </a>
         </td>
     </tr>
