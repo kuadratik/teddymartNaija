@@ -163,3 +163,113 @@ paths:
               schema:
                 type: object
 
+  /front/user/shipping-address/create:
+    post:
+      tags:
+        - Shipping
+      summary: create shipping new address for cart order
+      description: create shipping new address for cart order
+      operationId: CreateShippingAddress
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                city:
+                  type: string
+                  example: "Ikeja"
+                  required: true
+                state:
+                  type: string
+                  example: "Lagos"
+                  required: true
+                country:
+                  type: string
+                  example: "Nigeria"
+                  required: true
+                lga:
+                  type: string
+                  example: "Ikeja"
+                  required: true
+                address:
+                  type: string
+                  example: "2, Ajegunle street"
+                  required: true
+                landmark:
+                  type: string
+                  example: ""
+                  required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/cart/{cart}/order:
+    post:
+      tags:
+        - Cart
+      summary: order cart
+      description: order cart
+      operationId: OrderCart
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: path
+          name: cart
+          schema:
+            type: string
+            example: "1"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: "Teddy"
+                  required: true
+                last_name:
+                  type: string
+                  example: "Edwardson"
+                  required: true
+                email:
+                  type: string
+                  example: "teddyedward@teddyed.com"
+                  required: true
+                phone:
+                  type: string
+                  example: "2348012345678"
+                  required: true,
+                shipping_address_id:
+                  type: integer
+                  example: 1
+                  required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
