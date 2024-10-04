@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'inquiry' => [
+        'email' => env('INQUIRY_EMAIL', 'inquiries@myeki.market'),
+    ],
+
+
 ];

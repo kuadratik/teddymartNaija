@@ -15,14 +15,17 @@ use Illuminate\Support\Facades\DB;
 class StoresController extends Controller
 {
     /**
-     * Display a store metrics
+     * Display store metrics including listings count and customer count
      */
-    public function getUserStoreMetrics(Request $request, UserService $userService)
+    public function getUserStoreMetrics(Request $request, UserService $userService, Store $userStore)
     {
-        $userStoreListingsCount = $request->user()->store->listings()->byType($request->listingType)->count();
-        $customersCount = $userService->getStoreCustomerCount($request->user()->store);
+
+        abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
+        $userStoreListingsCount = $userStore->listings()->byType($request->listingType)->count();
+        $customersCount = $userService->getStoreCustomerCount($userStore);
         return $this->success(["totalListingsCount" => $userStoreListingsCount, "totalCustomerCount" => $customersCount]);
     }
+
 
     /**
      *  Get stores
@@ -65,7 +68,7 @@ class StoresController extends Controller
      */
     public function getPopularStores()
     {
-        $store = Store::query()->popular()->orderBy('views_count','desc')->get();
+        $store = Store::query()->popular()->orderBy('views_count', 'desc')->get();
         return $this->success($store);
     }
     /**
@@ -84,22 +87,20 @@ class StoresController extends Controller
     public function create(CreateStoreRequest $request)
     {
         $user = $request->user();
+        $store = null;
 
-        if (Store::query()->byUser($user->id)->exists()) {
-            return $this->failure('You can not have more than one store!', 403);
-        }
-
-        DB::transaction(function () use ($request, $user) {
-            Store::create($request->storeAttributes());
+        DB::transaction(function () use ($request, $user, &$store) {
+            $store = Store::create($request->storeAttributes());
             $user->update([
                 'offers_service' => $request->offers_service,
                 'offers_product' => $request->offers_product,
-                'has_store' => true
+                'has_store' => true,
             ]);
         });
 
-        return $this->success();
+        return $this->success(['store' => $store]);
     }
+
 
     /**
      * Display the specified store.

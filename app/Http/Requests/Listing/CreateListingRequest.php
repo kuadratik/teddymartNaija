@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Listing;
 
 use App\Enums\ListingType;
+use App\Models\Store;
 use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -28,8 +29,8 @@ class CreateListingRequest extends FormRequest
             'name' => ['required', 'string'],
             'type' => ['required', 'string', Rule::enum(ListingType::class)],
             'price' => ['required_if:type,product', 'numeric'],
-            'description' => ['required', 'string', 'max:200'],
-            'additional_information' => ['nullable', 'string', 'max:200'],
+            'description' => ['required', 'string', 'max:500'],
+            'additional_information' => ['nullable', 'string', 'max:1000'],
             'images' => ['required', 'array'],
             'category' => ['required', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)]
         ];
@@ -46,11 +47,11 @@ class CreateListingRequest extends FormRequest
     /**
      * Prepare store record to save
      */
-    public function listingAttributes()
+    public function listingAttributes(Store $userStore)
     {
         return collect($this->safe()->except(['images', 'category']))->merge([
             'category_id' => $this->category,
-            'store_id' => $this->user()->store->id,
+            'store_id' => $userStore->id,
             'user_id' => $this->user()->id,
             'images' => $this->images(),
             'is_available' => true

@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\CheckIfUserHasStore;
 use App\Http\Middleware\EnsureClipUidHeader;
+use App\Http\Middleware\EnsureSessionUidHeader;
 use App\Http\Middleware\OptionalSanctum;
 use App\Http\Middleware\RespondWithJson;
 use App\Support\Utils;
@@ -34,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([]);
         $middleware->alias([
             'hasUid' => EnsureClipUidHeader::class,
+            'hasSessionUid' => EnsureSessionUidHeader::class,
             'hasStore' => CheckIfUserHasStore::class,
             'optionalAuth' => OptionalSanctum::class,
         ]);

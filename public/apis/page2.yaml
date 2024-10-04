@@ -35,7 +35,7 @@ paths:
               schema:
                 type: object
 
-  /store/user-store/metrics:
+  /store/user-store/{userStore}/metrics:
     get:
       security:
         - bearerAuth: []
@@ -45,6 +45,12 @@ paths:
       description: 'Get User Store Metrics'
       operationId: GetUserStoreMetrics
       parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
         - in: query
           name: listingType
           schema:
@@ -192,25 +198,7 @@ paths:
               schema:
                 type: object
 
-  /store/total-customers:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - User Store
-      summary: Get Total Customers
-      description: "Get Total Customers"
-      operationId: GetTotalCustomers
-      responses:
-        default:
-          description: "success"
-          content:
-            application/json:
-              schema:
-                type: object
-
-
-  /store/listings:
+  /store/{userStore}/listings:
     get:
       security:
         - bearerAuth: []
@@ -220,6 +208,13 @@ paths:
       description: 'Get User Store Listings'
       operationId: GetUserStoreListings
       parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+
         - in: query
           name: listingType
           schema:
@@ -241,7 +236,7 @@ paths:
               schema:
                 type: object
 
-  /store/listings/create:
+  /store/{userStore}/listings/create:
     post:
       security:
         - bearerAuth: []
@@ -250,7 +245,13 @@ paths:
       summary: Create User Store Listing
       description: Create User Store Listing
       operationId: CreateUserStoreListing
-
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
       requestBody:
         content:
           application/json:

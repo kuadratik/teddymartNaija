@@ -21,9 +21,10 @@ class ListingsController extends Controller
     /**
      * Display a listing of user store listing.
      */
-    public function getUserStoreListings(Request $request)
+    public function getUserStoreListings(Request $request, Store $userStore)
     {
-        $userStoreListings = $this->user->store->listings()
+        abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
+        $userStoreListings = $userStore->listings()
             ->latest()->byType($request->listingType)
             ->availability($request->availability)
             ->paginate();
@@ -34,9 +35,10 @@ class ListingsController extends Controller
     /**
      * Creates an user store listing based on the provided request.
      */
-    public function create(CreateListingRequest $request)
+    public function create(CreateListingRequest $request, Store $userStore)
     {
-        Listing::create($request->listingAttributes());
+        abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
+        Listing::create($request->listingAttributes($userStore));
         return $this->success();
     }
 
@@ -114,8 +116,11 @@ class ListingsController extends Controller
         )->when(
             $request->category,
             fn($query) => $query->byCategory($request->category)
+        )->when(
+            $request->availability,
+            fn($query) => $query->availability($request->availability)
         )->get();
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
-        return $this->success($listings);
+        return $this->success($listings->load('store'));
     }
 }

@@ -90,7 +90,7 @@ class SendOrderToVendorNotificaion extends Notification implements ShouldQueue
             ->line(new HtmlString($details))
             ->line(new HtmlString($orderDetailsTable))
             ->line('Thank you for your prompt attention to this request!')
-            ->salutation(new HtmlString('Best Regards,<br>The TeddyMart Team'));
+            ->salutation(new HtmlString('Best Regards,<br>The myEki Team'));
     }
 
     /**

@@ -490,6 +490,37 @@ paths:
               schema:
                 type: object
 
+  /front/contact-us:
+    post:
+      tags:
+        - General
+      summary: contact us
+      description: contact us
+      operationId: ContactUs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullname:
+                  type: string
+                  example: "Teddy Edward"
+                email:
+                  type: string
+                  example: "teddyedward@teddyed.com"
+                message:
+                  type: string
+                  example: "Message"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
   /front/add-to-clip/{product}:
     post:
       tags:
@@ -1052,7 +1083,11 @@ paths:
           schema:
             type: string
             example: "amala"
-
+        - in: query
+          name: availability
+          schema:
+            type: boolean
+            example: true
       responses:
         default:
           description: "success"

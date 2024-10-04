@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\FrontAuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Common\CountryController;
 use App\Http\Controllers\ListingsController;
@@ -31,6 +32,7 @@ Route::prefix('front')->group(function () {
     Route::post('reset', [FrontAuthController::class, 'resetPassword']);
     Route::get('category', [GeneralController::class, 'getCategories']);
     Route::get('record-interaction/{category}', [GeneralController::class, 'recordUserInteraction']);
+    Route::post('contact-us', [GeneralController::class, 'contactUs']);
 
     Route::middleware(['hasUid', 'optionalAuth'])->group(function () {
         Route::post('add-to-clip/{product:slug}', [UserController::class, 'addToClip']);
@@ -39,6 +41,17 @@ Route::prefix('front')->group(function () {
         Route::delete('clips/{clip}', [UserController::class, 'deleteClip']);
         Route::delete('delete-all-clip', [UserController::class, 'deleteAllClip']);
         Route::delete('clips/{clip}/items/{product:slug}', [UserController::class, 'deleteClipItem']);
+    });
+
+    Route::middleware(['hasSessionUid', 'optionalAuth'])->group(function () {
+        Route::prefix('cart')->group(function () {
+            Route::post('add/{product:slug}', [CartController::class, 'addToCart']);
+            Route::post('/{product:slug}', [CartController::class, 'addToCart']);
+            Route::put('edit/{product:slug}', [CartController::class, 'editCart']);
+            Route::delete('remove/{product:slug}', [CartController::class, 'removeCartItem']);
+            Route::delete('clear', [CartController::class, 'clearCart']);
+            Route::get('/', [CartController::class, 'getCart']);
+        });
     });
 
     Route::prefix('stores')->group(function () {
@@ -51,15 +64,11 @@ Route::prefix('front')->group(function () {
         Route::get('popular', [StoresController::class, 'getPopularStores']);
         Route::get('listing/popular', [ListingsController::class, 'getPopularListing']);
         Route::post('listings/{listing}/add-view', [ListingsController::class, 'addListingViewsCount']);
-
     });
 
-        Route::prefix('listings')->group(function () {
+    Route::prefix('listings')->group(function () {
         Route::get('/', [ListingsController::class, 'getListings']);
-
-        });
-
-
+    });
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -72,14 +81,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('create', [StoresController::class, 'create']);
         Route::middleware('hasStore')->group(function () {
             Route::get('user-store', [StoresController::class, 'showUserStore']);
-            Route::get('user-store/metrics', [StoresController::class, 'getUserStoreMetrics']);
+            Route::get('user-store/{userStore}/metrics', [StoresController::class, 'getUserStoreMetrics']);
             Route::patch('{userStore}/update', [StoresController::class, 'update']);
+            Route::get('{userStore}/listings', [ListingsController::class, 'getUserStoreListings']);
+            Route::post('{userStore}/listings/create', [ListingsController::class, 'create']);
         });
 
         Route::prefix('listings')->group(function () {
             Route::middleware('hasStore')->group(function () {
-                Route::get('/', [ListingsController::class, 'getUserStoreListings']);
-                Route::post('create', [ListingsController::class, 'create']);
                 Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'showUserStoreListing']);
                 Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
                 Route::patch('{userStore}/listing/{listing}/update', [ListingsController::class, 'update']);
@@ -94,11 +103,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         Route::post('store/{store}/service/{listing}/order', [UserController::class, 'storeServiceEnquiry']);
         Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
+        Route::post('cart/{cart}/order', [CartController::class, 'storeCartOrder']);
         Route::prefix('user')->group(function () {
             Route::get('profile', [UserController::class, 'getUserProfile']);
             Route::put('profile/update', [UserController::class, 'updateUserProfile']);
             Route::patch('change-password', [UserController::class, 'updateUserPassword']);
             Route::post('logout',  [FrontAuthController::class, 'logout']);
+            Route::post('shipping-address/create', [CartController::class, 'storeShippingAddress']);
+            Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         });
     });
 });
