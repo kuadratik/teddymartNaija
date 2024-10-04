@@ -83,4 +83,15 @@ class CartController extends Controller
         $data = $this->cartService->createCartOrder($request, $cart);
         return $this->success();
     }
+
+    /**
+     * Get user orders
+     */
+    public function getUserOrders(Request $request)
+    {
+        $data = $this->cartService->getUserOrders($request);
+        return $this->success($data);
+    }
+
+
 }

@@ -273,3 +273,32 @@ paths:
               schema:
                 type: object
 
+  /front/order:
+    get:
+      tags:
+        - Cart
+      summary: get user orders
+      description: get user orders also by status (incart, pending, completed)
+      operationId: Get user Orders
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: query
+          name: order_status
+          schema:
+            type: string
+            example: "incart"
+          required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
