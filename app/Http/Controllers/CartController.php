@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Cart\StoreShippingAddressRequest;
+use App\Http\Requests\Cart\StoreOrderRequest;
+use App\Models\Cart;
 use App\Models\Listing;
+use App\Models\UserShippingAddress;
 use App\Services\CartService;
 use App\Services\Auth\UserService;
 use Illuminate\Http\Request;
@@ -58,5 +62,25 @@ class CartController extends Controller
     {
         $data = $this->cartService->clearCart($request);
         return $this->success($data);
+    }
+
+
+    /**
+     * Create user shipping address
+     */
+    public function storeShippingAddress(StoreShippingAddressRequest $request)
+    {
+        $data = UserShippingAddress::create($request->shippingAddressAttribute());
+        return $this->success($data->fresh());
+    }
+
+
+    /**
+     *  create order
+     */
+    public function storeCartOrder(StoreOrderRequest $request, Cart $cart)
+    {
+        $data = $this->cartService->createCartOrder($request, $cart);
+        return $this->success();
     }
 }
