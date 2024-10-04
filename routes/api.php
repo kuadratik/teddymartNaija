@@ -103,11 +103,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         Route::post('store/{store}/service/{listing}/order', [UserController::class, 'storeServiceEnquiry']);
         Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
+        Route::post('cart/{cart}/order', [CartController::class, 'storeCartOrder']);
         Route::prefix('user')->group(function () {
             Route::get('profile', [UserController::class, 'getUserProfile']);
             Route::put('profile/update', [UserController::class, 'updateUserProfile']);
             Route::patch('change-password', [UserController::class, 'updateUserPassword']);
             Route::post('logout',  [FrontAuthController::class, 'logout']);
+            Route::post('shipping-address/create', [CartController::class, 'storeShippingAddress']);
+            Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         });
     });
 });

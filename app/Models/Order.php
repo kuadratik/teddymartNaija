@@ -78,4 +78,15 @@ class Order extends Model
     {
         return $this->first_name . ' ' . $this->last_name;
     }
+
+    /**
+     * Get the shipping address associated with the order.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function shippingAddress()
+    {
+        return $this->belongsToMany(UserShippingAddress::class, 'order_shipping_address', 'order_id', 'shipping_address_id')
+            ->withTimestamps();
+    }
 }

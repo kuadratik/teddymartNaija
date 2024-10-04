@@ -3,11 +3,16 @@
 namespace App\Services;
 
 use App\Enums\ListingType;
+use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Models\Cart;
 use App\Models\Listing;
+use App\Models\Order;
+use App\Models\OrderDetail;
 use App\Support\Utils;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
 
 class CartService
 {
@@ -106,6 +111,7 @@ class CartService
         return [];
     }
 
+
     /**
      * Get the user's cart based on the provided request.
      */
@@ -152,5 +158,54 @@ class CartService
     private function deleteCartById(int $cartId): void
     {
         Cart::where('id', $cartId)->delete();
+    }
+
+    /**
+     * Store users order and order details
+     */
+
+    public function createCartOrder(StoreOrderRequest $request, Cart $cart)
+    {
+        DB::transaction(function () use ($request, $cart) {
+            $cart = Cart::find($cart->id);
+
+            $cartItems = $cart->products()
+                ->with('store')
+                ->get()
+                ->groupBy('store_id');
+
+            foreach ($cartItems as $storeId => $items) {
+                $totalAmount = $items->sum(function ($item) {
+                    return $item->pivot->quantity * $item->price;
+                });
+
+                $customer = auth()->user();
+
+                $order = Order::create([
+                    'store_id' => $storeId,
+                    'user_id' => $customer->id,
+                    'order_number' => Str::uuid()->toString(),
+                    'first_name' => $request->validated('first_name'),
+                    'last_name' => $request->validated('last_name'),
+                    'email' => $request->validated('email'),
+                    'phone' => $request->validated('phone'),
+                    'total_amount' => $totalAmount,
+                    'type' => ListingType::PRODUCT->value,
+                ]);
+
+                $order->shippingAddress()->attach($request->validated('shipping_address_id'));
+
+                foreach ($items as $item) {
+                    OrderDetail::create([
+                        'order_id' => $order->id,
+                        'listing_id' => $item->id,
+                        'listing_name' => $item->name,
+                        'listing_price' => $item->price,
+                    ]);
+                }
+            }
+
+            $cart->products()->detach();
+        });
     }
 }
