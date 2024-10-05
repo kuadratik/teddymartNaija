@@ -104,6 +104,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('store/{store}/service/{listing}/order', [UserController::class, 'storeServiceEnquiry']);
         Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
         Route::post('cart/{cart}/order', [CartController::class, 'storeCartOrder']);
+        Route::get('order', [CartController::class, 'getUserOrders']);
         Route::prefix('user')->group(function () {
             Route::get('profile', [UserController::class, 'getUserProfile']);
             Route::put('profile/update', [UserController::class, 'updateUserProfile']);

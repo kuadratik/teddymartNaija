@@ -12,6 +12,8 @@ use App\Support\Utils;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Http\Resources\OrderResource;
+
 
 
 class CartService
@@ -36,7 +38,8 @@ class CartService
                     'name' => $product->name,
                     'price' => $product->price,
                     'quantity' => $product->pivot->quantity,
-                    'total_price' => $product->pivot->quantity * $product->price
+                    'total_price' => $product->pivot->quantity * $product->price,
+                    'images' => $product->images
                 ];
             })
         ];
@@ -207,5 +210,23 @@ class CartService
 
             $cart->products()->detach();
         });
+    }
+
+    /**
+     * Get orders for a specific user, with optional status filtering.
+     */
+    public function getUserOrders(Request $request)
+    {
+        $user = $request->user();
+        $status = $request->query('order_status');
+
+        $orders = Order::with(['orderDetails', 'shippingAddress'])
+            ->where('user_id', $user->id)
+            ->where('type', ListingType::PRODUCT->value)
+            ->when($status, fn($query) => $query->where('status', $status))
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return OrderResource::collection($orders);
     }
 }
