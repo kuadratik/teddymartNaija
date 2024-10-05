@@ -1039,6 +1039,12 @@ paths:
       description: "Get Popular Store Listing"
       operationId: GetPopularStoreListing
       parameters:
+        - in: header
+          name: country
+          schema:
+            type: string
+            example: "Nigeria"
+          required: true
         - in: query
           name: listingType
           schema:
@@ -1059,7 +1065,7 @@ paths:
       tags:
         - Stores
       summary: Get Listing Lists
-      description: "Get Listing Lists"
+      description: "Get Listing Lists filter by country (United States,Nieria,Canada)"
       operationId: GetListings
       parameters:
         - in: header
@@ -1067,6 +1073,12 @@ paths:
           schema:
             type: string
             example: ""
+          required: true
+        - in: header
+          name: country
+          schema:
+            type: string
+            example: "Nigeria"
           required: true
         - in: query
           name: listingType

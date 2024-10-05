@@ -98,29 +98,42 @@ class ListingsController extends Controller
     }
 
     /**
-     * get popular store based on views
+     * Get popular listings based on views, with optional country filter.
      */
     public function getPopularListing(Request $request)
     {
-        $listing = Listing::query()->popular($request->query('listingType'))->with('store')->get();
+        $country = $request->header('country', 'United States');
+
+        $listing = Listing::query()
+            ->popular($request->query('listingType'))
+            ->with('store')
+            ->whereHas('store.country', function ($countryQuery) use ($country) {
+                $countryQuery->where('name', $country);
+            })
+            ->get();
+
         return $this->success($listing);
     }
+
     /**
-     *   Listing by type with search
+     *   Listing by type with search and country filter
      */
     public function getListings(Request $request)
     {
-        $listings = Listing::query()->byListingType($request->listingType)->when(
-            $request->search,
-            fn($query) => $query->search($request->search)
-        )->when(
-            $request->category,
-            fn($query) => $query->byCategory($request->category)
-        )->when(
-            $request->availability,
-            fn($query) => $query->availability($request->availability)
-        )->get();
+        $country = $request->header('country', 'United States');
+
+        $listings = Listing::query()
+            ->byListingType($request->listingType)
+            ->when($request->search, fn($query) => $query->search($request->search))
+            ->when($request->category, fn($query) => $query->byCategory($request->category))
+            ->when($request->availability, fn($query) => $query->availability($request->availability))
+            ->whereHas('store.country', function ($countryQuery) use ($country) {
+                $countryQuery->where('name', $country);
+            })
+            ->get();
+
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
+
         return $this->success($listings->load('store'));
     }
 }
