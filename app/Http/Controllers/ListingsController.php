@@ -107,6 +107,7 @@ class ListingsController extends Controller
         $listing = Listing::query()
             ->popular($request->query('listingType'))
             ->with('store')
+            ->where('is_available', true)
             ->whereHas('store.country', function ($countryQuery) use ($country) {
                 $countryQuery->where('name', $country);
             })
