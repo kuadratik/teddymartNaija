@@ -32,6 +32,7 @@ class CreateListingRequest extends FormRequest
             'description' => ['required', 'string', 'max:500'],
             'additional_information' => ['nullable', 'string', 'max:1000'],
             'images' => ['required', 'array'],
+            'currency' => ['required', 'string', 'in:USD,CAD,NGN'],
             'category' => ['required', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)]
         ];
     }
@@ -54,7 +55,8 @@ class CreateListingRequest extends FormRequest
             'store_id' => $userStore->id,
             'user_id' => $this->user()->id,
             'images' => $this->images(),
-            'is_available' => true
+            'is_available' => true,
+            'currency' => $this->currency
         ])->toArray();
     }
 }

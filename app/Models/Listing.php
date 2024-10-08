@@ -27,7 +27,8 @@ class Listing extends Model
         'additional_information',
         'is_available',
         'views_count',
-        'images'
+        'images',
+        'currency'
     ];
 
     /**
@@ -145,5 +146,14 @@ class Listing extends Model
         return $this->belongsToMany(Cart::class, 'cart_listing')
             ->withPivot('quantity')
             ->withTimestamps();
+    }
+
+
+    /**
+     * Scope by currency
+     */
+    public function scopeByCurrency(Builder $query, string $currency)
+    {
+        $query->when($currency, fn(Builder $query) => $query->where('currency', $currency));
     }
 }

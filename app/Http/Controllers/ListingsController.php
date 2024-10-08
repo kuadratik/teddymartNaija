@@ -97,40 +97,41 @@ class ListingsController extends Controller
         return $this->success();
     }
 
+
+
     /**
-     * Get popular listings based on views, with optional country filter.
+     * Get popular listings based on views, with optional currency filter.
      */
     public function getPopularListing(Request $request)
     {
-        $country = $request->header('country', 'United States');
+
+        $currency = $request->header('currency', 'USD');
+
 
         $listing = Listing::query()
             ->popular($request->query('listingType'))
+            ->byCurrency($currency)
             ->with('store')
             ->where('is_available', true)
-            ->whereHas('store.country', function ($countryQuery) use ($country) {
-                $countryQuery->where('name', $country);
-            })
             ->get();
 
         return $this->success($listing);
     }
 
+
     /**
-     *   Listing by type with search and country filter
+     *   Listing by type with search and currency filter
      */
     public function getListings(Request $request)
     {
-        $country = $request->header('country', 'United States');
+        $currency = $request->header('currency', 'USD');
 
         $listings = Listing::query()
             ->byListingType($request->listingType)
             ->when($request->search, fn($query) => $query->search($request->search))
             ->when($request->category, fn($query) => $query->byCategory($request->category))
             ->when($request->availability, fn($query) => $query->availability($request->availability))
-            ->whereHas('store.country', function ($countryQuery) use ($country) {
-                $countryQuery->where('name', $country);
-            })
+            ->byCurrency($currency)
             ->get();
 
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));

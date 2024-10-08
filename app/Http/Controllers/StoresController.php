@@ -80,13 +80,23 @@ class StoresController extends Controller
     }
 
     /**
-     * get popular store based on views
+     * Get popular stores based on views with optional country filter
      */
-    public function getPopularStores()
+    public function getPopularStores(Request $request)
     {
-        $store = Store::query()->popular()->orderBy('views_count', 'desc')->get();
+        $country = $request->header('country', 'United States');
+
+        $store = Store::query()
+            ->popular()
+            ->whereHas('country', function ($query) use ($country) {
+                $query->where('name', $country);
+            })
+            ->orderBy('views_count', 'desc')
+            ->get();
+
         return $this->success($store);
     }
+
     /**
      * add store views count
      */

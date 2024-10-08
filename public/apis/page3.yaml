@@ -217,6 +217,30 @@ paths:
               schema:
                 type: object
 
+  /front/user/shipping-address:
+    get:
+      tags:
+        - Shipping
+      summary: get shipping address
+      description: get shipping address
+      operationId: GetShippingAddress
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/cart/{cart}/order:
     post:
       tags:
