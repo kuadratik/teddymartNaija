@@ -111,6 +111,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::patch('change-password', [UserController::class, 'updateUserPassword']);
             Route::post('logout',  [FrontAuthController::class, 'logout']);
             Route::post('shipping-address/create', [CartController::class, 'storeShippingAddress']);
+            Route::get('shipping-address', [UserController::class, 'getShippingAddresses']);
             Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         });
     });

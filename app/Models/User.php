@@ -86,5 +86,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->first_name . ' ' . $this->last_name;
     }
 
-
+    /**
+     * Get all of the shippingAddresses for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function shippingAddresses(): HasMany
+    {
+        return $this->hasMany(UserShippingAddress::class, 'user_id', 'id');
+    }
 }
