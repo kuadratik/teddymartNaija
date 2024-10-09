@@ -95,4 +95,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(UserShippingAddress::class, 'user_id', 'id');
     }
+
+    /**
+     * Get all saved shipping addresses where 'saved' is true.
+     */
+    public function savedShippingAddresses(): HasMany
+    {
+        return $this->hasMany(UserShippingAddress::class, 'user_id', 'id')
+            ->where('saved', true);
+    }
 }

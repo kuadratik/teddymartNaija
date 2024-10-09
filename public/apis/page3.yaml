@@ -209,6 +209,10 @@ paths:
                   type: string
                   example: ""
                   required: false
+                saved:
+                  type: boolean
+                  example: true
+                  required: true
       responses:
         default:
           description: "success"

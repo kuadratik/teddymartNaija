@@ -92,6 +92,4 @@ class CartController extends Controller
         $data = $this->cartService->getUserOrders($request);
         return $this->success($data);
     }
-
-
 }
