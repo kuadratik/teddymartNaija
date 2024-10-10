@@ -59,13 +59,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
 
     /**
-     * Get the stores associated with the User
+     * Get the stores associated with the User, eager loading the country.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function store(): HasMany
     {
-        return $this->hasMany(Store::class);
+        return $this->hasMany(Store::class)->with('country');
     }
 
 
