@@ -40,7 +40,8 @@ class CartService
                     'quantity' => $product->pivot->quantity,
                     'total_price' => $product->pivot->quantity * $product->price,
                     'images' => $product->images,
-                    'slug' => $product->slug
+                    'slug' => $product->slug,
+                    'description' => $product->description
                 ];
             })
         ];
