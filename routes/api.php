@@ -105,6 +105,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
         Route::post('cart/{cart}/order', [CartController::class, 'storeCartOrder']);
         Route::get('order', [CartController::class, 'getUserOrders']);
+
+        Route::prefix('wishlist')->group(function () {
+            Route::post('add/{product}', [CartController::class, 'addToWishlist']);
+            Route::post('add-from-cart/{product}', [CartController::class, 'addToWishlistFromCart']);
+            Route::get('/', [CartController::class, 'getUserWishlist']);
+            Route::delete('remove/{product}', [CartController::class, 'removeFromWishlist']);
+            Route::post('add-to-cart/{product}', [CartController::class, 'addWishlistToCart']);
+        });
+
         Route::prefix('user')->group(function () {
             Route::get('profile', [UserController::class, 'getUserProfile']);
             Route::put('profile/update', [UserController::class, 'updateUserProfile']);
@@ -116,6 +125,5 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 });
-
 
 Route::prefix('console')->group(function () {});
