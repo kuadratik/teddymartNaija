@@ -41,7 +41,9 @@ class CartService
                     'total_price' => $product->pivot->quantity * $product->price,
                     'images' => $product->images,
                     'slug' => $product->slug,
-                    'description' => $product->description
+                    'description' => $product->description,
+                    'store_name' => $product->store->name,
+                    'store_slug' => $product->store->slug,
                 ];
             })
         ];
@@ -116,53 +118,38 @@ class CartService
         return [];
     }
 
-
     /**
-     * Get the user's cart based on the provided request.
+     * Add product to wishlist from cart
      */
-    private function getCart(Request $request): Cart
+    public function addToWishlistFromCart(Request $request, Listing $product)
     {
-        $sessionUid = $request->header('session-uid');
+        abort_if($product->type !== ListingType::PRODUCT->value, 400, 'The specified listing is not a product.');
+        abort_if(!$product->is_available, 400, 'The product is currently unavailable.');
+
         $user = $request->user();
 
-        if (!$user) {
-            return Cart::firstOrCreate(['session_uid' => $sessionUid]);
-        }
+        $wishlistExists = $user->wishlist()->where('listing_id', $product->id)->exists();
+        abort_if($wishlistExists, 422, 'The product is already in your wishlist.');
 
-        $userCart = Cart::firstOrCreate(['user_id' => $user->id]);
-        $guestCart = Cart::where('session_uid', $sessionUid)->whereNull('user_id')->first();
+        $cart = $user->carts()
+            ->with('products')
+            ->whereHas('products', function ($query) use ($product) {
+                $query->where('listing_id', $product->id);
+            })
+            ->first();
 
-        if ($guestCart) {
-            $this->mergeGuestCart($userCart->load('products'), $guestCart->load('products'));
-            $guestCart->delete();
-        }
+        abort_if(!$cart, 404, 'The product is not found in your cart.');
 
-        $userCart->session_uid = $sessionUid;
-        $userCart->save();
+        DB::transaction(function () use ($user, $product, $cart) {
+            $cart->products()->detach($product->id);
+            $user->wishlist()->attach($product->id);
 
-        return $userCart;
-    }
+            if ($cart->products()->count() === 0) {
+                $cart->delete();
+            }
+        });
 
-    /**
-     * Merge products from a guest cart into the user's cart without detaching existing products.
-     */
-    private function mergeGuestCart(Cart $userCart, Cart $guestCart): void
-    {
-        foreach ($guestCart->products as $product) {
-            $userCart->products()->syncWithoutDetaching([
-                $product->id => [
-                    'quantity' => DB::raw("COALESCE(quantity, 0) + {$product->pivot->quantity}")
-                ]
-            ]);
-        }
-    }
-
-    /**
-     * delete a cart by id
-     */
-    private function deleteCartById(int $cartId): void
-    {
-        Cart::where('id', $cartId)->delete();
+        return 'Product added to wishlist successfully and removed from cart.';
     }
 
     /**
@@ -230,5 +217,53 @@ class CartService
             ->get();
 
         return OrderResource::collection($orders);
+    }
+
+    /**
+     * Get the user's cart based on the provided request.
+     */
+    private function getCart(Request $request): Cart
+    {
+        $sessionUid = $request->header('session-uid');
+        $user = $request->user();
+
+        if (!$user) {
+            return Cart::firstOrCreate(['session_uid' => $sessionUid]);
+        }
+
+        $userCart = Cart::firstOrCreate(['user_id' => $user->id]);
+        $guestCart = Cart::where('session_uid', $sessionUid)->whereNull('user_id')->first();
+
+        if ($guestCart) {
+            $this->mergeGuestCart($userCart->load('products'), $guestCart->load('products'));
+            $guestCart->delete();
+        }
+
+        $userCart->session_uid = $sessionUid;
+        $userCart->save();
+
+        return $userCart;
+    }
+
+    /**
+     * Merge products from a guest cart into the user's cart without detaching existing products.
+     */
+    private function mergeGuestCart(Cart $userCart, Cart $guestCart): void
+    {
+        foreach ($guestCart->products as $product) {
+            $userCart->products()->syncWithoutDetaching([
+                $product->id => [
+                    'quantity' => DB::raw("COALESCE(quantity, 0) + {$product->pivot->quantity}")
+                ]
+            ]);
+        }
+    }
+
+    /**
+     * delete a cart by id
+     */
+    private function deleteCartById(int $cartId): void
+    {
+        Cart::where('id', $cartId)->delete();
     }
 }
