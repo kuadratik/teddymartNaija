@@ -146,9 +146,4 @@ class Listing extends Model
             ->withPivot('quantity')
             ->withTimestamps();
     }
-
-    public function usersWhoWished()
-    {
-        return $this->belongsToMany(User::class, 'wishlist')->withTimestamps();
-    }
 }
