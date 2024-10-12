@@ -23,7 +23,7 @@ class CartService
      */
     public function getCartDetails(Request $request)
     {
-        $cart = $this->getCart($request)->load('products');
+        $cart = $this->getCart($request)->load(['products']);
         $totalCartPrice = $cart->products->sum(function ($product) {
             return $product->pivot->quantity * $product->price;
         });
@@ -38,6 +38,7 @@ class CartService
                     'name' => $product->name,
                     'price' => $product->price,
                     'quantity' => $product->pivot->quantity,
+                    'currency_code' => $product->currency,
                     'total_price' => $product->pivot->quantity * $product->price,
                     'images' => $product->images,
                     'slug' => $product->slug,
