@@ -122,6 +122,8 @@ class UserService
             'slug' =>  $product->slug,
             'image' => @$product->images[0],
             'price' => $product->price,
+            'currency_code' => $product->currency,
+            // 'store_currency' => $product->store->country->currency_code,
         ])->all();
     }
 
