@@ -1,16 +1,18 @@
 <?php
 
-namespace App\Services\Gateways;
+namespace App\Services\PaymentGateways;
 
 use App\Contracts\PaymentGatewayInterface;
-
+use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PaypalPaymentService implements PaymentGatewayInterface
 {
 
-    public function __construct(private readonly string $clientId,  private readonly string $clientSecret)
+    public function __construct()
     {
-        //
+        $provider = new PayPalClient;
+        $provider->setApiCredentials(config('paypal'));
+        $paypalToken = $provider->getAccessToken();
     }
 
 

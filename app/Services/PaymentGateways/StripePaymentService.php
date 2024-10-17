@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Gateways;
+namespace App\Services\PaymentGateways;
 
 use App\Contracts\PaymentGatewayInterface;
 

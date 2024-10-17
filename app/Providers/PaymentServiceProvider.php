@@ -2,10 +2,9 @@
 
 namespace App\Providers;
 
-use App\Contracts\PaymentGatewayInterface;
-use App\Services\Gateways\PaypalPaymentService;
-use App\Services\Gateways\StripePaymentService;
-use App\Services\PaymentService;
+use App\Services\PaymentGateways\PaypalPaymentService;
+use App\Services\PaymentGateways\StripePaymentService;
+use  App\Services\PaymentGateways\PaymentService;
 use Illuminate\Support\ServiceProvider;
 
 class PaymentServiceProvider extends ServiceProvider
@@ -15,7 +14,7 @@ class PaymentServiceProvider extends ServiceProvider
         $this->app->singleton('payment.gateways', function ($app) {
             return [
                 'stripe' => new StripePaymentService(config('services.stripe.secret')),
-                'paypal' => new PaypalPaymentService(config('services.paypal.client_id'), config('services.paypal.client_secret')),
+                'paypal' => new PaypalPaymentService(),
             ];
         });
 

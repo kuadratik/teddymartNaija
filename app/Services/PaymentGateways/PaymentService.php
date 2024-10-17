@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\PaymentGateways;
 
 use App\Contracts\PaymentGatewayInterface;
 use InvalidArgumentException;
