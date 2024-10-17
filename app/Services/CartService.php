@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ListingType;
+use App\Enums\OrderStatusEnum;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Models\Cart;
 use App\Models\Listing;
@@ -179,22 +180,27 @@ class CartService
                 ->groupBy('store_id');
 
             foreach ($cartItems as $storeId => $items) {
-                $totalAmount = $items->sum(function ($item) {
+                $subtotal = $items->sum(function ($item) {
                     return $item->pivot->quantity * $item->price;
                 });
 
-                $customer = auth()->user();
+                $totalAmount = $subtotal ;
 
+
+                $customer = auth()->user();
+                $orderNumber = Str::uuid()->toString();
                 $order = Order::create([
                     'store_id' => $storeId,
                     'user_id' => $customer->id,
-                    'order_number' => Str::uuid()->toString(),
+                    'order_number' =>  $orderNumber,
                     'first_name' => $request->validated('first_name'),
                     'last_name' => $request->validated('last_name'),
                     'email' => $request->validated('email'),
                     'phone' => $request->validated('phone'),
+                    'subtotal' => $subtotal,
                     'total_amount' => $totalAmount,
                     'type' => ListingType::PRODUCT->value,
+                    'status' => OrderStatusEnum::PENDING->value,
                 ]);
 
                 $order->shippingAddress()->attach($request->validated('shipping_address_id'));

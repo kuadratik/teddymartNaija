@@ -3,9 +3,7 @@
 namespace App\Services\Gateways;
 
 use App\Contracts\PaymentGatewayInterface;
-use PayPalCheckoutSdk\Core\PayPalHttpClient;
-use PayPalCheckoutSdk\Core\SandboxEnvironment;
-use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
+
 
 class PaypalPaymentService implements PaymentGatewayInterface
 {

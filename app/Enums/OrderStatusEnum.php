@@ -7,5 +7,6 @@ enum OrderStatusEnum : string
     case INPROGRESS = 'inprogress';
     case CANCELED = 'canceled';
     case COMPLETED ='completed';
-    case INCART  = 'incart';
+    case INCART  = 'pending';
+    case PENDING  = 'pending';
 }
