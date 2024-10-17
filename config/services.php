@@ -39,5 +39,13 @@ return [
         'email' => env('INQUIRY_EMAIL', 'inquiries@myeki.market'),
     ],
 
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET_KEY'),
+    ],
+
+    'paypal' => [
+        'client_id' => env('PAYPAL_CLIENT_ID'),
+        'client_secret' => env('PAYPAL_CLIENT_SECRET'),
+    ],
 
 ];
