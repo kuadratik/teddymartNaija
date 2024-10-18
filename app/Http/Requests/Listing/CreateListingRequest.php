@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Listing;
 
+use App\Enums\CurrencyCodeEnum;
 use App\Enums\ListingType;
 use App\Models\Store;
 use App\Support\Utils;
@@ -32,7 +33,7 @@ class CreateListingRequest extends FormRequest
             'description' => ['required', 'string', 'max:500'],
             'additional_information' => ['nullable', 'string', 'max:1000'],
             'images' => ['required', 'array'],
-            'currency' => ['required', 'string', 'in:USD,CAD,NGN'],
+            'currency' => ['required', 'string', 'in:' . CurrencyCodeEnum::AUD->value, CurrencyCodeEnum::CAD->value, CurrencyCodeEnum::USD->value, CurrencyCodeEnum::GBP->value, CurrencyCodeEnum::EUR->value],
             'category' => ['required', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)]
         ];
     }
