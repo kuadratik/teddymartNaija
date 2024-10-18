@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
 use App\Enums\PaymentGatewayEnum;
+use App\Enums\PaymentTransactionTypeEnum;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Models\Cart;
 use App\Models\Listing;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Resources\OrderResource;
+use App\Models\Payment;
 use App\Services\PaymentGateways\PaymentService;
 
 class CartService
@@ -119,7 +121,7 @@ class CartService
     }
 
     /**
-     * Process the payment for the order.
+     * Get Payment data
      * @todo add shipping price  to total
      */
     public function getOrderPaymentData(StoreOrderRequest $request, Cart $cart): array
@@ -150,10 +152,28 @@ class CartService
     /**
      * Create an order from the items in the cart.
      */
-    public function createCartOrder($data)
+    public function createCartOrder($data, $paymentResponse)
     {
         $cart = Cart::findOrfail($data['cart_id']);
-        DB::transaction(function () use ($data, $cart) {
+        DB::transaction(function () use ($data, $cart, $paymentResponse) {
+
+            $payment = Payment::create([
+                'reference' =>  $paymentResponse['reference'],
+                'amount' => $paymentResponse['amount'],
+                'currency' => $paymentResponse['currency'],
+                'gateway' => $paymentResponse['gateway'],
+                'description' => 'Paypal Payment'
+            ]);
+
+            $payment->recordTransaction([
+                'reference' => 'TXN-123',
+                'type' => PaymentTransactionTypeEnum::CHARGE,
+                'amount' => $payment->amount,
+                'currency' => $payment->currency,
+                'is_success' => false,
+                'status_message' =>  $paymentResponse['status'],
+                'response_payload' => $paymentResponse['response']
+            ]);
 
             $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
 
@@ -171,7 +191,7 @@ class CartService
                     'store_id' => $storeId,
                     'user_id' => $customer->id,
                     'order_number' =>  $orderNumber,
-                    'first_name' =>$data['first_name'],
+                    'first_name' => $data['first_name'],
                     'last_name' => $data['last_name'],
                     'email' => $data['email'],
                     'phone' => $data['phone'],
@@ -192,6 +212,8 @@ class CartService
                     ]);
                 }
             }
+
+
 
             $cart->products()->detach();
         });

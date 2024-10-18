@@ -3,7 +3,9 @@
 namespace App\Services\PaymentGateways;
 
 use App\Contracts\PaymentGatewayInterface;
+use App\Enums\PaymentGatewayEnum;
 use App\Services\CartService;
+use Illuminate\Support\Facades\Log;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PaypalPaymentService implements PaymentGatewayInterface
@@ -42,15 +44,25 @@ class PaypalPaymentService implements PaymentGatewayInterface
         return $response;
     }
 
-
+    /**
+     * Verifies a payment order by capturing the payment using the provided token.
+     */
     public function verify(array $data): array
     {
-        $response = $this->provider->capturePaymentOrder($data['token']);
-        if (isset($response['status']) & $response['status'] == 'COMPLETED') {
-            $res = $this->cartService->createCartOrder($data);
+        $order = $this->provider->capturePaymentOrder($data['token']);
+
+        $response = [
+            'reference_id' => $order['id'],
+            'amount' => $order['purchase_units']['amount']['value'],
+            'currency' => $order['purchase_units']['amount']['currency_code'],
+            'status' => $order['status'],
+            'gateway' => PaymentGatewayEnum::PAYPAL->value,
+            'response' => $order
+        ];
+
+        if (isset($response['status'])) {
+            $res = $this->cartService->createCartOrder($data, $response);
             return ['message' => 'transaction successfull'];
-        } else {
-            abort(400, 'Payment failed');
         }
     }
 
