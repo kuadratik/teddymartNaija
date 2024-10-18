@@ -3,6 +3,7 @@
 namespace App\Services\PaymentGateways;
 
 use App\Contracts\PaymentGatewayInterface;
+use App\Services\CartService;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PaypalPaymentService implements PaymentGatewayInterface
@@ -10,22 +11,24 @@ class PaypalPaymentService implements PaymentGatewayInterface
 
     protected $provider;
     protected $accessToken;
+    protected $cartService;
 
     public function __construct()
     {
         $this->provider = new PayPalClient;
         $this->provider->setApiCredentials(config('paypal'));
         $this->accessToken =  $this->provider->getAccessToken();
+        $this->cartService = new CartService;
     }
 
     public function initialize(array $data): array
     {
 
-        $this->provider->createOrder([
+        $response = $this->provider->createOrder([
             "intent" => "CAPTURE",
             "application_context" => [
-                "return_url" => route('paypal.payment.success'),
-                "cancel_url" => route('paypal.payment/cancel'),
+                "return_url" => '#',
+                "cancel_url" => '#',
             ],
             "purchase_units" => [
                 0 => [
@@ -36,12 +39,19 @@ class PaypalPaymentService implements PaymentGatewayInterface
                 ]
             ]
         ]);
-        return [];
+        return $response;
     }
 
-    public function verify(string $reference): array
+
+    public function verify(array $data): array
     {
-        return [];
+        $response = $this->provider->capturePaymentOrder($data['token']);
+        if (isset($response['status']) & $response['status'] == 'COMPLETED') {
+            $res = $this->cartService->createCartOrder($data);
+            return ['message' => 'transaction successfull'];
+        } else {
+            abort(400, 'Payment failed');
+        }
     }
 
     public function refund(string $reference, float $amount): array

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Cart\StoreOrderRequest;
+use App\Http\Requests\Payment\VerifyPaymentRequest;
 use App\Models\Cart;
 use App\Services\CartService;
 use App\Services\PaymentGateways\PaymentService;
@@ -26,6 +27,16 @@ class PaymentController extends Controller
         $res = $this->initializePayment($request->validated('payment_gateway'), $paymentData);
         return $this->success($res);
     }
+
+
+    public function verifyPayment(VerifyPaymentRequest $request,Cart $cart)
+    {
+
+        $attr = $request->getPaymentAtribute($cart->id);
+        $res = $this->paymentService->gateway($request->validated('payment_gateway'))->verify($attr);
+        return $this->success($res);
+    }
+
 
     /**
      * Initialize a payment using the specified gateway and payment data.

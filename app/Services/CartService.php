@@ -150,11 +150,10 @@ class CartService
     /**
      * Create an order from the items in the cart.
      */
-    public function createCartOrder(StoreOrderRequest $request, Cart $cart)
+    public function createCartOrder($data)
     {
-        DB::transaction(function () use ($request, $cart) {
-
-            $cart = Cart::find($cart->id);
+        $cart = Cart::findOrfail($data['cart_id']);
+        DB::transaction(function () use ($data, $cart) {
 
             $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
 
@@ -172,17 +171,17 @@ class CartService
                     'store_id' => $storeId,
                     'user_id' => $customer->id,
                     'order_number' =>  $orderNumber,
-                    'first_name' => $request->validated('first_name'),
-                    'last_name' => $request->validated('last_name'),
-                    'email' => $request->validated('email'),
-                    'phone' => $request->validated('phone'),
+                    'first_name' =>$data['first_name'],
+                    'last_name' => $data['last_name'],
+                    'email' => $data['email'],
+                    'phone' => $data['phone'],
                     'subtotal' => $subtotal,
                     'total_amount' => $totalAmount,
                     'type' => ListingType::PRODUCT->value,
                     'status' => OrderStatusEnum::PENDING->value,
                 ]);
 
-                $order->shippingAddress()->attach($request->validated('shipping_address_id'));
+                $order->shippingAddress()->attach($data['shipping_address_id']);
 
                 foreach ($items as $item) {
                     OrderDetail::create([

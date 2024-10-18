@@ -16,7 +16,7 @@ class StripePaymentService implements PaymentGatewayInterface
         return [];
     }
 
-    public function verify(string $reference): array
+    public function verify(array $data): array
     {
         return [];
     }
