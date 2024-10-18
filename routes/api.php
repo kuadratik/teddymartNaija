@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Common\CountryController;
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
+use App\Http\Controllers\Mobile\Parent\PaymentController;
 use App\Http\Controllers\StoresController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -103,7 +104,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         Route::post('store/{store}/service/{listing}/order', [UserController::class, 'storeServiceEnquiry']);
         Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
-        Route::post('cart/{cart}/order', [CartController::class, 'storeCartOrder']);
+        Route::post('cart/{cart}/order', [PaymentController::class, 'payOrder']);
         Route::get('order', [CartController::class, 'getUserOrders']);
         Route::prefix('user')->group(function () {
             Route::get('profile', [UserController::class, 'getUserProfile']);

@@ -19,10 +19,7 @@ use App\Services\PaymentGateways\PaymentService;
 
 class CartService
 {
-    public function __construct(private readonly PaymentService $paymentService)
-    {
-        //
-    }
+
 
     /**
      * Get detailed cart information including total items and product details
@@ -123,33 +120,31 @@ class CartService
 
     /**
      * Process the payment for the order.
+     * @todo add shipping price  to total
      */
-    public function PayOrder(StoreOrderRequest $request, Cart $cart)
+    public function getOrderPaymentData(StoreOrderRequest $request, Cart $cart): array
     {
-        DB::transaction(function () use ($request, $cart) {
 
-            $cart = Cart::find($cart->id);
 
-            $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
+        $cart = Cart::find($cart->id);
 
-            foreach ($cartItems as $storeId => $items) {
+        $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
 
-                $subtotal = $items->sum(function ($item) {
-                    return $item->pivot->quantity * $item->price;
-                });
+        foreach ($cartItems as $storeId => $items) {
 
-                $totalAmount = $subtotal;
-                $orderNumber = Str::uuid()->toString();
+            $subtotal = $items->sum(function ($item) {
+                return $item->pivot->quantity * $item->price;
+            });
 
-                $paymentData = [
-                    'amount' => $totalAmount,
-                    'order_uid' => $orderNumber,
-                    'formData' => $request->validated(),
-                ];
+            $totalAmount = $subtotal;
+            $orderNumber = Str::uuid()->toString();
 
-                $this->initializePayment($request->validated('payment_gateway'), $paymentData);
-            }
-        });
+            return  [
+                'amount' => $totalAmount,
+                'order_uid' => $orderNumber,
+                'formData' => $request->validated(),
+            ];
+        }
     }
 
     /**
@@ -268,15 +263,5 @@ class CartService
     private function deleteCartById(int $cartId): void
     {
         Cart::where('id', $cartId)->delete();
-    }
-
-    /** Initialize a payment using the specified gateway and payment data.
-     *
-     * @param string $gateway The gateway to use for payment initialization.
-     * @param array $data The payment data including amount, currency, and order UID.
-     */
-    private function initializePayment(string $gateway, array $data)
-    {
-        $this->paymentService->gateway($gateway)->initialize($data);
     }
 }
