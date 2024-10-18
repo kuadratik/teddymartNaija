@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Enums\PaymentGatewayEnum;
 use App\Services\PaymentGateways\PaypalPaymentService;
 use App\Services\PaymentGateways\StripePaymentService;
 use  App\Services\PaymentGateways\PaymentService;
@@ -13,8 +14,8 @@ class PaymentServiceProvider extends ServiceProvider
     {
         $this->app->singleton('payment.gateways', function ($app) {
             return [
-                'stripe' => new StripePaymentService(config('services.stripe.secret')),
-                'paypal' => new PaypalPaymentService(),
+                PaymentGatewayEnum::STRIPE->value => new StripePaymentService(config('services.stripe.secret')),
+                PaymentGatewayEnum::PAYPAL->value => new PaypalPaymentService(),
             ];
         });
 

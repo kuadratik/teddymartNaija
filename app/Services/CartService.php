@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
+use App\Enums\PaymentGatewayEnum;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Models\Cart;
 use App\Models\Listing;
@@ -14,11 +15,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Resources\OrderResource;
-
-
+use App\Services\PaymentGateways\PaymentService;
 
 class CartService
 {
+    public function __construct(private readonly PaymentService $paymentService) {}
     /**
      * Get detailed cart information including total items and product details
      */
@@ -180,15 +181,26 @@ class CartService
                 ->groupBy('store_id');
 
             foreach ($cartItems as $storeId => $items) {
+
                 $subtotal = $items->sum(function ($item) {
                     return $item->pivot->quantity * $item->price;
                 });
 
-                $totalAmount = $subtotal ;
-
+                $totalAmount = $subtotal;
 
                 $customer = auth()->user();
                 $orderNumber = Str::uuid()->toString();
+
+                $paymentData = [
+                    'amount' => $totalAmount,
+                    'currency' => $request->validated('currency_code'),
+                    'order_uid' => $orderNumber,
+
+                ];
+
+                $this->initializePayment($request->validated('payment_gateway'), $paymentData);
+
+
                 $order = Order::create([
                     'store_id' => $storeId,
                     'user_id' => $customer->id,
@@ -235,5 +247,16 @@ class CartService
             ->get();
 
         return OrderResource::collection($orders);
+    }
+
+
+    /** Initialize a payment using the specified gateway and payment data.
+     *
+     * @param string $gateway The gateway to use for payment initialization.
+     * @param array $data The payment data including amount, currency, and order UID.
+     */
+    private function initializePayment(string $gateway, array $data)
+    {
+        $this->paymentService->gateway($gateway)->initialize($data);
     }
 }
