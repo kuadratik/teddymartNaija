@@ -19,7 +19,11 @@ use App\Services\PaymentGateways\PaymentService;
 
 class CartService
 {
-    public function __construct(private readonly PaymentService $paymentService) {}
+    public function __construct(private readonly PaymentService $paymentService)
+    {
+        //
+    }
+
     /**
      * Get detailed cart information including total items and product details
      */
@@ -117,68 +121,16 @@ class CartService
         return [];
     }
 
-
     /**
-     * Get the user's cart based on the provided request.
+     * Process the payment for the order.
      */
-    private function getCart(Request $request): Cart
-    {
-        $sessionUid = $request->header('session-uid');
-        $user = $request->user();
-
-        if (!$user) {
-            return Cart::firstOrCreate(['session_uid' => $sessionUid]);
-        }
-
-        $userCart = Cart::firstOrCreate(['user_id' => $user->id]);
-        $guestCart = Cart::where('session_uid', $sessionUid)->whereNull('user_id')->first();
-
-        if ($guestCart) {
-            $this->mergeGuestCart($userCart->load('products'), $guestCart->load('products'));
-            $guestCart->delete();
-        }
-
-        $userCart->session_uid = $sessionUid;
-        $userCart->save();
-
-        return $userCart;
-    }
-
-    /**
-     * Merge products from a guest cart into the user's cart without detaching existing products.
-     */
-    private function mergeGuestCart(Cart $userCart, Cart $guestCart): void
-    {
-        foreach ($guestCart->products as $product) {
-            $userCart->products()->syncWithoutDetaching([
-                $product->id => [
-                    'quantity' => DB::raw("COALESCE(quantity, 0) + {$product->pivot->quantity}")
-                ]
-            ]);
-        }
-    }
-
-    /**
-     * delete a cart by id
-     */
-    private function deleteCartById(int $cartId): void
-    {
-        Cart::where('id', $cartId)->delete();
-    }
-
-    /**
-     * Store users order and order details
-     */
-
-    public function createCartOrder(StoreOrderRequest $request, Cart $cart)
+    public function PayOrder(StoreOrderRequest $request, Cart $cart)
     {
         DB::transaction(function () use ($request, $cart) {
+
             $cart = Cart::find($cart->id);
 
-            $cartItems = $cart->products()
-                ->with('store')
-                ->get()
-                ->groupBy('store_id');
+            $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
 
             foreach ($cartItems as $storeId => $items) {
 
@@ -187,19 +139,39 @@ class CartService
                 });
 
                 $totalAmount = $subtotal;
-
-                $customer = auth()->user();
                 $orderNumber = Str::uuid()->toString();
 
                 $paymentData = [
                     'amount' => $totalAmount,
-                    'currency' => $request->validated('currency_code'),
                     'order_uid' => $orderNumber,
-
+                    'formData' => $request->validated(),
                 ];
 
                 $this->initializePayment($request->validated('payment_gateway'), $paymentData);
+            }
+        });
+    }
 
+    /**
+     * Create an order from the items in the cart.
+     */
+    public function createCartOrder(StoreOrderRequest $request, Cart $cart)
+    {
+        DB::transaction(function () use ($request, $cart) {
+
+            $cart = Cart::find($cart->id);
+
+            $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
+
+            foreach ($cartItems as $storeId => $items) {
+
+                $subtotal = $items->sum(function ($item) {
+                    return $item->pivot->quantity * $item->price;
+                });
+
+                $totalAmount = $subtotal;
+                $customer = auth()->user();
+                $orderNumber = Str::uuid()->toString();
 
                 $order = Order::create([
                     'store_id' => $storeId,
@@ -249,6 +221,54 @@ class CartService
         return OrderResource::collection($orders);
     }
 
+
+    /**
+     * Get the user's cart based on the provided request.
+     */
+    private function getCart(Request $request): Cart
+    {
+        $sessionUid = $request->header('session-uid');
+        $user = $request->user();
+
+        if (!$user) {
+            return Cart::firstOrCreate(['session_uid' => $sessionUid]);
+        }
+
+        $userCart = Cart::firstOrCreate(['user_id' => $user->id]);
+        $guestCart = Cart::where('session_uid', $sessionUid)->whereNull('user_id')->first();
+
+        if ($guestCart) {
+            $this->mergeGuestCart($userCart->load('products'), $guestCart->load('products'));
+            $guestCart->delete();
+        }
+
+        $userCart->session_uid = $sessionUid;
+        $userCart->save();
+
+        return $userCart;
+    }
+
+    /**
+     * Merge products from a guest cart into the user's cart without detaching existing products.
+     */
+    private function mergeGuestCart(Cart $userCart, Cart $guestCart): void
+    {
+        foreach ($guestCart->products as $product) {
+            $userCart->products()->syncWithoutDetaching([
+                $product->id => [
+                    'quantity' => DB::raw("COALESCE(quantity, 0) + {$product->pivot->quantity}")
+                ]
+            ]);
+        }
+    }
+
+    /**
+     * delete a cart by id
+     */
+    private function deleteCartById(int $cartId): void
+    {
+        Cart::where('id', $cartId)->delete();
+    }
 
     /** Initialize a payment using the specified gateway and payment data.
      *
