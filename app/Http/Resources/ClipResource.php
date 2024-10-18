@@ -18,6 +18,8 @@ class ClipResource extends JsonResource
             'id' => $this->id,
             'store_id' => $this->store->id,
             'store_name' => $this->store->name,
+            'store_currency_code' => $this->store->country?->currency_code,
+            'store_currency_name' => $this->store->country?->currency_name,
             'number_of_listings' => $this->products->count(),
             'total_amount' => $this->products->sum('price'),
             'store_image' => $this->store->profile_picture_path,

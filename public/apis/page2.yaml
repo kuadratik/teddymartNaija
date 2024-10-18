@@ -267,6 +267,10 @@ paths:
                 price:
                   type: string
                   example: "1000"
+                currency:
+                  type: string
+                  example: "USD"
+                  enum: ['USD', 'NGN','CAD']
                 description:
                   type: string
                   example: "dnndvs"

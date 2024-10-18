@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ListingType;
 use App\Http\Requests\Cart\StoreShippingAddressRequest;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Models\Cart;
@@ -82,5 +83,69 @@ class CartController extends Controller
     {
         $data = $this->cartService->createCartOrder($request, $cart);
         return $this->success();
+    }
+
+    /**
+     * Get user orders
+     */
+    public function getUserOrders(Request $request)
+    {
+        $data = $this->cartService->getUserOrders($request);
+        return $this->success($data);
+    }
+
+
+    /**
+     * Add product to wishlist
+     */
+    public function addToWishlist(Request $request, Listing $product)
+    {
+        abort_if($product->type != ListingType::PRODUCT->value, 400, 'The specified listing is not a product.');
+        abort_if(!$product->is_available, 400, 'The product is currently unavailable.');
+        $wishlistExists = $request->user()->wishlist()->where('listing_id', $product->id)->exists();
+        abort_if($wishlistExists, 422, 'The product is already in your wishlist.');
+        $request->user()->wishlist()->attach($product->id);
+        return $this->success('Product added to wishlist successfully.');
+    }
+
+    /**
+     * Add product to wishlist from cart
+     */
+    public function addToWishlistFromCart(Request $request, Listing $product)
+    {
+        $message = $this->cartService->addToWishlistFromCart($request, $product);
+        return $this->success($message);
+    }
+
+    /**
+     * Get user wishlist
+     */
+    public function getUserWishlist(Request $request)
+    {
+        $wishlist = $request->user()->wishlist()->where('type', 'product')->get();
+        return $this->success($wishlist->load('store'));
+    }
+
+    /**
+     * Remove product from wishlist
+     */
+    public function removeFromWishlist(Request $request, Listing $product)
+    {
+        abort_if(!$request->user()->wishlist()->where('listing_id', $product->id)->exists(), 422, 'Product not found in wishlist');
+        $request->user()->wishlist()->detach($product->id);
+        return $this->success();
+    }
+
+    /**
+     * Add a product from the wishlist to the cart
+     */
+    public function addWishlistToCart(Request $request, Listing $product)
+    {
+
+        $existsInWishlist = $request->user()->wishlist()->where('listing_id', $product->id)->exists();
+        abort_if(!$existsInWishlist, 422, 'Product not found in wishlist');
+        $data = $this->cartService->addToCart($request, $product);
+        $request->user()->wishlist()->detach($product->id);
+        return $this->success($data, 'Product added to cart from wishlist successfully');
     }
 }

@@ -7,6 +7,7 @@ use App\Actions\FetchUserMostInteractedCategoriesAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 
 class Store extends Model
@@ -144,5 +145,15 @@ class Store extends Model
         $query->whereHas(
             'listings',
         )->take(10);
+    }
+
+    /**
+     * Get the country that owns the Store
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'country_id', 'id');
     }
 }

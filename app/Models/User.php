@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ListingType;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -59,13 +60,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
 
     /**
-     * Get the stores associated with the User
+     * Get the stores associated with the User, eager loading the country.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function store(): HasMany
     {
-        return $this->hasMany(Store::class);
+        return $this->hasMany(Store::class)->with('country');
     }
 
 
@@ -77,6 +78,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Clip::class);
     }
 
+    /**
+     * get the carts belong to user
+     */
+    public function carts()
+    {
+        return $this->hasMany(Cart::class);
+    }
+
 
     /**
      * Get the full name of the  user.
@@ -85,6 +94,36 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->first_name . ' ' . $this->last_name;
     }
+
+    /**
+     * Get all of the shippingAddresses for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function shippingAddresses(): HasMany
+    {
+        return $this->hasMany(UserShippingAddress::class, 'user_id', 'id');
+    }
+
+    /**
+     * Get all saved shipping addresses where 'saved' is true.
+     */
+    public function savedShippingAddresses(): HasMany
+    {
+        return $this->hasMany(UserShippingAddress::class, 'user_id', 'id')
+            ->where('saved', true);
+    }
+
+    /**
+     * save product to wishlist
+     */
+    public function wishlist()
+    {
+        return $this->belongsToMany(Listing::class, 'wishlists')
+            ->withTimestamps();
+
+    }
+
 
 
 }

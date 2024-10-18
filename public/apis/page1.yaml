@@ -905,6 +905,12 @@ paths:
           required: true
           schema:
             type: string
+        - name: country
+          in: header
+          required: true
+          schema:
+            type: string
+            example: "United States"
 
       responses:
         default:
@@ -923,6 +929,18 @@ paths:
       summary: Get Popular Recommended Store Lists
       description: "Get Popular Recommended Store Lists"
       operationId: GetPopularRecommendedStoreLists
+      parameters:
+        - name: interactUid
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: header
+          required: true
+          schema:
+            type: string
+            example: "United States"
       responses:
         default:
           description: "success"
@@ -1021,6 +1039,18 @@ paths:
       summary: Get Popular Store Lists
       description: "Get Popular Store Lists"
       operationId: GetPopularStoreLists
+      parameters:
+        - name: interactUid
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: country
+          in: header
+          required: true
+          schema:
+            type: string
+            example: "United States"
       responses:
         default:
           description: "success"
@@ -1036,9 +1066,15 @@ paths:
       tags:
         - Stores
       summary: Get Popular Store Listing
-      description: "Get Popular Store Listing"
+      description: "Get Popular Store Listing filtered by currency (CAD,NGN,USD)"
       operationId: GetPopularStoreListing
       parameters:
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "USD"
+          required: true
         - in: query
           name: listingType
           schema:
@@ -1059,7 +1095,7 @@ paths:
       tags:
         - Stores
       summary: Get Listing Lists
-      description: "Get Listing Lists"
+      description: "Get Listing Lists filter by currency (USD,NGN,CAD)"
       operationId: GetListings
       parameters:
         - in: header
@@ -1067,6 +1103,12 @@ paths:
           schema:
             type: string
             example: ""
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "USD"
           required: true
         - in: query
           name: listingType

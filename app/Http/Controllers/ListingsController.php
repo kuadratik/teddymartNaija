@@ -97,30 +97,45 @@ class ListingsController extends Controller
         return $this->success();
     }
 
+
+
     /**
-     * get popular store based on views
+     * Get popular listings based on views, with optional currency filter.
      */
     public function getPopularListing(Request $request)
     {
-        $listing = Listing::query()->popular($request->query('listingType'))->with('store')->get();
+
+        $currency = $request->header('currency', 'USD');
+
+
+        $listing = Listing::query()
+            ->popular($request->query('listingType'))
+            ->byCurrency($currency)
+            ->with('store')
+            ->where('is_available', true)
+            ->get();
+
         return $this->success($listing);
     }
+
+
     /**
-     *   Listing by type with search
+     *   Listing by type with search and currency filter
      */
     public function getListings(Request $request)
     {
-        $listings = Listing::query()->byListingType($request->listingType)->when(
-            $request->search,
-            fn($query) => $query->search($request->search)
-        )->when(
-            $request->category,
-            fn($query) => $query->byCategory($request->category)
-        )->when(
-            $request->availability,
-            fn($query) => $query->availability($request->availability)
-        )->get();
+        $currency = $request->header('currency', 'USD');
+
+        $listings = Listing::query()
+            ->byListingType($request->listingType)
+            ->when($request->search, fn($query) => $query->search($request->search))
+            ->when($request->category, fn($query) => $query->byCategory($request->category))
+            ->when($request->availability, fn($query) => $query->availability($request->availability))
+            ->byCurrency($currency)
+            ->get();
+
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
+
         return $this->success($listings->load('store'));
     }
 }

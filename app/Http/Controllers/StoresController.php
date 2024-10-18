@@ -45,32 +45,58 @@ class StoresController extends Controller
     }
 
     /**
-     *  Get recommended stores
+     *  Get recommended stores with optional country filter
      */
     public function getRecommendedStores(Request $request)
     {
-        $stores = Store::query()->recommended()->inRandomOrder()->paginate();
+        $country = $request->header('country', 'United States');
+
+        $stores = Store::query()
+            ->recommended()
+            ->whereHas('country', function ($query) use ($country) {
+                $query->where('name', $country);
+            })
+            ->inRandomOrder()
+            ->paginate();
 
         return $this->success($stores);
     }
     /**
-     *  Get popular recommended stores
+     *  Get popular recommended stores with optional country filter
      */
     public function getPopularRecommendedStores(Request $request)
     {
-        $stores = Store::query()->popularRecommended()->inRandomOrder()->paginate();
+        $country = $request->header('country', 'United States');
+
+        $stores = Store::query()
+            ->popularRecommended()
+            ->whereHas('country', function ($query) use ($country) {
+                $query->where('name', $country);
+            })
+            ->inRandomOrder()
+            ->paginate();
 
         return $this->success($stores);
     }
 
     /**
-     * get popular store based on views
+     * Get popular stores based on views with optional country filter
      */
-    public function getPopularStores()
+    public function getPopularStores(Request $request)
     {
-        $store = Store::query()->popular()->orderBy('views_count', 'desc')->get();
+        $country = $request->header('country', 'United States');
+
+        $store = Store::query()
+            ->popular()
+            ->whereHas('country', function ($query) use ($country) {
+                $query->where('name', $country);
+            })
+            ->orderBy('views_count', 'desc')
+            ->get();
+
         return $this->success($store);
     }
+
     /**
      * add store views count
      */
