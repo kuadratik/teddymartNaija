@@ -37,7 +37,7 @@ class CreateStoreRequest extends FormRequest
             'state' => ['required', 'string'],
             'city' => ['required', 'string'],
             'postal_code' => ['nullable', 'string'],
-            'country' => ['nullable', 'integer', 'exists:countries,id'],
+            'country' => ['required', 'integer', 'exists:countries,id'],
             'offers_service' => ['required', 'boolean'],
             'offers_product' => ['required', 'boolean'],
             'currency' => ['required', 'string', Rule::enum(CurrencyType::class)],
