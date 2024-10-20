@@ -6,7 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Common\CountryController;
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
-use App\Http\Controllers\Mobile\Parent\PaymentController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\StoresController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
