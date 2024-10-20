@@ -1,0 +1,12 @@
+<?php
+
+namespace App\Enums;
+
+enum CurrencyType: string
+{
+   case AUD = 'AUD';
+   case CAD = 'CAD';
+   case USD = 'USD';
+   case GBP = 'GBP';
+   case EUR = 'EUR';
+}
