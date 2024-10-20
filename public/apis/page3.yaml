@@ -209,6 +209,34 @@ paths:
                   type: string
                   example: ""
                   required: false
+                saved:
+                  type: boolean
+                  example: true
+                  required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/user/shipping-address:
+    get:
+      tags:
+        - Shipping
+      summary: get shipping address
+      description: get shipping address
+      operationId: GetShippingAddress
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
       responses:
         default:
           description: "success"
@@ -295,6 +323,151 @@ paths:
             type: string
             example: "incart"
           required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/add/{product}:
+    post:
+      tags:
+        - Wishlist
+      summary: add product to wishlist
+      description: add product to wishlist
+      operationId: AddToWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/add-from-cart/{product}:
+    post:
+      tags:
+        - Wishlist
+      summary: add product to wishlist from cart
+      description: add product to wishlist from cart
+      operationId: AddFromCartToWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
+  /front/wishlist/remove/{product}:
+    delete:
+      tags:
+        - Wishlist
+      summary: remove product from wishlist
+      description: remove product from wishlist
+      operationId: RemoveFromWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist:
+    get:
+      tags:
+        - Wishlist
+      summary: get wishlist
+      description: get wishlist
+      operationId: GetWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/add-to-cart/{product}:
+    post:
+      tags:
+        - Wishlist
+      summary: add product to cart from wishlist
+      description: add product to cart from wishlist
+      operationId: AddToCartFromWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
       responses:
         default:
           description: "success"

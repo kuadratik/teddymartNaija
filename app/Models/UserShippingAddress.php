@@ -18,7 +18,21 @@ class UserShippingAddress extends Model
         'city',
         'landmark',
         'address',
+        'saved'
     ];
+
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'saved' => 'boolean',
+        ];
+    }
 
     /**
      * Define a relationship where this user shipping address belongs to a user.
