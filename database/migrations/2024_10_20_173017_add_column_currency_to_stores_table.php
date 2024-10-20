@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\CurrencyType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('stores', function (Blueprint $table) {
-            $table->string('currency')->nullable()->after('postal_code')->index();
+            $table->string('currency')->default(CurrencyType::USD)->after('postal_code')->index();
         });
     }
 
