@@ -10,6 +10,7 @@ use App\Notifications\ResetPasswordNotification;
 use App\Support\Utils;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
@@ -74,7 +75,8 @@ class AuthenticationService
         try {
             $googleUser = Socialite::driver('google')->stateless()->userFromToken($token);
         } catch (\Exception $e) {
-            throw new \Illuminate\Auth\AuthenticationException('Google authentication failed: ' . $e->getMessage());
+            Log::error('Google authenticaion failed',$e->getMessage());
+           abort('Google authenticaion failed', $e->getCode());
         }
 
         $user = User::firstOrNew(['email' => $googleUser->getEmail()], [
