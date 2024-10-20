@@ -41,7 +41,6 @@ class CreateStoreRequest extends FormRequest
             'country_id' => ['required', 'integer', new SupportedCountry()],
             'offers_service' => ['required', 'boolean'],
             'offers_product' => ['required', 'boolean'],
-            'currency' => ['required', 'string', Rule::enum(CurrencyType::class)],
         ];
     }
 
@@ -55,7 +54,8 @@ class CreateStoreRequest extends FormRequest
                 'user_id' => $this->user()->id,
                 'banner_path' => Utils::moveToPermanentPath([$this->safe()->banner_path], 'images')[0],
                 'profile_picture_path' => Utils::moveToPermanentPath([$this->safe()->profile_picture_path], 'images')[0],
-                'country_id' => $this->safe()->country
+                'country_id' => $this->safe()->country,
+                'currency' => $this->safe()->country->currency_code ?? CurrencyType::USD
             ])->toArray();
     }
 }
