@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Store;
 
 use App\Enums\CurrencyType;
+use App\Models\Country;
 use App\Rules\SupportedCountry;
 use App\Rules\UniqueStoreName;
 use App\Support\Utils;
@@ -38,7 +39,7 @@ class CreateStoreRequest extends FormRequest
             'state' => ['required', 'string'],
             'city' => ['required', 'string'],
             'postal_code' => ['nullable', 'string'],
-            'country_id' => ['required', 'integer', new SupportedCountry()],
+            'country' => ['required', 'integer', new SupportedCountry()],
             'offers_service' => ['required', 'boolean'],
             'offers_product' => ['required', 'boolean'],
         ];
@@ -49,13 +50,15 @@ class CreateStoreRequest extends FormRequest
      */
     public function storeAttributes()
     {
+        $country = Country::find($this->safe()->country);
+
         return collect($this->safe()->except(['profile_picture_path', 'banner_path', 'country']))
             ->merge([
                 'user_id' => $this->user()->id,
                 'banner_path' => Utils::moveToPermanentPath([$this->safe()->banner_path], 'images')[0],
                 'profile_picture_path' => Utils::moveToPermanentPath([$this->safe()->profile_picture_path], 'images')[0],
                 'country_id' => $this->safe()->country,
-                'currency' => $this->safe()->country->currency_code ?? CurrencyType::USD
+                'currency' => $country?->currency_code ?? CurrencyType::USD
             ])->toArray();
     }
 }
