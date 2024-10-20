@@ -56,7 +56,7 @@ class CreateListingRequest extends FormRequest
             'user_id' => $this->user()->id,
             'images' => $this->images(),
             'is_available' => true,
-            'currency' => $this->store->country?->currency_code
+            'currency' => $userStore->currency
         ])->toArray();
     }
 }
