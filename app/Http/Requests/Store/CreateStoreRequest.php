@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Store;
 
 use App\Enums\CurrencyType;
+use App\Rules\SupportedCountry;
 use App\Rules\UniqueStoreName;
 use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
@@ -37,7 +38,7 @@ class CreateStoreRequest extends FormRequest
             'state' => ['required', 'string'],
             'city' => ['required', 'string'],
             'postal_code' => ['nullable', 'string'],
-            'country' => ['required', 'integer', 'exists:countries,id'],
+            'country_id' => ['required', 'integer', new SupportedCountry()],
             'offers_service' => ['required', 'boolean'],
             'offers_product' => ['required', 'boolean'],
             'currency' => ['required', 'string', Rule::enum(CurrencyType::class)],

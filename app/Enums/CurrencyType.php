@@ -10,4 +10,10 @@ enum CurrencyType: string
     case GBP = 'GBP';
     case EUR = 'EUR';
     case NGN = 'NGN';
+
+
+    public static function getSupportedCurrencyCodes(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }
