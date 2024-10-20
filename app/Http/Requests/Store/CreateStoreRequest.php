@@ -2,9 +2,12 @@
 
 namespace App\Http\Requests\Store;
 
+use App\Enums\CurrencyType;
+use App\Rules\SupportedCountry;
 use App\Rules\UniqueStoreName;
 use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CreateStoreRequest extends FormRequest
 {
@@ -24,7 +27,7 @@ class CreateStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string' , new UniqueStoreName()],
+            'name' => ['required', 'string', new UniqueStoreName()],
             'contact_number' => ['required', 'string'],
             'whatsapp_number' => ['required', 'string'],
             'profile_picture_path' => ['required', 'string'],
@@ -35,9 +38,9 @@ class CreateStoreRequest extends FormRequest
             'state' => ['required', 'string'],
             'city' => ['required', 'string'],
             'postal_code' => ['nullable', 'string'],
-            'country' => ['nullable', 'integer' , 'exists:countries,id'],
+            'country_id' => ['required', 'integer', new SupportedCountry()],
             'offers_service' => ['required', 'boolean'],
-            'offers_product' => ['required', 'boolean']
+            'offers_product' => ['required', 'boolean'],
         ];
     }
 
@@ -46,12 +49,13 @@ class CreateStoreRequest extends FormRequest
      */
     public function storeAttributes()
     {
-        return collect($this->safe()->except(['profile_picture_path', 'banner_path' , 'country']))
+        return collect($this->safe()->except(['profile_picture_path', 'banner_path', 'country']))
             ->merge([
                 'user_id' => $this->user()->id,
                 'banner_path' => Utils::moveToPermanentPath([$this->safe()->banner_path], 'images')[0],
                 'profile_picture_path' => Utils::moveToPermanentPath([$this->safe()->profile_picture_path], 'images')[0],
-                'country_id' => $this->safe()->country
+                'country_id' => $this->safe()->country,
+                'currency' => $this->safe()->country->currency_code ?? CurrencyType::USD
             ])->toArray();
     }
 }

@@ -35,6 +35,7 @@ class Store extends Model
         'postal_code',
         'country_id',
         'views_count',
+        'currency'
     ];
 
     /**
