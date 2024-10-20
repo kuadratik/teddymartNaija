@@ -505,7 +505,7 @@ paths:
             schema:
               type: object
               properties:
-                payment_method:
+                payment_gateway:
                   type: string
                   example: "paypal"
                   required: true

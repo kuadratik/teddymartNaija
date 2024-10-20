@@ -28,10 +28,6 @@ class PaypalPaymentService implements PaymentGatewayInterface
 
         $response = $this->provider->createOrder([
             "intent" => "CAPTURE",
-            "application_context" => [
-                "return_url" => '#',
-                "cancel_url" => '#',
-            ],
             "purchase_units" => [
                 0 => [
                     "amount" => [
@@ -41,7 +37,18 @@ class PaypalPaymentService implements PaymentGatewayInterface
                 ]
             ]
         ]);
-        return $response;
+
+        if (isset($response['id']) && $response['id'] != null) {
+
+            foreach ($response['links'] as $links) {
+                if ($links['rel'] == 'approve') {
+                    return ['url' => $links['href']];
+                }
+            }
+        }else{
+            log::error('paypal initialization error', $response);
+            abort(500, 'Something went wrong');
+        }
     }
 
     /**

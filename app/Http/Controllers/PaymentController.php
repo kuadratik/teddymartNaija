@@ -24,7 +24,7 @@ class PaymentController extends Controller
     public function payOrder(StoreOrderRequest $request, Cart $cart)
     {
         $paymentData = $this->cartService->getOrderPaymentData($request, $cart);
-        $res = $this->initializePayment($request->validated('payment_gateway'), $paymentData);
+        $res = $this->paymentService->gateway($request->validated('payment_gateway'))->initialize($paymentData);
         return $this->success($res);
     }
 
@@ -43,6 +43,6 @@ class PaymentController extends Controller
      */
     private function initializePayment(string $gateway, array $data)
     {
-        $this->paymentService->gateway($gateway)->initialize($data);
+         $this->paymentService->gateway($gateway)->initialize($data);
     }
 }

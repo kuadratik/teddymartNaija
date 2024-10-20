@@ -6,7 +6,7 @@ use App\Contracts\PaymentGatewayInterface;
 
 class StripePaymentService implements PaymentGatewayInterface
 {
-    public function __construct(private readonly string $secretKey)
+    public function __construct(private readonly string|null $secretKey)
     {
         //
     }
