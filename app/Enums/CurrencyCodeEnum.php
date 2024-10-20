@@ -10,5 +10,4 @@ enum CurrencyCodeEnum: string
     case AUD = 'AUD';
     case GBP = 'GBP';
     case NGN = 'NGN';
-
 }

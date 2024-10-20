@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Listing;
 
+use App\Enums\CurrencyType;
 use App\Enums\ListingType;
 use App\Models\Store;
 use App\Support\Utils;
@@ -32,7 +33,6 @@ class CreateListingRequest extends FormRequest
             'description' => ['required', 'string', 'max:500'],
             'additional_information' => ['nullable', 'string', 'max:1000'],
             'images' => ['required', 'array'],
-            'currency' => ['required', 'string', 'in:USD,CAD,NGN'],
             'category' => ['required', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)]
         ];
     }
@@ -56,7 +56,7 @@ class CreateListingRequest extends FormRequest
             'user_id' => $this->user()->id,
             'images' => $this->images(),
             'is_available' => true,
-            'currency' => $this->currency
+            'currency' => $this->store->country?->currency_code
         ])->toArray();
     }
 }

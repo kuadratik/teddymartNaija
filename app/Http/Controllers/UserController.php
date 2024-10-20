@@ -142,4 +142,23 @@ class UserController extends Controller
         $this->userService->sendOrderToVendor($order);
         return $this->success();
     }
+
+
+    /**
+     * Get user's shipping address
+     */
+    public function getShippingAddresses(Request $request)
+    {
+        $shippingAddress = $request->user()->shippingAddresses;
+        return $this->success($shippingAddress);
+    }
+
+     /**
+     * Get user's saved shipping address
+     */
+    public function savedShippingAddresses(Request $request)
+    {
+        $shippingAddress = $request->user()->savedShippingAddresses;
+        return $this->success($shippingAddress);
+    }
 }

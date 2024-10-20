@@ -45,7 +45,11 @@ class CartService
                     'quantity' => $product->pivot->quantity,
                     'currency_code' => $product->currency,
                     'total_price' => $product->pivot->quantity * $product->price,
-                    'images' => $product->images
+                    'images' => $product->images,
+                    'slug' => $product->slug,
+                    'description' => $product->description,
+                    'store_name' => $product->store->name,
+                    'store_slug' => $product->store->slug,
                 ];
             })
         ];
@@ -239,6 +243,41 @@ class CartService
 
 
     /**
+     * Add product to wishlist from cart
+     */
+    public function addToWishlistFromCart(Request $request, Listing $product)
+    {
+        abort_if($product->type !== ListingType::PRODUCT->value, 400, 'The specified listing is not a product.');
+        abort_if(!$product->is_available, 400, 'The product is currently unavailable.');
+
+        $user = $request->user();
+
+        $wishlistExists = $user->wishlist()->where('listing_id', $product->id)->exists();
+        abort_if($wishlistExists, 422, 'The product is already in your wishlist.');
+
+        $cart = $user->carts()
+            ->with('products')
+            ->whereHas('products', function ($query) use ($product) {
+                $query->where('listing_id', $product->id);
+            })
+            ->first();
+
+        abort_if(!$cart, 404, 'The product is not found in your cart.');
+
+        DB::transaction(function () use ($user, $product, $cart) {
+            $cart->products()->detach($product->id);
+            $user->wishlist()->attach($product->id);
+
+            if ($cart->products()->count() === 0) {
+                $cart->delete();
+            }
+        });
+
+        return 'Product added to wishlist successfully and removed from cart.';
+    }
+
+
+    /**
      * Get the user's cart based on the provided request.
      */
     private function getCart(Request $request): Cart
@@ -285,4 +324,5 @@ class CartService
     {
         Cart::where('id', $cartId)->delete();
     }
+
 }

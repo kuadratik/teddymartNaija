@@ -28,6 +28,7 @@ class StoreShippingAddressRequest extends FormRequest
             'landmark' => ['required', 'string'],
             'country' => ['required', 'string'],
             'address' => ['required', 'string'],
+            'saved' => ['required', 'boolean'],
         ];
     }
 
