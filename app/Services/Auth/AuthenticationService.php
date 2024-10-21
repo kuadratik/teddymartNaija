@@ -75,8 +75,8 @@ class AuthenticationService
         try {
             $googleUser = Socialite::driver('google')->stateless()->userFromToken($token);
         } catch (\Exception $e) {
-            Log::error('Google authenticaion failed',[$e->getMessage()]);
-           abort('Google authenticaion failed', $e->getCode());
+            Log::error('Google authenticaion failed', [$e->getMessage()]);
+            abort($e->getCode(), 'Google authenticaion failed');
         }
 
         $user = User::firstOrNew(['email' => $googleUser->getEmail()], [
