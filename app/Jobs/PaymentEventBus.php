@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class PaymentEventBus implements ShouldQueue
 {
@@ -36,6 +37,11 @@ class PaymentEventBus implements ShouldQueue
      */
     private function handlePayPalEvent(string $eventType, array $payload): void
     {
+        Log::info('Paystack Webhook Received', [
+            'payload' => $payload,
+            'headers' => request()->headers->all()
+        ]);
+
         match ($eventType) {
             'PAYMENT.CAPTURE.COMPLETED' => $this->processSuccessfulPayment($payload),
             'PAYMENT.CAPTURE.DECLINED' => $this->processFailedPayment($payload),
