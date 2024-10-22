@@ -81,18 +81,27 @@ class UserService
 
 
     /**
-     * Get all clips, update user_id if authenticated, and retrieve clips by user_id or Clip-Uid
+     * Get all clips, update user_id if authenticated, and retrieve clips by user_id or Clip-Uid.
+     * @todo add to the doc
      */
     public function getClips(): array
     {
         $clipUid = request()->header('Clip-Uid');
         $userId = auth()->check() ? auth()->id() : null;
+        $currency = request()->header('currency', 'USD');
 
         if ($userId) {
+
             Clip::query()->where('uid', $clipUid)->whereNull('user_id')->update(['user_id' => $userId]);
-            $clips = Clip::query()->where('user_id', $userId)->with('products')->get();
+            $clips = Clip::query()
+                ->where('user_id', $userId)
+                ->with(['products' => fn($query) => $query->where('currency', $currency)])
+                ->get();
         } else {
-            $clips = Clip::query()->where('uid', $clipUid)->with('products')->get();
+            $clips = Clip::query()
+                ->where('uid', $clipUid)
+                ->with(['products' => fn($query) => $query->where('currency', $currency)])
+                ->get();
         }
 
         $totalProductCount = $clips->sum(fn($clip) => $clip->products->count());
@@ -103,8 +112,10 @@ class UserService
         ];
     }
 
+
     /**
      * Get a clip by ID with product details, filtered by currency.
+     * @todo add to the doc
      */
     public function getClipItems(Clip $clip): array
     {
@@ -225,5 +236,4 @@ class UserService
         $store_count = Order::where('store_id', $store->id)->distinct('user_id')->count('user_id');
         return ['customer_count' => $store_count];
     }
-
 }
