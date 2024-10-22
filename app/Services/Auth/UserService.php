@@ -104,28 +104,31 @@ class UserService
     }
 
     /**
-     * Get a clip by ID with product details.
+     * Get a clip by ID with product details, filtered by currency.
      */
     public function getClipItems(Clip $clip): array
     {
         $customerId = auth()->id();
         $clipUid = request()->header('Clip-Uid');
+        $currency = request()->header('currency', 'USD');
+
 
         $clipData = Clip::when($customerId, fn($query) => $query->where('user_id', $customerId))
             ->when(!$customerId && $clipUid, fn($query) => $query->where('uid', $clipUid))
             ->where('id', $clip->id)
-            ->with('products')
+            ->with(['products' => fn($query) => $query->where('currency', $currency)])
             ->firstOrFail();
+
 
         return $clipData->products->map(fn($product) => [
             'name' => $product->name,
             'slug' =>  $product->slug,
-            'image' => @$product->images[0],
+            'image' => @$product->images[0],  // Assuming the first image
             'price' => $product->price,
             'currency_code' => $product->currency,
-            // 'store_currency' => $product->store->country->currency_code,
         ])->all();
     }
+
 
 
     /**
