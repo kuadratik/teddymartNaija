@@ -5,6 +5,7 @@ use App\Http\Middleware\EnsureClipUidHeader;
 use App\Http\Middleware\EnsureSessionUidHeader;
 use App\Http\Middleware\OptionalSanctum;
 use App\Http\Middleware\RespondWithJson;
+use App\Http\Middleware\VerifyWebhookSignature;
 use App\Support\Utils;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'hasSessionUid' => EnsureSessionUidHeader::class,
             'hasStore' => CheckIfUserHasStore::class,
             'optionalAuth' => OptionalSanctum::class,
+            'verifyWebhookSignature' =>VerifyWebhookSignature::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
