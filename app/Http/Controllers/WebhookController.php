@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\PaymentGatewayEnum;
 use Illuminate\Http\Request;
 use App\Jobs\PaymentEventBus;
-
+use Illuminate\Support\Facades\Log;
 
 class WebhookController extends Controller
 {
@@ -13,7 +13,7 @@ class WebhookController extends Controller
     public function handleWebhook(Request $request, PaymentGatewayEnum $gateway)
     {
         $payload = $request->all();
-
+        Log::debug('Webhook received', ['gateway' => $gateway->value, 'payload' => $payload]);
         PaymentEventBus::dispatch([
             'gateway' => $gateway,
             'event_type' => $this->getEventType($gateway, $payload),

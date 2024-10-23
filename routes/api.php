@@ -135,5 +135,8 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('webhook/{gateway}', [WebhookController::class, 'handleWebhook'])
     ->middleware('verifyWebhookSignature:{gateway}');
 
+Route::get('payment/success', [PaymentController::class, 'paypalSuccess'])->name('payment.success');
+Route::get('payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+
 
 Route::prefix('console')->group(function () {});

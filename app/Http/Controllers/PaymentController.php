@@ -8,6 +8,7 @@ use App\Models\Cart;
 use App\Services\CartService;
 use App\Services\PaymentGateways\PaymentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
@@ -29,7 +30,7 @@ class PaymentController extends Controller
     }
 
 
-    public function verifyPayment(VerifyPaymentRequest $request,Cart $cart)
+    public function verifyPayment(VerifyPaymentRequest $request, Cart $cart)
     {
 
         $attr = $request->getPaymentAtribute($cart->id);
@@ -37,12 +38,16 @@ class PaymentController extends Controller
         return $this->success($res);
     }
 
-
-    /**
-     * Initialize a payment using the specified gateway and payment data.
-     */
-    private function initializePayment(string $gateway, array $data)
+    public function paypalSuccess(Request $request)
     {
-         $this->paymentService->gateway($gateway)->initialize($data);
+        $token = $request->query('token');
+        $payerId = $request->query('PayerID');
+        Log::info('paypalSuccess', [$token, $payerId]);
+        return view('payment.success', ['message' => 'Payment successful!']);
+    }
+    public function cancel()
+    {
+
+        return view('payment.cancel', ['message' => 'Payment canceled.']);
     }
 }

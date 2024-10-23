@@ -28,6 +28,10 @@ class PaypalPaymentService implements PaymentGatewayInterface
 
         $response = $this->provider->createOrder([
             "intent" => "CAPTURE",
+            "application_context" => [
+                "return_url" => route('payment.success'),
+                "cancel_url" => route('payment.cancel'),
+            ],
             "purchase_units" => [
                 0 => [
                     "amount" => [

@@ -170,7 +170,7 @@ class CartService
             ]);
 
             $payment->recordTransaction([
-                'reference' => 'TXN-123',
+                'reference' => $paymentResponse['reference'],
                 'type' => PaymentTransactionTypeEnum::CHARGE,
                 'amount' => $payment->amount,
                 'currency' => $payment->currency,
