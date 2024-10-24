@@ -126,18 +126,15 @@ class CartService
     }
 
     /**
-     * Get Payment data
+     * Get Payment data and create a pending order
      * @todo add shipping price  to total
      */
     public function getOrderPaymentData(StoreOrderRequest $request, Cart $cart): array
     {
-
-        $cart = Cart::find($cart->id);
-
+        $cart = Cart::findOrFail($cart->id);
         $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
 
         foreach ($cartItems as $storeId => $items) {
-
             $subtotal = $items->sum(function ($item) {
                 return $item->pivot->quantity * $item->price;
             });
@@ -148,7 +145,7 @@ class CartService
             $order = Order::create([
                 'store_id' => $storeId,
                 'user_id' => $request->user()->id,
-                'order_number' =>  $orderNumber,
+                'order_number' => $orderNumber,
                 'first_name' => $request->validated('first_name'),
                 'last_name' => $request->validated('last_name'),
                 'email' => $request->validated('email'),
@@ -172,81 +169,15 @@ class CartService
                 ]);
             }
 
+
             return collect($order)->merge([
                 'currency_code' => $request->validated('currency_code')
             ])->toArray();
         }
     }
 
-    /**
-     * Create an order from the items in the cart.
-     */
-    public function createCartOrder($data, $paymentResponse)
-    {
-        $cart = Cart::findOrfail($data['cart_id']);
-        DB::transaction(function () use ($data, $cart, $paymentResponse) {
-
-            $payment = Payment::create([
-                'reference' =>  $paymentResponse['reference'],
-                'amount' => $paymentResponse['amount'],
-                'currency' => $paymentResponse['currency'],
-                'gateway' => $paymentResponse['gateway'],
-                'description' => 'Paypal Payment'
-            ]);
-
-            $payment->recordTransaction([
-                'reference' => $paymentResponse['reference'],
-                'type' => PaymentTransactionTypeEnum::CHARGE,
-                'amount' => $payment->amount,
-                'currency' => $payment->currency,
-                'is_success' => false,
-                'status_message' =>  $paymentResponse['status'],
-                'response_payload' => $paymentResponse['response']
-            ]);
-
-            $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
-
-            foreach ($cartItems as $storeId => $items) {
-
-                $subtotal = $items->sum(function ($item) {
-                    return $item->pivot->quantity * $item->price;
-                });
-
-                $totalAmount = $subtotal;
-                $customer = auth()->user();
-                $orderNumber = Str::uuid()->toString();
-
-                $order = Order::create([
-                    'store_id' => $storeId,
-                    'user_id' => $customer->id,
-                    'order_number' =>  $orderNumber,
-                    'first_name' => $data['first_name'],
-                    'last_name' => $data['last_name'],
-                    'email' => $data['email'],
-                    'phone' => $data['phone'],
-                    'subtotal' => $subtotal,
-                    'total_amount' => $totalAmount,
-                    'type' => ListingType::PRODUCT->value,
-                    'status' => OrderStatusEnum::PENDING->value,
-                ]);
-
-                $order->shippingAddress()->attach($data['shipping_address_id']);
-
-                foreach ($items as $item) {
-                    OrderDetail::create([
-                        'order_id' => $order->id,
-                        'listing_id' => $item->id,
-                        'listing_name' => $item->name,
-                        'listing_price' => $item->price,
-                    ]);
-                }
-            }
 
 
-
-            $cart->products()->detach();
-        });
-    }
 
     /**
      * Get orders for a specific user, with optional status filtering.

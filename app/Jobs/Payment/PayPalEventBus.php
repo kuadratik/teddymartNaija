@@ -7,7 +7,6 @@ use App\Enums\PaymentGatewayEnum;
 use App\Enums\PaymentTransactionTypeEnum;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\PaymentTransaction;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -135,6 +134,7 @@ class PayPalEventBus implements ShouldQueue
         }
     }
 
+
     /**
      * Process an approved payment by creating a new payment record, updating order statuses,
      * and recording a payment transaction. If the order ID is missing or malformed, appropriate logs are generated.
@@ -202,7 +202,6 @@ class PayPalEventBus implements ShouldQueue
             ]);
         });
     }
-
 
     /**
      * Process a failed payment by creating a new payment record, updating order statuses,
