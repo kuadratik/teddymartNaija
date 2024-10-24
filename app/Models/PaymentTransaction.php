@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class PaymentTransaction extends Model
 {
-    use HasUuids;
+
 
     protected $fillable = [
         'reference',
@@ -27,7 +27,6 @@ class PaymentTransaction extends Model
 
     protected $casts = [
         'amount' => 'decimal:2',
-        'type' => PaymentTransactionTypeEnum::class,
         'is_success' => 'boolean',
         'request_payload' => 'array',
         'response_payload' => 'array',

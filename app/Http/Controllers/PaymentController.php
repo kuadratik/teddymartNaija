@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PaymentGatewayEnum;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Http\Requests\Payment\VerifyPaymentRequest;
 use App\Models\Cart;
@@ -30,13 +31,14 @@ class PaymentController extends Controller
     }
 
 
-    public function verifyPayment(VerifyPaymentRequest $request, Cart $cart)
+    public function verifyPayment(VerifyPaymentRequest $request, PaymentGatewayEnum $gateway)
     {
 
-        $attr = $request->getPaymentAtribute($cart->id);
-        $res = $this->paymentService->gateway($request->validated('payment_gateway'))->verify($attr);
+        $attr = $request->getPaymentAtribute();
+        $res = $this->paymentService->gateway($gateway->value)->verify($attr);
         return $this->success($res);
     }
+
 
     public function paypalSuccess(Request $request)
     {
@@ -45,6 +47,8 @@ class PaymentController extends Controller
         Log::info('paypalSuccess', [$token, $payerId]);
         return view('payment.success', ['message' => 'Payment successful!']);
     }
+
+
     public function cancel()
     {
 

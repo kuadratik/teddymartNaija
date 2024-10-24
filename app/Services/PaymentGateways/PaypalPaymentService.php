@@ -35,9 +35,10 @@ class PaypalPaymentService implements PaymentGatewayInterface
             "purchase_units" => [
                 0 => [
                     "amount" => [
-                        "currency_code" => $data['formData']['currency_code'],
-                        "value" => $data['amount']
-                    ]
+                        "currency_code" => $data['currency_code'],
+                        "value" => $data['total_amount']
+                    ],
+                    'custom_id' => $data['order_number']
                 ]
             ]
         ]);
@@ -49,7 +50,7 @@ class PaypalPaymentService implements PaymentGatewayInterface
                     return ['url' => $links['href']];
                 }
             }
-        }else{
+        } else {
             log::error('paypal initialization error', $response);
             abort(500, 'Something went wrong');
         }
@@ -68,12 +69,12 @@ class PaypalPaymentService implements PaymentGatewayInterface
             'currency' => $order['purchase_units']['amount']['currency_code'],
             'status' => $order['status'],
             'gateway' => PaymentGatewayEnum::PAYPAL->value,
-            'response' => $order
+            // 'response' => $order
         ];
 
         if (isset($response['status'])) {
-            $res = $this->cartService->createCartOrder($data, $response);
-            return ['message' => 'transaction successfull'];
+
+            return [$response];
         }
     }
 

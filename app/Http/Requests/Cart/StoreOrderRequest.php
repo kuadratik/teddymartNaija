@@ -28,11 +28,11 @@ class StoreOrderRequest extends FormRequest
     {
         return [
 
-            // 'first_name' => ['required', 'string'],
-            // 'last_name' => ['required', 'string'],
-            // 'email' => ['required', 'string', 'email'],
-            // 'phone' => ['required', 'string', 'max:14'],
-            // 'shipping_address_id' => ['required', 'integer', 'exists:user_shipping_addresses,id'],
+            'first_name' => ['required', 'string'],
+            'last_name' => ['required', 'string'],
+            'email' => ['required', 'string', 'email'],
+            'phone' => ['required', 'string', 'max:14'],
+            'shipping_address_id' => ['required', 'integer', 'exists:user_shipping_addresses,id'],
             'currency_code' => ['required', 'string', Rule::enum(CurrencyType::class)],
             'payment_gateway' => ['required', 'string', Rule::enum(PaymentGatewayEnum::class)],
 

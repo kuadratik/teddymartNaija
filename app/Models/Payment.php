@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Payment extends Model
 {
-    use HasUuids, SoftDeletes;
+    use  SoftDeletes;
 
     protected $fillable = [
         'reference',
@@ -55,24 +55,14 @@ class Payment extends Model
         'status' => PaymentStatusEnum::PENDING
     ];
 
-    /**
-     * Get the payable model that the payment belongs to.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
-     */
-    public function payable(): MorphTo
-    {
-        return $this->morphTo();
-    }
 
     /**
-     * Get the model that represents the payer associated with this payment.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     * Get the Order for the payment
      */
-    public function payer(): MorphTo
+    public function orders()
     {
-        return $this->morphTo();
+        return $this->belongsToMany(Order::class, 'order_payment')
+            ->withTimestamps();
     }
 
     /**

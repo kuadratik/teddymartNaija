@@ -18,6 +18,7 @@ use Illuminate\Support\Str;
 use App\Http\Resources\OrderResource;
 use App\Models\Payment;
 use App\Services\PaymentGateways\PaymentService;
+use Maatwebsite\Excel\Concerns\ToArray;
 
 class CartService
 {
@@ -131,7 +132,6 @@ class CartService
     public function getOrderPaymentData(StoreOrderRequest $request, Cart $cart): array
     {
 
-
         $cart = Cart::find($cart->id);
 
         $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
@@ -145,11 +145,36 @@ class CartService
             $totalAmount = $subtotal;
             $orderNumber = Str::uuid()->toString();
 
-            return  [
-                'amount' => $totalAmount,
-                'order_uid' => $orderNumber,
-                'formData' => $request->validated(),
-            ];
+            $order = Order::create([
+                'store_id' => $storeId,
+                'user_id' => $request->user()->id,
+                'order_number' =>  $orderNumber,
+                'first_name' => $request->validated('first_name'),
+                'last_name' => $request->validated('last_name'),
+                'email' => $request->validated('email'),
+                'phone' => $request->validated('phone'),
+                'subtotal' => $subtotal,
+                'uid' => Str::uuid()->toString(),
+                'total_amount' => $totalAmount,
+                'type' => ListingType::PRODUCT->value,
+                'status' => OrderStatusEnum::PENDING->value,
+                'payment_status' => OrderStatusEnum::PENDING_PAYMENT->value,
+            ]);
+
+            $order->shippingAddress()->attach($request->validated('shipping_address_id'));
+
+            foreach ($items as $item) {
+                OrderDetail::create([
+                    'order_id' => $order->id,
+                    'listing_id' => $item->id,
+                    'listing_name' => $item->name,
+                    'listing_price' => $item->price,
+                ]);
+            }
+
+            return collect($order)->merge([
+                'currency_code' => $request->validated('currency_code')
+            ])->toArray();
         }
     }
 
@@ -324,5 +349,4 @@ class CartService
     {
         Cart::where('id', $cartId)->delete();
     }
-
 }

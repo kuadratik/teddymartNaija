@@ -107,7 +107,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('store/{store}/service/{listing}/order', [UserController::class, 'storeServiceEnquiry']);
         Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
         Route::post('cart/{cart}/payment', [PaymentController::class, 'payOrder']);
-        Route::post('cart/{cart}/payment/verify', [PaymentController::class, 'verifyPayment']);
+        Route::post('payment/{gateway}/verify', [PaymentController::class, 'verifyPayment']);
         Route::get('order', [CartController::class, 'getUserOrders']);
 
         Route::prefix('wishlist')->group(function () {

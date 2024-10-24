@@ -26,22 +26,14 @@ class VerifyPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => ['required', 'string'],
-            'last_name' => ['required', 'string'],
-            'email' => ['required', 'string', 'email'],
-            'phone' => ['required', 'string', 'max:14'],
-            'shipping_address_id' => ['required', 'integer', 'exists:user_shipping_addresses,id'],
-            'currency_code' => ['required', 'string', 'in:' . CurrencyCodeEnum::AUD->value, CurrencyCodeEnum::CAD->value, CurrencyCodeEnum::USD->value, CurrencyCodeEnum::GBP->value,  CurrencyCodeEnum::EUR->value, CurrencyCodeEnum::NGN->value],
-            'gateway' => ['required', 'string', Rule::enum(PaymentGatewayEnum::class)],
+
             'token' => ['required', 'string']
         ];
     }
 
 
-    public function getPaymentAtribute($cartId): array
+    public function getPaymentAtribute(): array
     {
-        return $this->collect($this->validated())->merge([
-            'cart_id' => $cartId
-        ])->toArray();
+        return $this->collect($this->validated())->toArray();
     }
 }

@@ -42,7 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'verifyWebhookSignature' => VerifyWebhookSignature::class,
         ]);
         $middleware->validateCsrfTokens(except: [
-        'https://9f6d9d9fe38133.lhr.life/webhook/paypal'
+        'https://9f6d9d9fe38133.lhr.life/api/webhook/paypal'
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
