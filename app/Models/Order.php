@@ -30,6 +30,7 @@ class Order extends Model
         'subtotal',
         'type',
         'status',
+        'currency'
     ];
 
 

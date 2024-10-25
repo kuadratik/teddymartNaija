@@ -152,6 +152,7 @@ class CartService
                 'phone' => $request->validated('phone'),
                 'subtotal' => $subtotal,
                 'uid' => Str::uuid()->toString(),
+                'currency' => $items->first()?->store?->currency,
                 'total_amount' => $totalAmount,
                 'type' => ListingType::PRODUCT->value,
                 'status' => OrderStatusEnum::PENDING->value,
@@ -188,14 +189,16 @@ class CartService
         $status = $request->query('order_status');
 
         $orders = Order::with(['orderDetails', 'shippingAddress'])
-            ->where('user_id', $user->id)
+        ->where('user_id', $user->id)
             ->where('type', ListingType::PRODUCT->value)
             ->when($status, fn($query) => $query->where('status', $status))
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->groupBy('order_number');
 
         return OrderResource::collection($orders);
     }
+
 
 
     /**
