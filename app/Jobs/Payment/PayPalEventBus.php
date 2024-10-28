@@ -7,14 +7,18 @@ use App\Enums\PaymentGatewayEnum;
 use App\Enums\PaymentTransactionTypeEnum;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\PaymentTransaction;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PayPalEventBus implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, InteractsWithQueue, Dispatchable, SerializesModels;
 
     /**
      * Create a new job instance.
@@ -100,7 +104,8 @@ class PayPalEventBus implements ShouldQueue
                             ]
                         ]);
 
-                        $payment->recordTransaction([
+                        PaymentTransaction::create([
+                            'payment_id' => $payment->id,
                             'reference' => $paymentDetails['reference'],
                             'type' => PaymentTransactionTypeEnum::CHARGE,
                             'amount' => $payment->amount,
@@ -166,6 +171,7 @@ class PayPalEventBus implements ShouldQueue
                     'amount' => $paymentDetails['amount'],
                     'currency' => $paymentDetails['currency'],
                     'gateway' => PaymentGatewayEnum::PAYPAL->value,
+                    'status' => $paymentDetails['status_message'],
                     'description' => "paypal Payment"
                 ]);
             }
@@ -191,7 +197,8 @@ class PayPalEventBus implements ShouldQueue
                 $order->save();
             }
 
-            $payment->recordTransaction([
+            PaymentTransaction::create([
+                'payment_id' => $payment->id,
                 'reference' => $paymentDetails['reference'],
                 'type' => PaymentTransactionTypeEnum::CHARGE,
                 'amount' => $payment->amount,
@@ -231,6 +238,7 @@ class PayPalEventBus implements ShouldQueue
                         'amount' => $paymentDetails['amount'],
                         'currency' => $paymentDetails['currency'],
                         'gateway' => $this->webhookData['gateway']->value,
+                        'status' => $paymentDetails['status_message'],
                         'description' => "{$this->webhookData['gateway']->value} Payment - Failed"
                     ]
                 );
@@ -247,7 +255,8 @@ class PayPalEventBus implements ShouldQueue
                     }
 
 
-                    $payment->recordTransaction([
+                    PaymentTransaction::create([
+                        'payment_id' => $payment->id,
                         'reference' => $paymentDetails['reference'],
                         'type' => PaymentTransactionTypeEnum::CHARGE,
                         'amount' => $payment->amount,
