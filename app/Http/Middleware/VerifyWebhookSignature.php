@@ -21,6 +21,7 @@ class VerifyWebhookSignature
             PaymentGatewayEnum::PAYPAL => $this->verifyPayPalSignature($request),
             PaymentGatewayEnum::STRIPE => $this->verifyStripeSignature($request),
             PaymentGatewayEnum::PAYSTACK => $this->verifyPaystackSignature($request),
+            default => throw new AccessDeniedHttpException('Invalid payment gateway'),
         };
 
         return $next($request);
@@ -33,7 +34,7 @@ class VerifyWebhookSignature
         Log::info('PayPal signature verified successfully');
     }
 
-        private function verifyStripeSignature(Request $request)
+    private function verifyStripeSignature(Request $request)
     {
         Log::info('Verifying Stripe signature', [
             'headers' => $request->headers->all()
@@ -42,8 +43,15 @@ class VerifyWebhookSignature
 
     private function verifyPaystackSignature(Request $request)
     {
-        Log::info('Verifying Paystack signature', [
-            'headers' => $request->headers->all()
-        ]);
+        $secret = config('services.paystack.secret_key');
+        $signature = $request->header('X-Paystack-Signature');
+        $payload = $request->getContent();
+
+        if ($signature !== hash_hmac('sha512', $payload, $secret)) {
+            Log::warning('Paystack signature verification failed', ['signature' => $signature]);
+            throw new AccessDeniedHttpException('Unauthorized');
+        }
+
+        Log::info('Paystack signature verified successfully');
     }
 }

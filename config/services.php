@@ -40,14 +40,20 @@ return [
     ],
 
     'stripe' => [
-        'secret' => env('STRIPE_SECRET_KEY'),
+        'secret_key' => env('STRIPE_SECRET_KEY'),
     ],
 
     'paypal' => [
         'client_id' => env('PAYPAL_CLIENT_ID'),
         'client_secret' => env('PAYPAL_CLIENT_SECRET'),
         'webhook_id' => env('PAYPAL_WEBHOOK_ID'),
+    ],
 
+    'paystack' => [
+        'secret_key' => env('PAYSTACK_SECRET_KEY'),
+        'public_key' => env('PAYSTACK_PUBLIC_KEY'),
+        'payment_url' => env('PAYSTACK_PAYMENT_URL'),
+        'merchant_email' => env('MERCHANT_EMAIL'),
     ],
 
     'google' => [

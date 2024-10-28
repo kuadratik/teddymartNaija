@@ -8,6 +8,8 @@ use App\Jobs\Payment\PaystackEventBus;
 use App\Jobs\Payment\StripeEventBus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class WebhookController extends Controller
 {
@@ -36,6 +38,8 @@ class WebhookController extends Controller
             PaymentGatewayEnum::PAYPAL => new PayPalEventBus($webhookData),
             PaymentGatewayEnum::STRIPE => new StripeEventBus($webhookData),
             PaymentGatewayEnum::PAYSTACK => new PaystackEventBus($webhookData),
+            default => throw new NotFoundHttpException('payment gateway not found'),
+
         };
 
         dispatch($bus);
