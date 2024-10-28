@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string('status')->after('total_amount')->nullable()->default(OrderStatusEnum::INCART)->index();
+            $table->string('status')->after('total_amount')->nullable()->default(OrderStatusEnum::INPROGRESS)->index();
         });
     }
 
