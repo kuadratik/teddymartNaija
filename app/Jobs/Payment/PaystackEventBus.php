@@ -85,6 +85,7 @@ class PaystackEventBus implements ShouldQueue
                     ]);
                 }
 
+
                 foreach ($orders as $order) {
                     if (!$order->payments()->where('payment_id', $payment->id)->exists()) {
                         $order->payments()->attach($payment->id);
@@ -103,7 +104,7 @@ class PaystackEventBus implements ShouldQueue
 
                     $order->update([
                         'payment_status' => OrderStatusEnum::COMPLETED_PAYMENT,
-                        'status' => 'COMPLETED',
+                        'status' => 'PAID',
                     ]);
 
                     Log::info('Order completed successfully', [
