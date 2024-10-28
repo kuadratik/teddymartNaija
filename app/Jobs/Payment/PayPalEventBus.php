@@ -4,6 +4,7 @@ namespace App\Jobs\Payment;
 
 use App\Enums\OrderStatusEnum;
 use App\Enums\PaymentGatewayEnum;
+use App\Enums\PaymentStatusEnum;
 use App\Enums\PaymentTransactionTypeEnum;
 use App\Models\Order;
 use App\Models\Payment;
@@ -28,6 +29,21 @@ class PayPalEventBus implements ShouldQueue
         //
     }
 
+    /**
+     * Returns the maximum number of attempts for processing the job.
+     */
+    public function maxAttempts()
+    {
+        return 5;
+    }
+
+    /**
+     * Returns the time until the job should be retried, which is 10 minutes from the current time.
+     */
+    public function retryUntil()
+    {
+        return now()->addMinutes(10);
+    }
 
     /**
      * Execute the job.
@@ -118,7 +134,7 @@ class PayPalEventBus implements ShouldQueue
                         // Update each order's status
                         $order->update([
                             'payment_status' => OrderStatusEnum::COMPLETED_PAYMENT,
-                            'status' => 'COMPLETED',
+                            'status' => OrderStatusEnum::INPROGRESS,
                         ]);
 
                         Log::info('Order completed successfully', [
@@ -171,7 +187,7 @@ class PayPalEventBus implements ShouldQueue
                     'amount' => $paymentDetails['amount'],
                     'currency' => $paymentDetails['currency'],
                     'gateway' => PaymentGatewayEnum::PAYPAL->value,
-                    'status' => $paymentDetails['status_message'],
+                    'status' => PaymentStatusEnum::SUCCESS,
                     'description' => "paypal Payment"
                 ]);
             }
@@ -193,7 +209,7 @@ class PayPalEventBus implements ShouldQueue
                 }
 
                 $order->payment_status = OrderStatusEnum::APPROVED_PAYMENT;
-                $order->status = 'APPROVED';
+                $order->status = OrderStatusEnum::INPROGRESS;
                 $order->save();
             }
 
@@ -238,7 +254,7 @@ class PayPalEventBus implements ShouldQueue
                         'amount' => $paymentDetails['amount'],
                         'currency' => $paymentDetails['currency'],
                         'gateway' => $this->webhookData['gateway']->value,
-                        'status' => $paymentDetails['status_message'],
+                        'status' => PaymentStatusEnum::FAILED,
                         'description' => "{$this->webhookData['gateway']->value} Payment - Failed"
                     ]
                 );
@@ -268,7 +284,7 @@ class PayPalEventBus implements ShouldQueue
 
                     $order->update([
                         'payment_status' => OrderStatusEnum::PAYMENT_FAILED,
-                        'status' => 'FAILED',
+                        'status' => OrderStatusEnum::INPROGRESS,
                         'failure_reason' => $paymentDetails['failure_reason']
                     ]);
                 }
@@ -314,22 +330,6 @@ class PayPalEventBus implements ShouldQueue
     {
 
         return $payload['resource']['purchase_units'][0]['custom_id'] ?? '';
-    }
-
-    /**
-     * Returns the maximum number of attempts for processing the job.
-     */
-    public function maxAttempts()
-    {
-        return 5;
-    }
-
-    /**
-     * Returns the time until the job should be retried, which is 10 minutes from the current time.
-     */
-    public function retryUntil()
-    {
-        return now()->addMinutes(10);
     }
 
 
