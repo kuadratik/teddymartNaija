@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Enums\ListingType;
+use App\Enums\OrderStatusEnum;
+use App\Enums\PaymentGatewayEnum;
+use App\Enums\PaymentTransactionTypeEnum;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Models\Cart;
 use App\Models\Listing;
@@ -13,11 +16,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Resources\OrderResource;
-
-
+use App\Models\Payment;
+use App\Services\PaymentGateways\PaymentService;
+use Maatwebsite\Excel\Concerns\ToArray;
 
 class CartService
 {
+
+
     /**
      * Get detailed cart information including total items and product details
      */
@@ -120,6 +126,82 @@ class CartService
     }
 
     /**
+     * Get Payment data and create a pending order
+     * @todo add shipping price  to total
+     */
+    public function getOrderPaymentData(StoreOrderRequest $request, Cart $cart): array
+    {
+        $cart = Cart::findOrFail($cart->id);
+        $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
+
+        foreach ($cartItems as $storeId => $items) {
+            $subtotal = $items->sum(function ($item) {
+                return $item->pivot->quantity * $item->price;
+            });
+
+            $totalAmount = $subtotal;
+            $orderNumber = Str::uuid()->toString();
+
+            $order = Order::create([
+                'store_id' => $storeId,
+                'user_id' => $request->user()->id,
+                'order_number' => $orderNumber,
+                'first_name' => $request->validated('first_name'),
+                'last_name' => $request->validated('last_name'),
+                'email' => $request->validated('email'),
+                'phone' => $request->validated('phone'),
+                'subtotal' => $subtotal,
+                'uid' => Str::uuid()->toString(),
+                'currency' => $items->first()?->store?->currency,
+                'total_amount' => $totalAmount,
+                'type' => ListingType::PRODUCT->value,
+                'status' => OrderStatusEnum::PENDING->value,
+                'payment_status' => OrderStatusEnum::PENDING_PAYMENT->value,
+            ]);
+
+            $order->shippingAddress()->attach($request->validated('shipping_address_id'));
+
+            foreach ($items as $item) {
+                OrderDetail::create([
+                    'order_id' => $order->id,
+                    'listing_id' => $item->id,
+                    'listing_name' => $item->name,
+                    'listing_price' => $item->price,
+                ]);
+            }
+
+
+            return collect($order)->merge([
+                'currency_code' => $request->validated('currency_code')
+            ])->toArray();
+        }
+    }
+
+
+
+
+    /**
+     * Get orders for a specific user, with optional status filtering.
+     */
+    public function getUserOrders(Request $request)
+    {
+        $user = $request->user();
+        $status = $request->query('order_status');
+
+        $orders = Order::with(['orderDetails', 'shippingAddress'])
+        ->where('user_id', $user->id)
+            ->where('type', ListingType::PRODUCT->value)
+            ->when($status, fn($query) => $query->where('status', $status))
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('order_number');
+
+        return OrderResource::collection($orders);
+    }
+
+
+
+    /**
      * Add product to wishlist from cart
      */
     public function addToWishlistFromCart(Request $request, Listing $product)
@@ -153,72 +235,6 @@ class CartService
         return 'Product added to wishlist successfully and removed from cart.';
     }
 
-    /**
-     * Store users order and order details
-     */
-
-    public function createCartOrder(StoreOrderRequest $request, Cart $cart)
-    {
-        DB::transaction(function () use ($request, $cart) {
-            $cart = Cart::find($cart->id);
-
-            $cartItems = $cart->products()
-                ->with('store')
-                ->get()
-                ->groupBy('store_id');
-
-            foreach ($cartItems as $storeId => $items) {
-                $totalAmount = $items->sum(function ($item) {
-                    return $item->pivot->quantity * $item->price;
-                });
-
-                $customer = auth()->user();
-
-                $order = Order::create([
-                    'store_id' => $storeId,
-                    'user_id' => $customer->id,
-                    'order_number' => Str::uuid()->toString(),
-                    'first_name' => $request->validated('first_name'),
-                    'last_name' => $request->validated('last_name'),
-                    'email' => $request->validated('email'),
-                    'phone' => $request->validated('phone'),
-                    'total_amount' => $totalAmount,
-                    'type' => ListingType::PRODUCT->value,
-                ]);
-
-                $order->shippingAddress()->attach($request->validated('shipping_address_id'));
-
-                foreach ($items as $item) {
-                    OrderDetail::create([
-                        'order_id' => $order->id,
-                        'listing_id' => $item->id,
-                        'listing_name' => $item->name,
-                        'listing_price' => $item->price,
-                    ]);
-                }
-            }
-
-            $cart->products()->detach();
-        });
-    }
-
-    /**
-     * Get orders for a specific user, with optional status filtering.
-     */
-    public function getUserOrders(Request $request)
-    {
-        $user = $request->user();
-        $status = $request->query('order_status');
-
-        $orders = Order::with(['orderDetails', 'shippingAddress'])
-            ->where('user_id', $user->id)
-            ->where('type', ListingType::PRODUCT->value)
-            ->when($status, fn($query) => $query->where('status', $status))
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return OrderResource::collection($orders);
-    }
 
     /**
      * Get the user's cart based on the provided request.
