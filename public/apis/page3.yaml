@@ -155,6 +155,12 @@ paths:
             type: string
             example:
           required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
       responses:
         default:
           description: "success"
