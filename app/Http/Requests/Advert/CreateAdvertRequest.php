@@ -34,14 +34,4 @@ class CreateAdvertRequest extends FormRequest
             'show_business_address' => ['required', 'boolean']
         ];
     }
-
-    /**
-     * Prepare store record to save
-     */
-    public function advertAttributes()
-    {
-        return collect($this->safe())->merge([
-            'indetifier' => substr($this->business_name, 0, 1)
-        ])->toArray();
-    }
 }

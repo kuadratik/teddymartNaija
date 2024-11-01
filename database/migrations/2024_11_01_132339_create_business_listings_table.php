@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('advertisements', function (Blueprint $table) {
+        Schema::create('business_listings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->index();
-            $table->string('business_name');
-            $table->string('business_slug');
+            $table->string('business_name')->index();
+            $table->string('business_slug')->unique();
             $table->longText('business_description')->nullable();
             $table->string('business_email')->nullable();
             $table->longText('business_address')->nullable();
@@ -24,7 +24,6 @@ return new class extends Migration
             $table->boolean('show_business_description')->default(false);
             $table->boolean('show_business_email')->default(false);
             $table->boolean('show_business_address')->default(false);
-            $table->string('indetifier')->index();
             $table->timestamps();
         });
     }
@@ -34,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('advertisements');
+        Schema::dropIfExists('business_listings');
     }
 };
