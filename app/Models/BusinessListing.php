@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
-class Advertisement extends Model
+class BusinessListing extends Model
 {
     use HasFactory;
 
@@ -26,7 +27,6 @@ class Advertisement extends Model
         'show_business_description',
         'show_business_email',
         'show_business_address',
-        'indetifier'
     ];
 
     /**
@@ -34,8 +34,16 @@ class Advertisement extends Model
      */
     protected static function booted()
     {
-        static::saving(function (Advertisement $model) {
-            $model->business_slug = str($model->business_name)->slug();
+        static::saving(function (BusinessListing $model) {
+            $model->business_slug = str("{$model->business_name}-" . Str::random(6))->slug();
         });
+    }
+
+    /**
+     * Get the category for this listing
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

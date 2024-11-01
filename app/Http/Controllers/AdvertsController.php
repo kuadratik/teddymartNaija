@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Advert\CreateAdvertRequest;
-use App\Models\Advertisement;
-use Illuminate\Http\Request;
+use App\Models\BusinessListing;
 
 class AdvertsController extends Controller
 {
     public function create(CreateAdvertRequest $request)
     {
-        Advertisement::create($request->advertAttributes());
-        return $this->success();
+        $business = BusinessListing::create($request->validated());
+
+        return $this->success($business);
     }
 }

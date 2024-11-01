@@ -57,7 +57,7 @@ paths:
                   example: ""
                   required: true
                 business_logo_url:
-                  type: strinh
+                  type: string
                   example: ""
                   required: true
                 show_business_description:
