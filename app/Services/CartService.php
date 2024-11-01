@@ -4,21 +4,16 @@ namespace App\Services;
 
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
-use App\Enums\PaymentGatewayEnum;
-use App\Enums\PaymentTransactionTypeEnum;
 use App\Http\Requests\Cart\StoreOrderRequest;
+use App\Http\Resources\OrderResource;
 use App\Models\Cart;
 use App\Models\Listing;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Support\Utils;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use App\Http\Resources\OrderResource;
-use App\Models\Payment;
-use App\Services\PaymentGateways\PaymentService;
-use Maatwebsite\Excel\Concerns\ToArray;
 
 class CartService
 {
@@ -29,10 +24,15 @@ class CartService
      */
     public function getCartDetails(Request $request)
     {
-        $cart = $this->getCart($request)->load(['products']);
+        $currency = $request->header('currency', 'USD');
+        $cart = $this->getCart($request)->load(['products' => function ($query) use ($currency) {
+            $query->where('currency', $currency);
+        }]);
+
         $totalCartPrice = $cart->products->sum(function ($product) {
             return $product->pivot->quantity * $product->price;
         });
+
         $cartDetails = [
             'cart_id' => $cart->id,
             'total_items' => $cart->products->sum('pivot.quantity'),
@@ -52,7 +52,7 @@ class CartService
                     'store_name' => $product->store->name,
                     'store_slug' => $product->store->slug,
                 ];
-            })
+            }),
         ];
 
         return $cartDetails;
@@ -70,7 +70,7 @@ class CartService
         $cart = $this->getCart($request);
 
         $cart->products()->syncWithoutDetaching([
-            $product->id => ['quantity' => DB::raw('COALESCE(quantity, 0) + 1')]
+            $product->id => ['quantity' => DB::raw('COALESCE(quantity, 0) + 1')],
         ]);
 
         return $cart->fresh(['products']);
@@ -85,11 +85,12 @@ class CartService
 
         if ($request->quantity <= 0) {
             $cart->products()->detach($product->id);
+
             return $cart->fresh(['products']);
         }
 
         $cart->products()->syncWithoutDetaching([
-            $product->id => ['quantity' => $request->quantity]
+            $product->id => ['quantity' => $request->quantity],
         ]);
 
         return $cart->fresh(['products']);
@@ -102,12 +103,13 @@ class CartService
     {
         $cart = $this->getCart($request);
 
-        abort_if(!$cart->products->contains($product), 404, 'Product not found in the cart');
+        abort_if(! $cart->products->contains($product), 404, 'Product not found in the cart');
 
         $cart->products()->detach($product->id);
 
         if ($cart->products()->count() === 0) {
             $this->deleteCartById($cart->id);
+
             return [];
         }
 
@@ -122,6 +124,7 @@ class CartService
         $cart = $this->getCart($request);
         $cart->products()->detach();
         $this->deleteCartById($cart->id);
+
         return [];
     }
 
@@ -177,9 +180,6 @@ class CartService
         }
     }
 
-
-
-
     /**
      * Get orders for a specific user, with optional status filtering.
      */
@@ -189,7 +189,7 @@ class CartService
         $status = $request->query('order_status');
 
         $orders = Order::with(['orderDetails', 'shippingAddress'])
-        ->where('user_id', $user->id)
+            ->where('user_id', $user->id)
             ->where('type', ListingType::PRODUCT->value)
             ->when($status, fn($query) => $query->where('status', $status))
             ->orderBy('created_at', 'desc')
@@ -207,7 +207,7 @@ class CartService
     public function addToWishlistFromCart(Request $request, Listing $product)
     {
         abort_if($product->type !== ListingType::PRODUCT->value, 400, 'The specified listing is not a product.');
-        abort_if(!$product->is_available, 400, 'The product is currently unavailable.');
+        abort_if(! $product->is_available, 400, 'The product is currently unavailable.');
 
         $user = $request->user();
 
@@ -221,7 +221,7 @@ class CartService
             })
             ->first();
 
-        abort_if(!$cart, 404, 'The product is not found in your cart.');
+        abort_if(! $cart, 404, 'The product is not found in your cart.');
 
         DB::transaction(function () use ($user, $product, $cart) {
             $cart->products()->detach($product->id);
@@ -244,7 +244,7 @@ class CartService
         $sessionUid = $request->header('session-uid');
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return Cart::firstOrCreate(['session_uid' => $sessionUid]);
         }
 
@@ -270,8 +270,8 @@ class CartService
         foreach ($guestCart->products as $product) {
             $userCart->products()->syncWithoutDetaching([
                 $product->id => [
-                    'quantity' => DB::raw("COALESCE(quantity, 0) + {$product->pivot->quantity}")
-                ]
+                    'quantity' => DB::raw("COALESCE(quantity, 0) + {$product->pivot->quantity}"),
+                ],
             ]);
         }
     }
