@@ -1,0 +1,82 @@
+openapi: '3.0.0'
+info:
+  description: myEki apis
+  version: 1.0.0
+  title: myeki
+
+servers:
+  - url: /api
+    description: v1 baseUrl
+
+components:
+  securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+
+paths:
+  /adverts/create:
+    post:
+      tags:
+        - Advertisement
+      summary: create advertisement
+      description: CreateAdvertisement
+      operationId: CreateAdvertisement
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category_id:
+                  type: number
+                  example: 1
+                  required: true
+                business_name:
+                  type: string
+                  example: "Ojuyobo Titus"
+                  required: true
+                business_description:
+                  type: string
+                  example: "Ikeja"
+                  required: true
+                business_email:
+                  type: string
+                  example: "ojuyobo@gmail.com"
+                  required: true
+                business_address:
+                  type: string
+                  example: ""
+                  required: fals
+                business_contact_number:
+                  type: string
+                  example: ""
+                  required: true
+                business_logo_url:
+                  type: strinh
+                  example: ""
+                  required: true
+                show_business_description:
+                  type: boolean
+                  example: true
+                  required: true
+                show_business_email:
+                  type: boolean
+                  example: true
+                  required: true
+                show_business_address:
+                  type: boolean
+                  example: true
+                  required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
