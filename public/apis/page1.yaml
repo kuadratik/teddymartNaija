@@ -405,6 +405,37 @@ paths:
               schema:
                 type: object
 
+  /front/video-file-upload:
+    post:
+      tags:
+        - General
+      summary: upload video file
+      description: API endpoint to upload multiple base64 encoded videos
+      operationId: uploadBase64Videos
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                videos:
+                  type: array
+                  items:
+                    type: string
+                    description: Base64 encoded video string
+                    example: ""
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/file-delete:
     post:
       tags:
