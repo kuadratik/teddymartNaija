@@ -16,16 +16,39 @@ components:
     bearerFormat: JWT
 
 paths:
-  /adverts/create:
-    post:
-      tags:
-        - Advertisement
-      summary: create advertisement
-      description: CreateAdvertisement
-      operationId: CreateAdvertisement
+  /business-listings:
+    get:
       security:
         - bearerAuth: []
+      tags:
+        - Listing
+      summary: Get the list of business listings
+      description: Get the list of business listings
+      operationId: GetBusinessListing
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: ""
+          required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
+  /business-listings/create:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Listing
+      summary: Create Business listing
+      description: Create Business listing
+      operationId: CreateBusinessListings
       requestBody:
         content:
           application/json:
@@ -72,7 +95,6 @@ paths:
                   type: boolean
                   example: true
                   required: true
-
       responses:
         default:
           description: "success"
