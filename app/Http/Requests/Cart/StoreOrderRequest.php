@@ -2,8 +2,12 @@
 
 namespace App\Http\Requests\Cart;
 
+use App\Enums\CurrencyCodeEnum;
+use App\Enums\CurrencyType;
 use App\Models\Clip;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Enums\PaymentGatewayEnum;
+use Illuminate\Validation\Rule;
 
 class StoreOrderRequest extends FormRequest
 {
@@ -23,16 +27,15 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => ['required','string'],
-            'last_name' => ['required','string'],
-            'email' => ['required','string','email'],
-            'phone' => ['required','string','max:14'],
-            'shipping_address_id' => ['required','integer', 'exists:user_shipping_addresses,id'],
+
+            'first_name' => ['required', 'string'],
+            'last_name' => ['required', 'string'],
+            'email' => ['required', 'string', 'email'],
+            'phone' => ['required', 'string', 'max:14'],
+            'shipping_address_id' => ['required', 'integer', 'exists:user_shipping_addresses,id'],
+            'currency_code' => ['required', 'string', Rule::enum(CurrencyType::class)],
+            'payment_gateway' => ['required', 'string', Rule::enum(PaymentGatewayEnum::class)],
+
         ];
-
     }
-
-
-
-
 }
