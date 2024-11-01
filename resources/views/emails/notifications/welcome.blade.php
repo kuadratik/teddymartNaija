@@ -1,9 +1,9 @@
 @component('mail::message')
-# Welcome to Eki!
+# Welcome to myEKI!
 
 Hi {{ $notifiable->first_name }},
 
-We're thrilled to have you join **EKI** and can't wait to showcase your products and services to customers. You are already on your way to creating stunning visual products that will captivate them.
+We're thrilled to have you join **myEKI** and can't wait to showcase your products and services to customers. You are already on your way to creating stunning visual products that will captivate them.
 
 Whether you're here to promote your brand, support a cause, or simply share your creations — welcome! We are here to guide your product presentation and uploads every step of the way.
 

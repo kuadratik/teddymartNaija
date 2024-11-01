@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\OrderStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string('status')->after('total_amount')->nullable()->default(OrderStatusEnum::INPROGRESS)->index();
+            $table->string('uid')->nullable()->after('id')->unique();
+            $table->string('payment_status')->nullable()->after('status')->index();
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('status');
+            $table->dropColumn(['uid', 'payment_status']);
         });
     }
 };

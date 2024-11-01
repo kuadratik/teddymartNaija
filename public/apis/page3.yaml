@@ -251,61 +251,6 @@ paths:
               schema:
                 type: object
 
-  /front/cart/{cart}/order:
-    post:
-      tags:
-        - Cart
-      summary: order cart
-      description: order cart
-      operationId: OrderCart
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: header
-          name: session-uid
-          schema:
-            type: string
-            example:
-          required: true
-        - in: path
-          name: cart
-          schema:
-            type: string
-            example: "1"
-          required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                first_name:
-                  type: string
-                  example: "Teddy"
-                  required: true
-                last_name:
-                  type: string
-                  example: "Edwardson"
-                  required: true
-                email:
-                  type: string
-                  example: "teddyedward@teddyed.com"
-                  required: true
-                phone:
-                  type: string
-                  example: "2348012345678"
-                  required: true,
-                shipping_address_id:
-                  type: integer
-                  example: 1
-                  required: true
-      responses:
-        default:
-          description: "success"
-          content:
-            application/json:
-              schema:
-                type: object
 
   /front/order:
     get:
@@ -481,3 +426,71 @@ paths:
             application/json:
               schema:
                 type: object
+
+
+  /front/cart/{cart}/payment:
+    post:
+      tags:
+        - Payment
+      summary: make payment for cart order
+      description: make payment for cart order
+      operationId: MakePayment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: path
+          name: cart
+          schema:
+            type: string
+            example: "1"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment_gateway:
+                  type: string
+                  example: "paypal"
+                  required: true
+                  description: "selected payment gateway (paystack,paypal,stripe)"
+                currency_code:
+                  type: string
+                  example: "USD"
+                  required: true
+                'first_name':
+                  type: string
+                  example: "Teddy"
+                  required: true
+                'last_name':
+                  type: string
+                  example: "Edwardson"
+                  required: true
+                'email':
+                  type: string
+                  example: "teddyedward@teddyed.com"
+                  required: true
+                'phone':
+                  type: string
+                  example: "2348012345678"
+                  required: true
+                shipping_address_id:
+                  type: integer
+                  example: 1
+                  required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
