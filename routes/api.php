@@ -1,11 +1,8 @@
 <?php
 
-use App\Enums\PaymentGatewayEnum;
-use App\Http\Controllers\AdvertsController;
 use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\Common\CountryController;
+use App\Http\Controllers\Front\BusinessListingController;
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\PaymentController;
@@ -101,8 +98,9 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
-    Route::prefix('adverts')->group(function () {
-        Route::post('/create', [AdvertsController::class, 'create']);
+    Route::prefix('business-listings')->group(function () {
+        Route::get('/', [BusinessListingController::class, 'index']);
+        Route::post('create', [BusinessListingController::class, 'create']);
     });
 
     Route::prefix('front')->group(function () {
@@ -135,14 +133,11 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-
-
 Route::post('webhook/{gateway}', [WebhookController::class, 'handleWebhook'])
     ->middleware('verifyWebhookSignature:{gateway}');
 
 Route::get('payment/success', [PaymentController::class, 'paypalSuccess'])->name('payment.success');
 Route::get('payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
-
 
 Route::prefix('console')->group(function () {
 });
