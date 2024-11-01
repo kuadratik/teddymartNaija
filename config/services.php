@@ -38,6 +38,24 @@ return [
     'inquiry' => [
         'email' => env('INQUIRY_EMAIL', 'inquiries@myeki.market'),
     ],
+
+    'stripe' => [
+        'secret_key' => env('STRIPE_SECRET_KEY'),
+    ],
+
+    'paypal' => [
+        'client_id' => env('PAYPAL_CLIENT_ID'),
+        'client_secret' => env('PAYPAL_CLIENT_SECRET'),
+        'webhook_id' => env('PAYPAL_WEBHOOK_ID'),
+    ],
+
+    'paystack' => [
+        'secret_key' => env('PAYSTACK_SECRET_KEY'),
+        'public_key' => env('PAYSTACK_PUBLIC_KEY'),
+        'payment_url' => env('PAYSTACK_PAYMENT_URL'),
+        'merchant_email' => env('MERCHANT_EMAIL'),
+    ],
+
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),

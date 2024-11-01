@@ -24,6 +24,13 @@ class Order extends Model
         'type',
         'order_number',
         'total_amount',
+        'uid',
+        'payment_status',
+        'shipping_cost',
+        'subtotal',
+        'type',
+        'status',
+        'currency'
     ];
 
 
@@ -59,7 +66,6 @@ class Order extends Model
         return $this->belongsTo(Clip::class);
     }
 
-
     /**
      * Get the full name of the user.
      *
@@ -69,7 +75,6 @@ class Order extends Model
     {
         return $this->first_name . ' ' . $this->last_name;
     }
-
 
     /**
      * Get the full name of the store user.
@@ -87,6 +92,15 @@ class Order extends Model
     public function shippingAddress()
     {
         return $this->belongsToMany(UserShippingAddress::class, 'order_shipping_address', 'order_id', 'shipping_address_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the Payment for the order
+     */
+    public function payments()
+    {
+        return $this->belongsToMany(Payment::class, 'order_payment')
             ->withTimestamps();
     }
 }
