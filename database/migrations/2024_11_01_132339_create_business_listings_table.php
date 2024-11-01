@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->index();
             $table->string('business_name')->index();
-            $table->string('business_slug')->index();
+            $table->string('business_slug')->unique();
             $table->longText('business_description')->nullable();
             $table->string('business_email')->nullable();
             $table->longText('business_address')->nullable();
