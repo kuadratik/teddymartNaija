@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\PaymentGatewayEnum;
+use App\Http\Controllers\AdvertsController;
 use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
@@ -100,6 +101,10 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
+    Route::prefix('adverts')->group(function () {
+        Route::post('/create', [AdvertsController::class, 'create']);
+    });
+
     Route::prefix('front')->group(function () {
         Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
         Route::post('file-delete', [GeneralController::class, 'deleteTempFiles']);
@@ -139,4 +144,5 @@ Route::get('payment/success', [PaymentController::class, 'paypalSuccess'])->name
 Route::get('payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
 
-Route::prefix('console')->group(function () {});
+Route::prefix('console')->group(function () {
+});
