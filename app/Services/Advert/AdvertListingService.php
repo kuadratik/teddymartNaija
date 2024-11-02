@@ -29,6 +29,7 @@ class AdvertListingService
      */
     public function create(array $attributes): AdvertListing
     {
+
         return DB::transaction(function () use ($attributes) {
             $mediaPaths = $attributes['media'] ?? [];
             unset($attributes['media']);
@@ -147,6 +148,9 @@ class AdvertListingService
         ]);
     }
 
+
+
+
     /**
      * Check and update expired promotions
      */
@@ -156,5 +160,17 @@ class AdvertListingService
             ->where('status', PaymentStatusEnum::SUCCESS->value)
             ->where('expires_at', '<=', now())
             ->update(['status' => 'expired']);
+    }
+
+
+
+
+
+    /**
+     * Get advert promotion plans based on the provided currency.
+     */
+    public function getAdvertPlans($currency)
+    {
+        return AdvertPromotePlan::where('currency', $currency)->get();
     }
 }

@@ -18,8 +18,8 @@ class MediaService
         foreach ($media as $mediaItem) {
             $mediaRecords[] = $this->createMediaRecord(
                 $advertListingId,
-                $mediaItem['path'],
-                $this->determineMediaType($mediaItem['type'])
+                $mediaItem,
+                $this->determineMediaType($mediaItem)
             );
         }
 

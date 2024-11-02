@@ -48,15 +48,6 @@ class AdvertListing extends Model
         return $this->belongsTo(Category::class);
     }
 
-    /**
-     * Get the promote plan associated with the advert listing.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function promotePlan()
-    {
-        return $this->belongsTo(AdvertPromotePlan::class);
-    }
 
     /**
      * Get the media associated with the advert listing.

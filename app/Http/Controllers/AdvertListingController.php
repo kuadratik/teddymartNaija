@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CurrencyType;
 use App\Http\Requests\Advert\PostAdvertRequest;
 use App\Models\AdvertListing;
 use App\Services\Advert\AdvertListingService;
@@ -22,5 +23,18 @@ class AdvertListingController extends Controller
     {
         $listing = $this->advertListingService->create($request->postAdvertAttributes());
         return  $this->success();
+    }
+
+
+    /**
+     * Get the available advert plans..
+     *
+     * @return mixed The available advert plans.
+     */
+    public function getAdvertPlans(Request $request)
+    {
+        $currency = $request->header('currency', CurrencyType::USD->value);
+        $plans = $this->advertListingService->getAdvertPlans($currency);
+        return $this->success($plans);
     }
 }
