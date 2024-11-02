@@ -59,6 +59,7 @@ Route::prefix('front')->group(function () {
     Route::prefix('stores')->group(function () {
         Route::get('/', [StoresController::class, 'getStores']);
         Route::get('recommended-stores', [StoresController::class, 'getRecommendedStores']);
+        Route::get('grouped-alpha-numeric' , [StoresController::class , 'getStoresAlphaNumerically']);
         Route::get('popular-recommended-stores', [StoresController::class, 'getPopularRecommendedStores']);
         Route::post('{store}/add-view', [StoresController::class, 'addStoreViewsCount']);
         Route::get('{store}/listings', [StoresController::class, 'showStoreListing']);
