@@ -35,6 +35,9 @@ RUN pecl install pcov && docker-php-ext-enable pcov
 # Install swoole
 RUN pecl install swoole && docker-php-ext-enable swoole
 
+# Install FFmpeg
+RUN apt-get install -y ffmpeg
+
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 ENV COMPOSER_ALLOW_SUPERUSER 1
