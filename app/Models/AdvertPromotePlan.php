@@ -23,13 +23,17 @@ class AdvertPromotePlan extends Model
     ];
 
 
+
+
     /**
      * Get all Advert Listings for this  Advert Promotion Plan
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function advertListings()
+    public function listings()
     {
-        return $this->hasMany(AdvertListing::class);
+        return $this->belongsToMany(AdvertListing::class, 'advert_listing_promote_plans')
+        ->withPivot(['payment_id', 'status', 'started_at', 'expires_at'])
+        ->withTimestamps();
     }
 }

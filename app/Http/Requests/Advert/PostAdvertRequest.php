@@ -39,7 +39,8 @@ class PostAdvertRequest extends FormRequest
             'phone_number' => ['required', 'string', 'max:20'],
             'country_code' => ['required', 'string', 'max:4'],
             'promote_plan_id' => ['required', 'exists:advert_promote_plans,id'],
-            'media' => ['nullable', 'array'],
+            'media' => ['sometimes', 'array'],
+            'media.*' => ['string'],
         ];
     }
 
@@ -65,7 +66,11 @@ class PostAdvertRequest extends FormRequest
             [
                 'media' => $this->media(),
                 'user_id' => $this->user()->id,
+                'currency' => $this->header('currency', CurrencyType::USD)
             ]
         )->toArray();
     }
+
+
+
 }
