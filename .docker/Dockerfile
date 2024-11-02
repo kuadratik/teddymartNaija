@@ -9,7 +9,7 @@ COPY .docker/docker.conf /usr/local/etc/php-fpm.d/docker.conf
 # mix
 RUN apt-get update \
    && apt-get install -y build-essential zlib1g-dev default-mysql-client curl gnupg procps nano git unzip libzip-dev libpq-dev \
-   && docker-php-ext-install zip pdo_mysql pdo_pgsql pgsql bcmath sockets pnctl
+   && docker-php-ext-install zip pdo_mysql pdo_pgsql pgsql bcmath sockets pcntl
 
 # Install intl
 RUN apt-get install -y libicu-dev \
