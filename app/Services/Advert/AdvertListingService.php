@@ -9,6 +9,7 @@ use App\Enums\PaymentStatusEnum;
 use App\Enums\CurrencyType;
 use App\Models\User;
 use App\Services\Media\MediaService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -165,5 +166,68 @@ class AdvertListingService
     public function getAdvertPlans($currency)
     {
         return AdvertPromotePlan::where('currency', $currency)->get();
+    }
+
+
+
+    public function getUserAdverts(Request $request)
+    {
+        $ads = $request->user()->advertListings()
+            ->when($request->filled('status'), function ($query) use ($request) {
+                $query->whereHas('promotePlans', function ($q) use ($request) {
+                    $q->where('status', $request->status);
+                });
+            })
+            ->when($request->filled('category_id'), function ($query) use ($request) {
+                $query->where('category_id', $request->category_id);
+            })
+            ->when($request->filled('type'), function ($query) use ($request) {
+                $query->where('type', $request->type);
+            })
+
+            ->when($request->filled('price_min'), function ($query) use ($request) {
+                $query->where('price', '>=', $request->price_min);
+            })
+            ->when($request->filled('price_max'), function ($query) use ($request) {
+                $query->where('price', '<=', $request->price_max);
+            })
+            ->when($request->filled('state'), function ($query) use ($request) {
+                $query->where('state', 'like', '%' . $request->state . '%');
+            })
+
+            ->when($request->filled('created_after'), function ($query) use ($request) {
+                $query->whereDate('created_at', '>=', $request->created_after);
+            })
+            ->when($request->filled('created_before'), function ($query) use ($request) {
+                $query->whereDate('created_at', '<=', $request->created_before);
+            })
+
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('title', 'like', '%' . $request->search . '%')
+                        ->orWhere('description', 'like', '%' . $request->search . '%');
+                });
+            })
+            ->when($request->filled('sort'), function ($query) use ($request) {
+                $sortField = in_array($request->sort, ['created_at', 'price']) ? $request->sort : 'created_at';
+                $sortDirection = $request->filled('order') && $request->order === 'asc' ? 'asc' : 'desc';
+                $query->orderBy($sortField, $sortDirection);
+            }, function ($query) {
+                $query->latest();
+            });
+
+
+        $perPage = $request->input('per_page', 15);
+        $ads = $ads->paginate($perPage)->withQueryString();
+
+        return [
+            'data' => $ads->items(),
+            'pagination' => [
+                'current_page' => $ads->currentPage(),
+                'per_page' => $ads->perPage(),
+                'total' => $ads->total(),
+                'last_page' => $ads->lastPage()
+            ]
+        ];
     }
 }

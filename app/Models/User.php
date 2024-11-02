@@ -127,5 +127,15 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
 
+    /**
+     * Get all of the advertListings for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function advertListings(): HasMany
+    {
+        return $this->hasMany(AdvertListing::class);
+    }
+
 
 }

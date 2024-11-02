@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\CurrencyType;
 use App\Http\Requests\Advert\PostAdvertRequest;
 use App\Models\AdvertListing;
+use App\Models\User;
 use App\Services\Advert\AdvertListingService;
 use Illuminate\Http\Request;
 
@@ -36,5 +37,12 @@ class AdvertListingController extends Controller
         $currency = $request->header('currency', CurrencyType::USD->value);
         $plans = $this->advertListingService->getAdvertPlans($currency);
         return $this->success($plans);
+    }
+
+
+    public function getUserAdverts(Request $request)
+    {
+        $ads = $this->advertListingService->getUserAdverts($request);
+        return $this->success($ads);
     }
 }

@@ -616,3 +616,114 @@ paths:
             application/json:
               schema:
                 type: object
+
+
+  /front/advert:
+    get:
+      tags:
+        - Advertisement
+      summary: Get user advert listings
+      description: Retrieve a list of advert listings for the authenticated user with optional filters
+      operationId: GetUserAdvertListing
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: Session UID of the user
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code for display prices
+        - in: query
+          name: status
+          schema:
+            type: string
+          required: false
+          description: Status of the advert's promotion plan
+        - in: query
+          name: category_id
+          schema:
+            type: integer
+          required: false
+          description: Category ID to filter listings
+        - in: query
+          name: type
+          schema:
+            type: string
+          required: false
+          description: Type of the listing
+        - in: query
+          name: price_min
+          schema:
+            type: number
+            format: float
+          required: false
+          description: Minimum price filter
+        - in: query
+          name: price_max
+          schema:
+            type: number
+            format: float
+          required: false
+          description: Maximum price filter
+        - in: query
+          name: state
+          schema:
+            type: string
+          required: false
+          description: State or region to filter listings by location
+        - in: query
+          name: created_after
+          schema:
+            type: string
+            format: date
+          required: false
+          description: Filter listings created on or after this date (YYYY-MM-DD)
+        - in: query
+          name: created_before
+          schema:
+            type: string
+            format: date
+          required: false
+          description: Filter listings created on or before this date (YYYY-MM-DD)
+        - in: query
+          name: search
+          schema:
+            type: string
+          required: false
+          description: Keyword to search within titles and descriptions
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [created_at, price]
+          required: false
+          description: Field to sort by (created_at or price)
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+          required: false
+          description: Sort order, either asc or desc
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+          required: false
+          description: Number of items per page for pagination
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
