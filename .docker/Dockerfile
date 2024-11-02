@@ -42,7 +42,7 @@ RUN apt-get install -y ffmpeg
 RUN apt-get install -y libuv1-dev 
 
 # Install PECL extension for uv
-RUN pecl install uv && \
+RUN pecl install channel://pecl.php.net/uv-0.3.0 && \
    docker-php-ext-enable uv
 
 # Install composer
