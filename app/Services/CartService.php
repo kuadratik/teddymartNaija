@@ -3,30 +3,36 @@
 namespace App\Services;
 
 use App\Enums\ListingType;
+use App\Enums\OrderStatusEnum;
 use App\Http\Requests\Cart\StoreOrderRequest;
+use App\Http\Resources\OrderResource;
 use App\Models\Cart;
 use App\Models\Listing;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Support\Utils;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use App\Http\Resources\OrderResource;
-
-
 
 class CartService
 {
+
+
     /**
      * Get detailed cart information including total items and product details
      */
     public function getCartDetails(Request $request)
     {
-        $cart = $this->getCart($request)->load(['products']);
+        $currency = $request->header('currency', 'USD');
+        $cart = $this->getCart($request)->load(['products' => function ($query) use ($currency) {
+            $query->where('currency', $currency);
+        }]);
+
         $totalCartPrice = $cart->products->sum(function ($product) {
             return $product->pivot->quantity * $product->price;
         });
+
         $cartDetails = [
             'cart_id' => $cart->id,
             'total_items' => $cart->products->sum('pivot.quantity'),
@@ -46,7 +52,7 @@ class CartService
                     'store_name' => $product->store->name,
                     'store_slug' => $product->store->slug,
                 ];
-            })
+            }),
         ];
 
         return $cartDetails;
@@ -64,7 +70,7 @@ class CartService
         $cart = $this->getCart($request);
 
         $cart->products()->syncWithoutDetaching([
-            $product->id => ['quantity' => DB::raw('COALESCE(quantity, 0) + 1')]
+            $product->id => ['quantity' => DB::raw('COALESCE(quantity, 0) + 1')],
         ]);
 
         return $cart->fresh(['products']);
@@ -79,11 +85,12 @@ class CartService
 
         if ($request->quantity <= 0) {
             $cart->products()->detach($product->id);
+
             return $cart->fresh(['products']);
         }
 
         $cart->products()->syncWithoutDetaching([
-            $product->id => ['quantity' => $request->quantity]
+            $product->id => ['quantity' => $request->quantity],
         ]);
 
         return $cart->fresh(['products']);
@@ -96,12 +103,13 @@ class CartService
     {
         $cart = $this->getCart($request);
 
-        abort_if(!$cart->products->contains($product), 404, 'Product not found in the cart');
+        abort_if(! $cart->products->contains($product), 404, 'Product not found in the cart');
 
         $cart->products()->detach($product->id);
 
         if ($cart->products()->count() === 0) {
             $this->deleteCartById($cart->id);
+
             return [];
         }
 
@@ -116,90 +124,60 @@ class CartService
         $cart = $this->getCart($request);
         $cart->products()->detach();
         $this->deleteCartById($cart->id);
+
         return [];
     }
 
     /**
-     * Add product to wishlist from cart
+     * Get Payment data and create a pending order
+     * @todo add shipping price  to total
      */
-    public function addToWishlistFromCart(Request $request, Listing $product)
+    public function getOrderPaymentData(StoreOrderRequest $request, Cart $cart): array
     {
-        abort_if($product->type !== ListingType::PRODUCT->value, 400, 'The specified listing is not a product.');
-        abort_if(!$product->is_available, 400, 'The product is currently unavailable.');
+        $cart = Cart::findOrFail($cart->id);
+        $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
 
-        $user = $request->user();
+        foreach ($cartItems as $storeId => $items) {
+            $subtotal = $items->sum(function ($item) {
+                return $item->pivot->quantity * $item->price;
+            });
 
-        $wishlistExists = $user->wishlist()->where('listing_id', $product->id)->exists();
-        abort_if($wishlistExists, 422, 'The product is already in your wishlist.');
+            $totalAmount = $subtotal;
+            $orderNumber = Str::uuid()->toString();
 
-        $cart = $user->carts()
-            ->with('products')
-            ->whereHas('products', function ($query) use ($product) {
-                $query->where('listing_id', $product->id);
-            })
-            ->first();
+            $order = Order::create([
+                'store_id' => $storeId,
+                'user_id' => $request->user()->id,
+                'order_number' => $orderNumber,
+                'first_name' => $request->validated('first_name'),
+                'last_name' => $request->validated('last_name'),
+                'email' => $request->validated('email'),
+                'phone' => $request->validated('phone'),
+                'subtotal' => $subtotal,
+                'uid' => Str::uuid()->toString(),
+                'currency' => $items->first()?->store?->currency,
+                'total_amount' => $totalAmount,
+                'type' => ListingType::PRODUCT->value,
+                'status' => OrderStatusEnum::PENDING->value,
+                'payment_status' => OrderStatusEnum::PENDING_PAYMENT->value,
+            ]);
 
-        abort_if(!$cart, 404, 'The product is not found in your cart.');
+            $order->shippingAddress()->attach($request->validated('shipping_address_id'));
 
-        DB::transaction(function () use ($user, $product, $cart) {
-            $cart->products()->detach($product->id);
-            $user->wishlist()->attach($product->id);
-
-            if ($cart->products()->count() === 0) {
-                $cart->delete();
-            }
-        });
-
-        return 'Product added to wishlist successfully and removed from cart.';
-    }
-
-    /**
-     * Store users order and order details
-     */
-
-    public function createCartOrder(StoreOrderRequest $request, Cart $cart)
-    {
-        DB::transaction(function () use ($request, $cart) {
-            $cart = Cart::find($cart->id);
-
-            $cartItems = $cart->products()
-                ->with('store')
-                ->get()
-                ->groupBy('store_id');
-
-            foreach ($cartItems as $storeId => $items) {
-                $totalAmount = $items->sum(function ($item) {
-                    return $item->pivot->quantity * $item->price;
-                });
-
-                $customer = auth()->user();
-
-                $order = Order::create([
-                    'store_id' => $storeId,
-                    'user_id' => $customer->id,
-                    'order_number' => Str::uuid()->toString(),
-                    'first_name' => $request->validated('first_name'),
-                    'last_name' => $request->validated('last_name'),
-                    'email' => $request->validated('email'),
-                    'phone' => $request->validated('phone'),
-                    'total_amount' => $totalAmount,
-                    'type' => ListingType::PRODUCT->value,
+            foreach ($items as $item) {
+                OrderDetail::create([
+                    'order_id' => $order->id,
+                    'listing_id' => $item->id,
+                    'listing_name' => $item->name,
+                    'listing_price' => $item->price,
                 ]);
-
-                $order->shippingAddress()->attach($request->validated('shipping_address_id'));
-
-                foreach ($items as $item) {
-                    OrderDetail::create([
-                        'order_id' => $order->id,
-                        'listing_id' => $item->id,
-                        'listing_name' => $item->name,
-                        'listing_price' => $item->price,
-                    ]);
-                }
             }
 
-            $cart->products()->detach();
-        });
+
+            return collect($order)->merge([
+                'currency_code' => $request->validated('currency_code')
+            ])->toArray();
+        }
     }
 
     /**
@@ -215,10 +193,48 @@ class CartService
             ->where('type', ListingType::PRODUCT->value)
             ->when($status, fn($query) => $query->where('status', $status))
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->groupBy('order_number');
 
         return OrderResource::collection($orders);
     }
+
+
+
+    /**
+     * Add product to wishlist from cart
+     */
+    public function addToWishlistFromCart(Request $request, Listing $product)
+    {
+        abort_if($product->type !== ListingType::PRODUCT->value, 400, 'The specified listing is not a product.');
+        abort_if(! $product->is_available, 400, 'The product is currently unavailable.');
+
+        $user = $request->user();
+
+        $wishlistExists = $user->wishlist()->where('listing_id', $product->id)->exists();
+        abort_if($wishlistExists, 422, 'The product is already in your wishlist.');
+
+        $cart = $user->carts()
+            ->with('products')
+            ->whereHas('products', function ($query) use ($product) {
+                $query->where('listing_id', $product->id);
+            })
+            ->first();
+
+        abort_if(! $cart, 404, 'The product is not found in your cart.');
+
+        DB::transaction(function () use ($user, $product, $cart) {
+            $cart->products()->detach($product->id);
+            $user->wishlist()->attach($product->id);
+
+            if ($cart->products()->count() === 0) {
+                $cart->delete();
+            }
+        });
+
+        return 'Product added to wishlist successfully and removed from cart.';
+    }
+
 
     /**
      * Get the user's cart based on the provided request.
@@ -228,7 +244,7 @@ class CartService
         $sessionUid = $request->header('session-uid');
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return Cart::firstOrCreate(['session_uid' => $sessionUid]);
         }
 
@@ -254,8 +270,8 @@ class CartService
         foreach ($guestCart->products as $product) {
             $userCart->products()->syncWithoutDetaching([
                 $product->id => [
-                    'quantity' => DB::raw("COALESCE(quantity, 0) + {$product->pivot->quantity}")
-                ]
+                    'quantity' => DB::raw("COALESCE(quantity, 0) + {$product->pivot->quantity}"),
+                ],
             ]);
         }
     }

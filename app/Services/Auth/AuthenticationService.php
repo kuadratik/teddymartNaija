@@ -86,7 +86,7 @@ class AuthenticationService
             'password' => bcrypt(Str::random(16)),
         ]);
 
-        if ($user->exists && empty($user->google_id)) {
+        if (!$user->exists || empty($user->google_id)) {
             $user->google_id = $googleUser->getId();
             $user->save();
         }

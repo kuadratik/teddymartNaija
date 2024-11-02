@@ -3,12 +3,13 @@
 use App\Http\Controllers\AdvertListingController;
 use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\Common\CountryController;
+use App\Http\Controllers\Front\BusinessListingController;
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\StoresController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -98,6 +99,11 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
+    Route::prefix('business-listings')->group(function () {
+        Route::get('/', [BusinessListingController::class, 'index']);
+        Route::post('create', [BusinessListingController::class, 'create']);
+    });
+
     Route::prefix('front')->group(function () {
         Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
         Route::post('video-file-upload', [GeneralController::class, 'videoUploadTempFile']);
@@ -105,7 +111,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         Route::post('store/{store}/service/{listing}/order', [UserController::class, 'storeServiceEnquiry']);
         Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
-        Route::post('cart/{cart}/order', [CartController::class, 'storeCartOrder']);
+        Route::post('cart/{cart}/payment', [PaymentController::class, 'payOrder']);
+        Route::post('payment/{gateway}/verify', [PaymentController::class, 'verifyPayment']);
         Route::get('order', [CartController::class, 'getUserOrders']);
 
         Route::prefix('wishlist')->group(function () {
@@ -132,4 +139,11 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-Route::prefix('console')->group(function () {});
+Route::post('webhook/{gateway}', [WebhookController::class, 'handleWebhook'])
+    ->middleware('verifyWebhookSignature:{gateway}');
+
+Route::get('payment/success', [PaymentController::class, 'paypalSuccess'])->name('payment.success');
+Route::get('payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+
+Route::prefix('console')->group(function () {
+});
