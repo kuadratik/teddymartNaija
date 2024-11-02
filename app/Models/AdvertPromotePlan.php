@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CurrencyType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,8 +14,14 @@ class AdvertPromotePlan extends Model
         'name',
         'price',
         'description',
-        'duration_days'
+        'duration_days',
+        'currency'
     ];
+
+    protected $casts = [
+        'currency' => CurrencyType::class,
+    ];
+
 
     /**
      * Get all Advert Listings for this  Advert Promotion Plan

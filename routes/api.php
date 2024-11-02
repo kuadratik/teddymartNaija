@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdvertListingController;
 use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\Front\BusinessListingController;
@@ -105,6 +106,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('front')->group(function () {
         Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
+        Route::post('video-file-upload', [GeneralController::class, 'videoUploadTempFile']);
         Route::post('file-delete', [GeneralController::class, 'deleteTempFiles']);
         Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         Route::post('store/{store}/service/{listing}/order', [UserController::class, 'storeServiceEnquiry']);
@@ -129,6 +131,10 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('shipping-address/create', [CartController::class, 'storeShippingAddress']);
             Route::get('shipping-address', [UserController::class, 'savedShippingAddresses']);
             Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
+        });
+
+        Route::prefix('advert')->group(function () {
+            Route::post('create', [AdvertListingController::class, 'postAdvert']);
         });
     });
 });

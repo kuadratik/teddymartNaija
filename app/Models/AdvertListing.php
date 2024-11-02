@@ -2,21 +2,27 @@
 
 namespace App\Models;
 
+use App\Enums\ListingType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AdvertListing extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
+        'type',
         'title',
+        'quantity',
         'category_id',
         'condition',
         'description',
         'price_on_request',
         'price',
-        'location',
+        'country_id',
+        'state',
         'country_code',
         'phone_number',
         'promote_plan_id',
@@ -24,6 +30,8 @@ class AdvertListing extends Model
 
     protected $casts = [
         'price_on_request' => 'boolean',
+        'quantity' => 'integer',
+        'type' => ListingType::class,
     ];
 
     /**
@@ -54,5 +62,15 @@ class AdvertListing extends Model
     public function media()
     {
         return $this->hasMany(AdvertMedia::class);
+    }
+
+    /**
+     * Get the user that owns the AdvertListing
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

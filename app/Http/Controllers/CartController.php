@@ -76,15 +76,6 @@ class CartController extends Controller
         return $this->success($data->fresh());
     }
 
-    /**
-     *  create order
-     */
-    public function storeCartOrder(StoreOrderRequest $request, Cart $cart)
-    {
-        $data = $this->cartService->createCartOrder($request, $cart);
-
-        return $this->success();
-    }
 
     /**
      * Get user orders
