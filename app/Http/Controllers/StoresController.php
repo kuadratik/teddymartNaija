@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\FetchStoresAlphaNumericallyAction;
 use App\Actions\RecordCategoryInteractionsAction;
 use App\Http\Requests\Store\CreateStoreRequest;
 use App\Http\Requests\Store\UpdateStoreRequest;
@@ -9,6 +10,7 @@ use App\Jobs\RecordCategoryInteractions;
 use App\Models\Store;
 use App\Services\Auth\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 
@@ -34,10 +36,10 @@ class StoresController extends Controller
     {
         $stores = Store::query()->byListingType($request->listingType)->when(
             $request->search,
-            fn($query) => $query->search($request->search)
+            fn ($query) => $query->search($request->search)
         )->when(
             $request->category,
-            fn($query) => $query->byCategory($request->category)
+            fn ($query) => $query->byCategory($request->category)
         )->get();
 
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
@@ -95,6 +97,20 @@ class StoresController extends Controller
             ->get();
 
         return $this->success($store);
+    }
+
+    public function getStoresAlphaNumerically(Request $request)
+    {
+        $currency = $request->header('currency', 'USD');
+        $stores = Cache::get($currency);
+
+        if (!$stores) {
+            $stores = (new FetchStoresAlphaNumericallyAction())->fetch($currency);
+            $cacheKey = "currency_data:{$currency}";
+            Cache::put($cacheKey, $stores);
+        }
+
+        return $stores;
     }
 
     /**

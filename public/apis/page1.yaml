@@ -980,6 +980,31 @@ paths:
               schema:
                 type: object
 
+  /front/stores/grouped-alpha-numeric:
+     get:
+        security:
+          - bearerAuth: []
+        tags:
+          - Stores
+        summary: Get Stores In Alphanumerical Order
+        description: 'GetStoresInAlphanumericalOrder'
+        operationId: GetStoresInAlphanumericalOrder
+        parameters:
+          - name: country
+            in: header
+            required: true
+            schema:
+              type: string
+              example: "United States"
+
+        responses:
+          default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
+
   /front/stores/{store}/listings/{listing}:
     get:
       security:
