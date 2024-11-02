@@ -1,10 +1,9 @@
 <?php
 
-use App\Enums\PaymentGatewayEnum;
+use App\Http\Controllers\AdvertListingController;
 use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\Common\CountryController;
+use App\Http\Controllers\Front\BusinessListingController;
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\PaymentController;
@@ -100,8 +99,14 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
+    Route::prefix('business-listings')->group(function () {
+        Route::get('/', [BusinessListingController::class, 'index']);
+        Route::post('create', [BusinessListingController::class, 'create']);
+    });
+
     Route::prefix('front')->group(function () {
         Route::post('file-upload', [GeneralController::class, 'uploadTempFile']);
+        Route::post('video-file-upload', [GeneralController::class, 'videoUploadTempFile']);
         Route::post('file-delete', [GeneralController::class, 'deleteTempFiles']);
         Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         Route::post('store/{store}/service/{listing}/order', [UserController::class, 'storeServiceEnquiry']);
@@ -127,10 +132,14 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('shipping-address', [UserController::class, 'savedShippingAddresses']);
             Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         });
+
+        Route::prefix('advert')->group(function () {
+            Route::post('create', [AdvertListingController::class, 'postAdvert']);
+            Route::get('plans', [AdvertListingController::class, 'getAdvertPlans']);
+            Route::get('/', [AdvertListingController::class, 'getUserAdverts']);
+        });
     });
 });
-
-
 
 Route::post('webhook/{gateway}', [WebhookController::class, 'handleWebhook'])
     ->middleware('verifyWebhookSignature:{gateway}');
@@ -138,5 +147,5 @@ Route::post('webhook/{gateway}', [WebhookController::class, 'handleWebhook'])
 Route::get('payment/success', [PaymentController::class, 'paypalSuccess'])->name('payment.success');
 Route::get('payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
-
-Route::prefix('console')->group(function () {});
+Route::prefix('console')->group(function () {
+});

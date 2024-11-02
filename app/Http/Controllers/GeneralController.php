@@ -7,6 +7,7 @@ use App\Http\Requests\ContactUsRequest;
 use Illuminate\Http\Request;
 use App\Support\Utils;
 use App\Http\Requests\Store\UploadTempFileRequest;
+use App\Http\Requests\Store\VideoUploadTempFileRequest;
 use App\Models\Category;
 use App\Notifications\ContactUsNotification;
 use Illuminate\Support\Facades\Notification;
@@ -24,6 +25,16 @@ class GeneralController extends Controller
         $path = Utils::uploadTemporary($request->validated('images'));
         return $this->success($path);
     }
+    /**
+     * upload temp file to spaces
+     */
+    public function videoUploadTempFile(VideoUploadTempFileRequest $request)
+    {
+        $path = Utils::uploadTemporary($request->validated('videos'));
+        return $this->success($path);
+    }
+
+
 
 
     /**
