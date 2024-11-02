@@ -27,7 +27,7 @@ class PostAdvertRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => ['required', 'enum:' . ListingType::class],
+            'type' => ['required', Rule::enum(ListingType::class)],
             'title' => ['required', 'string', 'max:255'],
             'category_id' => ['required', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
             'quantity' => ['nullable', 'integer'],
@@ -39,7 +39,8 @@ class PostAdvertRequest extends FormRequest
             'phone_number' => ['required', 'string', 'max:20'],
             'country_code' => ['required', 'string', 'max:4'],
             'promote_plan_id' => ['required', 'exists:advert_promote_plans,id'],
-            'media' => ['nullable', 'array'],
+            'media' => ['required', 'array'],
+            'media.*' => ['string'],
         ];
     }
 
@@ -61,11 +62,16 @@ class PostAdvertRequest extends FormRequest
      */
     public function postAdvertAttributes(): array
     {
+
         return collect($this->safe()->except(['media']))->merge(
             [
                 'media' => $this->media(),
                 'user_id' => $this->user()->id,
+                'currency' => $this->header('currency', CurrencyType::USD->value)
             ]
         )->toArray();
     }
+
+
+
 }

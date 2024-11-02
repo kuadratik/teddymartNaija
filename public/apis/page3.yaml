@@ -465,19 +465,19 @@ paths:
                   type: string
                   example: "USD"
                   required: true
-                'first_name':
+                first_name:
                   type: string
                   example: "Teddy"
                   required: true
-                'last_name':
+                last_name:
                   type: string
                   example: "Edwardson"
                   required: true
-                'email':
+                email:
                   type: string
                   example: "teddyedward@teddyed.com"
                   required: true
-                'phone':
+                phone:
                   type: string
                   example: "2348012345678"
                   required: true
@@ -494,3 +494,125 @@ paths:
                 type: object
 
 
+
+  /front/advert/create:
+    post:
+      tags:
+        - Advertisement
+      summary: Create advert listing
+      description: Create advert listing
+      operationId: CreateAdvert
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Teddy's Yams"
+                  required: true
+                description:
+                  type: string
+                  example: "Teddy's Yams"
+                  required: true
+                quantity:
+                  type: integer
+                  example: 100
+                  required: true
+                category_id:
+                  type: integer
+                  example: 1
+                  required: true
+                type:
+                  type: string
+                  example: "product"
+                  required: true
+                price_on_request:
+                  type: boolean
+                  example: false
+                  required: true
+                price:
+                  type: number
+                  example: 1000
+                  required: false
+                media:
+                  type: array
+                  items:
+                    type: string
+                    description: media file paths
+                    example: ""
+                state:
+                  type: string
+                  example: "Lagos"
+                  required: true
+                country_id:
+                  type: integer
+                  example: 1
+                  required: true
+                phone_number:
+                  type: string
+                  example: "2348012345678"
+                  required: true
+                promote_plan_id:
+                  type: integer
+                  example: 9
+                  required: true
+                country_code:
+                  type: string
+                  example: "NG"
+                  required: true
+
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/plans:
+    get:
+      tags:
+        - Advertisement
+      summary: get advert listing plans
+      description: get advert listing plans
+      operationId: GetAdvertListingPlans
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object

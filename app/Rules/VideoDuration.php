@@ -25,7 +25,7 @@ class VideoDuration implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (in_array($value->getClientOriginalExtension(), ['mp4', 'mov', 'avi'])) {
+        if (in_array($value->getClientOriginalExtension(), ['mp4', 'mov', 'avi', 'webm'])) {
             $ffmpeg = FFMpeg::create();
             $video = $ffmpeg->open($value->getPathname());
             $format = $video->getFormat();
