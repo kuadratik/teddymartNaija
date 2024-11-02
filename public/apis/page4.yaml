@@ -32,6 +32,12 @@ paths:
             type: string
             example: ""
           required: false
+        - in: query
+          name: category
+          schema:
+            type: number
+            example: ""
+          required: false
       responses:
         default:
           description: "success"
