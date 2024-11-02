@@ -26,7 +26,6 @@ class AdvertListingController extends Controller
         return  $this->success();
     }
 
-
     /**
      * Get the available advert plans..
      *
@@ -39,10 +38,22 @@ class AdvertListingController extends Controller
         return $this->success($plans);
     }
 
-
+    /**
+     * Get the adverts for the current user.
+     *
+     */
     public function getUserAdverts(Request $request)
     {
         $ads = $this->advertListingService->getUserAdverts($request);
+        return $this->success($ads);
+    }
+
+    /**
+     * Get all adverts.
+     */
+    public function getAllAdverts(Request $request)
+    {
+        $ads = $this->advertListingService->getAllAdverts($request);
         return $this->success($ads);
     }
 }
