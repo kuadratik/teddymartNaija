@@ -137,6 +137,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('create', [AdvertListingController::class, 'postAdvert']);
             Route::get('plans', [AdvertListingController::class, 'getAdvertPlans']);
             Route::get('/', [AdvertListingController::class, 'getUserAdverts']);
+            Route::get('/gallery', [AdvertListingController::class, 'getAllAdverts']);
         });
     });
 });
