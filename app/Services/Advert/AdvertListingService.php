@@ -148,9 +148,6 @@ class AdvertListingService
         ]);
     }
 
-
-
-
     /**
      * Check and update expired promotions
      */
@@ -161,10 +158,6 @@ class AdvertListingService
             ->where('expires_at', '<=', now())
             ->update(['status' => 'expired']);
     }
-
-
-
-
 
     /**
      * Get advert promotion plans based on the provided currency.
