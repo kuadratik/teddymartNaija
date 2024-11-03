@@ -9,7 +9,7 @@ class FetchStoresAlphaNumericallyAction
 
     public function fetch(string $currency)
     {
-        $stores = Store::where('currency', $currency)->select('id', 'name', 'slug')
+        $stores = Store::where('currency', $currency)->select('id' ,'user_id', 'name', 'slug')
             ->get()->sortBy(function ($store) {
                 return $store->name[0];
             }, SORT_NATURAL | SORT_FLAG_CASE);
