@@ -986,16 +986,16 @@ paths:
           - bearerAuth: []
         tags:
           - Stores
-        summary: Get Stores In Alphanumerical Order
-        description: 'GetStoresInAlphanumericalOrder'
-        operationId: GetStoresInAlphanumericalOrder
+        summary: Get Stores In Alpha numeric Order
+        description: 'GetStoresInAlphaNumericOrder'
+        operationId: GetStoresInAlphaNumericOrder
         parameters:
-          - name: country
+          - name: currency
             in: header
             required: true
             schema:
               type: string
-              example: "United States"
+              example: "USD"
 
         responses:
           default:
