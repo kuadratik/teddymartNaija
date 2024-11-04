@@ -22,7 +22,7 @@ class AdvertListingController extends Controller
      */
     public function postAdvert(PostAdvertRequest $request)
     {
-        $listing = $this->advertListingService->create($request->postAdvertAttributes());
+        $listing = $this->advertListingService->create($request->postAdvertAttributes(), $request->validated('return_url'), $request->validated('cancel_url'));
         return  $this->success();
     }
 

@@ -6,6 +6,8 @@ use App\Enums\OrderStatusEnum;
 use App\Enums\PaymentGatewayEnum;
 use App\Enums\PaymentStatusEnum;
 use App\Enums\PaymentTransactionTypeEnum;
+use App\Enums\PaymentType;
+use App\Models\AdvertListing;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
@@ -163,12 +165,61 @@ class PayPalEventBus implements ShouldQueue
     private function processApprovedPayment(array $payload): void
     {
         $orderId = $this->extractOrderId($payload);
+        $paymentType = $this->extractPaymentType($payload);
+
         if (empty($orderId)) {
-            Log::warning('Order ID is missing or malformed', ['payload' => $payload]);
+            Log::warning('Failed payment: Order ID missing', ['payload' => $payload]);
             return;
         }
 
+        if ($paymentType == PaymentType::ADVERT->value) {
+            $advert = DB::table('advert_listing_promote_plans')->where('order_number', $orderId)->first();
+
+            if ($advert->isEmpty()) {
+                Log::error('No advert listing promotion found', ['order_number' => $orderId]);
+                return;
+            }
+
+            $paymentDetails = $this->extractPaymentDetails($payload);
+
+            DB::transaction(
+                function () use ($advert, $paymentDetails, $payload) {
+
+                    $payment = Payment::where('reference', $paymentDetails['reference'])->first();
+
+                    if (!$payment) {
+
+                        $payment = Payment::create([
+                            'reference' => $paymentDetails['reference'],
+                            'amount' => $paymentDetails['amount'],
+                            'currency' => $paymentDetails['currency'],
+                            'gateway' => PaymentGatewayEnum::PAYPAL->value,
+                            'status' => PaymentStatusEnum::SUCCESS,
+                            'description' => "paypal Payment for ads"
+                        ]);
+                    }
+
+                    $advert->update([
+                        'status' => OrderStatusEnum::ACTIVE->value,
+                        'started_at' => now(),
+                    ]);
+
+                    PaymentTransaction::create([
+                        'payment_id' => $payment->id,
+                        'reference' => $paymentDetails['reference'],
+                        'type' => PaymentTransactionTypeEnum::CHARGE,
+                        'amount' => $payment->amount,
+                        'currency' => $payment->currency,
+                        'is_success' => true,
+                        'status_message' => 'APPROVED',
+                        'response_payload' => json_encode($payload),
+                    ]);
+                }
+            );
+        }
+
         $orders = Order::where('order_number', $orderId)->get();
+
         if ($orders->isEmpty()) {
             Log::error('No orders found', ['order_number' => $orderId]);
             return;
@@ -233,9 +284,13 @@ class PayPalEventBus implements ShouldQueue
     private function processFailedPayment(array $payload): void
     {
         $orderId = $this->extractOrderId($payload);
+        $paymentType = $this->extractPaymentType($payload);
         if (empty($orderId)) {
             Log::warning('Failed payment: Order ID missing', ['payload' => $payload]);
             return;
+        }
+
+        if ($paymentType == PaymentType::ADVERT->value) {
         }
 
         $orders = Order::where('order_number', $orderId)->get();
@@ -328,9 +383,20 @@ class PayPalEventBus implements ShouldQueue
      */
     private function extractOrderId(array $payload): string
     {
-
-        return $payload['resource']['purchase_units'][0]['custom_id'] ?? '';
+        $customId = $payload['resource']['purchase_units'][0]['custom_id'] ?? '';
+        $customData = json_decode($customId, true);
+        return $customData['order_number'] ?? '';
     }
+    /**
+     * Extracts the payment type from the provided payload array.
+     */
+    private function extractPaymentType(array $payload): string
+    {
+        $customId = $payload['resource']['purchase_units'][0]['custom_id'] ?? '';
+        $customData = json_decode($customId, true);
+        return $customData['type'] ?? '';
+    }
+
 
 
     /**

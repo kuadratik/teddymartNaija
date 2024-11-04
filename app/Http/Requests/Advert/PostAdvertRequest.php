@@ -41,6 +41,8 @@ class PostAdvertRequest extends FormRequest
             'promote_plan_id' => ['required', 'exists:advert_promote_plans,id'],
             'media' => ['required', 'array'],
             'media.*' => ['string'],
+            'cancel_url' => ['sometimes', 'url'],
+            'return_url' => ['sometimes', 'url'],
         ];
     }
 
@@ -63,7 +65,7 @@ class PostAdvertRequest extends FormRequest
     public function postAdvertAttributes(): array
     {
 
-        return collect($this->safe()->except(['media']))->merge(
+        return collect($this->safe()->except(['media', 'return_url', 'cancel_url']))->merge(
             [
                 'media' => $this->media(),
                 'user_id' => $this->user()->id,
@@ -71,7 +73,4 @@ class PostAdvertRequest extends FormRequest
             ]
         )->toArray();
     }
-
-
-
 }

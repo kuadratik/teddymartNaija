@@ -77,7 +77,7 @@ class AdvertListing extends Model
     public function promotePlans()
     {
         return $this->belongsToMany(AdvertPromotePlan::class, 'advert_listing_promote_plans')
-            ->withPivot(['payment_id', 'status', 'started_at', 'expires_at'])
+            ->withPivot(['payment_id', 'status', 'started_at', 'expires_at', 'order_number'])
             ->withTimestamps();
     }
 
@@ -90,6 +90,4 @@ class AdvertListing extends Model
     {
         return $this->morphMany(Payment::class, 'payable');
     }
-
-
 }

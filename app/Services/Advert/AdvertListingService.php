@@ -7,8 +7,11 @@ use App\Models\AdvertPromotePlan;
 use App\Models\Payment;
 use App\Enums\PaymentStatusEnum;
 use App\Enums\CurrencyType;
+use App\Enums\OrderStatusEnum;
+use App\Enums\PaymentType;
 use App\Models\User;
 use App\Services\Media\MediaService;
+use App\Services\PaymentGateways\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
@@ -17,21 +20,21 @@ use Illuminate\Support\Facades\DB;
 class AdvertListingService
 {
 
-    protected $mediaService;
 
-    public function __construct(MediaService $mediaService)
+
+    public function __construct(protected MediaService $mediaService, private readonly PaymentService $paymentService)
     {
-        $this->mediaService = $mediaService;
+        //
     }
 
 
     /**
      * Create a new advert listing with promotion plan
      */
-    public function create(array $attributes): AdvertListing
+    public function create(array $attributes, string $return_url = null, string $cancel_url = null): AdvertListing
     {
 
-        return DB::transaction(function () use ($attributes) {
+        return DB::transaction(function () use ($attributes, $return_url, $cancel_url) {
             $mediaPaths = $attributes['media'] ?? [];
             unset($attributes['media']);
             $listing = $this->createListing($attributes);
@@ -40,7 +43,7 @@ class AdvertListingService
                 $this->mediaService->storeMedia($listing->id, $mediaPaths);
             }
 
-            $this->handlePromotion($listing, $attributes['promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD);
+            $this->handlePromotion($listing, $attributes['promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD, $return_url, $cancel_url);
 
             return $listing->load(['promotePlans', 'media']);
         });
@@ -57,12 +60,12 @@ class AdvertListingService
     /**
      * Handle the promotion plan assignment and payment if necessary
      */
-    private function handlePromotion(AdvertListing $listing, int $promotePlanId, string $currency): void
+    private function handlePromotion(AdvertListing $listing, int $promotePlanId, string $currency, string $return_url = null, string $cancel_url = null): void
     {
         $promotePlan = AdvertPromotePlan::findOrFail($promotePlanId);
 
         if ($promotePlan->price > 0) {
-            $this->handlePaidPromotion($listing, $promotePlan, $currency);
+            $this->handlePaidPromotion($listing, $promotePlan, $currency, $return_url, $cancel_url);
         } else {
             $this->handleFreePromotion($listing, $promotePlan);
         }
@@ -71,16 +74,17 @@ class AdvertListingService
     /**
      * Handle paid promotion plans
      */
-    private function handlePaidPromotion(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency): void
+    private function handlePaidPromotion(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null): void
     {
-        $payment = $this->createPayment($listing, $promotePlan, $currency);
 
         $listing->promotePlans()->attach($promotePlan->id, [
-            'payment_id' => $payment->id,
-            'status' => 'pending',
+            'status' => OrderStatusEnum::PENDING_PAYMENT,
+            'order_number'  => Str::uuid()->toString(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+         $init_payment = $this->createPayment($listing, $promotePlan, $currency, $return_url, $cancel_url);
+
     }
 
     /**
@@ -89,12 +93,14 @@ class AdvertListingService
     private function handleFreePromotion(AdvertListing $listing, AdvertPromotePlan $promotePlan): void
     {
         $startedAt = now();
+
         $expiresAt = $promotePlan->duration_days > 0
             ? $startedAt->copy()->addDays($promotePlan->duration_days)
             : null;
 
         $listing->promotePlans()->attach($promotePlan->id, [
-            'status' => 'active',
+            'status' => OrderStatusEnum::ACTIVE,
+            'order_number'  => Str::uuid()->toString(),
             'started_at' => $startedAt,
             'expires_at' => $expiresAt,
             'created_at' => now(),
@@ -103,23 +109,29 @@ class AdvertListingService
     }
 
     /**
-     * Create payment record for paid promotions
+     * Creates a payment order link for a given advert listing and promotion plan.
+     *
      */
-    private function createPayment(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency): Payment
+    private function createPayment(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null)
     {
-        return Payment::create([
-            'uuid' => Str::uuid(),
-            'payable_type' => AdvertListing::class,
-            'payable_id' => $listing->id,
-            'payer_type' => User::class,
-            'payer_id' => auth()->id(),
-            'amount' => $promotePlan->price,
-            'currency' => $currency,
-            'gateway' => config('payments.default_gateway'),
-            'description' => "Promotion plan {$promotePlan->name} for listing {$listing->title}",
-            'status' => PaymentStatusEnum::PENDING->value,
-        ]);
+        $orderNumber = $listing->promotePlans()
+            ->wherePivot('advert_promote_plan_id', $promotePlan->id)
+            ->value('order_number');
+
+        if ($currency !== CurrencyType::NGN->value) {
+            $paymentData = [
+                'currency_code' => $currency,
+                'total_amount' => $promotePlan->price,
+                'order_number' => $orderNumber,
+                'type' => PaymentType::ADVERT->value,
+                'return_url' => $return_url,
+                'cancel_url' => $cancel_url,
+            ];
+
+            $res = $this->paymentService->gateway('paypal')->initialize($paymentData);
+        }
     }
+
 
     /**
      * Update the promotion status after successful payment
@@ -159,6 +171,7 @@ class AdvertListingService
             ->where('expires_at', '<=', now())
             ->update(['status' => 'expired']);
     }
+
 
     /**
      * Get advert promotion plans based on the provided currency.
@@ -296,5 +309,4 @@ class AdvertListingService
             ]
         ];
     }
-
 }
