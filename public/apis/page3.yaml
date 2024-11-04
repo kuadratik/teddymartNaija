@@ -577,6 +577,14 @@ paths:
                   type: string
                   example: "NG"
                   required: true
+                return_url:
+                  type: string
+                  example: https://staging.eki.market"
+                  required: false
+                cancel_url:
+                  type: string
+                  example: "https://staging.eki.market"
+                  required: false
 
 
       responses:

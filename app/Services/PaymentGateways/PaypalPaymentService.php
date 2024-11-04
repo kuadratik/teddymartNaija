@@ -4,6 +4,7 @@ namespace App\Services\PaymentGateways;
 
 use App\Contracts\PaymentGatewayInterface;
 use App\Enums\PaymentGatewayEnum;
+use App\Enums\PaymentType;
 use App\Services\CartService;
 use Illuminate\Support\Facades\Log;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
@@ -29,8 +30,8 @@ class PaypalPaymentService implements PaymentGatewayInterface
         $response = $this->provider->createOrder([
             "intent" => "CAPTURE",
             "application_context" => [
-                "return_url" => route('payment.success'),
-                "cancel_url" => route('payment.cancel'),
+                "return_url" => $data['return_url'] ?? route('payment.success'),
+                "cancel_url" => $data['cancel_url'] ?? route('payment.cancel'),
             ],
             "purchase_units" => [
                 0 => [
@@ -38,7 +39,10 @@ class PaypalPaymentService implements PaymentGatewayInterface
                         "currency_code" => $data['currency_code'],
                         "value" => $data['total_amount']
                     ],
-                    'custom_id' => $data['order_number']
+                    "custom_id" => json_encode([
+                        'order_number' => $data['order_number'],
+                        'type' => $data['type'] ?? PaymentType::CHECKOUT->value,
+                    ]),
                 ]
             ]
         ]);
