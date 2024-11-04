@@ -31,7 +31,7 @@ class AdvertListingService
     /**
      * Create a new advert listing with promotion plan
      */
-    public function create(array $attributes, string $return_url = null, string $cancel_url = null): AdvertListing
+    public function create(array $attributes, string $return_url = null, string $cancel_url = null): array
     {
 
         return DB::transaction(function () use ($attributes, $return_url, $cancel_url) {
@@ -43,9 +43,12 @@ class AdvertListingService
                 $this->mediaService->storeMedia($listing->id, $mediaPaths);
             }
 
-            $this->handlePromotion($listing, $attributes['promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD, $return_url, $cancel_url);
+            $url = $this->handlePromotion($listing, $attributes['promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD, $return_url, $cancel_url);
 
-            return $listing->load(['promotePlans', 'media']);
+            return [
+                'listing' => $listing->load(['promotePlans', 'media']),
+                'url' => $url
+            ];
         });
     }
 
@@ -60,21 +63,21 @@ class AdvertListingService
     /**
      * Handle the promotion plan assignment and payment if necessary
      */
-    private function handlePromotion(AdvertListing $listing, int $promotePlanId, string $currency, string $return_url = null, string $cancel_url = null): void
+    private function handlePromotion(AdvertListing $listing, int $promotePlanId, string $currency, string $return_url = null, string $cancel_url = null)
     {
         $promotePlan = AdvertPromotePlan::findOrFail($promotePlanId);
 
         if ($promotePlan->price > 0) {
-            $this->handlePaidPromotion($listing, $promotePlan, $currency, $return_url, $cancel_url);
+           return $this->handlePaidPromotion($listing, $promotePlan, $currency, $return_url, $cancel_url);
         } else {
-            $this->handleFreePromotion($listing, $promotePlan);
+            return $this->handleFreePromotion($listing, $promotePlan);
         }
     }
 
     /**
      * Handle paid promotion plans
      */
-    private function handlePaidPromotion(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null): void
+    private function handlePaidPromotion(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null)
     {
 
         $listing->promotePlans()->attach($promotePlan->id, [
@@ -83,8 +86,8 @@ class AdvertListingService
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-         $init_payment = $this->createPayment($listing, $promotePlan, $currency, $return_url, $cancel_url);
-
+        $init_payment = $this->createPayment($listing, $promotePlan, $currency, $return_url, $cancel_url);
+        return $init_payment;
     }
 
     /**
@@ -129,6 +132,7 @@ class AdvertListingService
             ];
 
             $res = $this->paymentService->gateway('paypal')->initialize($paymentData);
+            return $res;
         }
     }
 

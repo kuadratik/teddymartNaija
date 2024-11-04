@@ -8,6 +8,7 @@ use App\Enums\PaymentStatusEnum;
 use App\Enums\PaymentTransactionTypeEnum;
 use App\Enums\PaymentType;
 use App\Models\AdvertListing;
+use App\Models\AdvertListingPromotePlan;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
@@ -173,9 +174,9 @@ class PayPalEventBus implements ShouldQueue
         }
 
         if ($paymentType == PaymentType::ADVERT->value) {
-            $advert = DB::table('advert_listing_promote_plans')->where('order_number', $orderId)->first();
+            $advert = AdvertListingPromotePlan::where('order_number', $orderId)->first();
 
-            if ($advert->isEmpty()) {
+            if (!$advert) {
                 Log::error('No advert listing promotion found', ['order_number' => $orderId]);
                 return;
             }
@@ -199,10 +200,13 @@ class PayPalEventBus implements ShouldQueue
                         ]);
                     }
 
-                    $advert->update([
-                        'status' => OrderStatusEnum::ACTIVE->value,
-                        'started_at' => now(),
-                    ]);
+
+
+                    $advert->status = OrderStatusEnum::ACTIVE->value;
+                    $advert->started_at = now();
+                    $advert->expires_at = now()->addDays($advert->advertPromotePlan->duration);
+                    $advert->payment_id = $payment->id;
+                    $advert->save();
 
                     PaymentTransaction::create([
                         'payment_id' => $payment->id,
@@ -216,65 +220,66 @@ class PayPalEventBus implements ShouldQueue
                     ]);
                 }
             );
-        }
+        } else {
 
-        $orders = Order::where('order_number', $orderId)->get();
+            $orders = Order::where('order_number', $orderId)->get();
 
-        if ($orders->isEmpty()) {
-            Log::error('No orders found', ['order_number' => $orderId]);
-            return;
-        }
-
-        $paymentDetails = $this->extractPaymentDetails($payload);
-
-
-        DB::transaction(function () use ($orders, $paymentDetails, $payload) {
-            $payment = Payment::where('reference', $paymentDetails['reference'])->first();
-
-            if (!$payment) {
-
-                $payment = Payment::create([
-                    'reference' => $paymentDetails['reference'],
-                    'amount' => $paymentDetails['amount'],
-                    'currency' => $paymentDetails['currency'],
-                    'gateway' => PaymentGatewayEnum::PAYPAL->value,
-                    'status' => PaymentStatusEnum::SUCCESS,
-                    'description' => "paypal Payment"
-                ]);
+            if ($orders->isEmpty()) {
+                Log::error('No orders found', ['order_number' => $orderId]);
+                return;
             }
 
+            $paymentDetails = $this->extractPaymentDetails($payload);
 
 
-            $orderNumbers = $orders->pluck('order_number')->toArray();
+            DB::transaction(function () use ($orders, $paymentDetails, $payload) {
+                $payment = Payment::where('reference', $paymentDetails['reference'])->first();
 
-            $enhancedPayload = array_merge($payload, [
-                'additional_data' => [
-                    'order_numbers' => $orderNumbers
-                ]
-            ]);
+                if (!$payment) {
 
-
-            foreach ($orders as $order) {
-                if (!$order->payments()->where('payment_id', $payment->id)->exists()) {
-                    $order->payments()->attach($payment->id);
+                    $payment = Payment::create([
+                        'reference' => $paymentDetails['reference'],
+                        'amount' => $paymentDetails['amount'],
+                        'currency' => $paymentDetails['currency'],
+                        'gateway' => PaymentGatewayEnum::PAYPAL->value,
+                        'status' => PaymentStatusEnum::SUCCESS,
+                        'description' => "paypal Payment"
+                    ]);
                 }
 
-                $order->payment_status = OrderStatusEnum::APPROVED_PAYMENT;
-                $order->status = OrderStatusEnum::INPROGRESS;
-                $order->save();
-            }
 
-            PaymentTransaction::create([
-                'payment_id' => $payment->id,
-                'reference' => $paymentDetails['reference'],
-                'type' => PaymentTransactionTypeEnum::CHARGE,
-                'amount' => $payment->amount,
-                'currency' => $payment->currency,
-                'is_success' => true,
-                'status_message' => 'APPROVED',
-                'response_payload' => json_encode($enhancedPayload),
-            ]);
-        });
+
+                $orderNumbers = $orders->pluck('order_number')->toArray();
+
+                $enhancedPayload = array_merge($payload, [
+                    'additional_data' => [
+                        'order_numbers' => $orderNumbers
+                    ]
+                ]);
+
+
+                foreach ($orders as $order) {
+                    if (!$order->payments()->where('payment_id', $payment->id)->exists()) {
+                        $order->payments()->attach($payment->id);
+                    }
+
+                    $order->payment_status = OrderStatusEnum::APPROVED_PAYMENT;
+                    $order->status = OrderStatusEnum::INPROGRESS;
+                    $order->save();
+                }
+
+                PaymentTransaction::create([
+                    'payment_id' => $payment->id,
+                    'reference' => $paymentDetails['reference'],
+                    'type' => PaymentTransactionTypeEnum::CHARGE,
+                    'amount' => $payment->amount,
+                    'currency' => $payment->currency,
+                    'is_success' => true,
+                    'status_message' => 'APPROVED',
+                    'response_payload' => json_encode($enhancedPayload),
+                ]);
+            });
+        }
     }
 
     /**
