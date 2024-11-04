@@ -110,7 +110,7 @@ class StoresController extends Controller
             Cache::put($cacheKey, $stores);
         }
 
-        return $stores;
+        return $this->success($stores);
     }
 
     /**
