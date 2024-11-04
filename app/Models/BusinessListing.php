@@ -30,6 +30,20 @@ class BusinessListing extends Model
     ];
 
     /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    public function casts(): array
+    {
+        return [
+            'show_business_description' => 'boolean',
+            'show_business_email' => 'boolean',
+            'show_business_address' => 'boolean',
+        ];
+    }
+
+    /**
      * The booted method of the model.
      */
     protected static function booted()
