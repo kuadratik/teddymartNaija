@@ -16,6 +16,8 @@ class BusinessListingController extends Controller
     {
         $businesses = BusinessListing::when($request->filled('search'))
             ->where('business_name', 'LIKE', "%{$request->search}%")
+            ->when($request->filled('category'))
+            ->where('category_id' , $request->category)
             ->paginate();
 
         return $this->success($businesses);

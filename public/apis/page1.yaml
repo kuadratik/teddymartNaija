@@ -980,6 +980,31 @@ paths:
               schema:
                 type: object
 
+  /front/stores/grouped-alpha-numeric:
+     get:
+        security:
+          - bearerAuth: []
+        tags:
+          - Stores
+        summary: Get Stores In Alpha numeric Order
+        description: 'GetStoresInAlphaNumericOrder'
+        operationId: GetStoresInAlphaNumericOrder
+        parameters:
+          - name: currency
+            in: header
+            required: true
+            schema:
+              type: string
+              example: "USD"
+
+        responses:
+          default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
+
   /front/stores/{store}/listings/{listing}:
     get:
       security:

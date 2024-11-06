@@ -9,7 +9,7 @@ COPY .docker/docker.conf /usr/local/etc/php-fpm.d/docker.conf
 # mix
 RUN apt-get update \
    && apt-get install -y build-essential zlib1g-dev default-mysql-client curl gnupg procps nano git unzip libzip-dev libpq-dev \
-   && docker-php-ext-install zip pdo_mysql pdo_pgsql pgsql bcmath
+   && docker-php-ext-install zip pdo_mysql pdo_pgsql pgsql bcmath sockets pcntl
 
 # Install intl
 RUN apt-get install -y libicu-dev \
@@ -34,6 +34,16 @@ RUN pecl install pcov && docker-php-ext-enable pcov
 
 # Install swoole
 RUN pecl install swoole && docker-php-ext-enable swoole
+
+# Install FFmpeg
+RUN apt-get install -y ffmpeg
+
+# Install dependencies for the uv extension
+RUN apt-get install -y libuv1-dev 
+
+# Install PECL extension for uv
+RUN pecl install channel://pecl.php.net/uv-0.3.0 && \
+   docker-php-ext-enable uv
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
