@@ -133,6 +133,17 @@ class AdvertListingService
 
             $res = $this->paymentService->gateway('paypal')->initialize($paymentData);
             return $res;
+        }else{
+            $paymentData = [
+                'currency_code' => $currency,
+                'total_amount' => $promotePlan->price,
+                'order_number' => $orderNumber,
+                'type' => PaymentType::ADVERT->value,
+                'return_url' => $return_url,
+                'cancel_url' => $cancel_url,
+            ];
+            $res = $this->paymentService->gateway('paystack')->initialize($paymentData);
+            return $res;
         }
     }
 
