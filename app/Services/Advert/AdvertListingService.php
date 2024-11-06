@@ -68,7 +68,7 @@ class AdvertListingService
         $promotePlan = AdvertPromotePlan::findOrFail($promotePlanId);
 
         if ($promotePlan->price > 0) {
-           return $this->handlePaidPromotion($listing, $promotePlan, $currency, $return_url, $cancel_url);
+            return $this->handlePaidPromotion($listing, $promotePlan, $currency, $return_url, $cancel_url);
         } else {
             return $this->handleFreePromotion($listing, $promotePlan);
         }
@@ -133,7 +133,7 @@ class AdvertListingService
 
             $res = $this->paymentService->gateway('paypal')->initialize($paymentData);
             return $res;
-        }else{
+        } else {
             $paymentData = [
                 'currency_code' => $currency,
                 'total_amount' => $promotePlan->price,
@@ -266,33 +266,37 @@ class AdvertListingService
      */
     public function getAllAdverts(Request $request)
     {
-        $query = AdvertListing::query()
-            ->when($request->filled('status'), function ($query) use ($request) {
-                $query->whereHas('promotePlans', function ($q) use ($request) {
-                    $q->where('status', $request->status);
-                });
-            })
-            ->when($request->filled('category_id'), function ($query) use ($request) {
-                $query->where('category_id', $request->category_id);
-            })
-            ->when($request->filled('type'), function ($query) use ($request) {
-                $query->where('type', $request->type);
-            })
-            ->when($request->filled('price_min'), function ($query) use ($request) {
-                $query->where('price', '>=', $request->price_min);
-            })
-            ->when($request->filled('price_max'), function ($query) use ($request) {
-                $query->where('price', '<=', $request->price_max);
-            })
-            ->when($request->filled('state'), function ($query) use ($request) {
-                $query->where('state', 'like', '%' . $request->state . '%');
-            })
-            ->when($request->filled('created_after'), function ($query) use ($request) {
-                $query->whereDate('created_at', '>=', $request->created_after);
-            })
-            ->when($request->filled('created_before'), function ($query) use ($request) {
-                $query->whereDate('created_at', '<=', $request->created_before);
-            })
+        $validated = $request->validate([
+            'category_id' => 'nullable|array',
+            'category_id.*' => 'integer|exists:categories,id',
+        ]);
+
+        $query = AdvertListing::query();
+
+
+
+        $query->when($request->filled('status'), function ($query) use ($request) {
+            $query->whereHas('promotePlans', function ($q) use ($request) {
+                $q->where('status', $request->status);
+            });
+        });
+
+        if ($request->filled('category_id')) {
+            $categoryIds = $validated['category_id'];
+
+            $query->where(function ($q) use ($categoryIds) {
+                foreach ($categoryIds as $categoryId) {
+                    $q->orWhere('category_id', $categoryId);
+                }
+            });
+        }
+
+        $query->when($request->filled('type'), fn($query) => $query->where('type', $request->type))
+            ->when($request->filled('price_min'), fn($query) => $query->where('price', '>=', $request->price_min))
+            ->when($request->filled('price_max'), fn($query) => $query->where('price', '<=', $request->price_max))
+            ->when($request->filled('state'), fn($query) => $query->where('state', 'like', '%' . $request->state . '%'))
+            ->when($request->filled('created_after'), fn($query) => $query->whereDate('created_at', '>=', $request->created_after))
+            ->when($request->filled('created_before'), fn($query) => $query->whereDate('created_at', '<=', $request->created_before))
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
                     $q->where('title', 'like', '%' . $request->search . '%')
