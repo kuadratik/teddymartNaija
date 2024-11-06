@@ -730,11 +730,13 @@ paths:
                 type: object
 
   /front/advert/gallery:
-    get:
+    post:
       tags:
         - Advertisement
       summary: Get all advert listings with filters and pagination
-      description: Retrieve all advert listings with optional filtering, sorting, and pagination options.
+      description: |
+        Retrieve all advert listings with optional filtering, sorting, and pagination options.
+        Filters include: status, category_id, type, price range, state, creation date, and search term.
       operationId: GetAllAdverts
       security:
         - bearerAuth: []
@@ -758,12 +760,6 @@ paths:
             type: string
           required: false
           description: Filter by promotion status.
-        - in: query
-          name: category_id
-          schema:
-            type: integer
-          required: false
-          description: Filter by category ID.
         - in: query
           name: type
           schema:
@@ -831,6 +827,16 @@ paths:
             default: 15
           required: false
           description: Number of listings per page.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category_id:
+                  type: array
+                  example: [1, 2, 3]
+                  required: false
       responses:
         default:
           description: "success"
@@ -838,3 +844,4 @@ paths:
             application/json:
               schema:
                 type: object
+
