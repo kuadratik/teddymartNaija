@@ -892,10 +892,10 @@ paths:
       operationId: GetStoreLists
       parameters:
         - in: header
-          name: interactUid
+          name: currency
           schema:
             type: string
-            example: ""
+            example: "USD"
           required: true
         - in: query
           name: listingType
