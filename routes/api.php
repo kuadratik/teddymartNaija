@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdvertListingController;
 use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ChatsController;
 use App\Http\Controllers\Front\BusinessListingController;
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
@@ -103,6 +104,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('business-listings')->group(function () {
         Route::get('/', [BusinessListingController::class, 'index']);
         Route::post('create', [BusinessListingController::class, 'create']);
+    });
+
+    Route::prefix('chats')->group( function () {
+        Route::post('start-conversation' , [ChatsController::class , 'startConversation']);
     });
 
     Route::prefix('front')->group(function () {
