@@ -1,4 +1,4 @@
-openapi: '3.0.0'
+openapi: "3.0.0"
 info:
   description: myEki apis
   version: 1.0.0
@@ -251,7 +251,6 @@ paths:
               schema:
                 type: object
 
-
   /front/order:
     get:
       tags:
@@ -342,7 +341,6 @@ paths:
               schema:
                 type: object
 
-
   /front/wishlist/remove/{product}:
     delete:
       tags:
@@ -427,7 +425,6 @@ paths:
               schema:
                 type: object
 
-
   /front/cart/{cart}/payment:
     post:
       tags:
@@ -492,8 +489,6 @@ paths:
             application/json:
               schema:
                 type: object
-
-
 
   /front/advert/create:
     post:
@@ -586,7 +581,6 @@ paths:
                   example: "https://staging.eki.market"
                   required: false
 
-
       responses:
         default:
           description: "success"
@@ -624,7 +618,6 @@ paths:
             application/json:
               schema:
                 type: object
-
 
   /front/advert:
     get:
@@ -845,3 +838,34 @@ paths:
               schema:
                 type: object
 
+  /front/advert/{advert}/gallery:
+    get:
+      tags:
+        - Advertisement
+      summary: Get advert gallery
+      description: Retrieve a list of media files for a specific advert
+      operationId: GetAdvertGallery
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+
+        - in: path
+          name: advert
+          schema:
+            type: integer
+          required: true
+          example: 1
+          description: The ID of the advert to retrieve the gallery for.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object

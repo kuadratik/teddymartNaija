@@ -7,6 +7,7 @@ use App\Enums\ListingType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class AdvertListing extends Model
 {
@@ -80,14 +81,20 @@ class AdvertListing extends Model
             ->withPivot(['payment_id', 'status', 'started_at', 'expires_at', 'order_number'])
             ->withTimestamps();
     }
-
     /**
-     * Get all the payments associated with this AdvertListing.
+     * Get the payment associated with this advert listing's promote plan.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
      */
-    public function payments()
+    public function payment(): HasOneThrough
     {
-        return $this->morphMany(Payment::class, 'payable');
+        return $this->hasOneThrough(
+            Payment::class,
+            AdvertListingPromotePlan::class,
+            'advert_listing_id',
+            'id',
+            'id',
+            'payment_id'
+        );
     }
 }

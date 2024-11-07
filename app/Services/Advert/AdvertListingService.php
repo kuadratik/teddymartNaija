@@ -271,9 +271,7 @@ class AdvertListingService
             'category_id.*' => 'integer|exists:categories,id',
         ]);
 
-        $query = AdvertListing::query();
-
-
+        $query = AdvertListing::with(['media', 'category', 'payment', 'promotePlans']);
 
         $query->when($request->filled('status'), function ($query) use ($request) {
             $query->whereHas('promotePlans', function ($q) use ($request) {
