@@ -280,7 +280,7 @@ class AdvertListingService
 
         $query->when($request->filled('status'), function ($query) use ($request) {
             $query->whereHas('promotePlans', function ($q) use ($request) {
-                $q->where('status', $request->status);
+                $q->where('advert_listing_promote_plans.status', $request->status);
             });
         });
 
@@ -288,30 +288,21 @@ class AdvertListingService
             $categoryIds = $validated['category_id'];
             $query->where(function ($q) use ($categoryIds) {
                 foreach ($categoryIds as $categoryId) {
-                    $q->orWhere('category_id', $categoryId);
+                    $q->orWhere('advert_listings.category_id', $categoryId);
                 }
             });
         }
 
-        $query->when($request->filled('type'), fn($query) => $query->where('type', $request->type))
-            ->when($request->filled('price_min'), fn($query) => $query->where('price', '>=', $request->price_min))
-            ->when($request->filled('price_max'), fn($query) => $query->where('price', '<=', $request->price_max))
-            ->when($request->filled('state'), fn($query) => $query->where('state', 'like', '%' . $request->state . '%'))
-            ->when($request->filled('created_after'), fn($query) => $query->whereDate('created_at', '>=', $request->created_after))
-            ->when($request->filled('created_before'), fn($query) => $query->whereDate('created_at', '<=', $request->created_before))
+        $query->when($request->filled('type'), fn($query) => $query->where('advert_listings.type', $request->type))
+            ->when($request->filled('price_min'), fn($query) => $query->where('advert_promote_plans.price', '>=', $request->price_min))
+            ->when($request->filled('price_max'), fn($query) => $query->where('advert_promote_plans.price', '<=', $request->price_max))
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
-                    $q->where('title', 'like', '%' . $request->search . '%')
-                        ->orWhere('description', 'like', '%' . $request->search . '%');
+                    $q->where('advert_listings.title', 'like', '%' . $request->search . '%')
+                        ->orWhere('advert_listings.description', 'like', '%' . $request->search . '%');
                 });
             })
-            ->when($request->filled('sort'), function ($query) use ($request) {
-                $sortField = in_array($request->sort, ['created_at', 'price']) ? $request->sort : 'created_at';
-                $sortDirection = $request->filled('order') && $request->order === 'asc' ? 'asc' : 'desc';
-                $query->orderBy($sortField, $sortDirection);
-            }, function ($query) {
-                $query->latest();
-            })
+
             ->when($request->hasHeader('currency'), function ($query) use ($request) {
                 $currency = $request->header('currency');
             $query->where('advert_listings.currency', $currency);
