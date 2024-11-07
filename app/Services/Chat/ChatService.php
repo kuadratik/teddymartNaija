@@ -26,7 +26,7 @@ class ChatService
 
         DB::beginTransaction();
         try {
-            $chat = Chat::firstOrCreate(['pr_check' => $details['identifier']], [
+            $chat = Chat::firstOrCreate(['identifier' => $details['identifier']], [
                 'uid' => Str::uuid(),
                 'user_id' => $user->id,
                 'user_type' => $user->user_type,

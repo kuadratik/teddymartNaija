@@ -14,10 +14,11 @@ class BusinessListingController extends Controller
      */
     public function index(Request $request)
     {
+
         $businesses = BusinessListing::when($request->filled('search'))
             ->where('business_name', 'LIKE', "%{$request->search}%")
             ->when($request->filled('category'))
-            ->where('category_id' , $request->category)
+            ->whereIn('category_id', explode(',', $request->category))
             ->paginate();
 
         return $this->success($businesses);

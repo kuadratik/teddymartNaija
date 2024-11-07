@@ -34,10 +34,15 @@ paths:
           required: false
         - in: query
           name: category
+          style: form
+          explode: false
           schema:
-            type: number
-            example: ""
-          required: false
+            type: array
+            items:
+              type: number
+              description: Filter by category
+              example: 1
+            required: false
       responses:
         default:
           description: "success"
