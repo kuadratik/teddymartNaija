@@ -76,7 +76,8 @@ Route::prefix('front')->group(function () {
 
     Route::prefix('advert')->group(function () {
         Route::get('plans', [AdvertListingController::class, 'getAdvertPlans']);
-        Route::post('/gallery', [AdvertListingController::class, 'getAllAdverts']);
+        Route::post('gallery', [AdvertListingController::class, 'getAllAdverts']);
+        Route::get('{advert}/gallery', [AdvertListingController::class, 'showAdvert']);
     });
 });
 
