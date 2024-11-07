@@ -29,6 +29,7 @@ class StoresController extends Controller
     }
 
 
+
     /**
      * Get stores with optional currency filter
      */
@@ -40,14 +41,13 @@ class StoresController extends Controller
             ->byListingType($request->listingType)
             ->when($request->search, fn($query) => $query->search($request->search))
             ->when($request->category, fn($query) => $query->byCategory($request->category))
-            ->whereHas('currency', function ($query) use ($currency) {
-                $query->where('code', $currency);
-            })
+            ->where('currency', $currency)
             ->get();
 
         // RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
         return $this->success($stores);
     }
+
 
 
     /**
