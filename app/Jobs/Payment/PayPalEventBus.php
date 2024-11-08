@@ -12,6 +12,7 @@ use App\Models\AdvertListingPromotePlan;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
+use App\Models\StorePromotePlanStore;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -136,8 +137,51 @@ class PayPalEventBus implements ShouldQueue
                     'response_payload' => json_encode($payload),
                 ]);
             });
+        } elseif ($paymentType == PaymentType::PROMOTION->value) {
+
+            $advert = StorePromotePlanStore::where('order_number', $orderId)->first();
+
+            if (!$advert) {
+                Log::error('No advert listing promotion found', ['order_number' => $orderId]);
+                return;
+            }
+            $paymentDetails = $this->extractPaymentDetails($payload);
+
+            DB::transaction(function () use ($advert, $paymentDetails, $payload) {
+                $payment = Payment::where('reference', $paymentDetails['reference'])->first();
+
+                if (!$payment) {
+                    $payment = Payment::create([
+                        'reference' => $paymentDetails['reference'],
+                        'amount' => $paymentDetails['amount'],
+                        'currency' => $paymentDetails['currency'],
+                        'gateway' => PaymentGatewayEnum::PAYPAL->value,
+                        'status' => PaymentStatusEnum::SUCCESS,
+                        'description' => "PayPal Payment for promotion"
+                    ]);
+                }
+
+                $advert->status = OrderStatusEnum::ACTIVE->value;
+                $advert->started_at = now();
+                $advert->expires_at = now()->addDays($advert->storePromotePlan->duration);
+                $advert->payment_id = $payment->id;
+                $advert->save();
+
+                PaymentTransaction::create([
+                    'payment_id' => $payment->id,
+                    'reference' => $paymentDetails['reference'],
+                    'type' => PaymentTransactionTypeEnum::CHARGE,
+                    'amount' => $payment->amount,
+                    'currency' => $payment->currency,
+                    'is_success' => true,
+                    'status_message' => 'COMPLETED',
+                    'response_payload' => json_encode($payload),
+                ]);
+            });
         } else {
+
             $orders = Order::where('order_number', $orderId)->get();
+
             if ($orders->isEmpty()) {
                 Log::error('No orders found', ['order_number' => $orderId]);
                 return;
@@ -279,6 +323,48 @@ class PayPalEventBus implements ShouldQueue
                     ]);
                 }
             );
+        } elseif ($paymentType == PaymentType::PROMOTION->value) {
+
+            $advert = StorePromotePlanStore::where('order_number', $orderId)->first();
+
+            if (!$advert) {
+                Log::error('No advert listing promotion found', ['order_number' => $orderId]);
+                return;
+            }
+            $paymentDetails = $this->extractPaymentDetails($payload);
+
+            DB::transaction(function () use ($advert, $paymentDetails, $payload) {
+                $payment = Payment::where('reference', $paymentDetails['reference'])->first();
+
+                if (!$payment) {
+
+                    $payment = Payment::create([
+                        'reference' => $paymentDetails['reference'],
+                        'amount' => $paymentDetails['amount'],
+                        'currency' => $paymentDetails['currency'],
+                        'gateway' => PaymentGatewayEnum::PAYPAL->value,
+                        'status' => PaymentStatusEnum::SUCCESS,
+                        'description' => "paypal Payment for promotion"
+                    ]);
+                }
+
+                $advert->status = OrderStatusEnum::ACTIVE->value;
+                $advert->started_at = now();
+                $advert->expires_at = now()->addDays($advert->storePromotePlan->duration);
+                $advert->payment_id = $payment->id;
+                $advert->save();
+
+                PaymentTransaction::create([
+                    'payment_id' => $payment->id,
+                    'reference' => $paymentDetails['reference'],
+                    'type' => PaymentTransactionTypeEnum::CHARGE,
+                    'amount' => $payment->amount,
+                    'currency' => $payment->currency,
+                    'is_success' => true,
+                    'status_message' => 'APPROVED',
+                    'response_payload' => json_encode($payload),
+                ]);
+            });
         } else {
 
             $orders = Order::where('order_number', $orderId)->get();
@@ -349,46 +435,44 @@ class PayPalEventBus implements ShouldQueue
     {
         $orderId = $this->extractOrderId($payload);
         $paymentType = $this->extractPaymentType($payload);
+
         if (empty($orderId)) {
             Log::warning('Failed payment: Order ID missing', ['payload' => $payload]);
             return;
         }
 
-        if ($paymentType == PaymentType::ADVERT->value) {
-        }
-
-        $orders = Order::where('order_number', $orderId)->get();
-        if ($orders->isEmpty()) {
-            Log::error('No orders found', ['order_number' => $orderId]);
+        if (empty($paymentType)) {
+            Log::warning('Payment type is missing or malformed', ['payload' => $payload]);
             return;
         }
 
         $paymentDetails = $this->extractPaymentDetails($payload);
 
         try {
-            DB::transaction(function () use ($orders, $paymentDetails, $payload) {
-                $payment = Payment::firstOrCreate(
-                    ['reference' => $paymentDetails['reference']],
-                    [
-                        'amount' => $paymentDetails['amount'],
-                        'currency' => $paymentDetails['currency'],
-                        'gateway' => $this->webhookData['gateway']->value,
-                        'status' => PaymentStatusEnum::FAILED,
-                        'description' => "{$this->webhookData['gateway']->value} Payment - Failed"
-                    ]
-                );
-                $orderNumbers = $orders->pluck('order_number')->toArray();
-                $enhancedPayload = array_merge($payload, [
-                    'additional_data' => [
-                        'order_numbers' => $orderNumbers
-                    ]
-                ]);
+            if ($paymentType == PaymentType::ADVERT->value) {
+                $advert = AdvertListingPromotePlan::where('order_number', $orderId)->first();
 
-                foreach ($orders as $order) {
-                    if (!$order->payments()->where('payment_id', $payment->id)->exists()) {
-                        $order->payments()->attach($payment->id);
-                    }
+                if (!$advert) {
+                    Log::error('No advert listing promotion found', ['order_number' => $orderId]);
+                    return;
+                }
 
+                DB::transaction(function () use ($advert, $paymentDetails, $payload) {
+                    $payment = Payment::firstOrCreate(
+                        ['reference' => $paymentDetails['reference']],
+                        [
+                            'amount' => $paymentDetails['amount'],
+                            'currency' => $paymentDetails['currency'],
+                            'gateway' => PaymentGatewayEnum::PAYPAL->value,
+                            'status' => PaymentStatusEnum::FAILED,
+                            'description' => "paypal Payment - Failed for advert"
+                        ]
+                    );
+
+                    $advert->update([
+                        'status' => OrderStatusEnum::PAYMENT_FAILED,
+                        'failure_reason' => $paymentDetails['failure_reason']
+                    ]);
 
                     PaymentTransaction::create([
                         'payment_id' => $payment->id,
@@ -398,20 +482,100 @@ class PayPalEventBus implements ShouldQueue
                         'currency' => $payment->currency,
                         'is_success' => false,
                         'status_message' => $paymentDetails['status_message'],
-                        'response_payload' => json_encode($enhancedPayload)
+                        'response_payload' => json_encode($payload),
                     ]);
+                });
+            } elseif ($paymentType == PaymentType::PROMOTION->value) {
+                $advert = StorePromotePlanStore::where('order_number', $orderId)->first();
 
-                    $order->update([
-                        'payment_status' => OrderStatusEnum::PAYMENT_FAILED,
-                        'status' => OrderStatusEnum::INPROGRESS,
+                if (!$advert) {
+                    Log::error('No store promotion found', ['order_number' => $orderId]);
+                    return;
+                }
+
+                DB::transaction(function () use ($advert, $paymentDetails, $payload) {
+                    $payment = Payment::firstOrCreate(
+                        ['reference' => $paymentDetails['reference']],
+                        [
+                            'amount' => $paymentDetails['amount'],
+                            'currency' => $paymentDetails['currency'],
+                            'gateway' => PaymentGatewayEnum::PAYPAL->value,
+                            'status' => PaymentStatusEnum::FAILED,
+                            'description' => "paypal Payment - Failed for promotion"
+                        ]
+                    );
+
+                    $advert->update([
+                        'status' => OrderStatusEnum::PAYMENT_FAILED,
                         'failure_reason' => $paymentDetails['failure_reason']
                     ]);
+
+                    PaymentTransaction::create([
+                        'payment_id' => $payment->id,
+                        'reference' => $paymentDetails['reference'],
+                        'type' => PaymentTransactionTypeEnum::CHARGE,
+                        'amount' => $payment->amount,
+                        'currency' => $payment->currency,
+                        'is_success' => false,
+                        'status_message' => $paymentDetails['status_message'],
+                        'response_payload' => json_encode($payload),
+                    ]);
+                });
+            } else {
+                $orders = Order::where('order_number', $orderId)->get();
+
+                if ($orders->isEmpty()) {
+                    Log::error('No orders found', ['order_number' => $orderId]);
+                    return;
                 }
-            });
+
+                DB::transaction(function () use ($orders, $paymentDetails, $payload) {
+                    $payment = Payment::firstOrCreate(
+                        ['reference' => $paymentDetails['reference']],
+                        [
+                            'amount' => $paymentDetails['amount'],
+                            'currency' => $paymentDetails['currency'],
+                            'gateway' => PaymentGatewayEnum::PAYPAL->value,
+                            'status' => PaymentStatusEnum::FAILED,
+                            'description' => "paypal Payment - Failed for order"
+                        ]
+                    );
+
+                    $orderNumbers = $orders->pluck('order_number')->toArray();
+                    $enhancedPayload = array_merge($payload, [
+                        'additional_data' => [
+                            'order_numbers' => $orderNumbers
+                        ]
+                    ]);
+
+                    foreach ($orders as $order) {
+                        if (!$order->payments()->where('payment_id', $payment->id)->exists()) {
+                            $order->payments()->attach($payment->id);
+                        }
+
+                        $order->update([
+                            'payment_status' => OrderStatusEnum::PAYMENT_FAILED,
+                            'status' => OrderStatusEnum::INPROGRESS,
+                            'failure_reason' => $paymentDetails['failure_reason']
+                        ]);
+
+                        PaymentTransaction::create([
+                            'payment_id' => $payment->id,
+                            'reference' => $paymentDetails['reference'],
+                            'type' => PaymentTransactionTypeEnum::CHARGE,
+                            'amount' => $payment->amount,
+                            'currency' => $payment->currency,
+                            'is_success' => false,
+                            'status_message' => $paymentDetails['status_message'],
+                            'response_payload' => json_encode($enhancedPayload)
+                        ]);
+                    }
+                });
+            }
 
             Log::info('Payment failure processed', [
                 'order_id' => $orderId,
-                'gateway' => $this->webhookData['gateway']->value,
+                'gateway' => PaymentGatewayEnum::PAYPAL->value,
                 'reason' => $paymentDetails['failure_reason']
             ]);
         } catch (\Exception $e) {
