@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Enums\CurrencyType;
 use App\Http\Requests\Advert\PostAdvertRequest;
+use App\Http\Requests\Advert\PostStoreAdvertRequest;
 use App\Models\AdvertListing;
 use App\Models\User;
 use App\Services\Advert\AdvertListingService;
+use App\Services\Advert\PromoteStoreService;
 use Illuminate\Http\Request;
 
 class AdvertListingController extends Controller
 {
 
-    public function __construct(protected AdvertListingService $advertListingService)
+    public function __construct(protected AdvertListingService $advertListingService, protected PromoteStoreService $promoteStoreService)
     {
         //
     }
@@ -68,5 +70,14 @@ class AdvertListingController extends Controller
             'payment',
             'promotePlans'
         ]));
+    }
+
+    /**
+     * Store a new store advert listing.
+     */
+    public function postStoreAdvert(PostStoreAdvertRequest $request)
+    {
+        $listing = $this->promoteStoreService->create($request->postAdvertAttributes(), $request->validated('return_url'), $request->validated('cancel_url'));
+        return  $this->success($listing);
     }
 }

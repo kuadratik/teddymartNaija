@@ -9,6 +9,9 @@ use App\Enums\PaymentStatusEnum;
 use App\Enums\CurrencyType;
 use App\Enums\OrderStatusEnum;
 use App\Enums\PaymentType;
+use App\Models\Store;
+use App\Models\StorePromotePlan;
+use App\Models\StorePromotePlanStore;
 use App\Models\User;
 use App\Services\Media\MediaService;
 use App\Services\PaymentGateways\PaymentService;
@@ -17,7 +20,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-class AdvertListingService
+class PromoteStoreService
 {
 
 
@@ -35,18 +38,13 @@ class AdvertListingService
     {
 
         return DB::transaction(function () use ($attributes, $return_url, $cancel_url) {
-            $mediaPaths = $attributes['media'] ?? [];
-            unset($attributes['media']);
+
             $listing = $this->createListing($attributes);
-
-            if (!empty($mediaPaths)) {
-                $this->mediaService->storeMedia($listing->id, $mediaPaths);
-            }
-
-            $url = $this->handlePromotion($listing, $attributes['promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD, $return_url, $cancel_url);
+            // return $listing->toArray();
+            $url = $this->handlePromotion($listing, $attributes['store_promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD, $return_url, $cancel_url);
 
             return [
-                'listing' => $listing->load(['promotePlans', 'media']),
+                'listing' => $listing->load(['promotePlans']),
                 'url' => $url
             ];
         });
@@ -55,70 +53,49 @@ class AdvertListingService
     /**
      * Create the base listing
      */
-    private function createListing(array $attributes): AdvertListing
+    private function createListing(array $attributes): StorePromotePlanStore
     {
-        return  AdvertListing::create($attributes);
+        return StorePromotePlanStore::create($attributes);
     }
 
     /**
      * Handle the promotion plan assignment and payment if necessary
      */
-    private function handlePromotion(AdvertListing $listing, int $promotePlanId, string $currency, string $return_url = null, string $cancel_url = null)
+    private function handlePromotion(StorePromotePlanStore $listing, int $promotePlanId, string $currency, string $return_url = null, string $cancel_url = null)
     {
-        $promotePlan = AdvertPromotePlan::findOrFail($promotePlanId);
+        $promotePlan = StorePromotePlan::findOrFail($promotePlanId);
 
         if ($promotePlan->price > 0) {
             return $this->handlePaidPromotion($listing, $promotePlan, $currency, $return_url, $cancel_url);
-        } else {
-            return $this->handleFreePromotion($listing, $promotePlan);
         }
     }
 
     /**
      * Handle paid promotion plans
      */
-    private function handlePaidPromotion(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null)
+    private function handlePaidPromotion(StorePromotePlanStore $listing, StorePromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null)
     {
 
-        $listing->promotePlans()->attach($promotePlan->id, [
-            'status' => OrderStatusEnum::PENDING_PAYMENT,
-            'order_number'  => Str::uuid()->toString(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $listing = StorePromotePlanStore::where('store_id', $listing->store_id)->first();
+
+        $listing->order_number = Str::uuid()->toString();
+        $listing->status = OrderStatusEnum::PENDING_PAYMENT;
+        $listing->update();
+
         $init_payment = $this->createPayment($listing, $promotePlan, $currency, $return_url, $cancel_url);
         return $init_payment;
     }
 
-    /**
-     * Handle free promotion plans
-     */
-    private function handleFreePromotion(AdvertListing $listing, AdvertPromotePlan $promotePlan): void
-    {
-        $startedAt = now();
 
-        $expiresAt = $promotePlan->duration_days > 0
-            ? $startedAt->copy()->addDays($promotePlan->duration_days)
-            : null;
-
-        $listing->promotePlans()->attach($promotePlan->id, [
-            'status' => OrderStatusEnum::ACTIVE,
-            'order_number'  => Str::uuid()->toString(),
-            'started_at' => $startedAt,
-            'expires_at' => $expiresAt,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-    }
 
     /**
      * Creates a payment order link for a given advert listing and promotion plan.
      *
      */
-    private function createPayment(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null)
+    private function createPayment(StorePromotePlanStore $listing, StorePromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null)
     {
         $orderNumber = $listing->promotePlans()
-            ->wherePivot('advert_promote_plan_id', $promotePlan->id)
+            ->wherePivot('store_promote_plan_id', $promotePlan->id)
             ->value('order_number');
 
         if ($currency !== CurrencyType::NGN->value) {
@@ -126,7 +103,7 @@ class AdvertListingService
                 'currency_code' => $currency,
                 'total_amount' => $promotePlan->price,
                 'order_number' => $orderNumber,
-                'type' => PaymentType::ADVERT->value,
+                'type' => PaymentType::PROMOTION->value,
                 'return_url' => $return_url,
                 'cancel_url' => $cancel_url,
             ];
@@ -135,11 +112,11 @@ class AdvertListingService
             return $res;
         } else {
             $paymentData = [
-                'email'=> auth()->user()->email,
+                'email' => auth()->user()->email,
                 'currency_code' => $currency,
                 'total_amount' => $promotePlan->price,
                 'order_number' => $orderNumber,
-                'type' => PaymentType::ADVERT->value,
+                'type' => PaymentType::PROMOTION->value,
                 'return_url' => $return_url,
                 'cancel_url' => $cancel_url,
             ];
