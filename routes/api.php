@@ -76,8 +76,10 @@ Route::prefix('front')->group(function () {
 
     Route::prefix('advert')->group(function () {
         Route::get('plans', [AdvertListingController::class, 'getAdvertPlans']);
+        Route::get('promoted-plans', [AdvertListingController::class, 'getPromotionPlans']);
         Route::post('gallery', [AdvertListingController::class, 'getAllAdverts']);
         Route::get('{advert}/gallery', [AdvertListingController::class, 'showAdvert']);
+        Route::get('store/promote', [AdvertListingController::class, 'getAllPromotedStores']);
     });
 });
 
@@ -108,7 +110,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::prefix('advert')->group(function () {
             Route::post('/promote', [AdvertListingController::class, 'postStoreAdvert']);
-            Route::get('/promote', [AdvertListingController::class, 'getStoreAdvert']);
         });
     });
 

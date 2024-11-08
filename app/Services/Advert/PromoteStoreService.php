@@ -61,7 +61,7 @@ class PromoteStoreService
     /**
      * Handle the promotion plan assignment and payment if necessary
      */
-    private function handlePromotion(StorePromotePlanStore $listing, int $promotePlanId, string $currency, string $return_url = null, string $cancel_url = null)
+        private function handlePromotion(StorePromotePlanStore $listing, int $promotePlanId, string $currency, string $return_url = null, string $cancel_url = null)
     {
         $promotePlan = StorePromotePlan::findOrFail($promotePlanId);
 
@@ -126,32 +126,19 @@ class PromoteStoreService
     }
 
 
-    /**
-     * Update the promotion status after successful payment
-     */
-    public function activatePromotion(Payment $payment): void
-    {
-        DB::transaction(function () use ($payment) {
-            $listing = $payment->payable;
-            $promotePlan = $listing->promotePlans()->wherePivot('payment_id', $payment->id)->first();
 
-            $listing->promotePlans()->updateExistingPivot($promotePlan->id, [
-                'status' => PaymentStatusEnum::SUCCESS->value,
-                'started_at' => now(),
-                'expires_at' => now()->addDays($promotePlan->duration_days),
-            ]);
-        });
-    }
 
     /**
      * Cancel a promotion
      */
     public function cancelPromotion(AdvertListing $listing, AdvertPromotePlan $promotePlan): void
     {
-        $listing->promotePlans()->updateExistingPivot($promotePlan->id, [
-            'status' => PaymentStatusEnum::CANCELED->value,
-            'expires_at' => now(),
-        ]);
+
+        $listing = StorePromotePlanStore::where('store_id', $listing->store_id)->first();
+
+        $listing->status = OrderStatusEnum::EXPIRED;
+        $listing->expires_at = now();
+        $listing->update();
     }
 
     /**
@@ -159,7 +146,7 @@ class PromoteStoreService
      */
     public function checkExpiredPromotions(): void
     {
-        DB::table('advert_listing_promote_plans')
+        DB::table('store_promote_plan_store')
             ->where('status', PaymentStatusEnum::SUCCESS->value)
             ->where('expires_at', '<=', now())
             ->update(['status' => 'expired']);
@@ -169,139 +156,24 @@ class PromoteStoreService
     /**
      * Get advert promotion plans based on the provided currency.
      */
-    public function getAdvertPlans($currency)
+    public function getPromotionPlans($currency)
     {
-        return AdvertPromotePlan::where('currency', $currency)->get();
+        return StorePromotePlan::where('currency', $currency)->get();
     }
 
 
-    /**
-     * Retrieve the user's adverts based on the provided request filters.
-     */
-    public function getUserAdverts(Request $request)
-    {
-        $ads = $request->user()->advertListings()
-            ->when($request->filled('status'), function ($query) use ($request) {
-                $query->whereHas('promotePlans', function ($q) use ($request) {
-                    $q->where('status', $request->status);
-                });
-            })
-            ->when($request->filled('category_id'), function ($query) use ($request) {
-                $query->where('category_id', $request->category_id);
-            })
-            ->when($request->filled('type'), function ($query) use ($request) {
-                $query->where('type', $request->type);
-            })
-
-            ->when($request->filled('price_min'), function ($query) use ($request) {
-                $query->where('price', '>=', $request->price_min);
-            })
-            ->when($request->filled('price_max'), function ($query) use ($request) {
-                $query->where('price', '<=', $request->price_max);
-            })
-            ->when($request->filled('state'), function ($query) use ($request) {
-                $query->where('state', 'like', '%' . $request->state . '%');
-            })
-
-            ->when($request->filled('created_after'), function ($query) use ($request) {
-                $query->whereDate('created_at', '>=', $request->created_after);
-            })
-            ->when($request->filled('created_before'), function ($query) use ($request) {
-                $query->whereDate('created_at', '<=', $request->created_before);
-            })
-
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $query->where(function ($q) use ($request) {
-                    $q->where('title', 'like', '%' . $request->search . '%')
-                        ->orWhere('description', 'like', '%' . $request->search . '%');
-                });
-            })
-            ->when($request->filled('sort'), function ($query) use ($request) {
-                $sortField = in_array($request->sort, ['created_at', 'price']) ? $request->sort : 'created_at';
-                $sortDirection = $request->filled('order') && $request->order === 'asc' ? 'asc' : 'desc';
-                $query->orderBy($sortField, $sortDirection);
-            }, function ($query) {
-                $query->latest();
-            });
-
-
-        $perPage = $request->input('per_page', 15);
-        $ads = $ads->paginate($perPage)->withQueryString();
-
-        return [
-            'data' => $ads->items(),
-            'pagination' => [
-                'current_page' => $ads->currentPage(),
-                'per_page' => $ads->perPage(),
-                'total' => $ads->total(),
-                'last_page' => $ads->lastPage()
-            ]
-        ];
-    }
 
     /**
      * Retrieve all adverts based on the provided request filters.
      */
-    public function getAllAdverts(Request $request)
+    public function getStoresWithActivePromotions()
     {
-        $validated = $request->validate([
-            'category_id' => 'nullable|array',
-            'category_id.*' => 'integer|exists:categories,id',
-        ]);
+        $stores = Store::whereHas('promotedStores', function ($query) {
+            $query->where('status', OrderStatusEnum::ACTIVE);
+        })
+            ->with('promotedStores.storePromotePlan')
+            ->get();
 
-        $query = AdvertListing::with(['media', 'category', 'payment', 'promotePlans']);
-
-        $query->when($request->filled('status'), function ($query) use ($request) {
-            $query->whereHas('promotePlans', function ($q) use ($request) {
-                $q->where('status', $request->status);
-            });
-        });
-
-        if ($request->filled('category_id')) {
-            $categoryIds = $validated['category_id'];
-
-            $query->where(function ($q) use ($categoryIds) {
-                foreach ($categoryIds as $categoryId) {
-                    $q->orWhere('category_id', $categoryId);
-                }
-            });
-        }
-
-        $query->when($request->filled('type'), fn($query) => $query->where('type', $request->type))
-            ->when($request->filled('price_min'), fn($query) => $query->where('price', '>=', $request->price_min))
-            ->when($request->filled('price_max'), fn($query) => $query->where('price', '<=', $request->price_max))
-            ->when($request->filled('state'), fn($query) => $query->where('state', 'like', '%' . $request->state . '%'))
-            ->when($request->filled('created_after'), fn($query) => $query->whereDate('created_at', '>=', $request->created_after))
-            ->when($request->filled('created_before'), fn($query) => $query->whereDate('created_at', '<=', $request->created_before))
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $query->where(function ($q) use ($request) {
-                    $q->where('title', 'like', '%' . $request->search . '%')
-                        ->orWhere('description', 'like', '%' . $request->search . '%');
-                });
-            })
-            ->when($request->filled('sort'), function ($query) use ($request) {
-                $sortField = in_array($request->sort, ['created_at', 'price']) ? $request->sort : 'created_at';
-                $sortDirection = $request->filled('order') && $request->order === 'asc' ? 'asc' : 'desc';
-                $query->orderBy($sortField, $sortDirection);
-            }, function ($query) {
-                $query->latest();
-            })
-            ->when($request->hasHeader('currency'), function ($query) use ($request) {
-                $currency = $request->header('currency');
-                $query->where('currency', $currency);
-            });
-
-        $perPage = $request->input('per_page', 15);
-        $ads = $query->paginate($perPage)->appends($request->query());
-
-        return [
-            'data' => $ads->items(),
-            'pagination' => [
-                'current_page' => $ads->currentPage(),
-                'per_page' => $ads->perPage(),
-                'total' => $ads->total(),
-                'last_page' => $ads->lastPage()
-            ]
-        ];
+        return $stores;
     }
 }

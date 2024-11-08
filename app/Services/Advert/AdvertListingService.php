@@ -262,9 +262,6 @@ class AdvertListingService
         ];
     }
 
-    /**
-     * Retrieve all adverts based on the provided request filters.
-     */
     public function getAllAdverts(Request $request)
     {
         $validated = $request->validate([
@@ -274,6 +271,13 @@ class AdvertListingService
 
         $query = AdvertListing::with(['media', 'category', 'payment', 'promotePlans']);
 
+        $query->leftJoin('advert_listing_promote_plans', 'advert_listings.id', '=', 'advert_listing_promote_plans.advert_listing_id')
+            ->leftJoin('advert_promote_plans', 'advert_listing_promote_plans.advert_promote_plan_id', '=', 'advert_promote_plans.id')
+            ->select('advert_listings.*')
+            ->addSelect(DB::raw('MIN(advert_promote_plans.price) as min_promote_plan_price'))
+            ->groupBy('advert_listings.id')
+            ->orderBy('min_promote_plan_price', 'desc');
+
         $query->when($request->filled('status'), function ($query) use ($request) {
             $query->whereHas('promotePlans', function ($q) use ($request) {
                 $q->where('status', $request->status);
@@ -282,7 +286,6 @@ class AdvertListingService
 
         if ($request->filled('category_id')) {
             $categoryIds = $validated['category_id'];
-
             $query->where(function ($q) use ($categoryIds) {
                 foreach ($categoryIds as $categoryId) {
                     $q->orWhere('category_id', $categoryId);
@@ -311,7 +314,7 @@ class AdvertListingService
             })
             ->when($request->hasHeader('currency'), function ($query) use ($request) {
                 $currency = $request->header('currency');
-                $query->where('currency', $currency);
+            $query->where('advert_listings.currency', $currency);
             });
 
         $perPage = $request->input('per_page', 15);
@@ -327,4 +330,6 @@ class AdvertListingService
             ]
         ];
     }
+
+
 }
