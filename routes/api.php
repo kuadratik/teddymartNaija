@@ -105,6 +105,11 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::delete('{userStore}/listing/{listing}/delete', [ListingsController::class, 'delete']);
             });
         });
+
+        Route::prefix('advert')->group(function () {
+            Route::post('store/promote', [AdvertListingController::class, 'postStoreAdvert']);
+            Route::get('/store/promote', [AdvertListingController::class, 'getUserAdverts']);
+        });
     });
 
     Route::prefix('business-listings')->group(function () {

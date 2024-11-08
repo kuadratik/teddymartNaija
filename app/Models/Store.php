@@ -157,4 +157,18 @@ class Store extends Model
     {
         return $this->belongsTo(Country::class, 'country_id', 'id');
     }
+
+
+    /**
+     * The promotion plans associated with the store.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function promotePlans()
+    {
+        return $this->belongsToMany(StorePromotePlan::class, 'store_promote_plan_store')
+            ->using(StorePromotePlanStore::class)
+            ->withPivot(['payment_id', 'status', 'started_at', 'expires_at'])
+            ->withTimestamps();
+    }
 }
