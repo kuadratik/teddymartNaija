@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class StorePromotePlanStore extends Model
 {
     protected $table = 'store_promote_plan_store';
-
     protected $fillable = [
         'store_id',
         'store_promote_plan_id',
@@ -25,6 +24,10 @@ class StorePromotePlanStore extends Model
         'expires_at' => 'datetime',
     ];
 
+    public $primaryKey = 'store_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     /**
      * Define a many-to-many relationship with StorePromotePlan.
      *
@@ -32,8 +35,8 @@ class StorePromotePlanStore extends Model
      */
     public function promotePlans(): BelongsToMany
     {
-        return $this->belongsToMany(StorePromotePlan::class, 'store_promote_plan_store')
-            ->withPivot(['status', 'order_number', 'created_at', 'updated_at']);
+        return $this->belongsToMany(StorePromotePlan::class, 'store_promote_plan_store', 'store_id', 'store_promote_plan_id')
+        ->withPivot(['status', 'order_number', 'started_at', 'expires_at', 'created_at', 'updated_at']);
     }
 
     /**
@@ -46,4 +49,9 @@ class StorePromotePlanStore extends Model
         return $this->belongsTo(StorePromotePlan::class, 'store_promote_plan_id');
     }
 
+
+    /**
+     * store
+     */
+    public function store(){}
 }

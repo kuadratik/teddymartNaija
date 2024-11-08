@@ -11,6 +11,7 @@ use App\Models\AdvertListingPromotePlan;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
+use App\Models\StorePromotePlanStore;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\DB;
@@ -102,6 +103,52 @@ class PaystackEventBus implements ShouldQueue
                     $advert->status = OrderStatusEnum::ACTIVE->value;
                     $advert->started_at = now();
                     $advert->expires_at = now()->addDays($advert->advertPromotePlan->duration);
+                    $advert->payment_id = $payment->id;
+                    $advert->save();
+
+                    PaymentTransaction::create([
+                        'payment_id' => $payment->id,
+                        'reference' => $paymentDetails['reference'],
+                        'type' => PaymentTransactionTypeEnum::CHARGE,
+                        'amount' => $payment->amount,
+                        'currency' => $payment->currency,
+                        'is_success' => true,
+                        'status_message' => 'APPROVED',
+                        'response_payload' => json_encode($payload),
+                    ]);
+                }
+            );
+        } elseif ($paymentType == PaymentType::PROMOTION->value) {
+            $advert = StorePromotePlanStore::where('order_number', $orderId)->first();
+
+            if (!$advert) {
+                Log::error('No store promotion found', ['order_number' => $orderId]);
+                return;
+            }
+            $paymentDetails = $this->extractPaymentDetails($payload);
+
+            DB::transaction(
+                function () use ($advert, $paymentDetails, $payload) {
+
+                    $payment = Payment::where('reference', $paymentDetails['reference'])->first();
+
+                    if (!$payment) {
+
+                        $payment = Payment::create([
+                            'reference' => $paymentDetails['reference'],
+                            'amount' => $paymentDetails['amount'],
+                            'currency' => $paymentDetails['currency'],
+                            'gateway' => PaymentGatewayEnum::PAYPAL->value,
+                            'status' => PaymentStatusEnum::SUCCESS,
+                            'description' => "paystack Payment for  promotion"
+                        ]);
+                    }
+
+
+
+                    $advert->status = OrderStatusEnum::ACTIVE->value;
+                    $advert->started_at = now();
+                    $advert->expires_at = now()->addDays($advert->storePromotePlan->duration);
                     $advert->payment_id = $payment->id;
                     $advert->save();
 
@@ -244,6 +291,56 @@ class PaystackEventBus implements ShouldQueue
                 });
             } catch (\Exception $e) {
                 Log::error('Failed to process failed advert charge', [
+                    'order_number' => $orderId,
+                    'error' => $e->getMessage()
+                ]);
+                throw $e;
+            }
+        } elseif ($paymentType == PaymentType::PROMOTION->value) {
+            $promotion = StorePromotePlanStore::where('order_number', $orderId)->first();
+
+            if (!$promotion) {
+                Log::error('No store promotion found for failed charge', ['order_number' => $orderId]);
+                return;
+            }
+
+            $paymentDetails = $this->extractPaymentDetails($payload);
+
+            try {
+                DB::transaction(function () use ($promotion, $paymentDetails, $payload) {
+                    $payment = Payment::firstOrCreate(
+                        ['reference' => $paymentDetails['reference']],
+                        [
+                            'amount' => $paymentDetails['amount'],
+                            'currency' => $paymentDetails['currency'],
+                            'gateway' => PaymentGatewayEnum::PAYSTACK->value,
+                            'status' => PaymentStatusEnum::FAILED,
+                            'description' => "Paystack Payment for promotion - Failed"
+                        ]
+                    );
+
+                    $promotion->status = OrderStatusEnum::PAYMENT_FAILED->value;
+                    $promotion->payment_id = $payment->id;
+                    $promotion->save();
+
+                    PaymentTransaction::create([
+                        'payment_id' => $payment->id,
+                        'reference' => $paymentDetails['reference'],
+                        'type' => PaymentTransactionTypeEnum::CHARGE,
+                        'amount' => $payment->amount,
+                        'currency' => $payment->currency,
+                        'is_success' => false,
+                        'status_message' => 'FAILED',
+                        'response_payload' => json_encode($payload),
+                    ]);
+
+                    Log::info('Store promotion marked as failed', [
+                        'promotion_id' => $promotion->id,
+                        'payment_reference' => $paymentDetails['reference']
+                    ]);
+                });
+            } catch (\Exception $e) {
+                Log::error('Failed to process failed store promotion charge', [
                     'order_number' => $orderId,
                     'error' => $e->getMessage()
                 ]);

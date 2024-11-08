@@ -135,6 +135,7 @@ class AdvertListingService
             return $res;
         } else {
             $paymentData = [
+                'email'=> auth()->user()->email,
                 'currency_code' => $currency,
                 'total_amount' => $promotePlan->price,
                 'order_number' => $orderNumber,

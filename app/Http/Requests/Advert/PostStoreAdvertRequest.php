@@ -25,7 +25,8 @@ class PostStoreAdvertRequest extends FormRequest
         return [
             'store_id' => ['required','exists:stores,id'],
             'store_promote_plan_id' => ['required','exists:store_promote_plans,id'],
-            'payment_id' => ['nullable','exists:payments,id'],
+            'cancel_url' => ['sometimes', 'url'],
+            'return_url' => ['sometimes', 'url'],
         ];
     }
 
@@ -40,7 +41,6 @@ class PostStoreAdvertRequest extends FormRequest
 
         return collect($this->safe()->except(['return_url', 'cancel_url']))->merge(
             [
-                'user_id' => $this->user()->id,
                 'currency' => $this->header('currency', CurrencyType::USD->value)
             ]
         )->toArray();

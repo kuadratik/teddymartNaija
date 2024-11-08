@@ -9,6 +9,7 @@ use App\Enums\PaymentStatusEnum;
 use App\Enums\CurrencyType;
 use App\Enums\OrderStatusEnum;
 use App\Enums\PaymentType;
+use App\Models\Store;
 use App\Models\StorePromotePlan;
 use App\Models\StorePromotePlanStore;
 use App\Models\User;
@@ -39,11 +40,11 @@ class PromoteStoreService
         return DB::transaction(function () use ($attributes, $return_url, $cancel_url) {
 
             $listing = $this->createListing($attributes);
-
+            // return $listing->toArray();
             $url = $this->handlePromotion($listing, $attributes['store_promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD, $return_url, $cancel_url);
 
             return [
-                'listing' => $listing->load(['promotePlans', 'media']),
+                'listing' => $listing->load(['promotePlans']),
                 'url' => $url
             ];
         });
@@ -75,12 +76,12 @@ class PromoteStoreService
     private function handlePaidPromotion(StorePromotePlanStore $listing, StorePromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null)
     {
 
-        $listing->promotePlans()->attach($promotePlan->id, [
-            'status' => OrderStatusEnum::PENDING_PAYMENT,
-            'order_number'  => Str::uuid()->toString(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $listing = StorePromotePlanStore::where('store_id', $listing->store_id)->first();
+
+        $listing->order_number = Str::uuid()->toString();
+        $listing->status = OrderStatusEnum::PENDING_PAYMENT;
+        $listing->update();
+
         $init_payment = $this->createPayment($listing, $promotePlan, $currency, $return_url, $cancel_url);
         return $init_payment;
     }
@@ -94,7 +95,7 @@ class PromoteStoreService
     private function createPayment(StorePromotePlanStore $listing, StorePromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null)
     {
         $orderNumber = $listing->promotePlans()
-            ->wherePivot('advert_promote_plan_id', $promotePlan->id)
+            ->wherePivot('store_promote_plan_id', $promotePlan->id)
             ->value('order_number');
 
         if ($currency !== CurrencyType::NGN->value) {
@@ -111,6 +112,7 @@ class PromoteStoreService
             return $res;
         } else {
             $paymentData = [
+                'email' => auth()->user()->email,
                 'currency_code' => $currency,
                 'total_amount' => $promotePlan->price,
                 'order_number' => $orderNumber,

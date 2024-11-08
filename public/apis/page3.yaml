@@ -869,3 +869,57 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /store/advert/promote:
+    post:
+      tags:
+        - Advertisement
+      summary: Store advert promotion
+      description: Store advert promotion
+      operationId: StoreAdvertPromotion
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                store_promote_plan_id:
+                  type: integer
+                  example: 1
+                  required: true
+                return_url:
+                  type: string
+                  example: https://staging.eki.market"
+                  required: false
+                cancel_url:
+                  type: string
+                  example: "https://staging.eki.market"
+                  required: false
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object

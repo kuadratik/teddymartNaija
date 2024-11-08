@@ -5,8 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -22,16 +21,18 @@ return new class extends Migration
             $table->timestamps();
         });
 
+      ;
+
         Schema::create('store_promote_plan_store', function (Blueprint $table) {
-            $table->id();
             $table->foreignId('store_id')->constrained('stores')->cascadeOnDelete();
             $table->foreignId('store_promote_plan_id')->constrained('store_promote_plans')->cascadeOnDelete();
-            $table->foreignId('payment_id')->nullable()->constrained('payments')->nullOnDelete();
             $table->string('order_number')->nullable()->index();
             $table->string('status')->default(PaymentStatusEnum::PENDING)->index();
             $table->timestamp('started_at')->nullable()->index();
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
+            $table->primary(['store_id', 'store_promote_plan_id', 'status']);
+            $table->foreignId('payment_id')->nullable()->constrained('payments')->nullOnDelete();
             $table->unique(['store_id', 'store_promote_plan_id', 'status'], 'unique_store_promotion');
         });
     }
