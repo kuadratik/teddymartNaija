@@ -21,30 +21,33 @@ class ChatService
 
     public function startConversation(array $details)
     {
-        $respondent =  User::find($details['user_id']);
+        $respondent = User::find($details['user_id']);
+        $respondentType = $this->getUserType($respondent);
+
         $user = auth()->user();
+        $userType = $this->getUserType($user);
 
         DB::beginTransaction();
         try {
             $chat = Chat::firstOrCreate(['identifier' => $details['identifier']], [
-                'uid' => Str::uuid(),
+                'uuid' => Str::uuid(),
                 'user_id' => $user->id,
-                'user_type' => $user->user_type,
+                'user_type' => $userType,
                 'converse_type' => 'private',
-                'name' => null,
-                'pr_check' =>  $details['identifier']
+                'title' => null,
+                'identifier' =>  $details['identifier']
             ]);
 
             $chatUsers = [
                 [
                     'chat_id' => $chat->id,
-                    'user_type' => $user->user_type,
+                    'user_type' => $userType,
                     'user_id' => $user->id,
                     'read_at' => now()->copy()->toDateTime(),
                 ],
                 [
                     'chat_id' => $chat->id,
-                    'user_type' => $respondent->user_type,
+                    'user_type' => $respondentType,
                     'user_id' => $respondent->id,
                     'read_at' => now()->copy()->subMinutes(1),
                 ]
@@ -55,8 +58,8 @@ class ChatService
             $message = Message::create([
                 'chat_id' => $chat->id,
                 'user_id' => $user->id,
-                'user_type' => $user->user_type,
-                'body' => $details['message'],
+                'user_type' => $userType,
+                'content' => $details['message'],
             ]);
 
             DB::commit();
@@ -64,5 +67,17 @@ class ChatService
             DB::rollBack();
             throw $th;
         }
+    }
+
+    public function getUserType($model)
+    {
+        $modelClass = get_class($model);
+
+        $userType = match ($modelClass) {
+            'App\Models\User' => 'user',
+            'App\Models\Admin' => 'admin',
+        };
+
+        return $userType;
     }
 }
