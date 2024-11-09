@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Actions\FetchPopularRecommenationAction;
 use App\Actions\FetchUserMostInteractedCategoriesAction;
+use Google\Service\CloudSearch\Id;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -164,11 +165,8 @@ class Store extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function promotePlans()
+    public function promotedStores()
     {
-        return $this->belongsToMany(StorePromotePlan::class, 'store_promote_plan_store')
-            ->using(StorePromotePlanStore::class)
-            ->withPivot(['payment_id', 'status', 'started_at', 'expires_at'])
-            ->withTimestamps();
+        return $this->belongsTo(StorePromotePlanStore::class,'id', 'store_id');
     }
 }

@@ -923,3 +923,65 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /front/advert/store/promote:
+    get:
+      tags:
+        - Advertisement
+      summary: get  promoted stores
+      description: get  promoted stores
+      operationId: GetPromotedStores
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by.
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/promoted-plans:
+    get:
+      tags:
+        - Advertisement
+      summary: get store promotion  plans
+      description: get store promotion  plans
+      operationId: GetPromotePlans
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
