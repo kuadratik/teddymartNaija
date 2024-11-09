@@ -39,6 +39,17 @@ class AdvertListingController extends Controller
         $plans = $this->advertListingService->getAdvertPlans($currency);
         return $this->success($plans);
     }
+    /**
+     * Get the available store promotion plans..
+     *
+     * @return mixed The available advert plans.
+     */
+    public function getPromotionPlans(Request $request)
+    {
+        $currency = $request->header('currency', CurrencyType::USD->value);
+        $plans = $this->promoteStoreService->getPromotionPlans($currency);
+        return $this->success($plans);
+    }
 
     /**
      * Get the adverts for the current user.
@@ -58,6 +69,14 @@ class AdvertListingController extends Controller
         $ads = $this->advertListingService->getAllAdverts($request);
         return $this->success($ads);
     }
+    /**
+     * Get all adverts.
+     */
+    public function getAllPromotedStores(Request $request)
+    {
+        $ads = $this->promoteStoreService->getStoresWithActivePromotions($request);
+        return $this->success($ads);
+    }
 
     /**
      *  Show the advert listing..
@@ -65,6 +84,7 @@ class AdvertListingController extends Controller
     public function showAdvert(AdvertListing $advert)
     {
         return $this->success($advert->load([
+            'user',
             'media',
             'category',
             'payment',
