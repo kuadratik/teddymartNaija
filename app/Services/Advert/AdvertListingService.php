@@ -215,24 +215,6 @@ class AdvertListingService
             ->when($request->filled('type'), function ($query) use ($request) {
                 $query->where('type', $request->type);
             })
-
-            ->when($request->filled('price_min'), function ($query) use ($request) {
-                $query->where('price', '>=', $request->price_min);
-            })
-            ->when($request->filled('price_max'), function ($query) use ($request) {
-                $query->where('price', '<=', $request->price_max);
-            })
-            ->when($request->filled('state'), function ($query) use ($request) {
-                $query->where('state', 'like', '%' . $request->state . '%');
-            })
-
-            ->when($request->filled('created_after'), function ($query) use ($request) {
-                $query->whereDate('created_at', '>=', $request->created_after);
-            })
-            ->when($request->filled('created_before'), function ($query) use ($request) {
-                $query->whereDate('created_at', '<=', $request->created_before);
-            })
-
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
                     $q->where('title', 'like', '%' . $request->search . '%')
@@ -244,7 +226,7 @@ class AdvertListingService
                 $sortDirection = $request->filled('order') && $request->order === 'asc' ? 'asc' : 'desc';
                 $query->orderBy($sortField, $sortDirection);
             }, function ($query) {
-                $query->latest();
+                $query->with(['media', 'category', 'payment', 'promotePlans'])->latest();
             });
 
 
