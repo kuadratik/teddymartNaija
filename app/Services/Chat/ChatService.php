@@ -53,7 +53,7 @@ class ChatService
                 ]
             ];
 
-            ChatUser::upsert($chatUsers, ['chat_id', 'user_id', 'read_at']);
+            ChatUser::upsert($chatUsers, ['chat_id', 'user_id']);
 
             $message = Message::create([
                 'chat_id' => $chat->id,
