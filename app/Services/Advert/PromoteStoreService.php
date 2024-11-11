@@ -55,13 +55,14 @@ class PromoteStoreService
      */
     private function createListing(array $attributes): StorePromotePlanStore
     {
+
         return StorePromotePlanStore::create($attributes);
     }
 
     /**
      * Handle the promotion plan assignment and payment if necessary
      */
-        private function handlePromotion(StorePromotePlanStore $listing, int $promotePlanId, string $currency, string $return_url = null, string $cancel_url = null)
+    private function handlePromotion(StorePromotePlanStore $listing, int $promotePlanId, string $currency, string $return_url = null, string $cancel_url = null)
     {
         $promotePlan = StorePromotePlan::findOrFail($promotePlanId);
 
@@ -77,7 +78,7 @@ class PromoteStoreService
     {
 
         $listing = StorePromotePlanStore::where('store_id', $listing->store_id)->first();
-
+        abort_if($listing->status !== OrderStatusEnum::PENDING->value, 400, 'store is already pending payment active');
         $listing->order_number = Str::uuid()->toString();
         $listing->status = OrderStatusEnum::PENDING_PAYMENT;
         $listing->update();

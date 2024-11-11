@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\CurrencyType;
 use App\Http\Requests\Advert\PostAdvertRequest;
 use App\Http\Requests\Advert\PostStoreAdvertRequest;
+use App\Http\Requests\Advert\UpdateAdvertRequest;
 use App\Models\AdvertListing;
 use App\Models\User;
 use App\Services\Advert\AdvertListingService;
@@ -27,6 +28,17 @@ class AdvertListingController extends Controller
         $listing = $this->advertListingService->create($request->postAdvertAttributes(), $request->validated('return_url'), $request->validated('cancel_url'));
         return  $this->success($listing);
     }
+
+    /**
+     * update an advert
+     */
+    public function updateAdvert(UpdateAdvertRequest $request, AdvertListing $advert)
+    {
+
+        $listing = $this->advertListingService->update($advert, $request->updateAdvertAttributes(), $request->validated('return_url'), $request->validated('cancel_url'));
+        return  $this->success($listing);
+    }
+
 
     /**
      * Get the available advert plans..

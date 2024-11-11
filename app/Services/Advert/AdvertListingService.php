@@ -53,6 +53,38 @@ class AdvertListingService
     }
 
     /**
+     * update advert listing with promotion plan
+     */
+    public function update( AdvertListing $listing , array $attributes, string $return_url = null, string $cancel_url = null): array
+    {
+        if ($listing->getActivePromotePlanStatusAttribute()) {
+           abort(422,'Advert listing already active');
+        }
+        return DB::transaction(function () use ($listing,$attributes, $return_url, $cancel_url) {
+            $mediaPaths = $attributes['media'] ?? [];
+            unset($attributes['media']);
+            $listing->update($attributes);
+            if (!empty($mediaPaths)) {
+                $this->mediaService->storeMedia($listing->id, $mediaPaths);
+            }
+
+
+            if (isset($attributes['promote_plan_id'])) {
+                $url =  $this->updatePromotion($listing, $attributes['promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD);
+                return [
+                    'listing' => $listing->load(['promotePlans', 'media']),
+                    'url' => @$url
+                ];
+            }
+
+            return [
+                'listing' => $listing->load(['promotePlans', 'media']),
+
+            ];
+        });
+    }
+
+    /**
      * Create the base listing
      */
     private function createListing(array $attributes): AdvertListing
@@ -79,7 +111,6 @@ class AdvertListingService
      */
     private function handlePaidPromotion(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null)
     {
-
         $listing->promotePlans()->attach($promotePlan->id, [
             'status' => OrderStatusEnum::PENDING_PAYMENT,
             'order_number'  => Str::uuid()->toString(),
@@ -88,6 +119,22 @@ class AdvertListingService
         ]);
         $init_payment = $this->createPayment($listing, $promotePlan, $currency, $return_url, $cancel_url);
         return $init_payment;
+    }
+
+    /**
+     * Update the promotion plan for an existing listing.
+     */
+    private function updatePromotion(AdvertListing $listing, int $promotePlanId, string $currency, string $return_url = null, string $cancel_url = null)
+    {
+        $promotePlan = AdvertPromotePlan::findOrFail($promotePlanId);
+
+        $listing->promotePlans()->detach();
+
+        if ($promotePlan->price > 0) {
+            return $this->handlePaidPromotion($listing, $promotePlan, $currency, $return_url, $cancel_url);
+        } else {
+            return $this->handleFreePromotion($listing, $promotePlan);
+        }
     }
 
     /**
@@ -135,7 +182,7 @@ class AdvertListingService
             return $res;
         } else {
             $paymentData = [
-                'email'=> auth()->user()->email,
+                'email' => auth()->user()->email,
                 'currency_code' => $currency,
                 'total_amount' => $promotePlan->price,
                 'order_number' => $orderNumber,
@@ -144,6 +191,7 @@ class AdvertListingService
                 'cancel_url' => $cancel_url,
             ];
             $res = $this->paymentService->gateway('paystack')->initialize($paymentData);
+
             return $res;
         }
     }
@@ -287,7 +335,7 @@ class AdvertListingService
 
             ->when($request->hasHeader('currency'), function ($query) use ($request) {
                 $currency = $request->header('currency');
-            $query->where('advert_listings.currency', $currency);
+                $query->where('advert_listings.currency', $currency);
             });
 
         $perPage = $request->input('per_page', 15);
@@ -303,6 +351,4 @@ class AdvertListingService
             ]
         ];
     }
-
-
 }
