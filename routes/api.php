@@ -110,7 +110,8 @@ Route::middleware('auth:sanctum')->group(function () {
         });
 
         Route::prefix('advert')->group(function () {
-            Route::post('/promote', [AdvertListingController::class, 'postStoreAdvert']);
+            Route::post('promote', [AdvertListingController::class, 'postStoreAdvert']);
+            Route::get('store/promoted-store', [AdvertListingController::class, 'getUserPromotedStore']);
         });
     });
 

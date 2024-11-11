@@ -89,6 +89,11 @@ class AdvertListingController extends Controller
         $ads = $this->promoteStoreService->getStoresWithActivePromotions($request);
         return $this->success($ads);
     }
+    public function getUserPromotedStore(Request $request)
+    {
+        $ads = $this->promoteStoreService->getUserPromotedStore($request);
+        return $this->success($ads);
+    }
 
     /**
      *  Show the advert listing..
