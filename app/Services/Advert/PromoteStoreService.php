@@ -177,4 +177,10 @@ class PromoteStoreService
 
         return $stores;
     }
+    public function getUserPromotedStore(Request $request)
+    {
+        $stores = Store::whereHas('promotedStores')->where('user_id', $request->user()->id)->with('promotedStores.storePromotePlan')->get();
+
+        return $stores;
+    }
 }

@@ -694,7 +694,6 @@ paths:
               schema:
                 type: object
 
-
   /front/advert/plans:
     get:
       tags:
@@ -989,6 +988,23 @@ paths:
           required: true
           description: Currency code to filter listings by.
 
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/advert/store/promoted-store:
+    get:
+      tags:
+        - Advertisement
+      summary: get user  promoted stores
+      description: get authicated user promoted stores
+      operationId: GetUserPromotedStores
+      security:
+        - bearerAuth: []
       responses:
         default:
           description: "success"
