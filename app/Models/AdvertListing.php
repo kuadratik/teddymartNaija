@@ -97,4 +97,13 @@ class AdvertListing extends Model
             'payment_id'
         );
     }
+
+
+    public function getActivePromotePlanStatusAttribute()
+    {
+        return $this->promotePlans()
+            ->wherePivot('status', 'active')
+            ->first()
+            ->pivot->status ?? null;
+    }
 }
