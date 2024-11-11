@@ -60,7 +60,7 @@ Route::prefix('front')->group(function () {
     Route::prefix('stores')->group(function () {
         Route::get('/', [StoresController::class, 'getStores']);
         Route::get('recommended-stores', [StoresController::class, 'getRecommendedStores']);
-        Route::get('grouped-alpha-numeric' , [StoresController::class , 'getStoresAlphaNumerically']);
+        Route::get('grouped-alpha-numeric', [StoresController::class, 'getStoresAlphaNumerically']);
         Route::get('popular-recommended-stores', [StoresController::class, 'getPopularRecommendedStores']);
         Route::post('{store}/add-view', [StoresController::class, 'addStoreViewsCount']);
         Route::get('{store}/listings', [StoresController::class, 'showStoreListing']);
@@ -77,6 +77,13 @@ Route::prefix('front')->group(function () {
     Route::prefix('business-listings')->group(function () {
         Route::get('/', [BusinessListingController::class, 'index']);
         Route::post('create', [BusinessListingController::class, 'create']);
+
+    });
+
+    Route::prefix('advert')->group(function () {
+        Route::get('plans', [AdvertListingController::class, 'getAdvertPlans']);
+        Route::post('gallery', [AdvertListingController::class, 'getAllAdverts']);
+        Route::get('{advert}/gallery', [AdvertListingController::class, 'showAdvert']);
     });
 });
 
@@ -143,9 +150,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::prefix('advert')->group(function () {
             Route::post('create', [AdvertListingController::class, 'postAdvert']);
-            Route::get('plans', [AdvertListingController::class, 'getAdvertPlans']);
             Route::get('/', [AdvertListingController::class, 'getUserAdverts']);
-            Route::get('/gallery', [AdvertListingController::class, 'getAllAdverts']);
         });
     });
 });
@@ -156,5 +161,4 @@ Route::post('webhook/{gateway}', [WebhookController::class, 'handleWebhook'])
 Route::get('payment/success', [PaymentController::class, 'paypalSuccess'])->name('payment.success');
 Route::get('payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
-Route::prefix('console')->group(function () {
-});
+Route::prefix('console')->group(function () {});

@@ -3,6 +3,7 @@
 namespace App\Services\PaymentGateways;
 
 use App\Contracts\PaymentGatewayInterface;
+use App\Enums\PaymentType;
 use AWS\CRT\HTTP\Message;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -22,6 +23,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
             "currency" => $data['currency_code'],
             'metadata' => [
                 'order_number' => $data['order_number'],
+                'type' => $data['type'] ?? PaymentType::CHECKOUT->value,
             ],
         ]);
 

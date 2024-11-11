@@ -22,8 +22,8 @@ class AdvertListingController extends Controller
      */
     public function postAdvert(PostAdvertRequest $request)
     {
-        $listing = $this->advertListingService->create($request->postAdvertAttributes());
-        return  $this->success();
+        $listing = $this->advertListingService->create($request->postAdvertAttributes(), $request->validated('return_url'), $request->validated('cancel_url'));
+        return  $this->success($listing);
     }
 
     /**
@@ -55,5 +55,18 @@ class AdvertListingController extends Controller
     {
         $ads = $this->advertListingService->getAllAdverts($request);
         return $this->success($ads);
+    }
+
+    /**
+     *  Show the advert listing..
+     */
+    public function showAdvert(AdvertListing $advert)
+    {
+        return $this->success($advert->load([
+            'media',
+            'category',
+            'payment',
+            'promotePlans'
+        ]));
     }
 }

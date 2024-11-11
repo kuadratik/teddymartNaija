@@ -29,22 +29,26 @@ class StoresController extends Controller
     }
 
 
+
     /**
-     *  Get stores
+     * Get stores with optional currency filter
      */
     public function getStores(Request $request)
     {
-        $stores = Store::query()->byListingType($request->listingType)->when(
-            $request->search,
-            fn ($query) => $query->search($request->search)
-        )->when(
-            $request->category,
-            fn ($query) => $query->byCategory($request->category)
-        )->get();
+        $currency = $request->header('currency', 'USD');
 
-        RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
+        $stores = Store::query()
+            ->byListingType($request->listingType)
+            ->when($request->search, fn($query) => $query->search($request->search))
+            ->when($request->category, fn($query) => $query->byCategory($request->category))
+            ->where('currency', $currency)
+            ->get();
+
+        // RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
         return $this->success($stores);
     }
+
+
 
     /**
      *  Get recommended stores with optional country filter
