@@ -74,6 +74,11 @@ Route::prefix('front')->group(function () {
         Route::get('/', [ListingsController::class, 'getListings']);
     });
 
+    Route::prefix('business-listings')->group(function () {
+        Route::get('/', [BusinessListingController::class, 'index']);
+        Route::post('create', [BusinessListingController::class, 'create']);
+
+    });
 
     Route::prefix('advert')->group(function () {
         Route::get('plans', [AdvertListingController::class, 'getAdvertPlans']);
@@ -115,13 +120,10 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
-    Route::prefix('business-listings')->group(function () {
-        Route::get('/', [BusinessListingController::class, 'index']);
-        Route::post('create', [BusinessListingController::class, 'create']);
-    });
-
     Route::prefix('chats')->group( function () {
+        Route::get('/' , [ChatsController::class , 'getChats']);
         Route::post('start-conversation' , [ChatsController::class , 'startConversation']);
+        Route::post('send-message' , [ChatsController::class , 'sendMessage']);
     });
 
     Route::prefix('front')->group(function () {

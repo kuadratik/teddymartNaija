@@ -21,42 +21,45 @@ class ChatService
 
     public function startConversation(array $details)
     {
-        $respondent =  User::find($details['user_id']);
+        $respondent = User::find($details['user_id']);
+        $respondentType = $this->getUserType($respondent);
+
         $user = auth()->user();
+        $userType = $this->getUserType($user);
 
         DB::beginTransaction();
         try {
             $chat = Chat::firstOrCreate(['identifier' => $details['identifier']], [
-                'uid' => Str::uuid(),
+                'uuid' => Str::uuid(),
                 'user_id' => $user->id,
-                'user_type' => $user->user_type,
+                'user_type' => $userType,
                 'converse_type' => 'private',
-                'name' => null,
-                'pr_check' =>  $details['identifier']
+                'title' => null,
+                'identifier' =>  $details['identifier']
             ]);
 
             $chatUsers = [
                 [
                     'chat_id' => $chat->id,
-                    'user_type' => $user->user_type,
+                    'user_type' => $userType,
                     'user_id' => $user->id,
                     'read_at' => now()->copy()->toDateTime(),
                 ],
                 [
                     'chat_id' => $chat->id,
-                    'user_type' => $respondent->user_type,
+                    'user_type' => $respondentType,
                     'user_id' => $respondent->id,
                     'read_at' => now()->copy()->subMinutes(1),
                 ]
             ];
 
-            ChatUser::upsert($chatUsers, ['chat_id', 'user_id', 'read_at']);
+            ChatUser::upsert($chatUsers, ['chat_id', 'user_id']);
 
             $message = Message::create([
                 'chat_id' => $chat->id,
                 'user_id' => $user->id,
-                'user_type' => $user->user_type,
-                'body' => $details['message'],
+                'user_type' => $userType,
+                'content' => $details['message'],
             ]);
 
             DB::commit();
@@ -64,5 +67,107 @@ class ChatService
             DB::rollBack();
             throw $th;
         }
+    }
+
+    public function sendMessage($details)
+    {
+        $user = auth()->user();
+
+        DB::beginTransaction();
+        try {
+
+            $message = Message::create([
+                'chat_id' => $details['chat_id'],
+                'user_id' => $user->id,
+                'user_type' => $this->getUserType($user),
+                'content' => $details['message'],
+            ]);
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function chats()
+    {
+        $chats = Chat::query()->addSelect(['read_at' => ChatUser::subLastRead()])
+            ->whereHas('participants', fn ($participant) => $participant->authUser())
+            ->cursorPaginate(20);
+
+        $privateChatIds = $chats->where('converse_type', 'private')->pluck('id');
+
+        $respondents = $privateChatIds->whenNotEmpty(function ($privateChatIds) {
+            return ChatUser::where('chat_id', $privateChatIds)
+                ->where('user_id', '<>', auth()->id())->get();
+        });
+    
+        $lastMessages = $this->getLastMessages($chats->pluck('id'));
+        $unreads = $this->getUnReads($chats);
+
+        $chats->each(function ($chat) use ($respondents, $lastMessages, $unreads) {
+            $this->setChatsState($chat, $respondents, $lastMessages, $unreads);
+        });
+
+        return $chats;
+    }
+
+    public function setChatsState(&$chat, $respondent, $lastMessages, $unreads)
+    {
+        $match = $respondent->where('chat_id', $chat->id)->first();
+
+        $relation = is_null($match) ? null : [
+            'user_id' => $match->id,
+            'first_name' => $match->user->first_name,
+            'last_name' => $match->user->last_name,
+            'user_type' => $match->user_type,
+        ];
+
+        $chat->respondent = $relation;
+        $chat->lastMessage = $lastMessages->where('chat_id', $chat->id)->first();
+        $chat->unread = $unreads->where('chat_id', $chat->id)->first()?->unread ?? 0;
+    }
+
+    public function getLastMessages($chatIds)
+    {
+        $lastMessages = collect($chatIds)->when(count($chatIds) > 0)->map(function ($chatId) {
+            return  Message::select('*')->where('chat_id', $chatId)
+                ->whereRaw("id = (SELECT MAX(id) FROM messages WHERE chat_id = {$chatId})");
+        })->reduce(fn ($c, $q) => $c == null ? $q : $c->union($q), null)?->get();
+
+        return $lastMessages;
+    }
+
+    public function getUnReads($chats, $excludeId = null)
+    {
+        $excludeId = is_null($excludeId) ? auth()->id() : $excludeId;
+
+        $unReads = $chats->when(count($chats) > 0)
+            ->map(fn ($chat) => $this->unreadQuery($chat->id, $chat->read_at))
+            ->reduce(fn ($c, $q) => $c == null ? $q : $c->union($q), null)?->get();
+
+        return $unReads;
+    }
+
+    public function unreadQuery($chatId, $readAt, $excludeId = null)
+    {
+        $excludeId = is_null($excludeId) ? auth()->id() : $excludeId;
+
+        return Message::selectRaw('COUNT(*) as unread')->addSelect('chat_id')
+            ->where('chat_id', $chatId)->where('user_id', '<>', $excludeId)
+            ->where('created_at', '>', $readAt)->groupBy('chat_id');
+    }
+
+    public function getUserType($model)
+    {
+        $modelClass = get_class($model);
+
+        $userType = match ($modelClass) {
+            'App\Models\User' => 'user',
+            'App\Models\Admin' => 'admin',
+        };
+
+        return $userType;
     }
 }

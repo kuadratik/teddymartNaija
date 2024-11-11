@@ -29,7 +29,7 @@ class BusinessListingController extends Controller
      */
     public function create(CreateAdvertRequest $request)
     {
-        $business = BusinessListing::create($request->validated());
+        $business = BusinessListing::create($request->businessAttributes());
 
         return $this->success($business);
     }
