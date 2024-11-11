@@ -73,6 +73,11 @@ Route::prefix('front')->group(function () {
     Route::prefix('listings')->group(function () {
         Route::get('/', [ListingsController::class, 'getListings']);
     });
+
+    Route::prefix('business-listings')->group(function () {
+        Route::get('/', [BusinessListingController::class, 'index']);
+        Route::post('create', [BusinessListingController::class, 'create']);
+    });
 });
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -99,11 +104,6 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::delete('{userStore}/listing/{listing}/delete', [ListingsController::class, 'delete']);
             });
         });
-    });
-
-    Route::prefix('business-listings')->group(function () {
-        Route::get('/', [BusinessListingController::class, 'index']);
-        Route::post('create', [BusinessListingController::class, 'create']);
     });
 
     Route::prefix('chats')->group( function () {

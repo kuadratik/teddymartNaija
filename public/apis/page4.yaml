@@ -16,7 +16,7 @@ components:
     bearerFormat: JWT
 
 paths:
-  /business-listings:
+  /front/business-listings:
     get:
       security:
         - bearerAuth: []
@@ -52,7 +52,7 @@ paths:
               schema:
                 type: object
 
-  /business-listings/create:
+  /front/business-listings/create:
     post:
       security:
         - bearerAuth: []
