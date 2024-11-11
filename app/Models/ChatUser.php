@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class ChatUser extends Model
@@ -36,4 +37,29 @@ class ChatUser extends Model
     protected $casts = [
         'is_removed' => 'boolean',
     ];
+
+    /**
+     * Get the user for this chat user type
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Query scope to retrieve for auth participant
+     */
+    public function scopeAuthUser(Builder $query)
+    {
+        return $query->where('user_id', auth()->id());
+    }
+
+    /**
+     * Query scope to retrieve last read in subquery
+     */
+    public function scopeSubLastRead(Builder $query)
+    {
+        return $query->select('read_at')->whereColumn('chat_id', 'chats.id')
+            ->where('user_id', auth()->id())->take(1);
+    }
 }

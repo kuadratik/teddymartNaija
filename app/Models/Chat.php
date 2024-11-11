@@ -12,7 +12,7 @@ class Chat extends Model
      * @var array<string, string>
      */
     protected $fillable = [
-        'uid',
+        'uuid',
         'user_id',
         'user_type',
         'converse_type',
@@ -35,5 +35,13 @@ class Chat extends Model
     public function messages()
     {
         return $this->hasMany(Message::class);
+    }
+
+    /**
+     * Get chat participants
+     */
+    public function participants()
+    {
+        return $this->hasMany(ChatUser::class);
     }
 }

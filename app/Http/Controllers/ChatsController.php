@@ -3,14 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Chat\ConversationRequest;
+use App\Http\Requests\Chat\MessageRequest;
+use App\Models\Chat;
 use App\Services\Chat\ChatService;
 use Illuminate\Http\Request;
 
 class ChatsController extends Controller
 {
+    /**
+     *  Start a  conversation
+     */
     public function startConversation(ConversationRequest $request)
     {
         (new ChatService)->startConversation($request->conversationAttributes());
+        return $this->success();
+    }
+
+    /**
+     * Get the list of all conversations
+     */
+    public function getChats(Request $request)
+    {
+       $chats = (new ChatService)->chats();
+       return $this->success($chats);
+    }
+
+    /**
+     * Send message for existing conversation
+     */
+    public function sendMessage(MessageRequest $request)
+    {
+        (new ChatService)->sendMessage($request->validated());
         return $this->success();
     }
 }

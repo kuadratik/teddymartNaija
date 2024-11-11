@@ -16,7 +16,7 @@ components:
     bearerFormat: JWT
 
 paths:
-  /business-listings:
+  /front/business-listings:
     get:
       security:
         - bearerAuth: []
@@ -43,6 +43,7 @@ paths:
               description: Filter by category
               example: 1
             required: false
+
       responses:
         default:
           description: "success"
@@ -51,7 +52,7 @@ paths:
               schema:
                 type: object
 
-  /business-listings/create:
+  /front/business-listings/create:
     post:
       security:
         - bearerAuth: []
@@ -113,6 +114,24 @@ paths:
             application/json:
               schema:
                 type: object
+  
+  /chats:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Get authenticated user conversations
+      description: GetAuthenticatedUserConversations
+      operationId: GetAuthenticatedUserConversations
+            
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /chats/start-conversation:
     post:
@@ -145,3 +164,37 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /chats/send-message:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Send Message
+      description: Send Message
+      operationId: SendMessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                chat_id:
+                  type: number
+                  example: 1
+                  required: true
+                message:
+                  type: string
+                  example: "Ojuyobo Titus"
+                  required: true
+        
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+  
+  

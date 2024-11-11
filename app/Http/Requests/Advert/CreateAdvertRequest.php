@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Advert;
 
+use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateAdvertRequest extends FormRequest
@@ -33,5 +34,23 @@ class CreateAdvertRequest extends FormRequest
             'show_business_email' => ['required', 'boolean'],
             'show_business_address' => ['required', 'boolean']
         ];
+    }
+
+    /**
+     *  Move media to permanent storage.
+     */
+    public function media()
+    {
+        return Utils::moveToPermanentPath([$this->safe()->business_logo_url], 'business/media');
+    }
+
+    /**
+     * Prepare store record to save
+     */
+    public function businessAttributes()
+    {
+        return collect($this->safe()->except('business_logo_url'))->merge([
+            'business_logo_url' => $this->media()[0]
+        ])->toArray();
     }
 }
