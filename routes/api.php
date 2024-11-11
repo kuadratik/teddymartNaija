@@ -154,6 +154,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::prefix('advert')->group(function () {
             Route::post('create', [AdvertListingController::class, 'postAdvert']);
+            Route::put('{advert}/update', [AdvertListingController::class, 'updateAdvert']);
             Route::get('/', [AdvertListingController::class, 'getUserAdverts']);
         });
     });
