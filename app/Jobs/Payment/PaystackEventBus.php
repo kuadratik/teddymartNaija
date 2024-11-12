@@ -58,6 +58,7 @@ class PaystackEventBus implements ShouldQueue
     {
 
         Log::info('Paystack processing processSuccessfulCharge', ['event_type' => $payload]);
+
         $orderId = $this->extractOrderId($payload);
         $paymentType = $this->extractPaymentType($payload);
 
@@ -72,6 +73,7 @@ class PaystackEventBus implements ShouldQueue
         }
 
         if ($paymentType == PaymentType::ADVERT->value) {
+
             $advert = AdvertListingPromotePlan::where('order_number', $orderId)->first();
 
             if (!$advert) {
@@ -81,89 +83,88 @@ class PaystackEventBus implements ShouldQueue
 
             $paymentDetails = $this->extractPaymentDetails($payload);
 
-            DB::transaction(
-                function () use ($advert, $paymentDetails, $payload) {
+            DB::transaction(function () use ($advert, $paymentDetails, $payload) {
 
-                    $payment = Payment::where('reference', $paymentDetails['reference'])->first();
+                $payment = Payment::where('reference', $paymentDetails['reference'])->first();
 
-                    if (!$payment) {
+                if (!$payment) {
 
-                        $payment = Payment::create([
-                            'reference' => $paymentDetails['reference'],
-                            'amount' => $paymentDetails['amount'],
-                            'currency' => $paymentDetails['currency'],
-                            'gateway' => PaymentGatewayEnum::PAYPAL->value,
-                            'status' => PaymentStatusEnum::SUCCESS,
-                            'description' => "paystack Payment for ads"
-                        ]);
-                    }
-
-
-
-                    $advert->status = OrderStatusEnum::ACTIVE->value;
-                    $advert->started_at = now();
-                    $advert->expires_at = now()->addDays($advert->advertPromotePlan->duration);
-                    $advert->payment_id = $payment->id;
-                    $advert->save();
-
-                    PaymentTransaction::create([
-                        'payment_id' => $payment->id,
+                    $payment = Payment::create([
                         'reference' => $paymentDetails['reference'],
-                        'type' => PaymentTransactionTypeEnum::CHARGE,
-                        'amount' => $payment->amount,
-                        'currency' => $payment->currency,
-                        'is_success' => true,
-                        'status_message' => 'APPROVED',
-                        'response_payload' => json_encode($payload),
+                        'amount' => $paymentDetails['amount'],
+                        'currency' => $paymentDetails['currency'],
+                        'gateway' => PaymentGatewayEnum::PAYSTACK->value,
+                        'status' => PaymentStatusEnum::SUCCESS,
+                        'description' => "paystack Payment for ads"
                     ]);
                 }
-            );
+
+
+                if ($advert->status !== OrderStatusEnum::ACTIVE->value) {
+                    logger('days', [$advert->advertPromotePlan->duration_day]);
+                    $advert->status = OrderStatusEnum::ACTIVE->value;
+                    $advert->started_at = now();
+                    $advert->expires_at = now()->addDays($advert->advertPromotePlan->duration_days);
+                    $advert->payment_id = $payment->id;
+                    $advert->save();
+                }
+                PaymentTransaction::create([
+                    'payment_id' => $payment->id,
+                    'reference' => $paymentDetails['reference'],
+                    'type' => PaymentTransactionTypeEnum::CHARGE,
+                    'amount' => $payment->amount,
+                    'currency' => $payment->currency,
+                    'is_success' => true,
+                    'status_message' => 'APPROVED',
+                    'response_payload' => json_encode($payload),
+                ]);
+            });
         } elseif ($paymentType == PaymentType::PROMOTION->value) {
+
             $advert = StorePromotePlanStore::where('order_number', $orderId)->first();
 
             if (!$advert) {
                 Log::error('No store promotion found', ['order_number' => $orderId]);
                 return;
             }
+
             $paymentDetails = $this->extractPaymentDetails($payload);
 
-            DB::transaction(
-                function () use ($advert, $paymentDetails, $payload) {
+            DB::transaction(function () use ($advert, $paymentDetails, $payload) {
 
-                    $payment = Payment::where('reference', $paymentDetails['reference'])->first();
+            $payment = Payment::where('reference', $paymentDetails['reference'])->first();
 
-                    if (!$payment) {
+            if (!$payment) {
+                $payment = Payment::create([
+                    'reference' => $paymentDetails['reference'],
+                    'amount' => $paymentDetails['amount'],
+                    'currency' => $paymentDetails['currency'],
+                    'gateway' => PaymentGatewayEnum::PAYSTACK->value,
+                    'status' => PaymentStatusEnum::SUCCESS,
+                    'description' => "paystack Payment for  promotion"
+                ]);
+            }
 
-                        $payment = Payment::create([
-                            'reference' => $paymentDetails['reference'],
-                            'amount' => $paymentDetails['amount'],
-                            'currency' => $paymentDetails['currency'],
-                            'gateway' => PaymentGatewayEnum::PAYPAL->value,
-                            'status' => PaymentStatusEnum::SUCCESS,
-                            'description' => "paystack Payment for  promotion"
-                        ]);
-                    }
+            if ($advert->status !== OrderStatusEnum::ACTIVE->value) {
 
+                $advert->status = OrderStatusEnum::ACTIVE->value;
+                $advert->started_at = now();
+                $advert->expires_at = now()->addDays($advert->storePromotePlan->duration_days);
+                $advert->payment_id = $payment->id;
+                $advert->save();
+            }
 
-
-                    $advert->status = OrderStatusEnum::ACTIVE->value;
-                    $advert->started_at = now();
-                    $advert->expires_at = now()->addDays($advert->storePromotePlan->duration);
-                    $advert->payment_id = $payment->id;
-                    $advert->save();
-
-                    PaymentTransaction::create([
-                        'payment_id' => $payment->id,
-                        'reference' => $paymentDetails['reference'],
-                        'type' => PaymentTransactionTypeEnum::CHARGE,
-                        'amount' => $payment->amount,
-                        'currency' => $payment->currency,
-                        'is_success' => true,
-                        'status_message' => 'APPROVED',
-                        'response_payload' => json_encode($payload),
-                    ]);
-                }
-            );
+            PaymentTransaction::create([
+                'payment_id' => $payment->id,
+                'reference' => $paymentDetails['reference'],
+                'type' => PaymentTransactionTypeEnum::CHARGE,
+                'amount' => $payment->amount,
+                'currency' => $payment->currency,
+                'is_success' => true,
+                'status_message' => 'APPROVED',
+                'response_payload' => json_encode($payload),
+            ]);
+            });
         } else {
 
             $orders = Order::where('order_number', $orderId)->get();
@@ -430,8 +431,9 @@ class PaystackEventBus implements ShouldQueue
     }
 
 
-    private function  extractPaymentType()
+    private function  extractPaymentType(array $payload)
     {
+        Log::info("payment type", [$payload['data']['metadata']['type'] ?? '']);
         return $payload['data']['metadata']['type'] ?? '';
     }
 

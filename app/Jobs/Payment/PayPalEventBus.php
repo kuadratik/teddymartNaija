@@ -347,12 +347,13 @@ class PayPalEventBus implements ShouldQueue
                         'description' => "paypal Payment for promotion"
                     ]);
                 }
-
-                $advert->status = OrderStatusEnum::ACTIVE->value;
-                $advert->started_at = now();
-                $advert->expires_at = now()->addDays($advert->storePromotePlan->duration);
-                $advert->payment_id = $payment->id;
-                $advert->save();
+                if ($advert->status !== OrderStatusEnum::ACTIVE->value) {
+                    $advert->status = OrderStatusEnum::ACTIVE->value;
+                    $advert->started_at = now();
+                    $advert->expires_at = now()->addDays($advert->storePromotePlan->duration_days);
+                    $advert->payment_id = $payment->id;
+                    $advert->save();
+                }
 
                 PaymentTransaction::create([
                     'payment_id' => $payment->id,
