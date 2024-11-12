@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model
 {
-     /**
+    /**
      * The attributes that are mass assignable
      * 
      * @var array<string, string>
@@ -19,12 +19,10 @@ class Message extends Model
     ];
 
     /**
-     * The attributes that should be hidden for serialization
-     * 
-     * @var array<string, string>
+     * Get the user for this chat user type
      */
-    protected $hidden = [
-        'userable'
-    ];
-    
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

@@ -196,5 +196,60 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /chats/{chat}/read:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Update chat read time
+      description: Update chat read time
+      operationId: readReceipt
+      parameters:
+        - in: path
+          name: chat
+          schema:
+            type: number
+            example: 
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object 
+
+  /chats/{chat}/messages:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Get chat messages
+      description: Get chat messages
+      operationId: GetChatMessages
+      parameters:
+
+        - in: path
+          name: chat
+          schema:
+            type: number
+            example: 
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object 
   
   
