@@ -109,7 +109,6 @@ class ChatService
                 'user_id' => $respondent->user_id,
                 'first_name' => $respondent->user->first_name,
                 'last_name' => $respondent->user->last_name,
-                'picture' => $respondent->user->picture,
                 'user_type' => $respondent->user_type,
             ];
         });
