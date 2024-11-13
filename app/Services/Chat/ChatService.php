@@ -95,9 +95,26 @@ class ChatService
         $messages = Message::where('chat_id', $chatId)->latest('created_at')
             ->cursorPaginate();
 
-        $messages->each(fn($message) => $this->setMessageUser($message));
+        $messages->each(fn ($message) => $this->setMessageUser($message));
 
         return $messages;
+    }
+
+    public function chatDetails($uid)
+    {
+        $chat = Chat::where('uuid', $uid)->with('participants')->firstOrFail();
+
+        $chat?->participants?->each(function ($respondent) {
+            $respondent->relation = [
+                'user_id' => $respondent->user_id,
+                'first_name' => $respondent->user->first_name,
+                'last_name' => $respondent->user->last_name,
+                'picture' => $respondent->user->picture,
+                'user_type' => $respondent->user_type,
+            ];
+        });
+
+        return $chat;
     }
 
     public function updateReadAt($chatId)

@@ -132,6 +132,29 @@ paths:
             application/json:
               schema:
                 type: object
+  
+  /chats/{uid}/details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Get Chat Details
+      description: Get Chat Details
+      operationId: GetChatDetails
+      parameters:
+        - in: path
+          name: uid
+          schema:
+            type: string
+            example: 032cd4c0-fb21-4579-9e10-6b23690cd249
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /chats/start-conversation:
     post:

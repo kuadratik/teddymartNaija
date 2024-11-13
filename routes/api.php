@@ -122,6 +122,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('chats')->group( function () {
         Route::get('/' , [ChatsController::class , 'getChats']);
+        Route::get('{uid}/details', [ChatsController::class , 'getChatDetails']);
         Route::get('{chat}/messages' , [ChatsController::class , 'getChatMessages']);
         Route::post('start-conversation' , [ChatsController::class , 'startConversation']);
         Route::post('send-message' , [ChatsController::class , 'sendMessage']);
