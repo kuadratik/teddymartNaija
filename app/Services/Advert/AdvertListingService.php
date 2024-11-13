@@ -57,9 +57,10 @@ class AdvertListingService
      */
     public function update( AdvertListing $listing , array $attributes, string $return_url = null, string $cancel_url = null): array
     {
-        if ($listing->getActivePromotePlanStatusAttribute()) {
+        if ($listing->getActivePromotePlanStatusAttribute() && $listing->promotePlans()->first()->price > 0) {
            abort(422,'Advert listing already active');
         }
+
         return DB::transaction(function () use ($listing,$attributes, $return_url, $cancel_url) {
             $mediaPaths = $attributes['media'] ?? [];
             unset($attributes['media']);

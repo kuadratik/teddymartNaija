@@ -153,8 +153,16 @@ class StoresController extends Controller
      */
     public function showUserStore(Request $request)
     {
-        return $this->success($request->user()->store);
+        $user = $request->user();
+        $store = $user->store()
+            ->when($request->hasHeader('currency'), function ($query) use ($request) {
+                $query->where('currency', $request->header('currency'));
+            })
+            ->get();
+
+        return $this->success($store);
     }
+
 
     /**
      * Display the specified store listing.

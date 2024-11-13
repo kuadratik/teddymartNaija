@@ -26,7 +26,14 @@ paths:
       summary: Get User Store Info
       description: 'Get User Store Info'
       operationId: GetUserStoreTnfo
-
+      parameters:
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: false
+          description: Currency code to filter listings by.
       responses:
         default:
           description: 'success'
@@ -455,6 +462,6 @@ paths:
                 schema:
                   type: object
 
-  
+
 
 
