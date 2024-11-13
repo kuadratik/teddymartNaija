@@ -25,10 +25,17 @@ class ChatsController extends Controller
      * Get the chat messages
      */
 
-     public function getChatMessages(Request $request){
+    public function getChatMessages(Request $request)
+    {
         $chatMessages = (new ChatService)->chatMessages($request->chat);
         return $this->success($chatMessages);
-     }
+    }
+
+    public function getChatDetails(Request $request){
+    
+       $chatDetails = (new ChatService)->chatDetails($request->uid);
+       return $this->success($chatDetails);
+    }
 
     /**
      * Get the list of all conversations
