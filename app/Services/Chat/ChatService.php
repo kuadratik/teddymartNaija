@@ -90,6 +90,29 @@ class ChatService
         }
     }
 
+    public function chatMessages($chatId)
+    {
+        $messages = Message::where('chat_id', $chatId)->latest('created_at')
+            ->cursorPaginate();
+
+        $messages->each(fn($message) => $this->setMessageUser($message));
+
+        return $messages;
+    }
+
+    public function updateReadAt($chatId)
+    {
+        $chatUser = ChatUser::where('chat_id', $chatId)->where('user_id', auth()->id())->first();
+        $hasUpdated = (bool) $chatUser->update(['read_at' =>  now()]);
+
+        abort_if(!$hasUpdated, 409, 'Unable to update chat user read time.');
+
+        $read = $this->unreadQuery($chatUser->chat_id, $chatUser->read_at)->first();
+
+        $chatUser->unread = $read?->read ?? 0;
+        return $chatUser;
+    }
+
     public function chats()
     {
         $chats = Chat::query()->addSelect(['read_at' => ChatUser::subLastRead()])
@@ -102,7 +125,7 @@ class ChatService
             return ChatUser::where('chat_id', $privateChatIds)
                 ->where('user_id', '<>', auth()->id())->get();
         });
-    
+
         $lastMessages = $this->getLastMessages($chats->pluck('id'));
         $unreads = $this->getUnReads($chats);
 
@@ -169,5 +192,18 @@ class ChatService
         };
 
         return $userType;
+    }
+
+    public function setMessageUser(&$message)
+    {
+        $relation = is_null($message?->user) ? null : [
+            'user_id' => $message->user_id,
+            'first_name' => $message->user->first_name,
+            'last_name' => $message->user->last_name,
+            'email' => $message->user->email,
+            'user_type' => $message->user_type,
+        ];
+
+        $message->user = $relation;
     }
 }
