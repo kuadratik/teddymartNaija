@@ -29,16 +29,16 @@ class MediaService
     /**
      * Create media record in database
      */
-    private function createMediaRecord(
-        int $advertListingId,
-        string $path,
-        AdvertMediaType $type
-    ): AdvertMedia {
-        return AdvertMedia::create([
-            'advert_listing_id' => $advertListingId,
-            'file_path' => $path,
-            'type' => $type->value
-        ]);
+    private function createMediaRecord(int $advertListingId, string $path, AdvertMediaType $type): AdvertMedia
+    {
+        return AdvertMedia::updateOrCreate(
+            ['advert_listing_id' => $advertListingId],
+            [
+                'advert_listing_id' => $advertListingId,
+                'file_path' => $path,
+                'type' => $type->value
+            ]
+        );
     }
 
     /**

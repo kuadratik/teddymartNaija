@@ -53,6 +53,39 @@ class AdvertListingService
     }
 
     /**
+     * update advert listing with promotion plan
+     */
+    public function update( AdvertListing $listing , array $attributes, string $return_url = null, string $cancel_url = null): array
+    {
+        if ($listing->getActivePromotePlanStatusAttribute() && $listing->promotePlans()->first()->price > 0) {
+           abort(422,'Advert listing already active');
+        }
+
+        return DB::transaction(function () use ($listing,$attributes, $return_url, $cancel_url) {
+            $mediaPaths = $attributes['media'] ?? [];
+            unset($attributes['media']);
+            $listing->update($attributes);
+            if (!empty($mediaPaths)) {
+                $this->mediaService->storeMedia($listing->id, $mediaPaths);
+            }
+
+
+            if (isset($attributes['promote_plan_id'])) {
+                $url =  $this->updatePromotion($listing, $attributes['promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD);
+                return [
+                    'listing' => $listing->load(['promotePlans', 'media']),
+                    'url' => @$url
+                ];
+            }
+
+            return [
+                'listing' => $listing->load(['promotePlans', 'media']),
+
+            ];
+        });
+    }
+
+    /**
      * Create the base listing
      */
     private function createListing(array $attributes): AdvertListing
@@ -79,7 +112,6 @@ class AdvertListingService
      */
     private function handlePaidPromotion(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null)
     {
-
         $listing->promotePlans()->attach($promotePlan->id, [
             'status' => OrderStatusEnum::PENDING_PAYMENT,
             'order_number'  => Str::uuid()->toString(),
@@ -88,6 +120,22 @@ class AdvertListingService
         ]);
         $init_payment = $this->createPayment($listing, $promotePlan, $currency, $return_url, $cancel_url);
         return $init_payment;
+    }
+
+    /**
+     * Update the promotion plan for an existing listing.
+     */
+    private function updatePromotion(AdvertListing $listing, int $promotePlanId, string $currency, string $return_url = null, string $cancel_url = null)
+    {
+        $promotePlan = AdvertPromotePlan::findOrFail($promotePlanId);
+
+        $listing->promotePlans()->detach();
+
+        if ($promotePlan->price > 0) {
+            return $this->handlePaidPromotion($listing, $promotePlan, $currency, $return_url, $cancel_url);
+        } else {
+            return $this->handleFreePromotion($listing, $promotePlan);
+        }
     }
 
     /**
@@ -135,6 +183,7 @@ class AdvertListingService
             return $res;
         } else {
             $paymentData = [
+                'email' => auth()->user()->email,
                 'currency_code' => $currency,
                 'total_amount' => $promotePlan->price,
                 'order_number' => $orderNumber,
@@ -143,6 +192,7 @@ class AdvertListingService
                 'cancel_url' => $cancel_url,
             ];
             $res = $this->paymentService->gateway('paystack')->initialize($paymentData);
+
             return $res;
         }
     }
@@ -214,24 +264,6 @@ class AdvertListingService
             ->when($request->filled('type'), function ($query) use ($request) {
                 $query->where('type', $request->type);
             })
-
-            ->when($request->filled('price_min'), function ($query) use ($request) {
-                $query->where('price', '>=', $request->price_min);
-            })
-            ->when($request->filled('price_max'), function ($query) use ($request) {
-                $query->where('price', '<=', $request->price_max);
-            })
-            ->when($request->filled('state'), function ($query) use ($request) {
-                $query->where('state', 'like', '%' . $request->state . '%');
-            })
-
-            ->when($request->filled('created_after'), function ($query) use ($request) {
-                $query->whereDate('created_at', '>=', $request->created_after);
-            })
-            ->when($request->filled('created_before'), function ($query) use ($request) {
-                $query->whereDate('created_at', '<=', $request->created_before);
-            })
-
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
                     $q->where('title', 'like', '%' . $request->search . '%')
@@ -243,7 +275,7 @@ class AdvertListingService
                 $sortDirection = $request->filled('order') && $request->order === 'asc' ? 'asc' : 'desc';
                 $query->orderBy($sortField, $sortDirection);
             }, function ($query) {
-                $query->latest();
+                $query->with(['media', 'category', 'payment', 'promotePlans'])->latest();
             });
 
 
@@ -261,9 +293,6 @@ class AdvertListingService
         ];
     }
 
-    /**
-     * Retrieve all adverts based on the provided request filters.
-     */
     public function getAllAdverts(Request $request)
     {
         $validated = $request->validate([
@@ -273,44 +302,41 @@ class AdvertListingService
 
         $query = AdvertListing::with(['media', 'category', 'payment', 'promotePlans']);
 
+        $query->leftJoin('advert_listing_promote_plans', 'advert_listings.id', '=', 'advert_listing_promote_plans.advert_listing_id')
+            ->leftJoin('advert_promote_plans', 'advert_listing_promote_plans.advert_promote_plan_id', '=', 'advert_promote_plans.id')
+            ->select('advert_listings.*')
+            ->addSelect(DB::raw('MIN(advert_promote_plans.price) as min_promote_plan_price'))
+            ->groupBy('advert_listings.id')
+            ->orderBy('min_promote_plan_price', 'desc');
+
         $query->when($request->filled('status'), function ($query) use ($request) {
             $query->whereHas('promotePlans', function ($q) use ($request) {
-                $q->where('status', $request->status);
+                $q->where('advert_listing_promote_plans.status', $request->status);
             });
         });
 
         if ($request->filled('category_id')) {
             $categoryIds = $validated['category_id'];
-
             $query->where(function ($q) use ($categoryIds) {
                 foreach ($categoryIds as $categoryId) {
-                    $q->orWhere('category_id', $categoryId);
+                    $q->orWhere('advert_listings.category_id', $categoryId);
                 }
             });
         }
 
-        $query->when($request->filled('type'), fn($query) => $query->where('type', $request->type))
-            ->when($request->filled('price_min'), fn($query) => $query->where('price', '>=', $request->price_min))
-            ->when($request->filled('price_max'), fn($query) => $query->where('price', '<=', $request->price_max))
-            ->when($request->filled('state'), fn($query) => $query->where('state', 'like', '%' . $request->state . '%'))
-            ->when($request->filled('created_after'), fn($query) => $query->whereDate('created_at', '>=', $request->created_after))
-            ->when($request->filled('created_before'), fn($query) => $query->whereDate('created_at', '<=', $request->created_before))
+        $query->when($request->filled('type'), fn($query) => $query->where('advert_listings.type', $request->type))
+            ->when($request->filled('price_min'), fn($query) => $query->where('advert_promote_plans.price', '>=', $request->price_min))
+            ->when($request->filled('price_max'), fn($query) => $query->where('advert_promote_plans.price', '<=', $request->price_max))
             ->when($request->filled('search'), function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
-                    $q->where('title', 'like', '%' . $request->search . '%')
-                        ->orWhere('description', 'like', '%' . $request->search . '%');
+                    $q->where('advert_listings.title', 'like', '%' . $request->search . '%')
+                        ->orWhere('advert_listings.description', 'like', '%' . $request->search . '%');
                 });
             })
-            ->when($request->filled('sort'), function ($query) use ($request) {
-                $sortField = in_array($request->sort, ['created_at', 'price']) ? $request->sort : 'created_at';
-                $sortDirection = $request->filled('order') && $request->order === 'asc' ? 'asc' : 'desc';
-                $query->orderBy($sortField, $sortDirection);
-            }, function ($query) {
-                $query->latest();
-            })
+
             ->when($request->hasHeader('currency'), function ($query) use ($request) {
                 $currency = $request->header('currency');
-                $query->where('currency', $currency);
+                $query->where('advert_listings.currency', $currency);
             });
 
         $perPage = $request->input('per_page', 15);

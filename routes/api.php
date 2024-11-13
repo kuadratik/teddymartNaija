@@ -82,8 +82,10 @@ Route::prefix('front')->group(function () {
 
     Route::prefix('advert')->group(function () {
         Route::get('plans', [AdvertListingController::class, 'getAdvertPlans']);
+        Route::get('promoted-plans', [AdvertListingController::class, 'getPromotionPlans']);
         Route::post('gallery', [AdvertListingController::class, 'getAllAdverts']);
         Route::get('{advert}/gallery', [AdvertListingController::class, 'showAdvert']);
+        Route::get('store/promote', [AdvertListingController::class, 'getAllPromotedStores']);
     });
 });
 
@@ -110,6 +112,11 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::patch('{userStore}/listing/{listing}/update', [ListingsController::class, 'update']);
                 Route::delete('{userStore}/listing/{listing}/delete', [ListingsController::class, 'delete']);
             });
+        });
+
+        Route::prefix('advert')->group(function () {
+            Route::post('promote', [AdvertListingController::class, 'postStoreAdvert']);
+            Route::get('store/promoted-store', [AdvertListingController::class, 'getUserPromotedStore']);
         });
     });
 
@@ -153,6 +160,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::prefix('advert')->group(function () {
             Route::post('create', [AdvertListingController::class, 'postAdvert']);
+            Route::put('{advert}/update', [AdvertListingController::class, 'updateAdvert']);
             Route::get('/', [AdvertListingController::class, 'getUserAdverts']);
         });
     });

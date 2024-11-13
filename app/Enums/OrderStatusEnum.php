@@ -9,6 +9,7 @@ enum OrderStatusEnum: string
     case COMPLETED = 'completed';
     case PAID  = 'paid';
     case ACTIVE  = 'active';
+    case EXPIRED = 'expired';
     case PENDING  = 'pending';
     case PENDING_PAYMENT  = 'pending_payment';
     case COMPLETED_PAYMENT  = 'completed_payment';
