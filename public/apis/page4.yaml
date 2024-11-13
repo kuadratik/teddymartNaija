@@ -138,7 +138,7 @@ paths:
       security:
         - bearerAuth: []
       tags:
-        - Chat
+        - Messaging
       summary: Get Chat Details
       description: Get Chat Details
       operationId: GetChatDetails
