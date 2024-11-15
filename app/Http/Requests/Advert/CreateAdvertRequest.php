@@ -24,12 +24,12 @@ class CreateAdvertRequest extends FormRequest
     {
         return [
             'business_name' => ['required', 'string', 'max:20'],
-            'business_description' => ['required', 'string'],
+            'business_description' => ['nullable', 'string'],
             'business_email' => ['nullable', 'email'],
             'business_address' => ['nullable', 'string'],
             'business_contact_number' => ['required', 'string'],
             'business_logo_url' => ['nullable', 'string'],
-            'category_id' => ['required', 'exists:categories,id'],
+            'industry_id' => ['required', 'exists:industries,id'],
             'show_business_description' => ['required', 'boolean'],
             'show_business_email' => ['required', 'boolean'],
             'show_business_address' => ['required', 'boolean']
