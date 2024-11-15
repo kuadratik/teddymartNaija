@@ -2,6 +2,7 @@
 
 namespace App\Services\Chat;
 
+use App\Jobs\Messaging\SendMessage;
 use App\Models\Chat;
 use App\Models\ChatUser;
 use App\Models\Message;
@@ -62,6 +63,8 @@ class ChatService
                 'content' => $details['message'],
             ]);
 
+
+            SendMessage::dispatch($message->toArray())->afterCommit();
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -83,6 +86,7 @@ class ChatService
                 'content' => $details['message'],
             ]);
 
+            SendMessage::dispatch($message->toArray())->afterCommit();
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
