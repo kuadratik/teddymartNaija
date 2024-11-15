@@ -58,7 +58,7 @@ paths:
             type: array
             items:
               type: number
-              description: Filter by category
+              description: Filter by industry
               example: 1
             required: false
 
@@ -85,7 +85,7 @@ paths:
             schema:
               type: object
               properties:
-                category_id:
+                industry_id:
                   type: number
                   example: 1
                   required: true
