@@ -31,10 +31,13 @@ class ChatsController extends Controller
         return $this->success($chatMessages);
     }
 
-    public function getChatDetails(Request $request){
-    
-       $chatDetails = (new ChatService)->chatDetails($request->uid);
-       return $this->success($chatDetails);
+    /**
+     * Get the chat details
+     */
+    public function getChatDetails(Request $request)
+    {
+        $chatDetails = (new ChatService)->chatDetails($request->uid);
+        return $this->success($chatDetails);
     }
 
     /**
@@ -55,6 +58,9 @@ class ChatsController extends Controller
         return $this->success();
     }
 
+    /**
+     * Update read at
+     */
     public function updateReadAt(ReadRequest $request)
     {
         (new ChatService)->updateReadAt($request->chat);
