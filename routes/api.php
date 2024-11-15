@@ -36,6 +36,7 @@ Route::prefix('front')->group(function () {
     Route::get('category', [GeneralController::class, 'getCategories']);
     Route::get('record-interaction/{category}', [GeneralController::class, 'recordUserInteraction']);
     Route::post('contact-us', [GeneralController::class, 'contactUs']);
+    Route::post('upload-file', [GeneralController::class, 'uploadTempFile']);
 
     Route::middleware(['hasUid', 'optionalAuth'])->group(function () {
         Route::post('add-to-clip/{product:slug}', [UserController::class, 'addToClip']);
