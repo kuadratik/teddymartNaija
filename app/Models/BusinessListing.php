@@ -23,7 +23,7 @@ class BusinessListing extends Model
         'business_address',
         'business_contact_number',
         'business_logo_url',
-        'category_id',
+        'industry_id',
         'show_business_description',
         'show_business_email',
         'show_business_address',
