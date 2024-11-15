@@ -75,10 +75,11 @@ Route::prefix('front')->group(function () {
         Route::get('/', [ListingsController::class, 'getListings']);
     });
 
+    Route::get('business-industries', [BusinessListingController::class, 'getIndustries']);
+
     Route::prefix('business-listings')->group(function () {
         Route::get('/', [BusinessListingController::class, 'index']);
         Route::post('create', [BusinessListingController::class, 'create']);
-
     });
 
     Route::prefix('advert')->group(function () {
@@ -121,13 +122,13 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
-    Route::prefix('chats')->group( function () {
-        Route::get('/' , [ChatsController::class , 'getChats']);
-        Route::get('{uid}/details', [ChatsController::class , 'getChatDetails']);
-        Route::get('{chat}/messages' , [ChatsController::class , 'getChatMessages']);
-        Route::post('start-conversation' , [ChatsController::class , 'startConversation']);
-        Route::post('send-message' , [ChatsController::class , 'sendMessage']);
-        Route::put('{chat}/read', [ChatsController::class , 'updateReadAt']);
+    Route::prefix('chats')->group(function () {
+        Route::get('/', [ChatsController::class, 'getChats']);
+        Route::get('{uid}/details', [ChatsController::class, 'getChatDetails']);
+        Route::get('{chat}/messages', [ChatsController::class, 'getChatMessages']);
+        Route::post('start-conversation', [ChatsController::class, 'startConversation']);
+        Route::post('send-message', [ChatsController::class, 'sendMessage']);
+        Route::put('{chat}/read', [ChatsController::class, 'updateReadAt']);
     });
 
     Route::prefix('front')->group(function () {
@@ -173,4 +174,5 @@ Route::post('webhook/{gateway}', [WebhookController::class, 'handleWebhook'])
 Route::get('payment/success', [PaymentController::class, 'paypalSuccess'])->name('payment.success');
 Route::get('payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
-Route::prefix('console')->group(function () {});
+Route::prefix('console')->group(function () {
+});

@@ -56,8 +56,8 @@ class BusinessListing extends Model
     /**
      * Get the category for this listing
      */
-    public function category()
+    public function industry()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Industry::class);
     }
 }
