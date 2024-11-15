@@ -405,6 +405,37 @@ paths:
               schema:
                 type: object
 
+  /front/upload-file:
+    post:
+      tags:
+        - General
+      summary: upload Image file for unauthenticated users
+      description: API endpoint to upload multiple base64 encoded images
+      operationId: uploadBase64Images
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    description: Base64 encoded image string
+                    example: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/video-file-upload:
     post:
       tags:

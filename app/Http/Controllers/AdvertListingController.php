@@ -25,7 +25,11 @@ class AdvertListingController extends Controller
      */
     public function postAdvert(PostAdvertRequest $request)
     {
-        $listing = $this->advertListingService->create($request->postAdvertAttributes(), $request->validated('return_url'), $request->validated('cancel_url'));
+        $listing = $this->advertListingService->create(
+            $request->postAdvertAttributes(),
+            $request->validated('return_url'),
+            $request->validated('cancel_url')
+        );
         return  $this->success($listing);
     }
 
@@ -39,7 +43,6 @@ class AdvertListingController extends Controller
         return  $this->success($listing);
     }
 
-
     /**
      * Get the available advert plans..
      *
@@ -51,6 +54,7 @@ class AdvertListingController extends Controller
         $plans = $this->advertListingService->getAdvertPlans($currency);
         return $this->success($plans);
     }
+
     /**
      * Get the available store promotion plans..
      *
@@ -81,6 +85,7 @@ class AdvertListingController extends Controller
         $ads = $this->advertListingService->getAllAdverts($request);
         return $this->success($ads);
     }
+
     /**
      * Get all adverts.
      */
@@ -89,6 +94,7 @@ class AdvertListingController extends Controller
         $ads = $this->promoteStoreService->getStoresWithActivePromotions($request);
         return $this->success($ads);
     }
+    
     public function getUserPromotedStore(Request $request)
     {
         $ads = $this->promoteStoreService->getUserPromotedStore($request);
