@@ -19,14 +19,12 @@ use Illuminate\Support\Facades\DB;
 
 class AdvertListingService
 {
-
-
-
-    public function __construct(protected MediaService $mediaService, private readonly PaymentService $paymentService)
-    {
+    public function __construct(
+        protected MediaService $mediaService,
+        private readonly PaymentService $paymentService
+    ) {
         //
     }
-
 
     /**
      * Create a new advert listing with promotion plan
@@ -55,13 +53,13 @@ class AdvertListingService
     /**
      * update advert listing with promotion plan
      */
-    public function update( AdvertListing $listing , array $attributes, string $return_url = null, string $cancel_url = null): array
+    public function update(AdvertListing $listing, array $attributes, string $return_url = null, string $cancel_url = null): array
     {
         if ($listing->getActivePromotePlanStatusAttribute() && $listing->promotePlans()->first()->price > 0) {
-           abort(422,'Advert listing already active');
+            abort(422, 'Advert listing already active');
         }
 
-        return DB::transaction(function () use ($listing,$attributes, $return_url, $cancel_url) {
+        return DB::transaction(function () use ($listing, $attributes, $return_url, $cancel_url) {
             $mediaPaths = $attributes['media'] ?? [];
             unset($attributes['media']);
             $listing->update($attributes);
