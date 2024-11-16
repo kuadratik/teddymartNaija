@@ -31,8 +31,7 @@ class MediaService
      */
     private function createMediaRecord(int $advertListingId, string $path, AdvertMediaType $type): AdvertMedia
     {
-        return AdvertMedia::updateOrCreate(
-            ['advert_listing_id' => $advertListingId],
+        return AdvertMedia::Create(
             [
                 'advert_listing_id' => $advertListingId,
                 'file_path' => $path,
