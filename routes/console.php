@@ -10,3 +10,6 @@ use Illuminate\Support\Facades\Schedule;
 // })->purpose('Display an inspiring quote')->hourly();
 
 Schedule::command(CacheStores::class)->everyTwoMinutes();
+
+Schedule::command('advert:check-expired-plans')->everyMinute()->withoutOverlapping();
+
