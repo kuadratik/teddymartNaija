@@ -49,6 +49,27 @@ class PromoteStoreService
             ];
         });
     }
+    /**
+     *  update new advert listing with promotion plan
+     */
+    public function update(array $attributes, string $return_url = null, string $cancel_url = null): array
+    {
+
+        return DB::transaction(function () use ($attributes, $return_url, $cancel_url) {
+            $listing =  StorePromotePlanStore::where('store_id', $attributes['store_id'])->first();
+
+            abort_if($listing->status !== OrderStatusEnum::PAYMENT_FAILED->value, 400, 'You can only update a failed payment');
+
+            $listing = $this->updateListing($listing, $attributes);
+
+            $url = $this->handlePromotion($listing, $attributes['store_promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD, $return_url, $cancel_url);
+
+            return [
+                'listing' => $listing->load(['promotePlans']),
+                'url' => $url
+            ];
+        });
+    }
 
     /**
      * Create the base listing
@@ -56,7 +77,15 @@ class PromoteStoreService
     private function createListing(array $attributes): StorePromotePlanStore
     {
 
-        return StorePromotePlanStore::create($attributes);
+        return StorePromotePlanStore::Create($attributes);
+    }
+    /**
+     * Create the base listing
+     */
+    private function updateListing($listing, array $attributes): StorePromotePlanStore
+    {
+
+        return $listing->update($attributes);
     }
 
     /**
@@ -78,7 +107,7 @@ class PromoteStoreService
     {
 
         $listing = StorePromotePlanStore::where('store_id', $listing->store_id)->first();
-        abort_if($listing->status !== OrderStatusEnum::PENDING->value, 400, 'store is already pending payment active');
+        abort_if($listing->status !== OrderStatusEnum::PENDING->value, 403, 'Oops! This store has already been promoted. Please select another store to promote.');
         $listing->order_number = Str::uuid()->toString();
         $listing->status = OrderStatusEnum::PENDING_PAYMENT;
         $listing->update();
@@ -169,14 +198,17 @@ class PromoteStoreService
      */
     public function getStoresWithActivePromotions()
     {
-        $stores = Store::whereHas('promotedStores', function ($query) {
-            $query->where('status', OrderStatusEnum::ACTIVE);
+        $currency = request()->header('currency', CurrencyType::USD->value);
+        $stores = Store::whereHas('promotedStores', function ($query) use ($currency) {
+            $query->where('status', OrderStatusEnum::ACTIVE)
+                ->where('currency', $currency);
         })
             ->with('promotedStores.storePromotePlan')
             ->get();
 
         return $stores;
     }
+
     public function getUserPromotedStore(Request $request)
     {
         $stores = Store::whereHas('promotedStores')->where('user_id', $request->user()->id)->with('promotedStores.storePromotePlan')->get();
