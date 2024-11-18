@@ -107,7 +107,7 @@ class PromoteStoreService
     {
 
         $listing = StorePromotePlanStore::where('store_id', $listing->store_id)->first();
-        abort_if($listing->status !== OrderStatusEnum::PENDING->value, 400, 'store is already pending payment active');
+        abort_if($listing->status !== OrderStatusEnum::PENDING->value, 403, 'Oops! This store has already been promoted. Please select another store to promote.');
         $listing->order_number = Str::uuid()->toString();
         $listing->status = OrderStatusEnum::PENDING_PAYMENT;
         $listing->update();
