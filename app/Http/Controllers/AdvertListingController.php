@@ -117,4 +117,10 @@ class AdvertListingController extends Controller
         $listing = $this->promoteStoreService->create($request->postAdvertAttributes(), $request->validated('return_url'), $request->validated('cancel_url'));
         return  $this->success($listing);
     }
+
+    public function updateStoreAdvert(PostStoreAdvertRequest $request)
+    {
+        $listing = $this->promoteStoreService->update($request->postAdvertAttributes(), $request->validated('return_url'), $request->validated('cancel_url'));
+        return  $this->success($listing);
+    }
 }

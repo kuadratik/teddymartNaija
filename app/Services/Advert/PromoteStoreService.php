@@ -49,6 +49,27 @@ class PromoteStoreService
             ];
         });
     }
+    /**
+     *  update new advert listing with promotion plan
+     */
+    public function update(array $attributes, string $return_url = null, string $cancel_url = null): array
+    {
+
+        return DB::transaction(function () use ($attributes, $return_url, $cancel_url) {
+            $listing =  StorePromotePlanStore::where('store_id', $attributes['store_id'])->first();
+
+            abort_if($listing->status !== OrderStatusEnum::PAYMENT_FAILED->value, 400, 'You can only update a failed payment');
+
+            $listing = $this->updateListing($listing, $attributes);
+
+            $url = $this->handlePromotion($listing, $attributes['store_promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD, $return_url, $cancel_url);
+
+            return [
+                'listing' => $listing->load(['promotePlans']),
+                'url' => $url
+            ];
+        });
+    }
 
     /**
      * Create the base listing
@@ -56,7 +77,15 @@ class PromoteStoreService
     private function createListing(array $attributes): StorePromotePlanStore
     {
 
-        return StorePromotePlanStore::create($attributes);
+        return StorePromotePlanStore::Create($attributes);
+    }
+    /**
+     * Create the base listing
+     */
+    private function updateListing($listing, array $attributes): StorePromotePlanStore
+    {
+
+        return $listing->update($attributes);
     }
 
     /**
