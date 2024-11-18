@@ -24,6 +24,7 @@ class Store extends Model
         'user_id',
         'name',
         'slug',
+        'type',
         'contact_number',
         'whatsapp_number',
         'profile_picture_path',
