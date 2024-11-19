@@ -16,6 +16,24 @@ components:
     bearerFormat: JWT
 
 paths:
+  /front/business-industries:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Get the list of business industries
+      description: Get the list of business industries
+      operationId: GetBusinessindustries
+     
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/business-listings:
     get:
       security:
@@ -33,14 +51,14 @@ paths:
             example: ""
           required: false
         - in: query
-          name: category
+          name: industry
           style: form
           explode: false
           schema:
             type: array
             items:
               type: number
-              description: Filter by category
+              description: Filter by industry
               example: 1
             required: false
 
@@ -67,7 +85,7 @@ paths:
             schema:
               type: object
               properties:
-                category_id:
+                industry_id:
                   type: number
                   example: 1
                   required: true

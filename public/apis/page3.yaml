@@ -964,7 +964,61 @@ paths:
               schema:
                 type: object
 
-  /front/advert/store/promote:
+  /store/advert/promote/update:
+    put:
+      tags:
+        - Advertisement
+      summary: Update Store advert promotion
+      description: Update Store advert promotion
+      operationId: UpdateStoreAdvertPromotion
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                store_promote_plan_id:
+                  type: integer
+                  example: 1
+                  required: true
+                return_url:
+                  type: string
+                  example: https://staging.eki.market"
+                  required: false
+                cancel_url:
+                  type: string
+                  example: "https://staging.eki.market"
+                  required: false
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/store/promote/update:
     get:
       tags:
         - Advertisement

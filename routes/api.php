@@ -36,6 +36,7 @@ Route::prefix('front')->group(function () {
     Route::get('category', [GeneralController::class, 'getCategories']);
     Route::get('record-interaction/{category}', [GeneralController::class, 'recordUserInteraction']);
     Route::post('contact-us', [GeneralController::class, 'contactUs']);
+    Route::post('upload-file', [GeneralController::class, 'uploadTempFile']);
 
     Route::middleware(['hasUid', 'optionalAuth'])->group(function () {
         Route::post('add-to-clip/{product:slug}', [UserController::class, 'addToClip']);
@@ -74,10 +75,11 @@ Route::prefix('front')->group(function () {
         Route::get('/', [ListingsController::class, 'getListings']);
     });
 
+    Route::get('business-industries', [BusinessListingController::class, 'getIndustries']);
+
     Route::prefix('business-listings')->group(function () {
         Route::get('/', [BusinessListingController::class, 'index']);
         Route::post('create', [BusinessListingController::class, 'create']);
-
     });
 
     Route::prefix('advert')->group(function () {
@@ -116,17 +118,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::prefix('advert')->group(function () {
             Route::post('promote', [AdvertListingController::class, 'postStoreAdvert']);
+            Route::put('promote/update', [AdvertListingController::class, 'updateStoreAdvert']);
             Route::get('store/promoted-store', [AdvertListingController::class, 'getUserPromotedStore']);
         });
     });
 
-    Route::prefix('chats')->group( function () {
-        Route::get('/' , [ChatsController::class , 'getChats']);
-        Route::get('{uid}/details', [ChatsController::class , 'getChatDetails']);
-        Route::get('{chat}/messages' , [ChatsController::class , 'getChatMessages']);
-        Route::post('start-conversation' , [ChatsController::class , 'startConversation']);
-        Route::post('send-message' , [ChatsController::class , 'sendMessage']);
-        Route::put('{chat}/read', [ChatsController::class , 'updateReadAt']);
+    Route::prefix('chats')->group(function () {
+        Route::get('/', [ChatsController::class, 'getChats']);
+        Route::get('{uid}/details', [ChatsController::class, 'getChatDetails']);
+        Route::get('{chat}/messages', [ChatsController::class, 'getChatMessages']);
+        Route::post('start-conversation', [ChatsController::class, 'startConversation']);
+        Route::post('send-message', [ChatsController::class, 'sendMessage']);
+        Route::put('{chat}/read', [ChatsController::class, 'updateReadAt']);
     });
 
     Route::prefix('front')->group(function () {
@@ -172,4 +175,5 @@ Route::post('webhook/{gateway}', [WebhookController::class, 'handleWebhook'])
 Route::get('payment/success', [PaymentController::class, 'paypalSuccess'])->name('payment.success');
 Route::get('payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
-Route::prefix('console')->group(function () {});
+Route::prefix('console')->group(function () {
+});

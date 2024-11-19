@@ -121,7 +121,6 @@ class Utils
 
             $permanentPaths[] = 'teddymart/' . $permanentPath;
         }
-
         return $permanentPaths;
     }
 
