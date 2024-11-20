@@ -2,6 +2,7 @@ FROM php:8.2-fpm
 
 # Env build argument with a default value
 ARG PHP_FPM_PORT=9000
+ARG REVERRB_PORT=8080
 
 COPY .docker/php.ini /usr/local/etc/php/
 COPY .docker/docker.conf /usr/local/etc/php-fpm.d/docker.conf
@@ -71,6 +72,7 @@ RUN echo 'pm.max_children = 50' >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
 
 # Expose PHP-fpm and Swoole port
 EXPOSE $PHP_FPM_PORT
+EXPOSE $REVERRB_PORT
 
 WORKDIR /var/www
 COPY .docker/supervisord.conf /etc/supervisord.conf
