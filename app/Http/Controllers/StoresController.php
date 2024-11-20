@@ -146,7 +146,7 @@ class StoresController extends Controller
         return $this->success(['store' => $store]);
     }
 
-    
+
 
 
     /**
