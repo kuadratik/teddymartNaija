@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\FetchStoresAlphaNumericallyAction;
 use App\Actions\RecordCategoryInteractionsAction;
 use App\Http\Requests\Store\CreateStoreRequest;
+use App\Http\Requests\Store\SaveShippingMethodRequest;
 use App\Http\Requests\Store\UpdateStoreRequest;
 use App\Jobs\RecordCategoryInteractions;
 use App\Models\Store;
@@ -21,14 +22,13 @@ class StoresController extends Controller
      */
     public function getUserStoreMetrics(Request $request, UserService $userService, Store $userStore)
     {
-
         abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
+
         $userStoreListingsCount = $userStore->listings()->byType($request->listingType)->count();
         $customersCount = $userService->getStoreCustomerCount($userStore);
+
         return $this->success(["totalListingsCount" => $userStoreListingsCount, "totalCustomerCount" => $customersCount]);
     }
-
-
 
     /**
      * Get stores with optional currency filter
@@ -48,8 +48,6 @@ class StoresController extends Controller
         return $this->success($stores);
     }
 
-
-
     /**
      *  Get recommended stores with optional country filter
      */
@@ -67,6 +65,7 @@ class StoresController extends Controller
 
         return $this->success($stores);
     }
+
     /**
      *  Get popular recommended stores with optional country filter
      */
@@ -103,6 +102,9 @@ class StoresController extends Controller
         return $this->success($store);
     }
 
+    /**
+     *  Get store in alphanumerical order
+     */
     public function getStoresAlphaNumerically(Request $request)
     {
         $currency = $request->header('currency', 'USD');
@@ -118,14 +120,13 @@ class StoresController extends Controller
     }
 
     /**
-     * add store views count
+     *  Add store views count
      */
     public function addStoreViewsCount(Request $request, Store $store)
     {
         $store->increment('views_count');
         return $this->success();
     }
-
 
     /**
      * Creates a store based on the provided request.
@@ -147,6 +148,7 @@ class StoresController extends Controller
         return $this->success(['store' => $store]);
     }
 
+    
 
     /**
      * Display the specified store.
@@ -162,7 +164,6 @@ class StoresController extends Controller
 
         return $this->success($store);
     }
-
 
     /**
      * Display the specified store listing.

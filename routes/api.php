@@ -9,6 +9,7 @@ use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\StoresController;
+use App\Http\Controllers\StoreShippingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Http\Request;
@@ -114,6 +115,13 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::patch('{userStore}/listing/{listing}/update', [ListingsController::class, 'update']);
                 Route::delete('{userStore}/listing/{listing}/delete', [ListingsController::class, 'delete']);
             });
+        });
+
+        Route::prefix('shipping')->group(function () {
+            Route::get('{userStore}/methods', [StoreShippingController::class, 'getShippingMethods']);
+            Route::post('save-method' ,[StoreShippingController::class, 'saveShippingMethod']);
+            Route::post('remove-method-type', [StoreShippingController::class, 'removeMethodType']);
+            Route::delete('delete-method/{shippingMethod}', [StoreShippingController::class, 'deleteShippingMethod']);
         });
 
         Route::prefix('advert')->group(function () {
