@@ -1,4 +1,4 @@
-openapi: "3.0.0"
+openapi: '3.0.0'
 info:
   description: Teddyed apis
   version: 1.0.0
@@ -548,8 +548,8 @@ paths:
             example: pounded-yam
           required: true
 
-        responses:
-          default:
+      responses:
+        default:
             description: 'success'
             content:
               application/json:
