@@ -6,10 +6,12 @@ services:
       dockerfile: .docker/Dockerfile
       args:
         PHP_FPM_PORT: 9020 
+        REVERRB_PORT: 8020
     container_name: teddymart-prod
     restart: unless-stopped
     ports:
       - "9020:9020"
+      - "8020:8020"
     volumes:
       - .:/var/www
     networks:

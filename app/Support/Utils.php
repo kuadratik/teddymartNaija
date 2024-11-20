@@ -108,7 +108,9 @@ class Utils
 
             $permanentPath = "{$permanentDirectory}/{$fileName}";
 
+
             if (Storage::disk('spaces')->exists('teddymart/' . $permanentPath)) {
+                $permanentPaths[] = 'teddymart/' . $permanentPath;
                 continue;
             }
             $move = Storage::disk('spaces')->move('teddymart/' . $tempPath, 'teddymart/' . $permanentPath);
@@ -119,7 +121,6 @@ class Utils
 
             $permanentPaths[] = 'teddymart/' . $permanentPath;
         }
-
         return $permanentPaths;
     }
 

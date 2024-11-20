@@ -1,4 +1,4 @@
-openapi: '3.0.0'
+openapi: "3.0.0"
 info:
   description: myEki apis
   version: 1.0.0
@@ -155,6 +155,12 @@ paths:
             type: string
             example:
           required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
       responses:
         default:
           description: "success"
@@ -244,7 +250,6 @@ paths:
             application/json:
               schema:
                 type: object
-
 
   /front/order:
     get:
@@ -336,7 +341,6 @@ paths:
               schema:
                 type: object
 
-
   /front/wishlist/remove/{product}:
     delete:
       tags:
@@ -421,7 +425,6 @@ paths:
               schema:
                 type: object
 
-
   /front/cart/{cart}/payment:
     post:
       tags:
@@ -459,19 +462,19 @@ paths:
                   type: string
                   example: "USD"
                   required: true
-                'first_name':
+                first_name:
                   type: string
                   example: "Teddy"
                   required: true
-                'last_name':
+                last_name:
                   type: string
                   example: "Edwardson"
                   required: true
-                'email':
+                email:
                   type: string
                   example: "teddyedward@teddyed.com"
                   required: true
-                'phone':
+                phone:
                   type: string
                   example: "2348012345678"
                   required: true
@@ -487,4 +490,609 @@ paths:
               schema:
                 type: object
 
+  /front/advert/create:
+    post:
+      tags:
+        - Advertisement
+      summary: Create advert listing
+      description: Create advert listing
+      operationId: CreateAdvert
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Teddy's Yams"
+                  required: true
+                description:
+                  type: string
+                  example: "Teddy's Yams"
+                  required: true
+                quantity:
+                  type: integer
+                  example: 100
+                  required: true
+                category_id:
+                  type: integer
+                  example: 1
+                  required: true
+                type:
+                  type: string
+                  example: "product"
+                  required: true
+                price_on_request:
+                  type: boolean
+                  example: false
+                  required: true
+                price:
+                  type: number
+                  example: 1000
+                  required: false
+                media:
+                  type: array
+                  items:
+                    type: string
+                    description: media file paths
+                    example: ""
+                state:
+                  type: string
+                  example: "Lagos"
+                  required: true
+                country_id:
+                  type: integer
+                  example: 1
+                  required: true
+                phone_number:
+                  type: string
+                  example: "2348012345678"
+                  required: true
+                promote_plan_id:
+                  type: integer
+                  example: 9
+                  required: true
+                country_code:
+                  type: string
+                  example: "NG"
+                  required: true
+                return_url:
+                  type: string
+                  example: https://staging.eki.market"
+                  required: false
+                cancel_url:
+                  type: string
+                  example: "https://staging.eki.market"
+                  required: false
 
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/{advert}/update:
+    put:
+      tags:
+        - Advertisement
+      summary: Update advert listing
+      description: Update advert listing
+      operationId: UpdateAdvert
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Teddy's Yams"
+                  required: true
+                description:
+                  type: string
+                  example: "Teddy's Yams"
+                  required: true
+                quantity:
+                  type: integer
+                  example: 100
+                  required: true
+                category_id:
+                  type: integer
+                  example: 1
+                  required: true
+                type:
+                  type: string
+                  example: "product"
+                  required: true
+                price_on_request:
+                  type: boolean
+                  example: false
+                  required: true
+                price:
+                  type: number
+                  example: 1000
+                  required: false
+                media:
+                  type: array
+                  items:
+                    type: string
+                    description: media file paths
+                    example: ""
+                state:
+                  type: string
+                  example: "Lagos"
+                  required: true
+                country_id:
+                  type: integer
+                  example: 1
+                  required: true
+                phone_number:
+                  type: string
+                  example: "2348012345678"
+                  required: true
+                promote_plan_id:
+                  type: integer
+                  example: 9
+                  required: true
+                country_code:
+                  type: string
+                  example: "NG"
+                  required: true
+                return_url:
+                  type: string
+                  example: https://staging.eki.market"
+                  required: false
+                cancel_url:
+                  type: string
+                  example: "https://staging.eki.market"
+                  required: false
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/plans:
+    get:
+      tags:
+        - Advertisement
+      summary: get advert listing plans
+      description: get advert listing plans
+      operationId: GetAdvertListingPlans
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert:
+    get:
+      tags:
+        - Advertisement
+      summary: Get user advert listings
+      description: Retrieve a list of advert listings for the authenticated user with optional filters
+      operationId: GetUserAdvertListing
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: Session UID of the user
+        - in: query
+          name: status
+          schema:
+            type: string
+          required: false
+          description: Status of the advert's promotion plan
+        - in: query
+          name: category_id
+          schema:
+            type: integer
+          required: false
+          description: Category ID to filter listings
+        - in: query
+          name: type
+          schema:
+            type: string
+          required: false
+          description: Type of the listing
+
+        - in: query
+          name: search
+          schema:
+            type: string
+          required: false
+          description: Keyword to search within titles and descriptions
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [created_at, price]
+          required: false
+          description: Field to sort by (created_at or price)
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+          required: false
+          description: Sort order, either asc or desc
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+          required: false
+          description: Number of items per page for pagination
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/gallery:
+    post:
+      tags:
+        - Advertisement
+      summary: Get all advert listings with filters and pagination
+      description: |
+        Retrieve all advert listings with optional filtering, sorting, and pagination options.
+        Filters include: status, category_id, type, price range, state, creation date, and search term.
+      operationId: GetAllAdverts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by.
+        - in: query
+          name: status
+          schema:
+            type: string
+            example: active
+          required: false
+          description: Filter by promotion status (active,expired).
+        - in: query
+          name: type
+          schema:
+            type: string
+          required: false
+          description: Filter by listing type (product , service).
+        - in: query
+          name: price_min
+          schema:
+            type: number
+            format: float
+          required: false
+          description: Minimum price for listings plan.
+        - in: query
+          name: price_max
+          schema:
+            type: number
+            format: float
+          required: false
+          description: Maximum price for listings plan.
+
+        - in: query
+          name: search
+          schema:
+            type: string
+          required: false
+          description: Search term to match in title or description.
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+          required: false
+          description: Number of listings per page.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category_id:
+                  type: array
+                  example: [1, 2, 3]
+                  required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/{advert}/gallery:
+    get:
+      tags:
+        - Advertisement
+      summary: Get advert gallery
+      description: Retrieve a list of media files for a specific advert
+      operationId: GetAdvertGallery
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+
+        - in: path
+          name: advert
+          schema:
+            type: integer
+          required: true
+          example: 1
+          description: The ID of the advert to retrieve the gallery for.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/advert/promote:
+    post:
+      tags:
+        - Advertisement
+      summary: Store advert promotion
+      description: Store advert promotion
+      operationId: StoreAdvertPromotion
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                store_promote_plan_id:
+                  type: integer
+                  example: 1
+                  required: true
+                return_url:
+                  type: string
+                  example: https://staging.eki.market"
+                  required: false
+                cancel_url:
+                  type: string
+                  example: "https://staging.eki.market"
+                  required: false
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/advert/promote/update:
+    put:
+      tags:
+        - Advertisement
+      summary: Update Store advert promotion
+      description: Update Store advert promotion
+      operationId: UpdateStoreAdvertPromotion
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                store_promote_plan_id:
+                  type: integer
+                  example: 1
+                  required: true
+                return_url:
+                  type: string
+                  example: https://staging.eki.market"
+                  required: false
+                cancel_url:
+                  type: string
+                  example: "https://staging.eki.market"
+                  required: false
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/store/promote/update:
+    get:
+      tags:
+        - Advertisement
+      summary: get  promoted stores
+      description: get  promoted stores
+      operationId: GetPromotedStores
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by.
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/advert/store/promoted-store:
+    get:
+      tags:
+        - Advertisement
+      summary: get user  promoted stores
+      description: get authicated user promoted stores
+      operationId: GetUserPromotedStores
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/promoted-plans:
+    get:
+      tags:
+        - Advertisement
+      summary: get store promotion  plans
+      description: get store promotion  plans
+      operationId: GetPromotePlans
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object

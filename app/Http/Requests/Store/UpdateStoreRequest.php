@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\Store;
 
+use App\Enums\StoreType;
 use App\Rules\UniqueStoreName;
 use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateStoreRequest extends FormRequest
 {
@@ -36,6 +38,8 @@ class UpdateStoreRequest extends FormRequest
             'city' => ['required', 'string'],
             'postal_code' => ['nullable', 'string'],
             'country' => ['nullable', 'integer' , 'exists:countries,id'],
+            'type' => ['required', Rule::enum(StoreType::class), 'string']
+
         ];
     }
 

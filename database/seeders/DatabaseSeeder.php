@@ -19,17 +19,21 @@ class DatabaseSeeder extends Seeder
                 UserSeeder::class,
                 StoreSeeder::class,
                 CategorySeeder::class,
+                IndustrySeeder::class,
                 ListingSeeder::class,
                 CountriesTableSeeder::class,
                 StatesTableSeeder::class,
+                AdvertPromotePlansSeeder::class,
             ]);
         }
 
         if (app()->environment(['live', 'production'])) {
             $this->call([
                 CategorySeeder::class,
+                IndustrySeeder::class,
                 CountriesTableSeeder::class,
                 StatesTableSeeder::class,
+                AdvertPromotePlansSeeder::class,
             ]);
         }
     }

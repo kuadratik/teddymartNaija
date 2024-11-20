@@ -1,0 +1,296 @@
+openapi: '3.0.0'
+info:
+  description: myEki apis
+  version: 1.0.0
+  title: myeki
+
+servers:
+  - url: /api
+    description: v1 baseUrl
+
+components:
+  securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+
+paths:
+  /front/business-industries:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Get the list of business industries
+      description: Get the list of business industries
+      operationId: GetBusinessindustries
+     
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/business-listings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Get the list of business listings
+      description: Get the list of business listings
+      operationId: GetBusinessListing
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: ""
+          required: false
+        - in: query
+          name: industry
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: number
+              description: Filter by industry
+              example: 1
+            required: false
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/business-listings/create:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Create Business listing
+      description: Create Business listing
+      operationId: CreateBusinessListings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                industry_id:
+                  type: number
+                  example: 1
+                  required: true
+                business_name:
+                  type: string
+                  example: "Ojuyobo Titus"
+                  required: true
+                business_description:
+                  type: string
+                  example: "Ikeja"
+                  required: true
+                business_email:
+                  type: string
+                  example: "ojuyobo@gmail.com"
+                  required: true
+                business_address:
+                  type: string
+                  example: ""
+                  required: fals
+                business_contact_number:
+                  type: string
+                  example: ""
+                  required: true
+                business_logo_url:
+                  type: string
+                  example: ""
+                  required: true
+                show_business_description:
+                  type: boolean
+                  example: true
+                  required: true
+                show_business_email:
+                  type: boolean
+                  example: true
+                  required: true
+                show_business_address:
+                  type: boolean
+                  example: true
+                  required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+  
+  /chats:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Get authenticated user conversations
+      description: GetAuthenticatedUserConversations
+      operationId: GetAuthenticatedUserConversations
+            
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+  
+  /chats/{uid}/details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Get Chat Details
+      description: Get Chat Details
+      operationId: GetChatDetails
+      parameters:
+        - in: path
+          name: uid
+          schema:
+            type: string
+            example: 032cd4c0-fb21-4579-9e10-6b23690cd249
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /chats/start-conversation:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Start Conversation
+      description: Start Conversation
+      operationId: StartConversation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: number
+                  example: 1001
+                  required: true
+                message:
+                  type: string
+                  example: "Ojuyobo Titus"
+                  required: true
+        
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /chats/send-message:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Send Message
+      description: Send Message
+      operationId: SendMessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                chat_id:
+                  type: number
+                  example: 1
+                  required: true
+                message:
+                  type: string
+                  example: "Ojuyobo Titus"
+                  required: true
+        
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /chats/{chat}/read:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Update chat read time
+      description: Update chat read time
+      operationId: readReceipt
+      parameters:
+        - in: path
+          name: chat
+          schema:
+            type: number
+            example: 
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object 
+
+  /chats/{chat}/messages:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Get chat messages
+      description: Get chat messages
+      operationId: GetChatMessages
+      parameters:
+
+        - in: path
+          name: chat
+          schema:
+            type: number
+            example: 
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object 
+  
+  

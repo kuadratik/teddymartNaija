@@ -28,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'offers_product',
         'offers_service',
         'has_store',
+        'has_ads',
         'password',
     ];
 
@@ -54,6 +55,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'offers_product' => 'boolean',
             'offers_service' => 'boolean',
             'has_store' => 'boolean',
+            'has_ads' => 'boolean',
         ];
     }
 
@@ -124,6 +126,16 @@ class User extends Authenticatable implements MustVerifyEmail
 
     }
 
+
+    /**
+     * Get all of the advertListings for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function advertListings(): HasMany
+    {
+        return $this->hasMany(AdvertListing::class);
+    }
 
 
 }
