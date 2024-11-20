@@ -23,12 +23,19 @@ class Listing extends Model
         'slug',
         'type',
         'price',
+        'qauntity',
+        'discount',
+        'discounted_price',
+        'display_price',
         'description',
         'additional_information',
         'is_available',
         'views_count',
         'images',
-        'currency'
+        'currency',
+        'discount_start_date',
+        'discount_end_date',
+        'is_draft'
     ];
 
     /**
@@ -44,7 +51,10 @@ class Listing extends Model
      */
     protected $casts = [
         'images' => 'array',
-        'is_available' => 'boolean'
+        'is_available' => 'boolean',
+        'is_draft' => 'boolean',
+        'discount_start_date' => 'datetime',
+        'discount_end_date' => 'datetime'
     ];
 
     /**
@@ -54,7 +64,30 @@ class Listing extends Model
     {
         static::saving(function (Listing $model) {
             $model->slug = str($model->name)->slug();
+
+            if ($model->discount > 0) {
+                $model->discounted_price = $model->price - ($model->price * ($model->discount / 100));
+                $model->display_price = $model->discounted_price + env('COMPANY_RATE', 0.13) * $model->price;
+            } else {
+                $model->display_price = $model->price + env('COMPANY_RATE', 0.13) * $model->price;
+            }
         });
+    }
+
+    /**
+     *  get the product attributes
+     */
+    public function attributes()
+    {
+        return $this->hasOne(ListingAttribute::class);
+    }
+
+    /**
+     * Get product variants
+     */
+    public function variants()
+    {
+        return $this->hasMany(ListingVariant::class);
     }
 
     /**
@@ -155,5 +188,32 @@ class Listing extends Model
     public function scopeByCurrency(Builder $query, string $currency)
     {
         $query->when($currency, fn(Builder $query) => $query->where('currency', $currency));
+    }
+
+
+    /**
+     * Scope a query to only include listings that are currently on sale.
+     *
+     * A listing is considered on sale if it has a discount greater than 0,
+     * and the current date is within the discount start and end dates.
+     */
+    public function scopeOnSale($query)
+    {
+        return $query->where('discount', '>', 0)
+        ->whereNotNull('discount_start_date')
+        ->whereNotNull('discount_end_date')
+        ->where('discount_start_date', '<=', now())
+            ->where('discount_end_date', '>=', now());
+    }
+
+
+    /**
+     * Scope a query to only include listings that are in stock.
+     *
+     * A listing is considered in stock if its quantity is greater than zero.
+     */
+    public function scopeInStock($query)
+    {
+        return $query->where('quantity', '>', 0);
     }
 }
