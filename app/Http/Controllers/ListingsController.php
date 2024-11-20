@@ -8,6 +8,7 @@ use App\Jobs\RecordCategoryInteractions;
 use App\Models\Listing;
 use App\Models\Store;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ListingsController extends Controller
 {
@@ -23,7 +24,7 @@ class ListingsController extends Controller
      */
     public function getUserStoreListings(Request $request, Store $userStore)
     {
-        abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
+        abort_if($userStore->user_id !== $this->user->id, 402, "Unauthorized");
         $userStoreListings = $userStore->listings()
             ->latest()->byType($request->listingType)
             ->availability($request->availability)
@@ -32,15 +33,31 @@ class ListingsController extends Controller
         return $this->success($userStoreListings);
     }
 
+
+
     /**
-     * Creates an user store listing based on the provided request.
+     * Create a new listing for the specified user store.
      */
     public function create(CreateListingRequest $request, Store $userStore)
     {
-        abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
-        Listing::create($request->listingAttributes($userStore));
-        return $this->success();
+        abort_if($userStore->user_id !== $this->user->id, 402, "Unauthorized");
+
+        return DB::transaction(function () use ($request, $userStore) {
+            $listing = Listing::create($request->listingAttributes($userStore));
+
+            $listing->attributes()->create($request->listingAttributeAttributes());
+
+            $variantsAttributes = $request->variantsAttributes();
+            if (!empty($variantsAttributes)) {
+                foreach ($variantsAttributes as $variant) {
+                    $listing->variants()->create($variant);
+                }
+            }
+
+            return $this->success();
+        });
     }
+
 
     /**
      * Display the specified user store listing.
