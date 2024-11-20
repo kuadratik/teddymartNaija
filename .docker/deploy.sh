@@ -27,6 +27,7 @@ echo "Deploying"
 docker exec ${APP_NAME} composer install --no-ansi --no-interaction --no-plugins --optimize-autoloader
 
 docker exec ${APP_NAME} php artisan optimize:clear
+docker exec ${APP_NAME} php artisan reverb:restart
 docker exec ${APP_NAME} php artisan queue:restart
 
 # Migrate database
