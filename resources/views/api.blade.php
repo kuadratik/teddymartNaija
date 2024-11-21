@@ -163,11 +163,13 @@
                 <h4 class="box-title">Enter passcode to continue</h4>
                 <form action="/passcode" method="post">
                     @csrf
-                    <input type="text" name="passcode" placeholder="code" class="form-ctr {{ session()->has('error') ? 'danger-ctr' : ''  }}">
+                    <input type="text" name="passcode" placeholder="code"
+                        class="form-ctr {{ session()->has('error') ? 'danger-ctr' : '' }}">
                 </form>
             </div>
         </main>
     @endif
 
 </body>
+
 </html>

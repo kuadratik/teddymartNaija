@@ -14,7 +14,7 @@ class SendMessage implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public array $message)
+    public function __construct(public array $message, public string|int $respondentId)
     {
         //
     }
@@ -24,6 +24,6 @@ class SendMessage implements ShouldQueue
      */
     public function handle(): void
     {
-        GotMessage::dispatch($this->message);
+        GotMessage::dispatch($this->message, $this->respondentId);
     }
 }
