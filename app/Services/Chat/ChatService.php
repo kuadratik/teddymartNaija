@@ -74,7 +74,8 @@ class ChatService
 
     public function sendMessage($details)
     {        
-        $user = auth()->user();
+        $user = request()->user();
+        $chatUser = ChatUser::where('user_id', '!=', $user->id)->first();
 
         DB::beginTransaction();
         try {
@@ -86,7 +87,7 @@ class ChatService
                 'content' => $details['message'],
             ]);
 
-            SendMessage::dispatch($message->toArray())->afterCommit();
+            SendMessage::dispatch($message->toArray(), $chatUser->user_id)->afterCommit();
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
