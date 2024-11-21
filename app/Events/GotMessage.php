@@ -17,7 +17,7 @@ class GotMessage implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct(public array $message)
+    public function __construct(public array $message, public string|int $respondentId)
     {
         //
     }
@@ -30,7 +30,7 @@ class GotMessage implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel("App.Models.User.{$this->message['user_id']}"),
+            new PrivateChannel("App.Models.User.{$this->respondentId}"),
         ];
     }
 }
