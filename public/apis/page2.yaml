@@ -556,30 +556,6 @@ paths:
                 schema:
                   type: object
 
-  /store/shipping/{userStore}/methods:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - User Store Shipping Methods
-      summary: Get User Store Shipping Methods
-      description: 'Get User Store Shipping Methods'
-      operationId: GetUserStoreShippingMethods
-      parameters:
-        - in: path
-          name: userStore
-          schema:
-            type: string
-            example: amala-sky
-          required: true
-
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
 
   /store/shipping/save-method:
     post:
@@ -686,7 +662,7 @@ paths:
               application/json:
                 schema:
                   type: object
-  
+
   /store/shipping/{userStore}/methods:
     get:
       security:
@@ -712,111 +688,6 @@ paths:
               schema:
                 type: object
 
-  /store/shipping/save-method:
-    post:
-      security:
-        - bearerAuth: []
-      tags:
-        - User Store Shipping Methods
-      summary: Save User Store Shipping Method
-      description: Save User Store Shipping Method
-      operationId: SaveUserStoreShippingMethod
-
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                id:
-                  type: integer
-                  example: 1
-                store_id:
-                  type: integer
-                  example: 1
-                  required: true
-                method_type:
-                  type: string
-                  example: "store pick-up"
-                  required: true
-                pick_up_time:
-                  type: string
-                  example: "40 years and 30mins"
-                pick_up_location:
-                  type: string
-                  example: "ojuelegba street"
-                fulfilled_amount:
-                  type: string
-                  example: "200"
-                fulfilled_location:
-                  type: string
-                  example: "surulere street"
-
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-  
-  /store/shipping/remove-method-type:
-    post:
-      security:
-        - bearerAuth: []
-      tags:
-        - User Store Shipping Methods
-      summary: Remove User Store Shipping Method Type
-      description: Remove User Store Shipping Method Type
-      operationId: RemoveUserStoreShippingMethodType
-
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                store_id:
-                  type: integer
-                  example: 1
-                  required: true
-                method_type:
-                  type: string
-                  example: "store pick-up"
-                  required: true   
-
-      responses:
-        default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /store/shipping/delete-method/{shippingMethod}:
-     delete:
-        security:
-          - bearerAuth: []
-        tags:
-          - User Store Shipping Methods
-        summary: Delete User Store Shipping Method
-        description: 'Delete User Store Shipping Method'
-        operationId: DeleteUserStoreShippingMethod
-        parameters:
-          - in: path
-            name: shippingMethod
-            schema:
-              type: integer
-              example: 1
-            required: true
-
-        responses:
-          default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
 
 
 
