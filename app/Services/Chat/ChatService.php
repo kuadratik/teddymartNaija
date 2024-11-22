@@ -141,9 +141,9 @@ class ChatService
             ->cursorPaginate(20);
 
         $privateChatIds = $chats->where('converse_type', 'private')->pluck('id');
-
+        
         $respondents = $privateChatIds->whenNotEmpty(function ($privateChatIds) {
-            return ChatUser::where('chat_id', $privateChatIds)
+            return ChatUser::whereIn('chat_id', $privateChatIds)
                 ->where('user_id', '<>', auth()->id())->get();
         });
 
