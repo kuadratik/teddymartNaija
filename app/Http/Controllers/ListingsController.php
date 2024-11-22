@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Listing\AddRatingRequest;
 use App\Http\Requests\Listing\CreateListingRequest;
 use App\Http\Requests\Listing\UpdateListingRequest;
 use App\Jobs\RecordCategoryInteractions;
 use App\Models\Listing;
+use App\Models\ListingRating;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,8 +35,6 @@ class ListingsController extends Controller
         return $this->success($userStoreListings);
     }
 
-
-
     /**
      * Create a new listing for the specified user store.
      */
@@ -57,7 +57,6 @@ class ListingsController extends Controller
             return $this->success();
         });
     }
-
 
     /**
      * Display the specified user store listing.
@@ -109,7 +108,6 @@ class ListingsController extends Controller
         return $this->success();
     }
 
-
     /**
      * add listing views count
      */
@@ -119,7 +117,14 @@ class ListingsController extends Controller
         return $this->success();
     }
 
-
+    /**
+     * Add rating to listing 
+     */
+    public function addRating(AddRatingRequest $request)
+    {
+        ListingRating::create($request->ratingAttributes());
+        return $this->success();
+    }
 
     /**
      * Get popular listings based on views, with optional currency filter.
@@ -128,7 +133,6 @@ class ListingsController extends Controller
     {
 
         $currency = $request->header('currency', 'USD');
-
 
         $listing = Listing::query()
             ->popular($request->query('listingType'))
@@ -140,7 +144,6 @@ class ListingsController extends Controller
         return $this->success($listing);
     }
 
-
     /**
      *   Listing by type with search and currency filter
      */
@@ -150,9 +153,9 @@ class ListingsController extends Controller
 
         $listings = Listing::query()
             ->byListingType($request->listingType)
-            ->when($request->search, fn($query) => $query->search($request->search))
-            ->when($request->category, fn($query) => $query->byCategory($request->category))
-            ->when($request->availability, fn($query) => $query->availability($request->availability))
+            ->when($request->search, fn ($query) => $query->search($request->search))
+            ->when($request->category, fn ($query) => $query->byCategory($request->category))
+            ->when($request->availability, fn ($query) => $query->availability($request->availability))
             ->byCurrency($currency)
             ->get();
 

@@ -807,3 +807,30 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /store/{userStore}/ratings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Ratings
+      summary: Get User Store Ratings
+      description: "Get User Store Ratings"
+      operationId: GetUserStoreRatings
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+
+      responses:
+        default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
+
+
