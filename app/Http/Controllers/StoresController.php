@@ -39,8 +39,8 @@ class StoresController extends Controller
 
         $stores = Store::query()
             ->byListingType($request->listingType)
-            ->when($request->search, fn($query) => $query->search($request->search))
-            ->when($request->category, fn($query) => $query->byCategory($request->category))
+            ->when($request->search, fn ($query) => $query->search($request->search))
+            ->when($request->category, fn ($query) => $query->byCategory($request->category))
             ->where('currency', $currency)
             ->get();
 
@@ -115,6 +115,16 @@ class StoresController extends Controller
         }
 
         return $this->success($stores);
+    }
+
+    /**
+     *  Get store ratings
+     */
+    public function getStoreRatings(Store $userStore)
+    {
+        $storeRatings = $userStore->ratings()->with('user:id,first_name,last_name,email')
+            ->paginate(20);
+        return $this->success($storeRatings);
     }
 
     /**

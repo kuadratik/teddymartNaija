@@ -489,6 +489,61 @@ paths:
             application/json:
               schema:
                 type: object
+  
+  /front/order-history:
+    get:
+      tags:
+        - Order
+      summary: Get Order History
+      description: Get Order History
+      operationId: GetOrderHistory
+      security:
+        - bearerAuth: []
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+  
+  /store/listings/add-rating:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rating
+      summary: Add Store Listing Rating
+      description: "Add Store Listing Rating"
+      operationId: AddStoreListingRating
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                listing_id:
+                  type: integer
+                  example: 1
+                  required: true
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                rating:
+                  type: integer
+                  example: 1
+                  required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /front/advert/create:
     post:

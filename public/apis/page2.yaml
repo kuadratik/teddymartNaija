@@ -1,4 +1,4 @@
-openapi: '3.0.0'
+openapi: "3.0.0"
 info:
   description: Teddyed apis
   version: 1.0.0
@@ -472,23 +472,28 @@ paths:
       tags:
         - User Store Listings
       summary: Update User Store Listing
-      description: Update User Store Listing
+      description: >
+        Comprehensive endpoint for updating a store listing with support for
+        main listing details, attributes, and product variants.
       operationId: UpdateUserStoreListing
       parameters:
         - in: path
           name: userStore
+          required: true
           schema:
             type: string
+            description: Store slug/identifier
             example: amala-sky
-          required: true
         - in: path
           name: listing
+          required: true
           schema:
             type: string
+            description: Listing slug/identifier
             example: pounded-yam
-          required: true
 
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -496,26 +501,142 @@ paths:
               properties:
                 name:
                   type: string
+                  description: Listing name
                   example: "Amala Full plate"
                 type:
                   type: string
+                  description: Listing type
+                  enum:
+                    - product
+                    - service
                   example: "product"
                 price:
                   type: string
+                  description: Listing price
                   example: "1000"
+                currency:
+                  type: string
+                  description: Currency for pricing
+                  example: "USD"
                 description:
                   type: string
-                  example: "dnndvs"
+                  description: Detailed listing description
+                  example: "Delicious Amala served with your choice of soup."
                 additional_information:
                   type: string
-                  example: "fdsgrrwg"
+                  description: Extra listing details
+                  example: "Can be customized with different soups."
                 images:
                   type: array
+                  description: List of listing images
                   items:
                     type: string
+                  example: ["image1.jpg", "image2.jpg"]
                 category:
-                  type: number
+                  type: integer
+                  description: Category ID for the listing
                   example: 11
+                discount:
+                  type: number
+                  description: Discount percentage
+                  example: 10
+                discount_start_date:
+                  type: string
+                  format: date
+                  description: Discount start date
+                  example: "2024-11-01"
+                discount_end_date:
+                  type: string
+                  format: date
+                  description: Discount end date
+                  example: "2024-11-30"
+                sku:
+                  type: string
+                  description: Stock Keeping Unit
+                  example: "AMALAFP001"
+                is_draft:
+                  type: boolean
+                  description: Draft status of the listing
+                  example: false
+
+                attributes:
+                  type: object
+                  description: Product-specific attributes
+                  properties:
+                    measurement:
+                      type: string
+                      example: "10x10 inches"
+                    product_model:
+                      type: string
+                      example: "Amala2024"
+                    brand:
+                      type: string
+                      example: "Amala Heaven"
+                    material:
+                      type: string
+                      example: "Wheat flour"
+                    color:
+                      type: string
+                      example: "Brown"
+                    size:
+                      type: array
+                      items:
+                        type: string
+                      example: ["Large", "Medium", "Small"]
+                    tags:
+                      type: array
+                      items:
+                        type: string
+                      example: ["amala", "food", "delicious"]
+                    size_chart_html:
+                      type: string
+                      description: HTML representation of size chart
+                      example: "<h3>Size Chart</h3><ul><li>Large: 10x10 inches</li><li>Medium: 8x8 inches</li></ul>"
+                    size_chart_image:
+                      type: string
+                      description: Size chart image URL
+                      example: "size_chart_image.jpg"
+
+                variants:
+                  type: array
+                  description: Product variants
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "Amala with Goat Meat"
+                      quantity:
+                        type: integer
+                        example: 50
+                      price:
+                        type: string
+                        example: "1500"
+                      discount:
+                        type: number
+                        example: 5
+                      size:
+                        type: string
+                        example: "Large"
+                      color:
+                        type: string
+                        example: "Brown"
+                      measurement:
+                        type: string
+                        example: "10x10 inches"
+                      discount_start_date:
+                        type: string
+                        format: date
+                        example: "2024-11-01"
+                      discount_end_date:
+                        type: string
+                        format: date
+                        example: "2024-11-30"
+                      images:
+                        type: array
+                        items:
+                          type: string
+                        example: ["variant_image1.jpg", "variant_image2.jpg"]
 
       responses:
         default:
@@ -550,12 +671,11 @@ paths:
 
       responses:
         default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
-
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /store/shipping/save-method:
     post:
@@ -599,7 +719,7 @@ paths:
 
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -632,36 +752,36 @@ paths:
 
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
                 type: object
 
   /store/shipping/delete-method/{shippingMethod}:
-     delete:
-        security:
-          - bearerAuth: []
-        tags:
-          - User Store Shipping Methods
-        summary: Delete User Store Shipping Method
-        description: 'Delete User Store Shipping Method'
-        operationId: DeleteUserStoreShippingMethod
-        parameters:
-          - in: path
-            name: shippingMethod
-            schema:
-              type: integer
-              example: 1
-            required: true
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Shipping Methods
+      summary: Delete User Store Shipping Method
+      description: "Delete User Store Shipping Method"
+      operationId: DeleteUserStoreShippingMethod
+      parameters:
+        - in: path
+          name: shippingMethod
+          schema:
+            type: integer
+            example: 1
+          required: true
 
-        responses:
-          default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /store/shipping/{userStore}/methods:
     get:
@@ -670,7 +790,7 @@ paths:
       tags:
         - User Store Shipping Methods
       summary: Get User Store Shipping Methods
-      description: 'Get User Store Shipping Methods'
+      description: "Get User Store Shipping Methods"
       operationId: GetUserStoreShippingMethods
       parameters:
         - in: path
@@ -682,12 +802,35 @@ paths:
 
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
                 type: object
 
+  /store/{userStore}/ratings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Ratings
+      summary: Get User Store Ratings
+      description: "Get User Store Ratings"
+      operationId: GetUserStoreRatings
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
 
+      responses:
+        default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
 
 
