@@ -29,10 +29,10 @@ class SaveShippingMethodRequest extends FormRequest
             'id' => ['nullable', 'integer'],
             'store_id' => ['required', Rule::exists('stores', 'id')->where('user_id', $this->user()->id)],
             'method_type' => ['required', new Enum(ShippingMethodEnum::class)],
-            'pick_up_time' => [Rule::requiredIf(ShippingMethodEnum::STORE_PICK_UP), 'string'],
-            'pick_up_location' => [Rule::requiredIf(ShippingMethodEnum::STORE_PICK_UP), 'string'],
-            'fulfilled_amount' => [Rule::requiredIf(ShippingMethodEnum::VENDOR_FULFILLED_SHIPPING), 'string'],
-            'fulfilled_location' => [Rule::requiredIf(ShippingMethodEnum::VENDOR_FULFILLED_SHIPPING), 'string']
+            'pick_up_time' => [Rule::requiredIf($this->method_type === ShippingMethodEnum::STORE_PICK_UP->value), 'string'],
+            'pick_up_location' => [Rule::requiredIf($this->method_type === ShippingMethodEnum::STORE_PICK_UP->value), 'string'],
+            'fulfilled_amount' => [Rule::requiredIf($this->method_type === ShippingMethodEnum::VENDOR_FULFILLED_SHIPPING->value), 'string'],
+            'fulfilled_location' => [Rule::requiredIf($this->method_type === ShippingMethodEnum::VENDOR_FULFILLED_SHIPPING->value), 'string']
         ];
     }
 
