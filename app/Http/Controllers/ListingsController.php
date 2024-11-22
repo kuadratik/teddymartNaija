@@ -91,8 +91,13 @@ class ListingsController extends Controller
      */
     public function update(UpdateListingRequest $request, Store $userStore, Listing $listing)
     {
-        $listing->update($request->listingAttributes());
-        return $this->success();
+        $listing = $listing->updateListing(
+            $request->listingAttributes($userStore),
+            $request->has('attributes') ? $request->listingAttributeAttributes() : null,
+            $request->has('variants') ? $request->variantsAttributes() : null
+        );
+
+        return $this->success($listing);
     }
 
     /**
