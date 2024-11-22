@@ -44,7 +44,7 @@ class StoresController extends Controller
             ->where('currency', $currency)
             ->get();
 
-        // RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
+        RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
         return $this->success($stores);
     }
 
@@ -53,13 +53,11 @@ class StoresController extends Controller
      */
     public function getRecommendedStores(Request $request)
     {
-        $country = $request->header('country', 'United States');
+        $currency = $request->header('currency', 'USD');
 
         $stores = Store::query()
             ->recommended()
-            ->whereHas('country', function ($query) use ($country) {
-                $query->where('name', $country);
-            })
+            ->where('currency', $currency)
             ->inRandomOrder()
             ->paginate();
 
@@ -148,7 +146,10 @@ class StoresController extends Controller
         return $this->success(['store' => $store]);
     }
 
-    
+
+
+
+
 
     /**
      * Display the specified store.

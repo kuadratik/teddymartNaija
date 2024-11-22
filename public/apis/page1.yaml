@@ -967,12 +967,12 @@ paths:
           required: true
           schema:
             type: string
-        - name: country
+        - name: currency
           in: header
           required: true
           schema:
             type: string
-            example: "United States"
+            example: "USD"
 
       responses:
         default:

@@ -16,7 +16,6 @@ components:
       bearerFormat: JWT
 
 paths:
-
   /store/user-store:
     get:
       security:
@@ -24,7 +23,7 @@ paths:
       tags:
         - User Store
       summary: Get User Store Info
-      description: 'Get User Store Info'
+      description: "Get User Store Info"
       operationId: GetUserStoreTnfo
       parameters:
         - in: header
@@ -36,7 +35,7 @@ paths:
           description: Currency code to filter listings by.
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -49,7 +48,7 @@ paths:
       tags:
         - User Store
       summary: Get User Store Metrics
-      description: 'Get User Store Metrics'
+      description: "Get User Store Metrics"
       operationId: GetUserStoreMetrics
       parameters:
         - in: path
@@ -66,7 +65,7 @@ paths:
           required: true
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -132,7 +131,7 @@ paths:
                   example: true
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -145,7 +144,7 @@ paths:
       tags:
         - User Store
       summary: Update User Store
-      description:  Update User Store
+      description: Update User Store
       operationId: UpdateUserStore
       parameters:
         - in: path
@@ -198,7 +197,7 @@ paths:
                   example: 38
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -211,7 +210,7 @@ paths:
       tags:
         - User Store Listings
       summary: Get User Store Listings
-      description: 'Get User Store Listings'
+      description: "Get User Store Listings"
       operationId: GetUserStoreListings
       parameters:
         - in: path
@@ -225,7 +224,7 @@ paths:
           name: listingType
           schema:
             type: string
-            example: 'product'
+            example: "product"
           required: true
         - in: query
           name: availability
@@ -236,7 +235,7 @@ paths:
 
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -249,7 +248,7 @@ paths:
       tags:
         - User Store Listings
       summary: Create User Store Listing
-      description: Create User Store Listing
+      description: Create a new listing for the user store, including details such as the product name, price, description, and other relevant attributes.
       operationId: CreateUserStoreListing
       parameters:
         - in: path
@@ -276,24 +275,119 @@ paths:
                 currency:
                   type: string
                   example: "USD"
-                  enum: ['USD', 'NGN','CAD']
+                  enum: ["USD", "NGN", "CAD"]
                 description:
                   type: string
-                  example: "dnndvs"
+                  example: "Delicious Amala served with your choice of soup."
                 additional_information:
                   type: string
-                  example: "fdsgrrwg"
+                  example: "Can be customized with different soups."
                 images:
                   type: array
                   items:
                     type: string
+                  example:
+                    - "image1.jpg"
+                    - "image2.jpg"
                 category:
-                  type: number
+                  type: integer
                   example: 11
-
+                discount:
+                  type: number
+                  example: 10
+                  description: "Discount percentage (optional)."
+                discount_start_date:
+                  type: string
+                  format: date
+                  example: "2024-11-01"
+                discount_end_date:
+                  type: string
+                  format: date
+                  example: "2024-11-30"
+                sku:
+                  type: string
+                  example: "AMALAFP001"
+                is_draft:
+                  type: boolean
+                  example: false
+                attributes:
+                  type: object
+                  properties:
+                    measurement:
+                      type: string
+                      example: "10x10 inches"
+                    product_model:
+                      type: string
+                      example: "Amala2024"
+                    brand:
+                      type: string
+                      example: "Amala Heaven"
+                    material:
+                      type: string
+                      example: "Wheat flour"
+                    color:
+                      type: string
+                      example: "Brown"
+                    size:
+                      type: array
+                      items:
+                        type: string
+                      example: ["Large", "Medium", "Small"]
+                    tags:
+                      type: array
+                      items:
+                        type: string
+                      example: ["amala", "food", "delicious"]
+                    size_chart_html:
+                      type: string
+                      example: "<h3>Size Chart</h3><ul><li>Large: 10x10 inches</li><li>Medium: 8x8 inches</li></ul>"
+                    size_chart_image:
+                      type: string
+                      example: "size_chart_image.jpg"
+                variants:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "Amala with Goat Meat"
+                      quantity:
+                        type: integer
+                        example: 50
+                      price:
+                        type: string
+                        example: "1500"
+                      discount:
+                        type: number
+                        example: 5
+                      size:
+                        type: string
+                        example: "Large"
+                      color:
+                        type: string
+                        example: "Brown"
+                      measurement:
+                        type: string
+                        example: "10x10 inches"
+                      discount_start_date:
+                        type: string
+                        format: date
+                        example: "2024-11-01"
+                      discount_end_date:
+                        type: string
+                        format: date
+                        example: "2024-11-30"
+                      images:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - "variant_image1.jpg"
+                          - "variant_image2.jpg"
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -306,7 +400,7 @@ paths:
       tags:
         - User Store Listings
       summary: Get User Store Listing
-      description: 'Get User Store Listing'
+      description: "Get User Store Listing"
       operationId: GetUserStoreListing
       parameters:
         - in: path
@@ -324,7 +418,7 @@ paths:
 
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -365,7 +459,7 @@ paths:
 
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
@@ -425,52 +519,21 @@ paths:
 
       responses:
         default:
-          description: 'success'
+          description: "success"
           content:
             application/json:
               schema:
                 type: object
 
   /store/listings/{userStore}/listing/{listing}/delete:
-     delete:
-        security:
-          - bearerAuth: []
-        tags:
-          - User Store Listings
-        summary: Delete User Store Listing
-        description: 'Delete User Store Listing'
-        operationId: DeleteUserStoreListing
-        parameters:
-          - in: path
-            name: userStore
-            schema:
-              type: string
-              example: amala-sky
-            required: true
-          - in: path
-            name: listing
-            schema:
-              type: string
-              example: pounded-yam
-            required: true
-
-        responses:
-          default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
-  
-  /store/shipping/{userStore}/methods:
-    get:
+    delete:
       security:
         - bearerAuth: []
       tags:
-        - User Store Shipping Methods
-      summary: Get User Store Shipping Methods
-      description: 'Get User Store Shipping Methods'
-      operationId: GetUserStoreShippingMethods
+        - User Store Listings
+      summary: Delete User Store Listing
+      description: "Delete User Store Listing"
+      operationId: DeleteUserStoreListing
       parameters:
         - in: path
           name: userStore
@@ -478,14 +541,21 @@ paths:
             type: string
             example: amala-sky
           required: true
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: pounded-yam
+          required: true
 
       responses:
         default:
-          description: 'success'
-          content:
-            application/json:
-              schema:
-                type: object
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
+
 
   /store/shipping/save-method:
     post:
@@ -534,7 +604,7 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
   /store/shipping/remove-method-type:
     post:
       security:
@@ -558,7 +628,7 @@ paths:
                 method_type:
                   type: string
                   example: "store pick-up"
-                  required: true   
+                  required: true
 
       responses:
         default:
@@ -592,6 +662,31 @@ paths:
               application/json:
                 schema:
                   type: object
+
+  /store/shipping/{userStore}/methods:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Shipping Methods
+      summary: Get User Store Shipping Methods
+      description: 'Get User Store Shipping Methods'
+      operationId: GetUserStoreShippingMethods
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+
+      responses:
+        default:
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                type: object
 
 
 
