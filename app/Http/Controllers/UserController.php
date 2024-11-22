@@ -143,7 +143,6 @@ class UserController extends Controller
         return $this->success();
     }
 
-
     /**
      * Get user's shipping address
      */
@@ -153,7 +152,7 @@ class UserController extends Controller
         return $this->success($shippingAddress);
     }
 
-     /**
+    /**
      * Get user's saved shipping address
      */
     public function savedShippingAddresses(Request $request)
@@ -161,4 +160,5 @@ class UserController extends Controller
         $shippingAddress = $request->user()->savedShippingAddresses;
         return $this->success($shippingAddress);
     }
+
 }

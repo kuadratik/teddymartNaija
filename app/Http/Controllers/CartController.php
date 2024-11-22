@@ -7,6 +7,7 @@ use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Http\Requests\Cart\StoreShippingAddressRequest;
 use App\Models\Cart;
 use App\Models\Listing;
+use App\Models\OrderDetail;
 use App\Models\UserShippingAddress;
 use App\Services\CartService;
 use Illuminate\Http\Request;
@@ -88,12 +89,24 @@ class CartController extends Controller
     }
 
     /**
+     * Get user's orders
+     */
+    public function getOrderHistory(Request $request)
+    {
+        $userOrderHistory = OrderDetail::whereHas('order', function ($query) use ($request) {
+            $query->where('user_id', $request->user()->id);
+        })->with('order')->paginate(20);
+
+        return $this->success($userOrderHistory);
+    }
+
+    /**
      * Add product to wishlist
      */
     public function addToWishlist(Request $request, Listing $product)
     {
         abort_if($product->type != ListingType::PRODUCT->value, 400, 'The specified listing is not a product.');
-        abort_if(! $product->is_available, 400, 'The product is currently unavailable.');
+        abort_if(!$product->is_available, 400, 'The product is currently unavailable.');
         $wishlistExists = $request->user()->wishlist()->where('listing_id', $product->id)->exists();
         abort_if($wishlistExists, 422, 'The product is already in your wishlist.');
         $request->user()->wishlist()->attach($product->id);
@@ -126,7 +139,7 @@ class CartController extends Controller
      */
     public function removeFromWishlist(Request $request, Listing $product)
     {
-        abort_if(! $request->user()->wishlist()->where('listing_id', $product->id)->exists(), 422, 'Product not found in wishlist');
+        abort_if(!$request->user()->wishlist()->where('listing_id', $product->id)->exists(), 422, 'Product not found in wishlist');
         $request->user()->wishlist()->detach($product->id);
 
         return $this->success();
@@ -139,7 +152,7 @@ class CartController extends Controller
     {
 
         $existsInWishlist = $request->user()->wishlist()->where('listing_id', $product->id)->exists();
-        abort_if(! $existsInWishlist, 422, 'Product not found in wishlist');
+        abort_if(!$existsInWishlist, 422, 'Product not found in wishlist');
         $data = $this->cartService->addToCart($request, $product);
         $request->user()->wishlist()->detach($product->id);
 
