@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,5 +25,7 @@ class AppServiceProvider extends ServiceProvider
             'admin' => 'App\Models\Admin',
             'user' => 'App\Models\User',
         ]);
+
+        Broadcast::routes(["prefix" => "api", "middleware" => ["auth:sanctum"]]);
     }
 }
