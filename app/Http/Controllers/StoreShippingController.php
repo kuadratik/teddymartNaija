@@ -17,6 +17,13 @@ class StoreShippingController extends Controller
      */
     public function getShippingMethods(Request $request, Store $userStore)
     {
+
+        abort_if(
+            !Store::find($userStore->id)->byUser($request->user()->id)->exists(),
+            403,
+            'You are only allowed to get shipping methods for your stores.'
+        );
+
         $storeShippingMethods = StoreShippingMethod::where('store_id', $userStore->id)->get();
         $groupedMethods = $storeShippingMethods->groupBy('method_type');
         $storeMethodTypes = $groupedMethods->keys();
