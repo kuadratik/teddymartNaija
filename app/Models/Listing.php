@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Listing extends Model
 {
@@ -200,9 +201,9 @@ class Listing extends Model
     public function scopeOnSale($query)
     {
         return $query->where('discount', '>', 0)
-        ->whereNotNull('discount_start_date')
-        ->whereNotNull('discount_end_date')
-        ->where('discount_start_date', '<=', now())
+            ->whereNotNull('discount_start_date')
+            ->whereNotNull('discount_end_date')
+            ->where('discount_start_date', '<=', now())
             ->where('discount_end_date', '>=', now());
     }
 
@@ -215,5 +216,38 @@ class Listing extends Model
     public function scopeInStock($query)
     {
         return $query->where('quantity', '>', 0);
+    }
+
+
+    /**
+     * Update the listing with the given attributes, listing attributes, and variants.
+     *
+     */
+    public function updateListing(array $attributes, ?array $listingAttributes = null, ?array $variants = null)
+    {
+        return DB::transaction(function () use ($attributes, $listingAttributes, $variants) {
+            $this->update($attributes);
+
+            $this->when(!is_null($listingAttributes), function ($listing) use ($listingAttributes) {
+                $this->attributes()->updateOrCreate(
+                    ['listing_id' => $this->id],
+                    $listingAttributes
+                );
+            });
+
+            $this->when(!is_null($variants), function ($listing) use ($variants) {
+                $this->variants()->delete();
+
+                $listing->when(!empty($variants), function ($listingVariants) use ($variants) {
+                    collect($variants)->each(function ($variantData) use ($listingVariants) {
+                        $this->variants()->create(
+                            $variantData
+                        );
+                    });
+                });
+            });
+
+            return $this->refresh()->load(['attributes', 'variants']);
+        });
     }
 }
