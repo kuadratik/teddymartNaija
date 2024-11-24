@@ -13,6 +13,8 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
 use App\Models\StorePromotePlanStore;
+use App\Models\User;
+use App\Notifications\Listing\AdvertSuccessNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -97,7 +99,7 @@ class PayPalEventBus implements ShouldQueue
         }
 
         if ($paymentType == PaymentType::ADVERT->value) {
-            $advert = AdvertListingPromotePlan::where('order_number', $orderId)->first();
+            $advert = AdvertListingPromotePlan::where('order_number', $orderId)->with('advertListing')->first();
 
             if (!$advert) {
                 Log::error('No advert listing promotion found', ['order_number' => $orderId]);
@@ -136,6 +138,8 @@ class PayPalEventBus implements ShouldQueue
                     'status_message' => 'COMPLETED',
                     'response_payload' => json_encode($payload),
                 ]);
+                $customer = $advert->advertListing->user;
+                $customer->notify(new AdvertSuccessNotification($advert->advertListing));
             });
         } elseif ($paymentType == PaymentType::PROMOTION->value) {
 
@@ -177,6 +181,8 @@ class PayPalEventBus implements ShouldQueue
                     'status_message' => 'COMPLETED',
                     'response_payload' => json_encode($payload),
                 ]);
+
+
             });
         } else {
 
@@ -242,6 +248,7 @@ class PayPalEventBus implements ShouldQueue
                         'status_message' => 'COMPLETED',
                         'response_payload' => json_encode($enhancedPayload),
                     ]);
+
                 });
             } catch (\Exception $e) {
                 Log::error('Failed to process completed payment', [
