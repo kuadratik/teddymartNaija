@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AdvertListingPromotePlan extends Model
 {
@@ -17,6 +18,17 @@ class AdvertListingPromotePlan extends Model
     public function advertPromotePlan()
     {
         return $this->belongsTo(AdvertPromotePlan::class, 'advert_promote_plan_id');
+    }
+
+
+    /**
+     * Get the advert listing that owns the AdvertListingPromotePlan
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function advertListing(): BelongsTo
+    {
+        return $this->belongsTo(AdvertListing::class, 'advert_listing_id');
     }
 }
 
