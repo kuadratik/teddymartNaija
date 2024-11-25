@@ -943,6 +943,11 @@ paths:
           schema:
             type: string
             example: "amala"
+        - in: query
+          name: sortType
+          schema:
+            type: string
+            example: "alphanumeric"
 
       responses:
         default:
