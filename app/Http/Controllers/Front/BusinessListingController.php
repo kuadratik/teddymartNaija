@@ -8,6 +8,7 @@ use App\Models\BusinessListing;
 use App\Models\Industry;
 use App\Notifications\Listing\BizListedNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class BusinessListingController extends Controller
 {
