@@ -78,7 +78,7 @@ class Store extends Model
      */
     public function listings()
     {
-        return $this->hasMany(Listing::class);
+        return $this->hasMany(Listing::class)->with('variants', 'attributes');
     }
 
     /**
