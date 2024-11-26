@@ -117,6 +117,14 @@ class Store extends Model
     }
 
     /**
+     * Scope to retrieve by store type
+     */
+    public function scopeStoreType(Builder $query, $storeType)
+    {
+        return $query->where('type', $storeType);
+    }
+
+    /**
      * Scope by category
      */
     public function scopeByCategory(Builder $query, $category)
@@ -136,6 +144,7 @@ class Store extends Model
                 ->orderByRaw("FIELD(category_id, " . implode(',', $mostUsedCategories) . ") DESC")
         );
     }
+
     /**
      * Scope by popular recommended
      */
