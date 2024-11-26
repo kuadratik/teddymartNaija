@@ -1,0 +1,10 @@
+$currency = strtoupper($request->header('currency', 'USD'));
+        $cacheKey = "alpha-vendors-{$currency}";
+        $stores = Cache::get($currency);
+
+        if (!$stores) {
+            $stores = (new ())->fetch($currency);
+            $stores = Cache::remember($cacheKey, 1800, function () use () {
+                
+            }); put($cacheKey, $stores);
+        }
