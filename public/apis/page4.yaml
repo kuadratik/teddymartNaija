@@ -142,6 +142,13 @@ paths:
       summary: Get authenticated user conversations
       description: GetAuthenticatedUserConversations
       operationId: GetAuthenticatedUserConversations
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+            example: ""
+          required: false
             
       responses:
         default:

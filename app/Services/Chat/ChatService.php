@@ -66,6 +66,7 @@ class ChatService
 
             SendMessage::dispatch($message->toArray(), $respondent->id)->afterCommit();
             DB::commit();
+            return $message;
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
@@ -73,7 +74,7 @@ class ChatService
     }
 
     public function sendMessage($details)
-    {        
+    {
         $user = request()->user();
         $chatUser = ChatUser::where('user_id', '!=', $user->id)->first();
 
@@ -138,10 +139,10 @@ class ChatService
     {
         $chats = Chat::query()->addSelect(['read_at' => ChatUser::subLastRead()])
             ->whereHas('participants', fn ($participant) => $participant->authUser())
-            ->cursorPaginate(20);
+            ->cursorPaginate(40);
 
         $privateChatIds = $chats->where('converse_type', 'private')->pluck('id');
-        
+
         $respondents = $privateChatIds->whenNotEmpty(function ($privateChatIds) {
             return ChatUser::whereIn('chat_id', $privateChatIds)
                 ->where('user_id', '<>', auth()->id())->get();
@@ -154,7 +155,23 @@ class ChatService
             $this->setChatsState($chat, $respondents, $lastMessages, $unreads);
         });
 
-        return $chats;
+        return $chats->when(request()->name)->filter(function ($chat) {
+            return $this->doesNameContainSearchParam($chat);
+        });
+    }
+
+    private function doesNameContainSearchParam($chat)
+    {
+        $searchedName =  Str::lower(request()->name);
+        $respondent = $chat['respondent'];
+
+        if (isset($respondent['first_name']) && isset($respondent['last_name'])) {
+
+            return Str::contains(
+                Str::lower($respondent['first_name']),
+                $searchedName
+            ) || Str::contains(Str::lower($respondent['last_name']), $searchedName);
+        }
     }
 
     public function setChatsState(&$chat, $respondent, $lastMessages, $unreads)

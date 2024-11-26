@@ -17,8 +17,8 @@ class ChatsController extends Controller
      */
     public function startConversation(ConversationRequest $request)
     {
-        (new ChatService)->startConversation($request->conversationAttributes());
-        return $this->success();
+       $newConversation = (new ChatService)->startConversation($request->conversationAttributes());
+        return $this->success($newConversation);
     }
 
     /**
