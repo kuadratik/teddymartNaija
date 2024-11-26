@@ -54,7 +54,7 @@ class ListingsController extends Controller
                 }
             }
 
-            return $this->success();
+            return $this->success($listing->load(['variants', 'attributes']));
         });
     }
 
@@ -63,7 +63,7 @@ class ListingsController extends Controller
      */
     public function showUserStoreListing(Store $userStore, Listing $listing)
     {
-        return $this->success($listing);
+        return $this->success($listing->load(['variants', 'attributes']));
     }
 
     /**
@@ -71,7 +71,7 @@ class ListingsController extends Controller
      */
     public function show(Store $Store, Listing $listing)
     {
-        return $this->success($listing);
+        return $this->success($listing->load(['variants', 'attributes']));
     }
 
     /**
@@ -118,7 +118,7 @@ class ListingsController extends Controller
     }
 
     /**
-     * Add rating to listing 
+     * Add rating to listing
      */
     public function addRating(AddRatingRequest $request)
     {
