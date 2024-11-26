@@ -39,10 +39,11 @@ class StoresController extends Controller
 
         $stores = Store::query()
             ->byListingType($request->listingType)
+            ->when($request->sortType === 'alphanumeric', fn($query) => $query->orderBy('name', 'asc'))
             ->when($request->search, fn ($query) => $query->search($request->search))
             ->when($request->category, fn ($query) => $query->byCategory($request->category))
             ->where('currency', $currency)
-            ->get();
+            ->paginate(20);
 
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
         return $this->success($stores);
