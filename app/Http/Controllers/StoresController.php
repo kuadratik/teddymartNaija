@@ -38,7 +38,7 @@ class StoresController extends Controller
         $currency = $request->header('currency', 'USD');
 
         $stores = Store::query()
-            ->byListingType($request->listingType)
+            ->where('type', $request->listingType)
             ->when($request->sortType === 'alphanumeric', fn($query) => $query->orderBy('name', 'asc'))
             ->when($request->search, fn($query) => $query->search($request->search))
             ->when($request->category, fn($query) => $query->byCategory($request->category))
