@@ -24,7 +24,7 @@ class Listing extends Model
         'slug',
         'type',
         'price',
-        'qauntity',
+        'quantity',
         'discount',
         'discounted_price',
         'display_price',
