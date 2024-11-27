@@ -66,7 +66,9 @@ class ChatService
 
             SendMessage::dispatch($message->toArray(), $respondent->id)->afterCommit();
             DB::commit();
-            return $message;
+
+            $messagePayload = collect($message)->merge(['respondent' => $respondent]);
+            return $messagePayload;
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
