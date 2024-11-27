@@ -32,6 +32,7 @@ class CreateListingRequest extends FormRequest
             'price' => ['required_if:type,product', 'numeric'],
             'description' => ['required', 'string', 'max:500'],
             'additional_information' => ['nullable', 'string', 'max:1000'],
+            'quantity' => ['required', 'integer', 'min:0'],
             'images' => ['required', 'array'],
             'category' => ['required', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
             'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
