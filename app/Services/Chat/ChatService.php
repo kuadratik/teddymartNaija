@@ -159,7 +159,7 @@ class ChatService
 
         return $chats->when(request()->name)->filter(function ($chat) {
             return $this->doesNameContainSearchParam($chat);
-        });
+        })->values();
     }
 
     private function doesNameContainSearchParam($chat)
@@ -181,7 +181,7 @@ class ChatService
         $match = $respondent->where('chat_id', $chat->id)->first();
 
         $relation = is_null($match) ? null : [
-            'user_id' => $match->id,
+            'user_id' => $match->user->id,
             'first_name' => $match->user->first_name,
             'last_name' => $match->user->last_name,
             'user_type' => $match->user_type,
