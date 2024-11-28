@@ -10,6 +10,7 @@ use App\Http\Requests\Store\UpdateStoreRequest;
 use App\Jobs\RecordCategoryInteractions;
 use App\Models\Store;
 use App\Services\Auth\UserService;
+use App\Services\Store\MetricService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -24,10 +25,14 @@ class StoresController extends Controller
     {
         abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
 
-        $userStoreListingsCount = $userStore->listings()->byType($request->listingType)->count();
-        $customersCount = $userService->getStoreCustomerCount($userStore);
+        $metrics = (new MetricService($userStore))->storeMetrics();
 
-        return $this->success(["totalListingsCount" => $userStoreListingsCount, "totalCustomerCount" => $customersCount]);
+        return $this->success($metrics);
+
+        // $userStoreListingsCount = $userStore->listings()->byType($request->listingType)->count();
+        // $customersCount = $userService->getStoreCustomerCount($userStore);
+
+        // return $this->success(["totalListingsCount" => $userStoreListingsCount, "totalCustomerCount" => $customersCount]);
     }
 
     /**

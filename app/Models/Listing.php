@@ -92,6 +92,14 @@ class Listing extends Model
     }
 
     /**
+     * Get product variants
+     */
+    public function ratings()
+    {
+        return $this->hasMany(ListingRating::class);
+    }
+
+    /**
      * Get the store listing owner
      */
     public function store()
@@ -139,12 +147,13 @@ class Listing extends Model
         $query->where('is_available',  filter_var($isAvailable, FILTER_VALIDATE_BOOL));
     }
 
-
+    /**
+     * Scope by listing type
+     */
     public function scopeByListingType($query, $listingType)
     {
         return $query->where('type', $listingType);
     }
-
 
     /**
      * Scope to search by name or store name
