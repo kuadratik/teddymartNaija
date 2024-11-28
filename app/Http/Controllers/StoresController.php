@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Actions\FetchStoresAlphaNumericallyAction;
 use App\Actions\RecordCategoryInteractionsAction;
+use App\Enums\ListingType;
+use App\Enums\OrderStatusEnum;
+use App\Http\Requests\Cart\UpdateOrderRequest;
 use App\Http\Requests\Store\CreateStoreRequest;
 use App\Http\Requests\Store\SaveShippingMethodRequest;
 use App\Http\Requests\Store\UpdateStoreRequest;
 use App\Jobs\RecordCategoryInteractions;
+use App\Models\Order;
 use App\Models\Store;
 use App\Services\Auth\UserService;
 use App\Services\Store\MetricService;
@@ -188,4 +192,37 @@ class StoresController extends Controller
         $userStore->update($request->storeAttributes());
         return $this->success();
     }
+
+
+    /**
+     *  Show vendor Order history
+     */
+    public function  getStoreOrderHistory(Request $request, Store $store)
+    {
+        $user = $request->user();
+        $status = $request->query('order_status');
+        $orders = $store->orders()->where('user_id', $user->id)
+            ->where(['type', ListingType::PRODUCT->value])
+            ->when($status, fn($query) => $query->where('status', $status))
+            ->orderBy('created_at', 'desc')
+            ->with('orderDetails')
+            ->paginate(20)
+            ->groupBy('order_number');
+
+
+        return $this->success($orders);
+    }
+
+
+
+    /**
+     * Update the store order status.
+     */
+    public function updateStoreOrderStatus(UpdateOrderRequest $request, Order $order)
+    {
+        $order->update(['status' => $request->validated('status')]);
+
+        return $this->success();
+    }
+
 }

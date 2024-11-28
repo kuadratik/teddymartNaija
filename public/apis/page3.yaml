@@ -489,7 +489,7 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
   /front/order-history:
     get:
       tags:
@@ -507,7 +507,72 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
+  /store/{store}/order/history:
+    get:
+      tags:
+        - Order
+      summary: Get Store Order History
+      description: Get Store Order History
+      operationId: GetStoreOrderHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+        - in: query
+          name: order_status
+          schema:
+            type: string
+            example: "completed"
+          required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/{store}/order/{order}/status/update:
+    put:
+      tags:
+        - Order
+      summary: Update Store Order Status
+      description: Update Store Order Status
+      operationId: UpdateStoreOrderStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+        - in: path
+          name: order
+          schema:
+            type: string
+            example: "1"
+          required: true
+        - in: query
+          name: order_status
+          schema:
+            type: string
+            example: "completed"
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
   /store/listings/add-rating:
     post:
       security:
@@ -517,7 +582,7 @@ paths:
       summary: Add Store Listing Rating
       description: "Add Store Listing Rating"
       operationId: AddStoreListingRating
-      
+
       requestBody:
         content:
           application/json:
