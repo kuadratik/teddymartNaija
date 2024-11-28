@@ -25,14 +25,13 @@ class StoresController extends Controller
     {
         abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
 
-        $metrics = (new MetricService($userStore))->storeMetrics();
+        // $metrics = (new MetricService($userStore))->storeMetrics();
+        // return $this->success($metrics);
 
-        return $this->success($metrics);
+        $userStoreListingsCount = $userStore->listings()->byType($request->listingType)->count();
+        $customersCount = $userService->getStoreCustomerCount($userStore);
 
-        // $userStoreListingsCount = $userStore->listings()->byType($request->listingType)->count();
-        // $customersCount = $userService->getStoreCustomerCount($userStore);
-
-        // return $this->success(["totalListingsCount" => $userStoreListingsCount, "totalCustomerCount" => $customersCount]);
+        return $this->success(["totalListingsCount" => $userStoreListingsCount, "totalCustomerCount" => $customersCount]);
     }
 
     /**
