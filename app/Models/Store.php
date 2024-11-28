@@ -81,12 +81,40 @@ class Store extends Model
         return $this->hasMany(Listing::class)->with('variants', 'attributes');
     }
 
+     /**
+     * Get the store orders
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
     /**
      * Get the store ratings
      */
     public function ratings()
     {
         return $this->hasMany(ListingRating::class);
+    }
+
+    /**
+     * Get the country that owns the Store
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'country_id', 'id');
+    }
+
+    /**
+     * The promotion plans associated with the store.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function promotedStores()
+    {
+        return $this->belongsTo(StorePromotePlanStore::class, 'id', 'store_id');
     }
 
     /**
@@ -170,24 +198,5 @@ class Store extends Model
         )->take(10);
     }
 
-    /**
-     * Get the country that owns the Store
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function country(): BelongsTo
-    {
-        return $this->belongsTo(Country::class, 'country_id', 'id');
-    }
-
-
-    /**
-     * The promotion plans associated with the store.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function promotedStores()
-    {
-        return $this->belongsTo(StorePromotePlanStore::class, 'id', 'store_id');
-    }
+    
 }
