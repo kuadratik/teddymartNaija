@@ -3,6 +3,7 @@
 namespace App\Services\Store;
 
 use App\Enums\ListingType;
+use App\Enums\OrderStatusEnum;
 use App\Models\OrderDetail;
 use App\Models\Store;
 use Illuminate\Support\Facades\DB;
@@ -19,9 +20,9 @@ class MetricService
     public function storeMetrics()
     {
         $counts = collect([
-            'totalRevenue' => '',
+            'totalRevenue' => $this->userStore->orders()->where('status' , OrderStatusEnum::PAID->value)->sum('total_amount'),
             'payoutAccrued' => '',
-            'orderFulfilled' => $this->userStore->orders()->count(),
+            'orderFulfilled' => $this->userStore->orders()->where('status' , OrderStatusEnum::PAID->value)->count(),
             'myCustomers' => $this->userStore->orders()->distinct('user_id')->count('user_id'),
             'productListed' => $this->userStore->listings()->where('type', ListingType::PRODUCT->value)->count(),
         ]);
@@ -31,7 +32,6 @@ class MetricService
             'recentOrders' => $this->recentOrders(),
             'productReviews' => $this->productReviews()
         ]);
-
 
         $storeMetrics = collect([
             'counts' => $counts,
