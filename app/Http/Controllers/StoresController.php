@@ -210,12 +210,12 @@ class StoresController extends Controller
         $user = $request->user();
         $status = $request->query('order_status');
         $orders = $store->orders()->where('user_id', $user->id)
-            ->where(['type', ListingType::PRODUCT->value])
+            ->where('type', ListingType::PRODUCT->value)
             ->when($status, fn($query) => $query->where('status', $status))
             ->orderBy('created_at', 'desc')
             ->with('orderDetails')
-            ->paginate(20)
-            ->groupBy('order_number');
+        ->paginate(20);
+
 
 
         return $this->success($orders);
@@ -232,5 +232,4 @@ class StoresController extends Controller
 
         return $this->success();
     }
-
 }

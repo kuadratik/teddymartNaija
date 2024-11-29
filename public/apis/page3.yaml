@@ -565,6 +565,7 @@ paths:
           schema:
             type: string
             example: "completed"
+            description: "order status (completed, inprogress, cancelled,'pending','shipped')"
           required: true
       responses:
         default:
