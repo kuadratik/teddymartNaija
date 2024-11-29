@@ -41,6 +41,30 @@ paths:
               schema:
                 type: object
 
+  /store/user-store/{userStore}/overall-metrics:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Get User Store Overall Metrics
+      description: "Get User Store Overall Metrics"
+      operationId: GetUserStoreOverallMetrics
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object                
+
   /store/user-store/{userStore}/metrics:
     get:
       security:

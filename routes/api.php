@@ -104,6 +104,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::middleware('hasStore')->group(function () {
             Route::get('user-store', [StoresController::class, 'showUserStore']);
             Route::get('user-store/{userStore}/metrics', [StoresController::class, 'getUserStoreMetrics']);
+            Route::get('user-store/{userStore}/overall-metrics', [StoresController::class, 'getStoreOverallMetrics']);
             Route::patch('{userStore}/update', [StoresController::class, 'update']);
             Route::get('{userStore}/listings', [ListingsController::class, 'getUserStoreListings']);
             Route::post('{userStore}/listings/create', [ListingsController::class, 'create']);
