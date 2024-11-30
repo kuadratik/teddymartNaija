@@ -232,7 +232,12 @@ paths:
             type: boolean
             example: true
           required: true
-
+        - in: query
+          name: is_draft
+          schema:
+            type: boolean
+            example: false
+          required: true
       responses:
         default:
           description: "success"
