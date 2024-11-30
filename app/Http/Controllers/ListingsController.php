@@ -63,6 +63,10 @@ class ListingsController extends Controller
      */
     public function showUserStoreListing(Store $userStore, Listing $listing)
     {
+        $listing = $listing->when(request()->has('is_draft'), function ($query) {
+            return $query->where('is_draft', request()->query('is_draft'));
+        });
+
         return $this->success($listing->load(['variants', 'attributes']));
     }
 

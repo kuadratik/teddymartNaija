@@ -46,8 +46,10 @@ class CreateListingRequest extends FormRequest
             'attributes.brand' => ['nullable', 'string'],
             'attributes.material' => ['nullable', 'string'],
             'attributes.color' => ['nullable', 'string'],
-            'attributes.size' => ['nullable', 'array'],
-            'attributes.size.*' => ['nullable', 'string'],
+            'attributes.size' => ['sometimes', 'array'],
+            'attributes.size.*' => ['required', 'array'],
+            'attributes.size.*.size' => ['required', 'string'],
+            'attributes.size.*.unit' => ['required', 'string'],
             'attributes.tags' => ['nullable', 'array'],
             'attributes.tags.*' => ['nullable', 'string'],
             'attributes.size_chart_html' => ['nullable', 'string'],
@@ -58,7 +60,9 @@ class CreateListingRequest extends FormRequest
             'variants.*.quantity' => ['required', 'integer', 'min:0'],
             'variants.*.price' => ['required', 'numeric', 'min:0'],
             'variants.*.discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'variants.*.size' => ['nullable', 'string'],
+            'variants.*.size' => ['sometimes', 'array'],
+            'variants.*.size.*.size' => ['required', 'string'],
+            'variants.*.size.*.unit' => ['required', 'string'],
             'variants.*.color' => ['nullable', 'string'],
             'variants.*.measurement' => ['nullable', 'string'],
             'variants.*.discount_start_date' => ['nullable', 'required_with:variants.*.discount', 'date'],
@@ -109,8 +113,9 @@ class CreateListingRequest extends FormRequest
     public function variantsAttributes()
     {
         return collect($this->safe()['variants'] ?? [])->map(function ($variant) {
-            return collect($variant)->except(['images'])->merge([
-                'images' => $this->images($variant['images'] ?? [])
+            return collect($variant)->except(['images', 'size'])->merge([
+                'images' => $this->images($variant['images'] ?? []),
+                'size' => json_encode($variant['size'] ?? [])
             ])->toArray();
         })->toArray();
     }

@@ -211,6 +211,7 @@ class StoresController extends Controller
         $status = $request->query('order_status');
         $orders = $store->orders()->where('user_id', $user->id)
             ->where('type', ListingType::PRODUCT->value)
+            ->whereNot(['status' => OrderStatusEnum::PENDING->value, 'status' => 'incart'])
             ->when($status, fn($query) => $query->where('status', $status))
             ->orderBy('created_at', 'desc')
             ->with('orderDetails')
