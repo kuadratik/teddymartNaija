@@ -257,7 +257,9 @@ paths:
             type: string
             example: amala-sky
           required: true
+          description: "Unique identifier for the user store."
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -266,32 +268,44 @@ paths:
                 name:
                   type: string
                   example: "Amala Full plate"
+                  description: "Name of the product or listing."
                 type:
                   type: string
                   example: "product"
+                  description: "Type of the listing (e.g., product or service)."
                 price:
                   type: string
                   example: "1000"
+                  description: "Price of the listing."
                 currency:
                   type: string
                   example: "USD"
                   enum: ["USD", "NGN", "CAD"]
+                  description: "Currency of the price."
                 description:
                   type: string
                   example: "Delicious Amala served with your choice of soup."
+                  description: "A brief description of the listing."
+                quantity:
+                  type: integer
+                  description: Available quantity
+                  example: 1
                 additional_information:
                   type: string
                   example: "Can be customized with different soups."
+                  description: "Additional details about the listing."
                 images:
                   type: array
                   items:
                     type: string
                   example:
-                    - "image1.jpg"
-                    - "image2.jpg"
+                    - "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
+                    - "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
+                  description: "List of image filenames or URLs."
                 category:
                   type: integer
                   example: 11
+                  description: "Category ID for the listing."
                 discount:
                   type: number
                   example: 10
@@ -300,50 +314,77 @@ paths:
                   type: string
                   format: date
                   example: "2024-11-01"
+                  description: "Start date for the discount."
                 discount_end_date:
                   type: string
                   format: date
                   example: "2024-11-30"
+                  description: "End date for the discount."
                 sku:
                   type: string
                   example: "AMALAFP001"
+                  description: "Stock keeping unit identifier."
                 is_draft:
                   type: boolean
                   example: false
+                  description: "Whether the listing is in draft mode."
                 attributes:
                   type: object
                   properties:
                     measurement:
                       type: string
                       example: "10x10 inches"
+                      description: "Measurement details of the listing."
                     product_model:
                       type: string
                       example: "Amala2024"
+                      description: "Model number or name."
                     brand:
                       type: string
                       example: "Amala Heaven"
+                      description: "Brand of the product."
                     material:
                       type: string
                       example: "Wheat flour"
+                      description: "Material composition of the product."
                     color:
                       type: string
                       example: "Brown"
+                      description: "Primary color of the product."
                     size:
                       type: array
                       items:
-                        type: string
-                      example: ["Large", "Medium", "Small"]
+                        type: object
+                        properties:
+                          size:
+                            type: string
+                            example: "Large"
+                            description: "Size label."
+                          unit:
+                            type: string
+                            example: "kg"
+                            description: "Unit for the size."
+                      example:
+                        - size: "Large"
+                          unit: "kg"
+                        - size: "Medium"
+                          unit: "kg"
+                        - size: "Small"
+                          unit: "kg"
                     tags:
                       type: array
                       items:
                         type: string
                       example: ["amala", "food", "delicious"]
+                      description: "Tags associated with the listing."
                     size_chart_html:
                       type: string
                       example: "<h3>Size Chart</h3><ul><li>Large: 10x10 inches</li><li>Medium: 8x8 inches</li></ul>"
+                      description: "HTML representation of the size chart."
                     size_chart_image:
                       type: string
-                      example: "size_chart_image.jpg"
+                      example: "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
+                      description: "Image file for the size chart."
                 variants:
                   type: array
                   items:
@@ -352,39 +393,63 @@ paths:
                       name:
                         type: string
                         example: "Amala with Goat Meat"
+                        description: "Name of the variant."
                       quantity:
                         type: integer
                         example: 50
+                        description: "Quantity available for the variant."
                       price:
                         type: string
                         example: "1500"
+                        description: "Price of the variant."
                       discount:
                         type: number
                         example: 5
+                        description: "Discount percentage for the variant (optional)."
                       size:
-                        type: string
-                        example: "Large"
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            size:
+                              type: string
+                              example: "Large"
+                              description: "Size label for the variant."
+                            unit:
+                              type: string
+                              example: "kg"
+                              description: "Unit for the size."
+                        example:
+                          - size: "Large"
+                            unit: "kg"
+                          - size: "Small"
+                            unit: "kg"
                       color:
                         type: string
                         example: "Brown"
+                        description: "Primary color of the variant."
                       measurement:
                         type: string
                         example: "10x10 inches"
+                        description: "Measurement details for the variant."
                       discount_start_date:
                         type: string
                         format: date
                         example: "2024-11-01"
+                        description: "Start date for the variant's discount."
                       discount_end_date:
                         type: string
                         format: date
                         example: "2024-11-30"
+                        description: "End date for the variant's discount."
                       images:
                         type: array
                         items:
                           type: string
                         example:
-                          - "variant_image1.jpg"
-                          - "variant_image2.jpg"
+                          - "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
+                          - "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
+                        description: "List of image filenames or URLs for the variant."
       responses:
         default:
           description: "success"
@@ -491,7 +556,6 @@ paths:
             type: string
             description: Listing slug/identifier
             example: pounded-yam
-
       requestBody:
         required: true
         content:
@@ -531,7 +595,7 @@ paths:
                   description: List of listing images
                   items:
                     type: string
-                  example: ["image1.jpg", "image2.jpg"]
+                  example: ["teddymart/images/UqcW7siP6S4VYg4ZjrGB.png", "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"]
                 category:
                   type: integer
                   description: Category ID for the listing
@@ -554,37 +618,62 @@ paths:
                   type: string
                   description: Stock Keeping Unit
                   example: "AMALAFP001"
+                quantity:
+                  type: integer
+                  description: Available quantity
+                  example: 1
                 is_draft:
                   type: boolean
                   description: Draft status of the listing
                   example: false
-
                 attributes:
                   type: object
                   description: Product-specific attributes
                   properties:
                     measurement:
                       type: string
+                      description: Dimensions or measurements
                       example: "10x10 inches"
                     product_model:
                       type: string
+                      description: Model identifier for the product
                       example: "Amala2024"
                     brand:
                       type: string
+                      description: Product brand
                       example: "Amala Heaven"
                     material:
                       type: string
+                      description: Material composition of the product
                       example: "Wheat flour"
                     color:
                       type: string
+                      description: Color of the product
                       example: "Brown"
                     size:
                       type: array
+                      description: Available sizes of the product
                       items:
-                        type: string
-                      example: ["Large", "Medium", "Small"]
+                        type: object
+                        properties:
+                          size:
+                            type: string
+                            description: Size label
+                            example: "Large"
+                          unit:
+                            type: string
+                            description: Unit of measurement for size
+                            example: "kg"
+                      example:
+                        - size: "Large"
+                          unit: "kg"
+                        - size: "Medium"
+                          unit: "kg"
+                        - size: "Small"
+                          unit: "kg"
                     tags:
                       type: array
+                      description: Tags associated with the product
                       items:
                         type: string
                       example: ["amala", "food", "delicious"]
@@ -595,8 +684,7 @@ paths:
                     size_chart_image:
                       type: string
                       description: Size chart image URL
-                      example: "size_chart_image.jpg"
-
+                      example: "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
                 variants:
                   type: array
                   description: Product variants
@@ -605,39 +693,63 @@ paths:
                     properties:
                       name:
                         type: string
+                        description: Variant name
                         example: "Amala with Goat Meat"
                       quantity:
                         type: integer
+                        description: Quantity available for the variant
                         example: 50
                       price:
                         type: string
+                        description: Price of the variant
                         example: "1500"
                       discount:
                         type: number
+                        description: Discount percentage for the variant
                         example: 5
                       size:
-                        type: string
-                        example: "Large"
+                        type: array
+                        description: Sizes available for the variant
+                        items:
+                          type: object
+                          properties:
+                            size:
+                              type: string
+                              description: Size label for the variant
+                              example: "Large"
+                            unit:
+                              type: string
+                              description: Unit of measurement for size
+                              example: "kg"
+                        example:
+                          - size: "Large"
+                            unit: "kg"
+                          - size: "Small"
+                            unit: "kg"
                       color:
                         type: string
+                        description: Color of the variant
                         example: "Brown"
                       measurement:
                         type: string
+                        description: Dimensions of the variant
                         example: "10x10 inches"
                       discount_start_date:
                         type: string
                         format: date
+                        description: Start date for the variant's discount
                         example: "2024-11-01"
                       discount_end_date:
                         type: string
                         format: date
+                        description: End date for the variant's discount
                         example: "2024-11-30"
                       images:
                         type: array
+                        description: List of variant images
                         items:
                           type: string
-                        example: ["variant_image1.jpg", "variant_image2.jpg"]
-
+                        example: ["teddymart/images/UqcW7siP6S4VYg4ZjrGB.png", "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"]
       responses:
         default:
           description: "success"
@@ -827,10 +939,8 @@ paths:
 
       responses:
         default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
-
-
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object

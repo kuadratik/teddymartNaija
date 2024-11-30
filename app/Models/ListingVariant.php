@@ -23,6 +23,7 @@ class ListingVariant extends Model
     ];
 
     protected $casts = [
+        'size' => 'array',
         'images' => 'array',
         'discount_start_date' => 'datetime',
         'discount_end_date' => 'datetime'
