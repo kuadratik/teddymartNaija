@@ -24,42 +24,46 @@ class UpdateListingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string'],
-            'type' => ['required', 'string', Rule::enum(ListingType::class)],
-            'price' => ['required', 'numeric'],
-            'description' => ['required', 'string', 'max:500'],
-            'additional_information' => ['required', 'string', 'max:1000'],
-            'images' => ['required', 'array'],
-            'category' => ['required', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
-            'discount' => ['required', 'numeric', 'min:0', 'max:100'],
-            'discount_start_date' => ['required', 'required_with:discount', 'date'],
-            'discount_end_date' => ['nullable', 'required_with:discount', 'date', 'after:discount_start_date'],
-            'sku' => ['nullable', 'string', 'max:50'],
+            'name' => ['sometimes', 'string'],
+            'type' => ['sometimes', 'string', Rule::enum(ListingType::class)],
+            'price' => ['sometimes', 'numeric'],
+            'description' => ['sometimes', 'string', 'max:500'],
+            'additional_information' => ['sometimes', 'string', 'max:1000'],
+            'images' => ['sometimes', 'array'],
+            'category' => ['sometimes', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
+            'discount' => ['', 'numeric', 'min:0', 'max:100'],
+            'discount_start_date' => ['sometimes', 'required_with:discount', 'date'],
+            'discount_end_date' => ['sometimes', 'required_with:discount', 'date', 'after:discount_start_date'],
+            'sku' => ['sometimes', 'string', 'max:50'],
             'is_draft' => ['sometimes', 'boolean'],
 
             'attributes.measurement' => ['nullable', 'string'],
             'attributes.product_model' => ['nullable', 'string'],
-            'attributes.brand' => ['required', 'string'],
-            'attributes.material' => ['required', 'string'],
-            'attributes.color' => ['required', 'string'],
-            'attributes.size' => ['required', 'array'],
-            'attributes.size.*' => ['required', 'string'],
-            'attributes.tags' => ['required', 'array'],
-            'attributes.tags.*' => ['required', 'string'],
+            'attributes.brand' => ['sometimes', 'string'],
+            'attributes.material' => ['sometimes', 'string'],
+            'attributes.color' => ['sometimes', 'string'],
+            'attributes.size' => ['sometimes', 'array'],
+            'attributes.size.*' => ['required', 'array'],
+            'attributes.size.*.size' => ['required', 'string'],
+            'attributes.size.*.unit' => ['required', 'string'],
+            'attributes.tags' => ['sometimes', 'array'],
+            'attributes.tags.*' => ['sometimes', 'string'],
             'attributes.size_chart_html' => ['sometimes', 'string'],
             'attributes.size_chart_image' => ['sometimes', 'string'],
 
-            'variants' => ['required', 'array'],
-            'variants.*.name' => ['required', 'string'],
-            'variants.*.quantity' => ['required', 'integer', 'min:0'],
-            'variants.*.price' => ['required', 'numeric', 'min:0'],
-            'variants.*.discount' => ['required', 'numeric', 'min:0', 'max:100'],
-            'variants.*.size' => ['required', 'string'],
-            'variants.*.color' => ['required', 'string'],
-            'variants.*.measurement' => ['required', 'string'],
-            'variants.*.discount_start_date' => ['required', 'required_with:variants.*.discount', 'date'],
-            'variants.*.discount_end_date' => ['required', 'required_with:variants.*.discount', 'date', 'after:variants.*.discount_start_date'],
-            'variants.*.images.*' => ['required', 'string'],
+            'variants' => ['sometimes', 'array'],
+            'variants.*.name' => ['sometimes', 'string'],
+            'variants.*.quantity' => ['sometimes', 'integer', 'min:0'],
+            'variants.*.price' => ['sometimes', 'numeric', 'min:0'],
+            'variants.*.discount' => ['sometimes', 'numeric', 'min:0', 'max:100'],
+            'variants.*.size' => ['sometimes', 'array'],
+            'variants.*.size.*.size' => ['required', 'string'],
+            'variants.*.size.*.unit' => ['required', 'string'],
+            'variants.*.color' => ['sometimes', 'string'],
+            'variants.*.measurement' => ['sometimes', 'string'],
+            'variants.*.discount_start_date' => ['sometimes', 'required_with:variants.*.discount', 'date'],
+            'variants.*.discount_end_date' => ['sometimes', 'required_with:variants.*.discount', 'date', 'after:variants.*.discount_start_date'],
+            'variants.*.images.*' => ['sometimes', 'string'],
         ];
     }
 
@@ -77,7 +81,7 @@ class UpdateListingRequest extends FormRequest
     public function listingAttributes(Store $userStore)
     {
         return collect($this->safe()->except(['images', 'category', 'attributes', 'variants']))
-        ->filter() // Remove null values
+            ->filter() // Remove null values
             ->merge([
                 'category_id' => $this->category,
                 'store_id' => $userStore->id,
@@ -106,8 +110,9 @@ class UpdateListingRequest extends FormRequest
     public function variantsAttributes()
     {
         return collect($this->safe()['variants'] ?? [])->map(function ($variant) {
-            return collect($variant)->except(['images'])->merge([
-                'images' => $this->images($variant['images'] ?? [])
+            return collect($variant)->except(['images', 'size'])->merge([
+                'images' => $this->images($variant['images'] ?? []),
+                'size' => json_encode($variant['size'] ?? [])
             ])->toArray();
         })->toArray();
     }
