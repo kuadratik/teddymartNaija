@@ -41,15 +41,16 @@ class CreateListingRequest extends FormRequest
             'sku' => ['nullable', 'string', 'max:50'],
             'is_draft' => ['required', 'boolean'],
 
-            'attributes.measurement' => ['nullable', 'string'],
+            'attributes.measurement' => ['nullable', 'array'],
+            'attributes.measurement.*' => ['nullable', 'array'],
+            'attributes.measurement.*.value' => ['nullable', 'numeric'],
+            'attributes.measurement.*.unit' => ['nullable', 'string'],
             'attributes.product_model' => ['nullable', 'string'],
             'attributes.brand' => ['nullable', 'string'],
             'attributes.material' => ['nullable', 'string'],
             'attributes.color' => ['nullable', 'string'],
-            'attributes.size' => ['sometimes', 'array'],
-            'attributes.size.*' => ['required', 'array'],
-            'attributes.size.*.size' => ['required', 'string'],
-            'attributes.size.*.unit' => ['required', 'string'],
+            'attributes.size' => ['nullable', 'array'],
+            'attributes.size.*' => ['nullable', 'string'],
             'attributes.tags' => ['nullable', 'array'],
             'attributes.tags.*' => ['nullable', 'string'],
             'attributes.size_chart_html' => ['nullable', 'string'],
@@ -60,11 +61,12 @@ class CreateListingRequest extends FormRequest
             'variants.*.quantity' => ['required', 'integer', 'min:0'],
             'variants.*.price' => ['required', 'numeric', 'min:0'],
             'variants.*.discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'variants.*.size' => ['sometimes', 'array'],
-            'variants.*.size.*.size' => ['required', 'string'],
-            'variants.*.size.*.unit' => ['required', 'string'],
+            'variants.*.size' => ['nullable', 'string'],
             'variants.*.color' => ['nullable', 'string'],
-            'variants.*.measurement' => ['nullable', 'string'],
+            'variants.*.measurement' => ['nullable', 'array'],
+            'variants.*.measurement.*' => ['nullable', 'array'],
+            'variants.*.measurement.*.value' => ['nullable', 'numeric'],
+            'variants.*.measurement.*.unit' => ['nullable', 'string'],
             'variants.*.discount_start_date' => ['nullable', 'required_with:variants.*.discount', 'date'],
             'variants.*.discount_end_date' => ['nullable', 'required_with:variants.*.discount', 'date', 'after:variants.*.discount_start_date'],
             'variants.*.images.*' => ['nullable', 'string'],
@@ -99,10 +101,11 @@ class CreateListingRequest extends FormRequest
      */
     public function listingAttributeAttributes()
     {
-        return collect($this->safe()['attributes'] ?? [])->except(['size_chart_image', 'size', 'tags'])->merge([
+        return collect($this->safe()['attributes'] ?? [])->except(['size_chart_image', 'size', 'tags', 'measurement'])->merge([
             'size_chart_image' => $this->images([$this->safe()['attributes']['size_chart_image']] ?? [])[0],
             'size' => json_encode($this->safe()['attributes']['size'] ?? []),
             'tags' => json_encode($this->safe()['attributes']['tags'] ?? []),
+            'measurement' => json_encode($this->safe()['attributes']['measurement'] ?? [])
 
         ])->toArray();
     }
@@ -113,9 +116,9 @@ class CreateListingRequest extends FormRequest
     public function variantsAttributes()
     {
         return collect($this->safe()['variants'] ?? [])->map(function ($variant) {
-            return collect($variant)->except(['images', 'size'])->merge([
+            return collect($variant)->except(['images', 'measurement'])->merge([
                 'images' => $this->images($variant['images'] ?? []),
-                'size' => json_encode($variant['size'] ?? [])
+                'measurement' => json_encode($variant['measurement'] ?? [])
             ])->toArray();
         })->toArray();
     }

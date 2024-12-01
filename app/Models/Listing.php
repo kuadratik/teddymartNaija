@@ -59,6 +59,11 @@ class Listing extends Model
     ];
 
     /**
+     * eager load relationships
+     */
+    protected $with = ['attributes', 'variants', 'ratings'];
+
+    /**
      * The booted method of the model.
      */
     protected static function booted()
