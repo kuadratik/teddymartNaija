@@ -163,7 +163,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('payment/{gateway}/verify', [PaymentController::class, 'verifyPayment']);
         Route::get('order', [CartController::class, 'getUserOrders']);
         Route::get('order-history', [CartController::class, 'getOrderHistory']);
-
+        
         Route::prefix('wishlist')->group(function () {
             Route::post('add/{product}', [CartController::class, 'addToWishlist']);
             Route::post('add-from-cart/{product}', [CartController::class, 'addToWishlistFromCart']);

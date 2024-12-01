@@ -493,10 +493,28 @@ paths:
   /front/order-history:
     get:
       tags:
-        - Order
+        - Customer Order
       summary: Get Order History
       description: Get Order History
       operationId: GetOrderHistory
+      security:
+        - bearerAuth: []
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/{item}/recieve-item:
+    patch:
+      tags:
+        - Customer Order
+      summary: Recieve Item In Order
+      description: Recieve Item In Order
+      operationId: RecieveItemInOrder
       security:
         - bearerAuth: []
 
