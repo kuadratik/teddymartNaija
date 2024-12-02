@@ -8,6 +8,7 @@ use App\Http\Controllers\Front\BusinessListingController;
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\StorePayoutController;
 use App\Http\Controllers\StoresController;
 use App\Http\Controllers\StoreShippingController;
 use App\Http\Controllers\UserController;
@@ -70,7 +71,6 @@ Route::prefix('front')->group(function () {
         Route::get('popular', [StoresController::class, 'getPopularStores']);
         Route::get('listing/popular', [ListingsController::class, 'getPopularListing']);
         Route::post('listings/{listing}/add-view', [ListingsController::class, 'addListingViewsCount']);
-
     });
 
     Route::prefix('listings')->group(function () {
@@ -115,7 +115,7 @@ Route::middleware('auth:sanctum')->group(function () {
         });
 
         Route::prefix('listings')->group(function () {
-            Route::post('add-rating' , [ListingsController::class , 'addRating']);
+            Route::post('add-rating', [ListingsController::class, 'addRating']);
             Route::middleware('hasStore')->group(function () {
                 Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'showUserStoreListing']);
                 Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
@@ -129,6 +129,14 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('save-method', [StoreShippingController::class, 'saveShippingMethod']);
             Route::post('remove-method-type', [StoreShippingController::class, 'removeMethodType']);
             Route::delete('delete-method/{shippingMethod}', [StoreShippingController::class, 'deleteShippingMethod']);
+        });
+
+        Route::prefix('payout')->group(function () {
+            Route::get('{userStore}/payout-details', [StorePayoutController::class, 'getPayoutDetails']);
+            Route::post('save-detail', [StorePayoutController::class, 'savePayoutDetails']);
+            Route::get('{storePayoutDetail}/payout-detail', [StorePayoutController::class, 'showPayoutDetail']);
+            Route::patch('update-detail/{storePayoutDetail}', [StorePayoutController::class, 'updatePayoutDetail']);
+            Route::delete('delete-detail/{storePayoutDetail}', [StorePayoutController::class, 'deletePayoutDetail']);
         });
 
         Route::prefix('advert')->group(function () {
@@ -158,7 +166,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('payment/{gateway}/verify', [PaymentController::class, 'verifyPayment']);
         Route::get('order', [CartController::class, 'getUserOrders']);
         Route::get('order-history', [CartController::class, 'getOrderHistory']);
-
+        
         Route::prefix('wishlist')->group(function () {
             Route::post('add/{product}', [CartController::class, 'addToWishlist']);
             Route::post('add-from-cart/{product}', [CartController::class, 'addToWishlistFromCart']);
