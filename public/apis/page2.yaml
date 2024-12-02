@@ -902,8 +902,174 @@ paths:
 
       responses:
         default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
+
+  /store/payout/{userStore}/payout-details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Get User Store Payouts
+      description: "Get User Store Payouts"
+      operationId: GetUserStorePayouts
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+
+      responses:
+        default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
+  
+  /store/payout/save-detail:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Save User Store Payout Detail
+      description: Save User Store Payout Detail
+      operationId: SaveUserStorePayoutDetail
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                bank_name:
+                  type: string
+                  example: "Opay"
+                  required: true
+                account_name:
+                  type: string
+                  example: "Pa James"
+                  required: true
+                account_number:
+                  type: string
+                  example: "1234567890"
+                  required: true
+              
+      responses:
+        default:
           description: "success"
           content:
             application/json:
               schema:
                 type: object
+  
+  /store/payout/{storePayoutDetail}/payout-detail:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Get User Store Payout Detail
+      description: "Get User Store Payout Detail"
+      operationId: GetUserStorePayoutDetail
+      parameters:
+        - in: path
+          name: storePayoutDetail
+          schema:
+            type: string
+            example: 1
+          required: true
+
+      responses:
+        default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
+
+  /store/payout/update-detail/{storePayoutDetail}:
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Update User Store Payout Detail
+      description: Update User Store Payout Detail
+      operationId: UpdateUserStorePayoutDetail
+      parameters:
+        - in: path
+          name: storePayoutDetail
+          schema:
+            type: string
+            example: 1
+          required: true
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                bank_name:
+                  type: string
+                  example: "Opay"
+                  required: true
+                account_name:
+                  type: string
+                  example: "Pa James"
+                  required: true
+                account_number:
+                  type: string
+                  example: "1234567890"
+                  required: true
+              
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+  
+  /store/payout/delete-detail/{storePayoutDetail}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Delete User Store Payout Detail
+      description: Delete User Store Payout Detail
+      operationId: DeleteUserStorePayoutDetail
+      parameters:
+        - in: path
+          name: storePayoutDetail
+          schema:
+            type: string
+            example: 1
+          required: true
+              
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
