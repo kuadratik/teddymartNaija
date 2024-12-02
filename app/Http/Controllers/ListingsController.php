@@ -22,18 +22,26 @@ class ListingsController extends Controller
     }
 
     /**
-     * Display a listing of user store listing.
+     * Display a listing of user store listings.
      */
     public function getUserStoreListings(Request $request, Store $userStore)
     {
-        abort_if($userStore->user_id !== $this->user->id, 402, "Unauthorized");
+        abort_if($userStore->user_id !== $this->user->id, 403, "Unauthorized");
+
         $userStoreListings = $userStore->listings()
-            ->latest()->byType($request->listingType)
-            ->availability($request->availability)
+            ->latest()
+            ->byType($request->listingType)
+            ->when($request->has('availability'), function ($query) use ($request) {
+                $query->availability($request->availability);
+            })
+            ->when($request->has('is_draft'), function ($query) use ($request) {
+                $query->where('is_draft', $request->is_draft);
+            })
             ->paginate();
 
         return $this->success($userStoreListings);
     }
+
 
     /**
      * Create a new listing for the specified user store.
@@ -54,7 +62,7 @@ class ListingsController extends Controller
                 }
             }
 
-            return $this->success();
+            return $this->success($listing);
         });
     }
 
@@ -63,6 +71,7 @@ class ListingsController extends Controller
      */
     public function showUserStoreListing(Store $userStore, Listing $listing)
     {
+
         return $this->success($listing);
     }
 
@@ -71,7 +80,7 @@ class ListingsController extends Controller
      */
     public function show(Store $Store, Listing $listing)
     {
-        return $this->success($listing);
+        return $this->success($listing->load(['variants', 'attributes']));
     }
 
     /**
@@ -118,7 +127,7 @@ class ListingsController extends Controller
     }
 
     /**
-     * Add rating to listing 
+     * Add rating to listing
      */
     public function addRating(AddRatingRequest $request)
     {

@@ -78,7 +78,7 @@ class Store extends Model
      */
     public function listings()
     {
-        return $this->hasMany(Listing::class);
+        return $this->hasMany(Listing::class)->with('variants', 'attributes');
     }
 
      /**
@@ -142,6 +142,14 @@ class Store extends Model
             'listings',
             fn ($query) => $query->whereLike('name', "%$search%")
         );
+    }
+
+    /**
+     * Scope to retrieve by store type
+     */
+    public function scopeStoreType(Builder $query, $storeType)
+    {
+        return $query->where('type', $storeType);
     }
 
     /**

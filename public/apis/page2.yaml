@@ -255,8 +255,12 @@ paths:
           schema:
             type: boolean
             example: true
-          required: true
-
+          required: false
+        - in: query
+          name: is_draft
+          schema:
+            type: boolean
+            example: false
       responses:
         default:
           description: "success"
@@ -272,14 +276,14 @@ paths:
       tags:
         - User Store Listings
       summary: Create User Store Listing
-      description: Create a new listing for the user store, including details such as the product name, price, description, and other relevant attributes.
+      description: Create a new listing for a user store with details such as name, price, attributes, and variants.
       operationId: CreateUserStoreListing
       parameters:
         - in: path
           name: userStore
           schema:
             type: string
-            example: amala-sky
+            example: "amala-sky"
           required: true
       requestBody:
         content:
@@ -289,47 +293,58 @@ paths:
               properties:
                 name:
                   type: string
-                  example: "Amala Full plate"
+                  example: "Amala Full Plate"
                 type:
                   type: string
+                  enum:
+                    - product
+                    - service
                   example: "product"
                 price:
-                  type: string
-                  example: "1000"
-                currency:
-                  type: string
-                  example: "USD"
-                  enum: ["USD", "NGN", "CAD"]
+                  type: number
+                  example: 1000
+                  description: Required if type is "product."
                 description:
                   type: string
+                  maxLength: 500
                   example: "Delicious Amala served with your choice of soup."
                 additional_information:
                   type: string
+                  maxLength: 1000
                   example: "Can be customized with different soups."
+                quantity:
+                  type: integer
+                  minimum: 0
+                  example: 50
                 images:
                   type: array
                   items:
                     type: string
                   example:
-                    - "image1.jpg"
-                    - "image2.jpg"
+                    - "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
+                    - "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
                 category:
                   type: integer
                   example: 11
+                  description: Must exist in the categories table.
                 discount:
                   type: number
+                  minimum: 0
+                  maximum: 100
                   example: 10
-                  description: "Discount percentage (optional)."
                 discount_start_date:
                   type: string
                   format: date
                   example: "2024-11-01"
+                  description: Required if discount is provided.
                 discount_end_date:
                   type: string
                   format: date
                   example: "2024-11-30"
+                  description: Must be after discount_start_date.
                 sku:
                   type: string
+                  maxLength: 50
                   example: "AMALAFP001"
                 is_draft:
                   type: boolean
@@ -338,8 +353,16 @@ paths:
                   type: object
                   properties:
                     measurement:
-                      type: string
-                      example: "10x10 inches"
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          value:
+                            type: number
+                            example: 10
+                          unit:
+                            type: string
+                            example: "inches"
                     product_model:
                       type: string
                       example: "Amala2024"
@@ -367,7 +390,7 @@ paths:
                       example: "<h3>Size Chart</h3><ul><li>Large: 10x10 inches</li><li>Medium: 8x8 inches</li></ul>"
                     size_chart_image:
                       type: string
-                      example: "size_chart_image.jpg"
+                      example: "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
                 variants:
                   type: array
                   items:
@@ -378,12 +401,16 @@ paths:
                         example: "Amala with Goat Meat"
                       quantity:
                         type: integer
+                        minimum: 0
                         example: 50
                       price:
-                        type: string
-                        example: "1500"
+                        type: number
+                        minimum: 0
+                        example: 1500
                       discount:
                         type: number
+                        minimum: 0
+                        maximum: 100
                         example: 5
                       size:
                         type: string
@@ -392,8 +419,16 @@ paths:
                         type: string
                         example: "Brown"
                       measurement:
-                        type: string
-                        example: "10x10 inches"
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            value:
+                              type: number
+                              example: 10
+                            unit:
+                              type: string
+                              example: "inches"
                       discount_start_date:
                         type: string
                         format: date
@@ -407,8 +442,8 @@ paths:
                         items:
                           type: string
                         example:
-                          - "variant_image1.jpg"
-                          - "variant_image2.jpg"
+                          - "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
+                          - "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
       responses:
         default:
           description: "success"
@@ -588,8 +623,16 @@ paths:
                   description: Product-specific attributes
                   properties:
                     measurement:
-                      type: string
-                      example: "10x10 inches"
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          value:
+                            type: number
+                            example: 10
+                          unit:
+                            type: string
+                            example: "inches"
                     product_model:
                       type: string
                       example: "Amala2024"
@@ -646,8 +689,16 @@ paths:
                         type: string
                         example: "Brown"
                       measurement:
-                        type: string
-                        example: "10x10 inches"
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            value:
+                              type: number
+                              example: 10
+                            unit:
+                              type: string
+                              example: "inches"
                       discount_start_date:
                         type: string
                         format: date

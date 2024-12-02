@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Actions\FetchStoresAlphaNumericallyAction;
 use App\Actions\RecordCategoryInteractionsAction;
+use App\Enums\ListingType;
+use App\Enums\OrderStatusEnum;
+use App\Http\Requests\Cart\UpdateOrderRequest;
 use App\Http\Requests\Store\CreateStoreRequest;
 use App\Http\Requests\Store\SaveShippingMethodRequest;
 use App\Http\Requests\Store\UpdateStoreRequest;
 use App\Jobs\RecordCategoryInteractions;
+use App\Models\Order;
 use App\Models\Store;
 use App\Services\Auth\UserService;
 use App\Services\Store\MetricService;
@@ -50,10 +54,10 @@ class StoresController extends Controller
         $currency = $request->header('currency', 'USD');
 
         $stores = Store::query()
-            ->byListingType($request->listingType)
+            ->where('type', $request->listingType)
             ->when($request->sortType === 'alphanumeric', fn($query) => $query->orderBy('name', 'asc'))
-            ->when($request->search, fn ($query) => $query->search($request->search))
-            ->when($request->category, fn ($query) => $query->byCategory($request->category))
+            ->when($request->search, fn($query) => $query->search($request->search))
+            ->when($request->category, fn($query) => $query->byCategory($request->category))
             ->where('currency', $currency)
             ->paginate(20);
 
@@ -116,17 +120,9 @@ class StoresController extends Controller
     /**
      *  Get store in alphanumerical order
      */
-    public function getStoresAlphaNumerically(Request $request)
+    public function getStoresAlphaNumerically(FetchStoresAlphaNumericallyAction $fetchStoreAction)
     {
-        $currency = $request->header('currency', 'USD');
-        $stores = Cache::get($currency);
-
-        if (!$stores) {
-            $stores = (new FetchStoresAlphaNumericallyAction())->fetch($currency);
-            $cacheKey = "currency_data:{$currency}";
-            Cache::put($cacheKey, $stores);
-        }
-
+        $stores = $fetchStoreAction->keyedStoreList();
         return $this->success($stores);
     }
 
@@ -169,11 +165,6 @@ class StoresController extends Controller
         return $this->success(['store' => $store]);
     }
 
-
-
-
-
-
     /**
      * Display the specified store.
      */
@@ -207,6 +198,39 @@ class StoresController extends Controller
     public function update(UpdateStoreRequest $request, Store $userStore)
     {
         $userStore->update($request->storeAttributes());
+        return $this->success();
+    }
+
+
+    /**
+     *  Show vendor Order history
+     */
+    public function  getStoreOrderHistory(Request $request, Store $store)
+    {
+        $user = $request->user();
+        $status = $request->query('order_status');
+        $orders = $store->orders()->where('user_id', $user->id)
+            ->where('type', ListingType::PRODUCT->value)
+            ->whereNot(['status' => OrderStatusEnum::PENDING->value, 'status' => 'incart'])
+            ->when($status, fn($query) => $query->where('status', $status))
+            ->orderBy('created_at', 'desc')
+            ->with('orderDetails')
+        ->paginate(20);
+
+
+
+        return $this->success($orders);
+    }
+
+
+
+    /**
+     * Update the store order status.
+     */
+    public function updateStoreOrderStatus(UpdateOrderRequest $request, Order $order)
+    {
+        $order->update(['status' => $request->validated('status')]);
+
         return $this->success();
     }
 }

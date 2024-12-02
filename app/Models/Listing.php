@@ -24,7 +24,7 @@ class Listing extends Model
         'slug',
         'type',
         'price',
-        'qauntity',
+        'quantity',
         'discount',
         'discounted_price',
         'display_price',
@@ -57,6 +57,11 @@ class Listing extends Model
         'discount_start_date' => 'datetime',
         'discount_end_date' => 'datetime'
     ];
+
+    /**
+     * eager load relationships
+     */
+    protected $with = ['attributes', 'variants', 'ratings'];
 
     /**
      * The booted method of the model.
@@ -258,5 +263,24 @@ class Listing extends Model
 
             return $this->refresh()->load(['attributes', 'variants']);
         });
+    }
+
+    public function checkExpiredDiscounts()
+    {
+        $currentDate = now();
+
+        $expiredProducts = Listing::where('discount_end_date', '<', $currentDate)
+            ->where('is_draft', false)
+            ->get();
+
+        foreach ($expiredProducts as $product) {
+            $product->update([
+                'price' => $product->display_price,
+                'discounted_price' => null,
+                'discount' => null,
+                'discount_start_date' => null,
+                'discount_end_date' => null
+            ]);
+        }
     }
 }

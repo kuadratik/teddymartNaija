@@ -489,7 +489,7 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
   /front/order-history:
     get:
       tags:
@@ -535,7 +535,7 @@ paths:
       summary: Add Store Listing Rating
       description: "Add Store Listing Rating"
       operationId: AddStoreListingRating
-      
+
       requestBody:
         content:
           application/json:
