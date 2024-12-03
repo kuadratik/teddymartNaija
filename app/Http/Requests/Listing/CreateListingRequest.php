@@ -102,10 +102,11 @@ class CreateListingRequest extends FormRequest
      */
     public function listingAttributeAttributes()
     {
-        return collect($this->safe()['attributes'] ?? [])->except(['size_chart_image', 'size', 'tags', 'measurement'])->merge(['size_chart_image' => $this->images([@$this->safe()['attributes']['size_chart_image']] ?? [])[0],
-            'size' => json_encode(@$this->safe()['attributes']['size'] ?? []),
-            'tags' => json_encode(@$this->safe()['attributes']['tags'] ?? []),
-            'measurement' => json_encode(@$this->safe()['attributes']['measurement'] ?? [])
+        return collect($this->safe()['attributes'] ?? [])->except(['size_chart_image', 'size', 'tags', 'measurement'])->merge([
+            'size_chart_image' => $this->images([@$this->safe()['attributes']['size_chart_image']] ?? [])[0],
+            'size' => json_encode(optional($this->safe()['attributes']['size'] ?? [])),
+            'tags' => json_encode(optional($this->safe()['attributes']['tags'] ?? [])),
+            'measurement' => json_encode(optional($this->safe()['attributes']['measurement'] ?? []))
 
         ])->toArray();
     }
@@ -116,9 +117,8 @@ class CreateListingRequest extends FormRequest
     public function variantsAttributes()
     {
         return collect($this->safe()['variants'] ?? [])->map(function ($variant) {
-            return collect($variant)->except(['images', 'measurement'])->merge([
-                'images' => $this->images($variant['images'] ?? []),
-                'measurement' => json_encode($variant['measurement'] ?? [])
+            return collect($variant)->except(['images', 'measurement'])->merge(['images' => optional($this->images($variant['images'] ?? [])),
+                'measurement' => optional(json_encode($variant['measurement'] ?? []))
             ])->toArray();
         })->toArray();
     }
