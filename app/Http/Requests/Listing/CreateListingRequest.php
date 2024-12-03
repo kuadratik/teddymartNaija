@@ -102,11 +102,10 @@ class CreateListingRequest extends FormRequest
      */
     public function listingAttributeAttributes()
     {
-        return collect($this->safe()['attributes'] ?? [])->except(['size_chart_image', 'size', 'tags', 'measurement'])->merge([
-            'size_chart_image' => $this->images([$this->safe()['attributes']['size_chart_image']] ?? [])[0],
-            'size' => json_encode($this->safe()['attributes']['size'] ?? []),
-            'tags' => json_encode($this->safe()['attributes']['tags'] ?? []),
-            'measurement' => json_encode($this->safe()['attributes']['measurement'] ?? [])
+        return collect($this->safe()['attributes'] ?? [])->except(['size_chart_image', 'size', 'tags', 'measurement'])->merge(['size_chart_image' => $this->images([@$this->safe()['attributes']['size_chart_image']] ?? [])[0],
+            'size' => json_encode(@$this->safe()['attributes']['size'] ?? []),
+            'tags' => json_encode(@$this->safe()['attributes']['tags'] ?? []),
+            'measurement' => json_encode(@$this->safe()['attributes']['measurement'] ?? [])
 
         ])->toArray();
     }
