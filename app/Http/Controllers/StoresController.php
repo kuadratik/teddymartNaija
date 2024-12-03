@@ -4,12 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Actions\FetchStoresAlphaNumericallyAction;
 use App\Actions\RecordCategoryInteractionsAction;
+use App\Enums\ListingType;
+use App\Enums\OrderStatusEnum;
+use App\Http\Requests\Cart\UpdateOrderRequest;
 use App\Http\Requests\Store\CreateStoreRequest;
 use App\Http\Requests\Store\SaveShippingMethodRequest;
 use App\Http\Requests\Store\UpdateStoreRequest;
 use App\Jobs\RecordCategoryInteractions;
+use App\Models\Order;
 use App\Models\Store;
 use App\Services\Auth\UserService;
+use App\Services\Store\MetricService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -23,11 +28,22 @@ class StoresController extends Controller
     public function getUserStoreMetrics(Request $request, UserService $userService, Store $userStore)
     {
         abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
-
+        
         $userStoreListingsCount = $userStore->listings()->byType($request->listingType)->count();
         $customersCount = $userService->getStoreCustomerCount($userStore);
 
         return $this->success(["totalListingsCount" => $userStoreListingsCount, "totalCustomerCount" => $customersCount]);
+    }
+
+    /**
+     * Display detailed store metrics 
+     */
+    public function getStoreOverallMetrics(Request $request, Store $userStore)
+    {
+        abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
+
+        $metrics = (new MetricService($userStore))->storeMetrics();
+        return $this->success($metrics);
     }
 
     /**
@@ -38,11 +54,12 @@ class StoresController extends Controller
         $currency = $request->header('currency', 'USD');
 
         $stores = Store::query()
-            ->byListingType($request->listingType)
+            ->where('type', $request->listingType)
+            ->when($request->sortType === 'alphanumeric', fn($query) => $query->orderBy('name', 'asc'))
             ->when($request->search, fn($query) => $query->search($request->search))
             ->when($request->category, fn($query) => $query->byCategory($request->category))
             ->where('currency', $currency)
-            ->get();
+            ->paginate(20);
 
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
         return $this->success($stores);
@@ -103,18 +120,20 @@ class StoresController extends Controller
     /**
      *  Get store in alphanumerical order
      */
-    public function getStoresAlphaNumerically(Request $request)
+    public function getStoresAlphaNumerically(FetchStoresAlphaNumericallyAction $fetchStoreAction)
     {
-        $currency = $request->header('currency', 'USD');
-        $stores = Cache::get($currency);
-
-        if (!$stores) {
-            $stores = (new FetchStoresAlphaNumericallyAction())->fetch($currency);
-            $cacheKey = "currency_data:{$currency}";
-            Cache::put($cacheKey, $stores);
-        }
-
+        $stores = $fetchStoreAction->keyedStoreList();
         return $this->success($stores);
+    }
+
+    /**
+     *  Get store ratings
+     */
+    public function getStoreRatings(Store $userStore)
+    {
+        $storeRatings = $userStore->ratings()->with('user:id,first_name,last_name,email')
+            ->paginate(20);
+        return $this->success($storeRatings);
     }
 
     /**
@@ -145,11 +164,6 @@ class StoresController extends Controller
 
         return $this->success(['store' => $store]);
     }
-
-
-
-
-
 
     /**
      * Display the specified store.
@@ -184,6 +198,39 @@ class StoresController extends Controller
     public function update(UpdateStoreRequest $request, Store $userStore)
     {
         $userStore->update($request->storeAttributes());
+        return $this->success();
+    }
+
+
+    /**
+     *  Show vendor Order history
+     */
+    public function  getStoreOrderHistory(Request $request, Store $store)
+    {
+        $user = $request->user();
+        $status = $request->query('order_status');
+        $orders = $store->orders()->where('user_id', $user->id)
+            ->where('type', ListingType::PRODUCT->value)
+            ->whereNot(['status' => OrderStatusEnum::PENDING->value, 'status' => 'incart'])
+            ->when($status, fn($query) => $query->where('status', $status))
+            ->orderBy('created_at', 'desc')
+            ->with('orderDetails')
+        ->paginate(20);
+
+
+
+        return $this->success($orders);
+    }
+
+
+
+    /**
+     * Update the store order status.
+     */
+    public function updateStoreOrderStatus(UpdateOrderRequest $request, Order $order)
+    {
+        $order->update(['status' => $request->validated('status')]);
+
         return $this->success();
     }
 }

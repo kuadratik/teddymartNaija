@@ -103,4 +103,15 @@ class Order extends Model
         return $this->belongsToMany(Payment::class, 'order_payment')
             ->withTimestamps();
     }
+
+
+    /**
+     * update order status
+     */
+    public function updateOrderStatus($status)
+    {
+
+        $this->status = $status;
+        $this->save();
+    }
 }

@@ -64,8 +64,11 @@ class ChatService
             ]);
 
 
-            SendMessage::dispatch($message->toArray())->afterCommit();
+            SendMessage::dispatch($message->toArray(), $respondent->id)->afterCommit();
             DB::commit();
+
+            $messagePayload = collect($message)->merge(['respondent' => $respondent]);
+            return $messagePayload;
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
@@ -74,7 +77,8 @@ class ChatService
 
     public function sendMessage($details)
     {
-        $user = auth()->user();
+        $user = request()->user();
+        $chatUser = ChatUser::where('user_id', '!=', $user->id)->first();
 
         DB::beginTransaction();
         try {
@@ -86,7 +90,7 @@ class ChatService
                 'content' => $details['message'],
             ]);
 
-            SendMessage::dispatch($message->toArray())->afterCommit();
+            SendMessage::dispatch($message->toArray(), $chatUser->user_id)->afterCommit();
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -137,12 +141,12 @@ class ChatService
     {
         $chats = Chat::query()->addSelect(['read_at' => ChatUser::subLastRead()])
             ->whereHas('participants', fn ($participant) => $participant->authUser())
-            ->cursorPaginate(20);
+            ->cursorPaginate(40);
 
         $privateChatIds = $chats->where('converse_type', 'private')->pluck('id');
 
         $respondents = $privateChatIds->whenNotEmpty(function ($privateChatIds) {
-            return ChatUser::where('chat_id', $privateChatIds)
+            return ChatUser::whereIn('chat_id', $privateChatIds)
                 ->where('user_id', '<>', auth()->id())->get();
         });
 
@@ -153,7 +157,23 @@ class ChatService
             $this->setChatsState($chat, $respondents, $lastMessages, $unreads);
         });
 
-        return $chats;
+        return $chats->when(request()->name)->filter(function ($chat) {
+            return $this->doesNameContainSearchParam($chat);
+        })->values();
+    }
+
+    private function doesNameContainSearchParam($chat)
+    {
+        $searchedName =  Str::lower(request()->name);
+        $respondent = $chat['respondent'];
+
+        if (isset($respondent['first_name']) && isset($respondent['last_name'])) {
+
+            return Str::contains(
+                Str::lower($respondent['first_name']),
+                $searchedName
+            ) || Str::contains(Str::lower($respondent['last_name']), $searchedName);
+        }
     }
 
     public function setChatsState(&$chat, $respondent, $lastMessages, $unreads)
@@ -161,7 +181,7 @@ class ChatService
         $match = $respondent->where('chat_id', $chat->id)->first();
 
         $relation = is_null($match) ? null : [
-            'user_id' => $match->id,
+            'user_id' => $match->user->id,
             'first_name' => $match->user->first_name,
             'last_name' => $match->user->last_name,
             'user_type' => $match->user_type,

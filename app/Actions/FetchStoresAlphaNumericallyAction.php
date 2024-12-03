@@ -2,17 +2,18 @@
 
 namespace App\Actions;
 
+use App\Enums\StoreType;
 use App\Models\Store;
+use Illuminate\Support\Facades\Cache;
 
 class FetchStoresAlphaNumericallyAction
 {
-
-    public function fetch(string $currency)
+    public function fetch(string $currency, StoreType $storeType)
     {
-        $stores = Store::where('currency', $currency)->select('id' ,'user_id', 'name', 'slug')
-            ->get()->sortBy(function ($store) {
-                return $store->name[0];
-            }, SORT_NATURAL | SORT_FLAG_CASE);
+        $stores = Store::where('currency', $currency)
+            ->select('id', 'user_id', 'name', 'slug')
+            ->storeType($storeType)->get()
+            ->sortBy(fn($store) => $store->name[0], SORT_NATURAL | SORT_FLAG_CASE);
 
         $groupedStores = $stores->groupBy(function ($store) {
             $firstChar = strtoupper($store->name[0]);
@@ -25,5 +26,25 @@ class FetchStoresAlphaNumericallyAction
         });
 
         return $groupedStores;
+    }
+
+    /**
+     * Return the alpha-numerically cached keyed stores record
+     * Currency value from request header
+     */
+    public function keyedStoreList()
+    {
+        $currency = strtoupper(request()->header('currency', 'USD'));
+        $storeType = StoreType::tryFrom(strtolower(request()->store_type)) ?? StoreType::PRODUCT;
+
+        $cacheKey = "keyed-stores-{$storeType->value}-{$currency}";
+
+        $stores = Cache::remember($cacheKey, 900, fn() => $this->fetch($currency, $storeType));
+
+        if (count($stores) <= 0) {
+            Cache::forget($cacheKey);
+        }
+
+        return $stores;
     }
 }

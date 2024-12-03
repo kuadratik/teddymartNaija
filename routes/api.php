@@ -8,6 +8,7 @@ use App\Http\Controllers\Front\BusinessListingController;
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\StorePayoutController;
 use App\Http\Controllers\StoresController;
 use App\Http\Controllers\StoreShippingController;
 use App\Http\Controllers\UserController;
@@ -103,12 +104,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::middleware('hasStore')->group(function () {
             Route::get('user-store', [StoresController::class, 'showUserStore']);
             Route::get('user-store/{userStore}/metrics', [StoresController::class, 'getUserStoreMetrics']);
+            Route::get('user-store/{userStore}/overall-metrics', [StoresController::class, 'getStoreOverallMetrics']);
             Route::patch('{userStore}/update', [StoresController::class, 'update']);
             Route::get('{userStore}/listings', [ListingsController::class, 'getUserStoreListings']);
             Route::post('{userStore}/listings/create', [ListingsController::class, 'create']);
+            Route::get('{userStore}/ratings', [StoresController::class, 'getStoreRatings']);
+            Route::get('{store}/order/history', [StoresController::class, 'getStoreOrderHistory']);
+            Route::put('{store}/order/{order:uid}/status/update', [StoresController::class, 'updateStoreOrderStatus']);
+
         });
 
         Route::prefix('listings')->group(function () {
+            Route::post('add-rating', [ListingsController::class, 'addRating']);
             Route::middleware('hasStore')->group(function () {
                 Route::get('{userStore}/listing/{listing}', [ListingsController::class, 'showUserStoreListing']);
                 Route::patch('{userStore}/listing/{listing}/set-availability', [ListingsController::class, 'setAvailability']);
@@ -119,9 +126,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::prefix('shipping')->group(function () {
             Route::get('{userStore}/methods', [StoreShippingController::class, 'getShippingMethods']);
-            Route::post('save-method' ,[StoreShippingController::class, 'saveShippingMethod']);
+            Route::post('save-method', [StoreShippingController::class, 'saveShippingMethod']);
             Route::post('remove-method-type', [StoreShippingController::class, 'removeMethodType']);
             Route::delete('delete-method/{shippingMethod}', [StoreShippingController::class, 'deleteShippingMethod']);
+        });
+
+        Route::prefix('payout')->group(function () {
+            Route::get('{userStore}/payout-details', [StorePayoutController::class, 'getPayoutDetails']);
+            Route::post('save-detail', [StorePayoutController::class, 'savePayoutDetails']);
+            Route::get('{storePayoutDetail}/payout-detail', [StorePayoutController::class, 'showPayoutDetail']);
+            Route::patch('update-detail/{storePayoutDetail}', [StorePayoutController::class, 'updatePayoutDetail']);
+            Route::delete('delete-detail/{storePayoutDetail}', [StorePayoutController::class, 'deletePayoutDetail']);
         });
 
         Route::prefix('advert')->group(function () {
@@ -150,7 +165,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('cart/{cart}/payment', [PaymentController::class, 'payOrder']);
         Route::post('payment/{gateway}/verify', [PaymentController::class, 'verifyPayment']);
         Route::get('order', [CartController::class, 'getUserOrders']);
-
+        Route::get('order-history', [CartController::class, 'getOrderHistory']);
+        
         Route::prefix('wishlist')->group(function () {
             Route::post('add/{product}', [CartController::class, 'addToWishlist']);
             Route::post('add-from-cart/{product}', [CartController::class, 'addToWishlistFromCart']);

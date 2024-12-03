@@ -73,9 +73,48 @@ class Store extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get the store listings
+     */
     public function listings()
     {
-        return $this->hasMany(Listing::class);
+        return $this->hasMany(Listing::class)->with('variants', 'attributes');
+    }
+
+     /**
+     * Get the store orders
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get the store ratings
+     */
+    public function ratings()
+    {
+        return $this->hasMany(ListingRating::class);
+    }
+
+    /**
+     * Get the country that owns the Store
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'country_id', 'id');
+    }
+
+    /**
+     * The promotion plans associated with the store.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function promotedStores()
+    {
+        return $this->belongsTo(StorePromotePlanStore::class, 'id', 'store_id');
     }
 
     /**
@@ -91,7 +130,7 @@ class Store extends Model
      */
     public function scopeByListingType(Builder $query, $listingType)
     {
-        $query->whereHas('listings', fn($query) => $query->where('type', $listingType));
+        $query->whereHas('listings', fn ($query) => $query->where('type', $listingType));
     }
 
     /**
@@ -101,8 +140,16 @@ class Store extends Model
     {
         $query->whereLike('name', "%$search%")->orWhereHas(
             'listings',
-            fn($query) => $query->whereLike('name', "%$search%")
+            fn ($query) => $query->whereLike('name', "%$search%")
         );
+    }
+
+    /**
+     * Scope to retrieve by store type
+     */
+    public function scopeStoreType(Builder $query, $storeType)
+    {
+        return $query->where('type', $storeType);
     }
 
     /**
@@ -110,7 +157,7 @@ class Store extends Model
      */
     public function scopeByCategory(Builder $query, $category)
     {
-        $query->whereHas('listings', fn($query) => $query->where('category_id', $category));
+        $query->whereHas('listings', fn ($query) => $query->where('category_id', $category));
     }
 
     /**
@@ -121,10 +168,11 @@ class Store extends Model
         $mostUsedCategories = app(FetchUserMostInteractedCategoriesAction::class)->fetch();
         $query->whereHas(
             'listings',
-            fn($query) => $query->whereIntegerInRaw('category_id', $mostUsedCategories)
+            fn ($query) => $query->whereIntegerInRaw('category_id', $mostUsedCategories)
                 ->orderByRaw("FIELD(category_id, " . implode(',', $mostUsedCategories) . ") DESC")
         );
     }
+
     /**
      * Scope by popular recommended
      */
@@ -134,7 +182,7 @@ class Store extends Model
         if (!empty($mostUsedCategories)) {
             $query->whereHas(
                 'listings',
-                fn($query) => $query->whereIntegerInRaw('category_id', $mostUsedCategories)
+                fn ($query) => $query->whereIntegerInRaw('category_id', $mostUsedCategories)
                     ->orderByRaw("FIELD(category_id, " . implode(',', $mostUsedCategories) . ") DESC")
             );
         }
@@ -150,24 +198,5 @@ class Store extends Model
         )->take(10);
     }
 
-    /**
-     * Get the country that owns the Store
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function country(): BelongsTo
-    {
-        return $this->belongsTo(Country::class, 'country_id', 'id');
-    }
-
-
-    /**
-     * The promotion plans associated with the store.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function promotedStores()
-    {
-        return $this->belongsTo(StorePromotePlanStore::class,'id', 'store_id');
-    }
+    
 }

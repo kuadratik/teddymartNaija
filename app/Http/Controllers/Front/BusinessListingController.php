@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Advert\CreateAdvertRequest;
 use App\Models\BusinessListing;
 use App\Models\Industry;
+use App\Notifications\Listing\BizListedNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class BusinessListingController extends Controller
 {
@@ -39,6 +41,8 @@ class BusinessListingController extends Controller
     public function create(CreateAdvertRequest $request)
     {
         $business = BusinessListing::create($request->businessAttributes());
+        $business->notify(new BizListedNotification($business));
+        
         return $this->success($business);
     }
 }

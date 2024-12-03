@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Listing extends Model
 {
@@ -23,7 +24,7 @@ class Listing extends Model
         'slug',
         'type',
         'price',
-        'qauntity',
+        'quantity',
         'discount',
         'discounted_price',
         'display_price',
@@ -58,6 +59,11 @@ class Listing extends Model
     ];
 
     /**
+     * eager load relationships
+     */
+    protected $with = ['attributes', 'variants', 'ratings'];
+
+    /**
      * The booted method of the model.
      */
     protected static function booted()
@@ -88,6 +94,14 @@ class Listing extends Model
     public function variants()
     {
         return $this->hasMany(ListingVariant::class);
+    }
+
+    /**
+     * Get product variants
+     */
+    public function ratings()
+    {
+        return $this->hasMany(ListingRating::class);
     }
 
     /**
@@ -138,12 +152,13 @@ class Listing extends Model
         $query->where('is_available',  filter_var($isAvailable, FILTER_VALIDATE_BOOL));
     }
 
-
+    /**
+     * Scope by listing type
+     */
     public function scopeByListingType($query, $listingType)
     {
         return $query->where('type', $listingType);
     }
-
 
     /**
      * Scope to search by name or store name
@@ -200,9 +215,9 @@ class Listing extends Model
     public function scopeOnSale($query)
     {
         return $query->where('discount', '>', 0)
-        ->whereNotNull('discount_start_date')
-        ->whereNotNull('discount_end_date')
-        ->where('discount_start_date', '<=', now())
+            ->whereNotNull('discount_start_date')
+            ->whereNotNull('discount_end_date')
+            ->where('discount_start_date', '<=', now())
             ->where('discount_end_date', '>=', now());
     }
 
@@ -215,5 +230,57 @@ class Listing extends Model
     public function scopeInStock($query)
     {
         return $query->where('quantity', '>', 0);
+    }
+
+
+    /**
+     * Update the listing with the given attributes, listing attributes, and variants.
+     *
+     */
+    public function updateListing(array $attributes, ?array $listingAttributes = null, ?array $variants = null)
+    {
+        return DB::transaction(function () use ($attributes, $listingAttributes, $variants) {
+            $this->update($attributes);
+
+            $this->when(!is_null($listingAttributes), function ($listing) use ($listingAttributes) {
+                $this->attributes()->updateOrCreate(
+                    ['listing_id' => $this->id],
+                    $listingAttributes
+                );
+            });
+
+            $this->when(!is_null($variants), function ($listing) use ($variants) {
+                $this->variants()->delete();
+
+                $listing->when(!empty($variants), function ($listingVariants) use ($variants) {
+                    collect($variants)->each(function ($variantData) use ($listingVariants) {
+                        $this->variants()->create(
+                            $variantData
+                        );
+                    });
+                });
+            });
+
+            return $this->refresh()->load(['attributes', 'variants']);
+        });
+    }
+
+    public function checkExpiredDiscounts()
+    {
+        $currentDate = now();
+
+        $expiredProducts = Listing::where('discount_end_date', '<', $currentDate)
+            ->where('is_draft', false)
+            ->get();
+
+        foreach ($expiredProducts as $product) {
+            $product->update([
+                'price' => $product->display_price,
+                'discounted_price' => null,
+                'discount' => null,
+                'discount_start_date' => null,
+                'discount_end_date' => null
+            ]);
+        }
     }
 }

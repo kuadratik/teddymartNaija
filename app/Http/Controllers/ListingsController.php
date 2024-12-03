@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Listing\AddRatingRequest;
 use App\Http\Requests\Listing\CreateListingRequest;
 use App\Http\Requests\Listing\UpdateListingRequest;
 use App\Jobs\RecordCategoryInteractions;
 use App\Models\Listing;
+use App\Models\ListingRating;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,15 +21,19 @@ class ListingsController extends Controller
         $this->user = $request->user();
     }
 
-    /**
-     * Display a listing of user store listing.
-     */
     public function getUserStoreListings(Request $request, Store $userStore)
     {
-        abort_if($userStore->user_id !== $this->user->id, 402, "Unauthorized");
+        abort_if($userStore->user_id !== $this->user->id, 403, "Unauthorized");
+
         $userStoreListings = $userStore->listings()
-            ->latest()->byType($request->listingType)
-            ->availability($request->availability)
+            ->latest()
+            ->byType($request->listingType)
+            ->when($request->filled('availability'), function ($query) use ($request) {
+                $query->availability($request->availability);
+            })
+            ->when($request->filled('is_draft'), function ($query) use ($request) {
+                $query->where('is_draft', $request->is_draft);
+            })
             ->paginate();
 
         return $this->success($userStoreListings);
@@ -54,16 +60,16 @@ class ListingsController extends Controller
                 }
             }
 
-            return $this->success();
+            return $this->success($listing);
         });
     }
-
 
     /**
      * Display the specified user store listing.
      */
     public function showUserStoreListing(Store $userStore, Listing $listing)
     {
+
         return $this->success($listing);
     }
 
@@ -72,7 +78,7 @@ class ListingsController extends Controller
      */
     public function show(Store $Store, Listing $listing)
     {
-        return $this->success($listing);
+        return $this->success($listing->load(['variants', 'attributes']));
     }
 
     /**
@@ -91,8 +97,13 @@ class ListingsController extends Controller
      */
     public function update(UpdateListingRequest $request, Store $userStore, Listing $listing)
     {
-        $listing->update($request->listingAttributes());
-        return $this->success();
+        $listing = $listing->updateListing(
+            $request->listingAttributes($userStore),
+            $request->has('attributes') ? $request->listingAttributeAttributes() : null,
+            $request->has('variants') ? $request->variantsAttributes() : null
+        );
+
+        return $this->success($listing);
     }
 
     /**
@@ -104,7 +115,6 @@ class ListingsController extends Controller
         return $this->success();
     }
 
-
     /**
      * add listing views count
      */
@@ -114,7 +124,14 @@ class ListingsController extends Controller
         return $this->success();
     }
 
-
+    /**
+     * Add rating to listing
+     */
+    public function addRating(AddRatingRequest $request)
+    {
+        ListingRating::create($request->ratingAttributes());
+        return $this->success();
+    }
 
     /**
      * Get popular listings based on views, with optional currency filter.
@@ -123,7 +140,6 @@ class ListingsController extends Controller
     {
 
         $currency = $request->header('currency', 'USD');
-
 
         $listing = Listing::query()
             ->popular($request->query('listingType'))
@@ -135,7 +151,6 @@ class ListingsController extends Controller
         return $this->success($listing);
     }
 
-
     /**
      *   Listing by type with search and currency filter
      */
@@ -145,9 +160,9 @@ class ListingsController extends Controller
 
         $listings = Listing::query()
             ->byListingType($request->listingType)
-            ->when($request->search, fn($query) => $query->search($request->search))
-            ->when($request->category, fn($query) => $query->byCategory($request->category))
-            ->when($request->availability, fn($query) => $query->availability($request->availability))
+            ->when($request->search, fn ($query) => $query->search($request->search))
+            ->when($request->category, fn ($query) => $query->byCategory($request->category))
+            ->when($request->availability, fn ($query) => $query->availability($request->availability))
             ->byCurrency($currency)
             ->get();
 

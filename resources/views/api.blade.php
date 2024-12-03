@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="SwaggerUI" />
-    <title>Teddyed</title>
+    <title>Myeki</title>
     <link rel="stylesheet" href="{{ asset('dist/swagger-ui.css') }}" />
     <style>
         * {
@@ -163,11 +163,13 @@
                 <h4 class="box-title">Enter passcode to continue</h4>
                 <form action="/passcode" method="post">
                     @csrf
-                    <input type="text" name="passcode" placeholder="code" class="form-ctr {{ session()->has('error') ? 'danger-ctr' : ''  }}">
+                    <input type="text" name="passcode" placeholder="code"
+                        class="form-ctr {{ session()->has('error') ? 'danger-ctr' : '' }}">
                 </form>
             </div>
         </main>
     @endif
 
 </body>
+
 </html>

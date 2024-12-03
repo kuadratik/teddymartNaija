@@ -32,6 +32,7 @@ class CreateListingRequest extends FormRequest
             'price' => ['required_if:type,product', 'numeric'],
             'description' => ['required', 'string', 'max:500'],
             'additional_information' => ['nullable', 'string', 'max:1000'],
+            'quantity' => ['required', 'integer', 'min:0'],
             'images' => ['required', 'array'],
             'category' => ['required', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
             'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
@@ -40,7 +41,10 @@ class CreateListingRequest extends FormRequest
             'sku' => ['nullable', 'string', 'max:50'],
             'is_draft' => ['required', 'boolean'],
 
-            'attributes.measurement' => ['nullable', 'string'],
+            'attributes.measurement' => ['nullable', 'array'],
+            'attributes.measurement.*' => ['nullable', 'array'],
+            'attributes.measurement.*.value' => ['nullable', 'numeric'],
+            'attributes.measurement.*.unit' => ['nullable', 'string'],
             'attributes.product_model' => ['nullable', 'string'],
             'attributes.brand' => ['nullable', 'string'],
             'attributes.material' => ['nullable', 'string'],
@@ -59,7 +63,10 @@ class CreateListingRequest extends FormRequest
             'variants.*.discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'variants.*.size' => ['nullable', 'string'],
             'variants.*.color' => ['nullable', 'string'],
-            'variants.*.measurement' => ['nullable', 'string'],
+            'variants.*.measurement' => ['nullable', 'array'],
+            'variants.*.measurement.*' => ['nullable', 'array'],
+            'variants.*.measurement.*.value' => ['nullable', 'numeric'],
+            'variants.*.measurement.*.unit' => ['nullable', 'string'],
             'variants.*.discount_start_date' => ['nullable', 'required_with:variants.*.discount', 'date'],
             'variants.*.discount_end_date' => ['nullable', 'required_with:variants.*.discount', 'date', 'after:variants.*.discount_start_date'],
             'variants.*.images.*' => ['nullable', 'string'],
@@ -71,6 +78,7 @@ class CreateListingRequest extends FormRequest
      */
     public function images(array $data)
     {
+        if (empty($data)) return [];
         return Utils::moveToPermanentPath($data, 'images');
     }
 
@@ -94,10 +102,11 @@ class CreateListingRequest extends FormRequest
      */
     public function listingAttributeAttributes()
     {
-        return collect($this->safe()['attributes'] ?? [])->except(['size_chart_image', 'size', 'tags'])->merge([
-            'size_chart_image' => $this->images([$this->safe()['attributes']['size_chart_image']] ?? [])[0],
-            'size' => json_encode($this->safe()['attributes']['size'] ?? []),
-            'tags' => json_encode($this->safe()['attributes']['tags'] ?? []),
+        return collect($this->safe()['attributes'] ?? [])->except(['size_chart_image', 'size', 'tags', 'measurement'])->merge([
+            'size_chart_image' => $this->images([@$this->safe()['attributes']['size_chart_image']] ?? [])[0],
+            'size' => json_encode(optional($this->safe()['attributes']['size'] ?? [])),
+            'tags' => json_encode(optional($this->safe()['attributes']['tags'] ?? [])),
+            'measurement' => json_encode(optional($this->safe()['attributes']['measurement'] ?? []))
 
         ])->toArray();
     }
@@ -108,8 +117,9 @@ class CreateListingRequest extends FormRequest
     public function variantsAttributes()
     {
         return collect($this->safe()['variants'] ?? [])->map(function ($variant) {
-            return collect($variant)->except(['images'])->merge([
-                'images' => $this->images($variant['images'] ?? [])
+            return collect($variant)->except(['images', 'measurement'])->merge([
+                'images' => optional($this->images($variant['images'] ?? [])),
+                'measurement' => optional(json_encode($variant['measurement'] ?? []))
             ])->toArray();
         })->toArray();
     }

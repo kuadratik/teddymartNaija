@@ -12,6 +12,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
 use App\Models\StorePromotePlanStore;
+use App\Notifications\Listing\AdvertSuccessNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\DB;
@@ -116,8 +117,12 @@ class PaystackEventBus implements ShouldQueue
                     'currency' => $payment->currency,
                     'is_success' => true,
                     'status_message' => 'APPROVED',
+                    'status_message' => 'APPROVED',
                     'response_payload' => json_encode($payload),
                 ]);
+
+                $customer = $advert->advertListing->user;
+                $customer->notify(new AdvertSuccessNotification($advert->advertListing));
             });
         } elseif ($paymentType == PaymentType::PROMOTION->value) {
 
