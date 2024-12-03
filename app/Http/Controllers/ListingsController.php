@@ -21,9 +21,6 @@ class ListingsController extends Controller
         $this->user = $request->user();
     }
 
-    /**
-     * Display a listing of user store listings.
-     */
     public function getUserStoreListings(Request $request, Store $userStore)
     {
         abort_if($userStore->user_id !== $this->user->id, 403, "Unauthorized");
@@ -31,16 +28,17 @@ class ListingsController extends Controller
         $userStoreListings = $userStore->listings()
             ->latest()
             ->byType($request->listingType)
-            ->when($request->has('availability'), function ($query) use ($request) {
+            ->when($request->filled('availability'), function ($query) use ($request) {
                 $query->availability($request->availability);
             })
-            ->when($request->has('is_draft'), function ($query) use ($request) {
+            ->when($request->filled('is_draft'), function ($query) use ($request) {
                 $query->where('is_draft', $request->is_draft);
             })
             ->paginate();
 
         return $this->success($userStoreListings);
     }
+
 
 
     /**
