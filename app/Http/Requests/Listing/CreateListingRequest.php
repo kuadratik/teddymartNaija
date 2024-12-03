@@ -78,6 +78,7 @@ class CreateListingRequest extends FormRequest
      */
     public function images(array $data)
     {
+        if (empty($data)) return [];
         return Utils::moveToPermanentPath($data, 'images');
     }
 
