@@ -117,7 +117,8 @@ class CreateListingRequest extends FormRequest
     public function variantsAttributes()
     {
         return collect($this->safe()['variants'] ?? [])->map(function ($variant) {
-            return collect($variant)->except(['images', 'measurement'])->merge(['images' => optional($this->images($variant['images'] ?? [])),
+            return collect($variant)->except(['images', 'measurement'])->merge([
+                'images' => optional($this->images($variant['images'] ?? [])),
                 'measurement' => optional(json_encode($variant['measurement'] ?? []))
             ])->toArray();
         })->toArray();
