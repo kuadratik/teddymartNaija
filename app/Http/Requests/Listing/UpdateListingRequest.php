@@ -31,7 +31,7 @@ class UpdateListingRequest extends FormRequest
             'additional_information' => ['nullable', 'string', 'max:1000'],
             'images' => ['nullable', 'array'],
             'category' => ['required', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
-            'discount' => ['', 'numeric', 'min:0', 'max:100'],
+            'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'discount_start_date' => ['nullable', 'required_with:discount', 'date'],
             'discount_end_date' => ['nullable', 'required_with:discount', 'date', 'after:discount_start_date'],
             'sku' => ['nullable', 'string', 'max:50'],
