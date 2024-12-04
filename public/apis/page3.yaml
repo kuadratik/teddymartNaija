@@ -1197,7 +1197,7 @@ paths:
                 type: object
 
 
- /store/{store}/order/{order}/status/update:
+  /store/{store}/order/{order}/status/update:
     put:
       tags:
         - Order
