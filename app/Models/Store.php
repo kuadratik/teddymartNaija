@@ -81,6 +81,23 @@ class Store extends Model
         return $this->hasMany(Listing::class)->with('variants', 'attributes');
     }
 
+    /**
+     * get store products listing
+     */
+    public function products()
+    {
+        return $this->listings()->where('type', 'product');
+    }
+
+    /**
+     * get store services listing
+     */
+    public function services()
+    {
+        return $this->listings()->where('type', 'service');
+    }
+
+
      /**
      * Get the store orders
      */
@@ -198,5 +215,5 @@ class Store extends Model
         )->take(10);
     }
 
-    
+
 }
