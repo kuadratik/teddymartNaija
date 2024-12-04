@@ -1174,7 +1174,7 @@ paths:
   /store/{store}/order/history:
     get:
       tags:
-        - Order
+        - Vendor Order
       summary: Get Store Order History
       description: Get Store Order History
       operationId: GetStoreOrderHistory
@@ -1200,7 +1200,7 @@ paths:
   /store/{store}/order/{order}/status/update:
     put:
       tags:
-        - Order
+        - Vendor Order
       summary: Update Store Order Status
       description: Update Store Order Status
       operationId: UpdateStoreOrderStatus
