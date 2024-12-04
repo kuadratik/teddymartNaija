@@ -111,7 +111,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('{userStore}/ratings', [StoresController::class, 'getStoreRatings']);
             Route::get('{store}/order/history', [StoresController::class, 'getStoreOrderHistory']);
             Route::put('{store}/order/{order:uid}/status/update', [StoresController::class, 'updateStoreOrderStatus']);
-
         });
 
         Route::prefix('listings')->group(function () {
@@ -132,6 +131,9 @@ Route::middleware('auth:sanctum')->group(function () {
         });
 
         Route::prefix('payout')->group(function () {
+            Route::get('{userStore}/requestable-payouts', [StorePayoutController::class, 'getRequestPayoutOrders']);
+            Route::get('{userStore}/processed-payouts', [StorePayoutController::class, 'getProcessedPayouts']);
+            Route::patch('{userStore}/store/{payout}/process-payout', [StorePayoutController::class, 'processPayout']);
             Route::get('{userStore}/payout-details', [StorePayoutController::class, 'getPayoutDetails']);
             Route::post('save-detail', [StorePayoutController::class, 'savePayoutDetails']);
             Route::get('{storePayoutDetail}/payout-detail', [StorePayoutController::class, 'showPayoutDetail']);
@@ -166,7 +168,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('payment/{gateway}/verify', [PaymentController::class, 'verifyPayment']);
         Route::get('order', [CartController::class, 'getUserOrders']);
         Route::get('order-history', [CartController::class, 'getOrderHistory']);
-        
+
         Route::prefix('wishlist')->group(function () {
             Route::post('add/{product}', [CartController::class, 'addToWishlist']);
             Route::post('add-from-cart/{product}', [CartController::class, 'addToWishlistFromCart']);
