@@ -27,7 +27,7 @@ class PaymentController extends Controller
     {
         $paymentData = $this->cartService->getOrderPaymentData($request, $cart);
         $res = $this->paymentService->gateway($request->validated('payment_gateway'))->initialize($paymentData);
-        // $cart->delete();
+        $cart->delete();
         return $this->success($res);
     }
 

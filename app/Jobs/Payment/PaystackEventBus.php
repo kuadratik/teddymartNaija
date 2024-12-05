@@ -15,15 +15,15 @@ use App\Models\StorePromotePlanStore;
 use App\Notifications\Listing\AdvertSuccessNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PaystackEventBus implements ShouldQueue
 {
-    use Queueable, InteractsWithQueue, Dispatchable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(public array $webhookData)
     {
@@ -45,7 +45,7 @@ class PaystackEventBus implements ShouldQueue
         } catch (\Exception $e) {
             Log::error('Paystack webhook processing error', [
                 'error' => $e->getMessage(),
-                'event_type' => $eventType
+                'event_type' => $eventType,
             ]);
             throw $e;
         }
@@ -65,11 +65,13 @@ class PaystackEventBus implements ShouldQueue
 
         if (empty($paymentType)) {
             Log::warning('payment type is missing or malformed', ['payload' => $payload]);
+
             return;
         }
 
         if (empty($orderId)) {
             Log::warning('Order ID is missing or malformed', ['payload' => $payload]);
+
             return;
         }
 
@@ -77,8 +79,9 @@ class PaystackEventBus implements ShouldQueue
 
             $advert = AdvertListingPromotePlan::where('order_number', $orderId)->first();
 
-            if (!$advert) {
+            if (! $advert) {
                 Log::error('No advert listing promotion found', ['order_number' => $orderId]);
+
                 return;
             }
 
@@ -88,7 +91,7 @@ class PaystackEventBus implements ShouldQueue
 
                 $payment = Payment::where('reference', $paymentDetails['reference'])->first();
 
-                if (!$payment) {
+                if (! $payment) {
 
                     $payment = Payment::create([
                         'reference' => $paymentDetails['reference'],
@@ -96,10 +99,9 @@ class PaystackEventBus implements ShouldQueue
                         'currency' => $paymentDetails['currency'],
                         'gateway' => PaymentGatewayEnum::PAYSTACK->value,
                         'status' => PaymentStatusEnum::SUCCESS,
-                        'description' => "paystack Payment for ads"
+                        'description' => 'paystack Payment for ads',
                     ]);
                 }
-
 
                 if ($advert->status !== OrderStatusEnum::ACTIVE->value) {
                     logger('days', [$advert->advertPromotePlan->duration_day]);
@@ -128,8 +130,9 @@ class PaystackEventBus implements ShouldQueue
 
             $advert = StorePromotePlanStore::where('order_number', $orderId)->first();
 
-            if (!$advert) {
+            if (! $advert) {
                 Log::error('No store promotion found', ['order_number' => $orderId]);
+
                 return;
             }
 
@@ -137,44 +140,45 @@ class PaystackEventBus implements ShouldQueue
 
             DB::transaction(function () use ($advert, $paymentDetails, $payload) {
 
-            $payment = Payment::where('reference', $paymentDetails['reference'])->first();
+                $payment = Payment::where('reference', $paymentDetails['reference'])->first();
 
-            if (!$payment) {
-                $payment = Payment::create([
+                if (! $payment) {
+                    $payment = Payment::create([
+                        'reference' => $paymentDetails['reference'],
+                        'amount' => $paymentDetails['amount'],
+                        'currency' => $paymentDetails['currency'],
+                        'gateway' => PaymentGatewayEnum::PAYSTACK->value,
+                        'status' => PaymentStatusEnum::SUCCESS,
+                        'description' => 'paystack Payment for  promotion',
+                    ]);
+                }
+
+                if ($advert->status !== OrderStatusEnum::ACTIVE->value) {
+
+                    $advert->status = OrderStatusEnum::ACTIVE->value;
+                    $advert->started_at = now();
+                    $advert->expires_at = now()->addDays($advert->storePromotePlan->duration_days);
+                    $advert->payment_id = $payment->id;
+                    $advert->save();
+                }
+
+                PaymentTransaction::create([
+                    'payment_id' => $payment->id,
                     'reference' => $paymentDetails['reference'],
-                    'amount' => $paymentDetails['amount'],
-                    'currency' => $paymentDetails['currency'],
-                    'gateway' => PaymentGatewayEnum::PAYSTACK->value,
-                    'status' => PaymentStatusEnum::SUCCESS,
-                    'description' => "paystack Payment for  promotion"
+                    'type' => PaymentTransactionTypeEnum::CHARGE,
+                    'amount' => $payment->amount,
+                    'currency' => $payment->currency,
+                    'is_success' => true,
+                    'status_message' => 'APPROVED',
+                    'response_payload' => json_encode($payload),
                 ]);
-            }
-
-            if ($advert->status !== OrderStatusEnum::ACTIVE->value) {
-
-                $advert->status = OrderStatusEnum::ACTIVE->value;
-                $advert->started_at = now();
-                $advert->expires_at = now()->addDays($advert->storePromotePlan->duration_days);
-                $advert->payment_id = $payment->id;
-                $advert->save();
-            }
-
-            PaymentTransaction::create([
-                'payment_id' => $payment->id,
-                'reference' => $paymentDetails['reference'],
-                'type' => PaymentTransactionTypeEnum::CHARGE,
-                'amount' => $payment->amount,
-                'currency' => $payment->currency,
-                'is_success' => true,
-                'status_message' => 'APPROVED',
-                'response_payload' => json_encode($payload),
-            ]);
             });
         } else {
 
             $orders = Order::where('order_number', $orderId)->get();
             if ($orders->isEmpty()) {
                 Log::error('No orders found', ['order_number' => $orderId]);
+
                 return;
             }
 
@@ -184,21 +188,20 @@ class PaystackEventBus implements ShouldQueue
                 DB::transaction(function () use ($orders, $paymentDetails, $payload) {
                     $payment = Payment::where('reference', $paymentDetails['reference'])->first();
 
-                    if (!$payment) {
+                    if (! $payment) {
                         $payment = Payment::create([
                             'reference' => $paymentDetails['reference'],
                             'amount' => $paymentDetails['amount'],
                             'currency' => $paymentDetails['currency'],
                             'gateway' => PaymentGatewayEnum::PAYSTACK->value,
-                            'description' => "Paystack Payment",
-                            'status' => $paymentDetails['status_message']
+                            'description' => 'Paystack Payment',
+                            'status' => $paymentDetails['status_message'],
 
                         ]);
                     }
 
-
                     foreach ($orders as $order) {
-                        if (!$order->payments()->where('payment_id', $payment->id)->exists()) {
+                        if (! $order->payments()->where('payment_id', $payment->id)->exists()) {
                             $order->payments()->attach($payment->id);
                         }
 
@@ -215,14 +218,15 @@ class PaystackEventBus implements ShouldQueue
 
                         $order->update([
                             'payment_status' => OrderStatusEnum::COMPLETED_PAYMENT,
-                            'status' => 'PAID',
+                            'status' => OrderStatusEnum::NEW,
                         ]);
 
                         Log::info('Order completed successfully', [
                             'order_id' => $order->id,
                             'order_number' => $order->order_number,
-                            'payment_reference' => $paymentDetails['reference']
+                            'payment_reference' => $paymentDetails['reference'],
                         ]);
+
                         return response()->json(['status' => 'success'], 200);
                     }
                 });
@@ -230,13 +234,12 @@ class PaystackEventBus implements ShouldQueue
                 Log::error('Failed to process successful charge', [
                     'order_number' => $orderId,
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ]);
                 throw $e;
             }
         }
     }
-
 
     /**
      * Process a failed charge by updating order statuses, recording a failed payment transaction,
@@ -249,14 +252,16 @@ class PaystackEventBus implements ShouldQueue
 
         if (empty($orderId)) {
             Log::warning('Order ID is missing or malformed for failed charge', ['payload' => $payload]);
+
             return;
         }
 
         if ($paymentType == PaymentType::ADVERT->value) {
             $advert = AdvertListingPromotePlan::where('order_number', $orderId)->first();
 
-            if (!$advert) {
+            if (! $advert) {
                 Log::error('No advert listing promotion found for failed charge', ['order_number' => $orderId]);
+
                 return;
             }
 
@@ -271,7 +276,7 @@ class PaystackEventBus implements ShouldQueue
                             'currency' => $paymentDetails['currency'],
                             'gateway' => PaymentGatewayEnum::PAYSTACK->value,
                             'status' => PaymentStatusEnum::FAILED,
-                            'description' => "Paystack Payment for advert - Failed"
+                            'description' => 'Paystack Payment for advert - Failed',
                         ]
                     );
 
@@ -292,21 +297,22 @@ class PaystackEventBus implements ShouldQueue
 
                     Log::info('Advert marked as failed', [
                         'advert_id' => $advert->id,
-                        'payment_reference' => $paymentDetails['reference']
+                        'payment_reference' => $paymentDetails['reference'],
                     ]);
                 });
             } catch (\Exception $e) {
                 Log::error('Failed to process failed advert charge', [
                     'order_number' => $orderId,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
                 throw $e;
             }
         } elseif ($paymentType == PaymentType::PROMOTION->value) {
             $promotion = StorePromotePlanStore::where('order_number', $orderId)->first();
 
-            if (!$promotion) {
+            if (! $promotion) {
                 Log::error('No store promotion found for failed charge', ['order_number' => $orderId]);
+
                 return;
             }
 
@@ -321,7 +327,7 @@ class PaystackEventBus implements ShouldQueue
                             'currency' => $paymentDetails['currency'],
                             'gateway' => PaymentGatewayEnum::PAYSTACK->value,
                             'status' => PaymentStatusEnum::FAILED,
-                            'description' => "Paystack Payment for promotion - Failed"
+                            'description' => 'Paystack Payment for promotion - Failed',
                         ]
                     );
 
@@ -342,21 +348,21 @@ class PaystackEventBus implements ShouldQueue
 
                     Log::info('Store promotion marked as failed', [
                         'promotion_id' => $promotion->id,
-                        'payment_reference' => $paymentDetails['reference']
+                        'payment_reference' => $paymentDetails['reference'],
                     ]);
                 });
             } catch (\Exception $e) {
                 Log::error('Failed to process failed store promotion charge', [
                     'order_number' => $orderId,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
                 throw $e;
             }
         } else {
-            // Process failed charge for regular orders
             $orders = Order::where('order_number', $orderId)->get();
             if ($orders->isEmpty()) {
                 Log::error('No orders found for failed charge', ['order_number' => $orderId]);
+
                 return;
             }
 
@@ -371,12 +377,12 @@ class PaystackEventBus implements ShouldQueue
                             'currency' => $paymentDetails['currency'],
                             'gateway' => PaymentGatewayEnum::PAYSTACK->value,
                             'status' => PaymentStatusEnum::FAILED,
-                            'description' => "Paystack Payment - Failed"
+                            'description' => 'Paystack Payment - Failed',
                         ]
                     );
 
                     foreach ($orders as $order) {
-                        if (!$order->payments()->where('payment_id', $payment->id)->exists()) {
+                        if (! $order->payments()->where('payment_id', $payment->id)->exists()) {
                             $order->payments()->attach($payment->id);
                         }
 
@@ -393,26 +399,25 @@ class PaystackEventBus implements ShouldQueue
 
                         $order->update([
                             'payment_status' => OrderStatusEnum::PAYMENT_FAILED,
-                            'status' => 'FAILED',
+                            'status' => OrderStatusEnum::PENDING,
                         ]);
 
                         Log::info('Order marked as failed', [
                             'order_id' => $order->id,
                             'order_number' => $order->order_number,
-                            'payment_reference' => $paymentDetails['reference']
+                            'payment_reference' => $paymentDetails['reference'],
                         ]);
                     }
                 });
             } catch (\Exception $e) {
                 Log::error('Failed to process failed charge for order', [
                     'order_number' => $orderId,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
                 throw $e;
             }
         }
     }
-
 
     /**
      * Extracts payment details from the Paystack payload.
@@ -435,10 +440,10 @@ class PaystackEventBus implements ShouldQueue
         return $payload['data']['metadata']['order_number'] ?? '';
     }
 
-
-    private function  extractPaymentType(array $payload)
+    private function extractPaymentType(array $payload)
     {
-        Log::info("payment type", [$payload['data']['metadata']['type'] ?? '']);
+        Log::info('payment type', [$payload['data']['metadata']['type'] ?? '']);
+
         return $payload['data']['metadata']['type'] ?? '';
     }
 
@@ -458,7 +463,7 @@ class PaystackEventBus implements ShouldQueue
             'gateway' => PaymentGatewayEnum::PAYSTACK->value,
             'event_type' => $this->webhookData['event_type'] ?? 'unknown',
             'error' => $exception->getMessage(),
-            'trace' => $exception->getTraceAsString()
+            'trace' => $exception->getTraceAsString(),
         ]);
     }
 }
