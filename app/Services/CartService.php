@@ -17,8 +17,6 @@ use Illuminate\Support\Str;
 
 class CartService
 {
-
-
     /**
      * Get detailed cart information including total items and product details
      */
@@ -130,12 +128,15 @@ class CartService
 
     /**
      * Get Payment data and create a pending order
+     *
      * @todo add shipping price  to total
      */
     public function getOrderPaymentData(StoreOrderRequest $request, Cart $cart): array
     {
         $cart = Cart::findOrFail($cart->id);
         $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
+        $cumulativeTotalAmount = 0;
+        $orderNumber = Str::uuid()->toString();
 
         foreach ($cartItems as $storeId => $items) {
             $subtotal = $items->sum(function ($item) {
@@ -143,7 +144,8 @@ class CartService
             });
 
             $totalAmount = $subtotal;
-            $orderNumber = Str::uuid()->toString();
+
+            $cumulativeTotalAmount += $totalAmount;
 
             $order = Order::create([
                 'store_id' => $storeId,
@@ -174,10 +176,17 @@ class CartService
             }
 
 
-            return collect($order)->merge([
-                'currency_code' => $request->validated('currency_code')
-            ])->toArray();
         }
+
+        return [
+                'currency_code' => $request->validated('currency_code'),
+                'cumulativeTotalAmount' => $cumulativeTotalAmount,
+                'order_number' => $orderNumber,
+                'shipping_address' => $request->validated('shipping_address_id'),
+                'return_url' => $request->validated('return_url'),
+                'cancel_url' => $request->validated('cancel_url'),
+                'email' => $request->validated('email'),
+            ];
     }
 
     /**
@@ -191,15 +200,13 @@ class CartService
         $orders = Order::with(['orderDetails', 'shippingAddress'])
             ->where('user_id', $user->id)
             ->where('type', ListingType::PRODUCT->value)
-            ->when($status, fn($query) => $query->where('status', $status))
+            ->when($status, fn ($query) => $query->where('status', $status))
             ->orderBy('created_at', 'desc')
             ->get()
             ->groupBy('order_number');
 
         return OrderResource::collection($orders);
     }
-
-
 
     /**
      * Add product to wishlist from cart
@@ -234,7 +241,6 @@ class CartService
 
         return 'Product added to wishlist successfully and removed from cart.';
     }
-
 
     /**
      * Get the user's cart based on the provided request.
