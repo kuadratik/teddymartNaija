@@ -15,10 +15,8 @@ class CheckExpiredDiscountsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    // Number of times job can be attempted
     public $tries = 3;
 
-    // Maximum execution time
     public $timeout = 120;
 
     public function __construct()

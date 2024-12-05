@@ -24,11 +24,11 @@ class StoreShippingAddressRequest extends FormRequest
         return [
             'state' => ['required', 'string'],
             'city' => ['required', 'string'],
-            'lga' => ['required', 'string'],
-            'landmark' => ['required', 'string'],
+            'lga' => ['nullable', 'string'],
+            'landmark' => ['nullable', 'string'],
             'country' => ['required', 'string'],
             'address' => ['required', 'string'],
-            'saved' => ['required', 'boolean'],
+            'saved' => ['nullable', 'boolean'],
         ];
     }
 
@@ -39,7 +39,7 @@ class StoreShippingAddressRequest extends FormRequest
     public function shippingAddressAttribute(): array
     {
         return  collect($this->validated())->merge([
-            'user_id' => auth()->id(),
+            'user_id' => $this->user()->id,
         ])->toArray();
     }
 }

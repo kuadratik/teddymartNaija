@@ -37,7 +37,7 @@ class PaypalPaymentService implements PaymentGatewayInterface
                 0 => [
                     "amount" => [
                         "currency_code" => $data['currency_code'],
-                        "value" => $data['total_amount']
+                        "value" => $data['cumulativeTotalAmount']
                     ],
                     "custom_id" => json_encode([
                         'order_number' => $data['order_number'],
