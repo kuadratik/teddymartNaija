@@ -104,7 +104,6 @@ class PaystackEventBus implements ShouldQueue
                 }
 
                 if ($advert->status !== OrderStatusEnum::ACTIVE->value) {
-                    logger('days', [$advert->advertPromotePlan->duration_day]);
                     $advert->status = OrderStatusEnum::ACTIVE->value;
                     $advert->started_at = now();
                     $advert->expires_at = now()->addDays($advert->advertPromotePlan->duration_days);
