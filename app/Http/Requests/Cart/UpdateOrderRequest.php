@@ -26,9 +26,7 @@ class UpdateOrderRequest extends FormRequest
             return false;
         }
 
-
         $this->order = $this->store->orders()
-            ->where('user_id', $user->id)
             ->where('uid', $this->route('order')->uid)
             ->first();
 
@@ -37,7 +35,7 @@ class UpdateOrderRequest extends FormRequest
         }
 
 
-        if ($this->order->status === OrderStatusEnum::COMPLETED->value) {
+        if ($this->order->status === OrderStatusEnum::SHIPPED->value) {
             return false;
         }
 
@@ -50,10 +48,10 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         $allowedStatuses = [
-            OrderStatusEnum::COMPLETED->value,
-            OrderStatusEnum::INPROGRESS->value,
+            OrderStatusEnum::DELIVERED->value,
+            OrderStatusEnum::NEW->value,
             OrderStatusEnum::SHIPPED->value,
-            OrderStatusEnum::CANCELED->value,
+            // OrderStatusEnum::CANCELED->value,
         ];
 
         return [
