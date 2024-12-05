@@ -12,6 +12,13 @@ class PaymentService
         //
     }
 
+     /**
+     * Retrieve a payment gateway by its name.
+     *
+     * @param string $name The name of the payment gateway to retrieve.
+     * @return PaymentGatewayInterface The payment gateway instance associated with the given name.
+     * @throws InvalidArgumentException If the specified payment gateway is not supported.
+     */
     public function gateway(string $name): PaymentGatewayInterface
     {
         if (!isset($this->gateways[$name])) {
