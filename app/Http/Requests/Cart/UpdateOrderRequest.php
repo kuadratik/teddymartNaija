@@ -2,14 +2,15 @@
 
 namespace App\Http\Requests\Cart;
 
-use Illuminate\Foundation\Http\FormRequest;
-use App\Models\Store;
-use App\Models\Order;
 use App\Enums\OrderStatusEnum;
+use App\Models\Order;
+use App\Models\Store;
+use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateOrderRequest extends FormRequest
 {
     protected ?Store $store = null;
+
     protected ?Order $order = null;
 
     /**
@@ -19,10 +20,9 @@ class UpdateOrderRequest extends FormRequest
     {
         $user = $this->user();
 
-
         $this->store = Store::find($this->route('store'));
 
-        if (!$this->store || $this->store->user_id !== $user->id) {
+        if (! $this->store || $this->store->user_id !== $user->id) {
             return false;
         }
 
@@ -30,12 +30,11 @@ class UpdateOrderRequest extends FormRequest
             ->where('uid', $this->route('order')->uid)
             ->first();
 
-        if (!$this->order) {
+        if (! $this->order) {
             return false;
         }
 
-
-        if ($this->order->status === OrderStatusEnum::SHIPPED->value) {
+        if ($this->order->status === OrderStatusEnum::SHIPPED->value || $this->order->status === OrderStatusEnum::PENDING->value) {
             return false;
         }
 
@@ -58,7 +57,7 @@ class UpdateOrderRequest extends FormRequest
             'status' => [
                 'required',
                 'string',
-                'in:' . implode(',', $allowedStatuses)
+                'in:'.implode(',', $allowedStatuses),
             ],
         ];
     }
