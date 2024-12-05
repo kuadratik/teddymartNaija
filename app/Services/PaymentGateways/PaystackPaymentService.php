@@ -20,7 +20,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
     {
         $response = Http::withToken($this->secretKey)->post(config('services.paystack.payment_url') . '/transaction/initialize', [
             'email' => $data['email'] ?? Auth::user()->email,
-            'amount' => $data['cumulativeTotalAmount'] * 100,
+            'amount' => $data['total_amount'] * 100,
             "currency" => $data['currency_code'],
             "callback_url" => $data['return_url'] ?? route('payment.success'),
             'metadata' => [

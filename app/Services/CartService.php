@@ -180,7 +180,7 @@ class CartService
 
         return [
                 'currency_code' => $request->validated('currency_code'),
-                'cumulativeTotalAmount' => $cumulativeTotalAmount,
+                'total_amount' => $cumulativeTotalAmount,
                 'order_number' => $orderNumber,
                 'shipping_address' => $request->validated('shipping_address_id'),
                 'return_url' => $request->validated('return_url'),
