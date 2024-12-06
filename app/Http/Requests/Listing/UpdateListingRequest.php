@@ -24,49 +24,49 @@ class UpdateListingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'string'],
-            'type' => ['sometimes', 'string', Rule::enum(ListingType::class)],
-            'price' => ['sometimes', 'numeric'],
-            'description' => ['sometimes', 'string', 'max:500'],
-            'additional_information' => ['sometimes', 'string', 'max:1000'],
-            'images' => ['sometimes', 'array'],
-            'category' => ['required', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
-            'discount' => ['', 'numeric', 'min:0', 'max:100'],
-            'discount_start_date' => ['sometimes', 'required_with:discount', 'date'],
-            'discount_end_date' => ['sometimes', 'required_with:discount', 'date', 'after:discount_start_date'],
-            'sku' => ['sometimes', 'string', 'max:50'],
-            'is_draft' => ['sometimes', 'boolean'],
+            'is_draft' => ['required','boolean'],
+            'name' => ['required_if:is_draft,false','nullable', 'string'],
+            'type' => ['required_if:is_draft,false','nullable', 'string', Rule::enum(ListingType::class)],
+            'price' => ['required_if:is_draft,false','nullable', 'numeric'],
+            'description' => ['required_if:is_draft,false','nullable', 'string', 'max:500'],
+            'additional_information' => ['required_if:is_draft,false','nullable', 'string', 'max:1000'],
+            'images' => ['required_if:is_draft,false','nullable', 'array'],
+            'category' => ['required_if:is_draft,false','nullable', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
+            'discount' => ['required_if:is_draft,false','nullable', 'numeric', 'min:0', 'max:100'],
+            'discount_start_date' => ['required_if:is_draft,false','nullable', 'required_with:discount', 'date'],
+            'discount_end_date' => ['required_if:is_draft,false','nullable', 'required_with:discount', 'date', 'after:discount_start_date'],
+            'sku' => ['nullable', 'string', 'max:50'],
 
             'attributes.measurement' => ['nullable', 'array'],
             'attributes.measurement.*' => ['nullable', 'array'],
             'attributes.measurement.*.value' => ['nullable', 'numeric'],
             'attributes.measurement.*.unit' => ['nullable', 'string'],
-            'attributes.product_model' => ['sometimes', 'string'],
-            'attributes.brand' => ['sometimes', 'string'],
-            'attributes.material' => ['sometimes', 'string'],
-            'attributes.color' => ['sometimes', 'string'],
-            'attributes.size' => ['sometimes', 'array'],
+            'attributes.product_model' => ['nullable', 'string'],
+            'attributes.brand' => ['nullable', 'string'],
+            'attributes.material' => ['nullable', 'string'],
+            'attributes.color' => ['nullable', 'string'],
+            'attributes.size' => ['nullable', 'array'],
             'attributes.size.*' => ['required', 'string'],
-            'attributes.tags' => ['sometimes', 'array'],
-            'attributes.tags.*' => ['sometimes', 'string'],
-            'attributes.size_chart_html' => ['sometimes', 'string'],
-            'attributes.size_chart_image' => ['sometimes', 'string'],
+            'attributes.tags' => ['nullable', 'array'],
+            'attributes.tags.*' => ['nullable', 'string'],
+            'attributes.size_chart_html' => ['nullable', 'string'],
+            'attributes.size_chart_image' => ['nullable', 'string'],
 
-            'variants' => ['sometimes', 'array'],
-            'variants.*.name' => ['sometimes', 'string'],
-            'variants.*.quantity' => ['sometimes', 'integer', 'min:0'],
-            'variants.*.price' => ['sometimes', 'numeric', 'min:0'],
-            'variants.*.discount' => ['sometimes', 'numeric', 'min:0', 'max:100'],
-            'variants.*.size' => ['sometimes', 'array'],
+            'variants' => ['nullable', 'array'],
+            'variants.*.name' => ['nullable', 'string'],
+            'variants.*.quantity' => ['nullable', 'integer', 'min:0'],
+            'variants.*.price' => ['nullable', 'numeric', 'min:0'],
+            'variants.*.discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'variants.*.size' => ['nullable', 'array'],
             'variants.*.size.*' => ['required', 'string'],
-            'variants.*.color' => ['sometimes', 'string'],
+            'variants.*.color' => ['nullable', 'string'],
             'variants.*.measurement' => ['nullable', 'array'],
             'variants.*.measurement.*' => ['nullable', 'array'],
             'variants.*.measurement.*.value' => ['nullable', 'numeric'],
             'variants.*.measurement.*.unit' => ['nullable', 'string'],
-            'variants.*.discount_start_date' => ['sometimes', 'required_with:variants.*.discount', 'date'],
-            'variants.*.discount_end_date' => ['sometimes', 'required_with:variants.*.discount', 'date', 'after:variants.*.discount_start_date'],
-            'variants.*.images.*' => ['sometimes', 'string'],
+            'variants.*.discount_start_date' => ['nullable', 'required_with:variants.*.discount', 'date'],
+            'variants.*.discount_end_date' => ['nullable', 'required_with:variants.*.discount', 'date', 'after:variants.*.discount_start_date'],
+            'variants.*.images.*' => ['nullable', 'string'],
         ];
     }
 
@@ -75,6 +75,7 @@ class UpdateListingRequest extends FormRequest
      */
     public function images(array $data)
     {
+         if (empty($data)) return [];
         return Utils::moveToPermanentPath($data, 'images');
     }
 

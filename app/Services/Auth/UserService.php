@@ -80,9 +80,10 @@ class UserService
     }
 
 
+
     /**
      * Get all clips, update user_id if authenticated, and retrieve clips by user_id or Clip-Uid.
-     * @todo add to the doc
+     * Filters clips based on store currency matching the provided header currency.
      */
     public function getClips(): array
     {
@@ -92,14 +93,21 @@ class UserService
 
         if ($userId) {
 
-            Clip::query()->where('uid', $clipUid)->whereNull('user_id')->update(['user_id' => $userId]);
+            Clip::query()
+                ->where('uid', $clipUid)
+                ->whereNull('user_id')
+                ->update(['user_id' => $userId]);
+
+
             $clips = Clip::query()
                 ->where('user_id', $userId)
+                ->whereHas('store', fn($query) => $query->where('currency', $currency))
                 ->with(['products' => fn($query) => $query->where('currency', $currency)])
                 ->get();
         } else {
             $clips = Clip::query()
                 ->where('uid', $clipUid)
+                ->whereHas('store', fn($query) => $query->where('currency', $currency))
                 ->with(['products' => fn($query) => $query->where('currency', $currency)])
                 ->get();
         }
@@ -134,7 +142,7 @@ class UserService
         return $clipData->products->map(fn($product) => [
             'name' => $product->name,
             'slug' =>  $product->slug,
-            'image' => @$product->images[0],  // Assuming the first image
+            'image' => @$product->images[0],
             'price' => $product->price,
             'currency_code' => $product->currency,
         ])->all();

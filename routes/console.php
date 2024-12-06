@@ -11,5 +11,6 @@ use Illuminate\Support\Facades\Schedule;
 
 Schedule::command(CacheStores::class)->everyTwoMinutes();
 
-Schedule::command('advert:check-expired-plans')->everyMinute()->withoutOverlapping();
+Schedule::command('advert:check-expired-adverts')->everyFifteenMinutes();
+Schedule::command('advert:check-expired-promotions')->everyFifteenMinutes();
 

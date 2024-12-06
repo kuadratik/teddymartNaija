@@ -4,6 +4,7 @@ namespace App\Http\Requests\Advert;
 
 use App\Enums\CurrencyType;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\StoreHasListings;
 
 class PostStoreAdvertRequest extends FormRequest
 {
@@ -23,7 +24,7 @@ class PostStoreAdvertRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'store_id' => ['required','exists:stores,id'],
+            'store_id' => ['required','exists:stores,id',new StoreHasListings()],
             'store_promote_plan_id' => ['required','exists:store_promote_plans,id'],
             'cancel_url' => ['sometimes', 'url'],
             'return_url' => ['sometimes', 'url'],

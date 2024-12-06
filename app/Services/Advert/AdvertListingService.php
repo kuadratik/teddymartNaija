@@ -69,7 +69,7 @@ class AdvertListingService
 
 
             if (isset($attributes['promote_plan_id'])) {
-                $url =  $this->updatePromotion($listing, $attributes['promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD);
+                $url =  $this->updatePromotion($listing, $attributes['promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD, $return_url, $cancel_url);
                 return [
                     'listing' => $listing->load(['promotePlans', 'media']),
                     'url' => @$url
