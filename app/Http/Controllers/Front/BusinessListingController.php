@@ -41,10 +41,8 @@ class BusinessListingController extends Controller
     public function create(CreateAdvertRequest $request)
     {
         $business = BusinessListing::create($request->businessAttributes());
-
-        Notification::route('mail', $business['business_email'])
-            ->notify(new BizListedNotification($business));
-
+        $business->notify(new BizListedNotification($business));
+        
         return $this->success($business);
     }
 }
