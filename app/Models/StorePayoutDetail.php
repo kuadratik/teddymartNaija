@@ -15,7 +15,8 @@ class StorePayoutDetail extends Model
         'store_id',
         'bank_name',
         'account_name',
-        'account_number'
+        'account_number',
+        'is_default'
     ];
 
     public function store(){
