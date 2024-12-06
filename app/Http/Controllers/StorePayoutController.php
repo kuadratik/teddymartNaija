@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Store;
 use App\Models\StorePayoutDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StorePayoutController extends Controller
 {
@@ -92,6 +93,24 @@ class StorePayoutController extends Controller
         ]);
 
         $storePayoutDetail->update($validatedData);
+        return $this->success();
+    }
+
+    /**
+     *  Set default payout detail
+     */
+    public function setDefaultPayoutDetail(Store $userStore, StorePayoutDetail $storePayoutDetail)
+    {
+
+        DB::transaction(function () use ($userStore, $storePayoutDetail) {
+
+            StorePayoutDetail::where('store_id', $userStore->id)->update([
+                'is_default' => false
+            ]);
+
+            $storePayoutDetail->update(['is_default' => true]);
+        });
+
         return $this->success();
     }
 

@@ -1103,6 +1103,37 @@ paths:
             application/json:
               schema:
                 type: object
+              
+  /store/payout/{userStore}/store/{storePayoutDetail}/set-default:
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Set User Store Payout To Default
+      description: "Set User Store Payout To Default"
+      operationId: SetUserStorePayoutToDefault
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+        - in: path
+          name: storePayoutDetail
+          schema:
+            type: number
+            example: 1
+          required: true
+
+      responses:
+        default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
   
   /store/payout/delete-detail/{storePayoutDetail}:
     delete:

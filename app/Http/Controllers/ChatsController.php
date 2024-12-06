@@ -17,7 +17,12 @@ class ChatsController extends Controller
      */
     public function startConversation(ConversationRequest $request)
     {
-       $newConversation = (new ChatService)->startConversation($request->conversationAttributes());
+        $newConversation = (new ChatService)->startConversation($request->conversationAttributes());
+
+        // if($request->convoRoute === 'gallery'){
+        
+        // // }
+        
         return $this->success($newConversation);
     }
 
