@@ -138,6 +138,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('save-detail', [StorePayoutController::class, 'savePayoutDetails']);
             Route::get('{storePayoutDetail}/payout-detail', [StorePayoutController::class, 'showPayoutDetail']);
             Route::patch('update-detail/{storePayoutDetail}', [StorePayoutController::class, 'updatePayoutDetail']);
+            Route::patch('{userStore}/store/{storePayoutDetail}/set-default', [StorePayoutController::class, 'setDefaultPayoutDetail']);
             Route::delete('delete-detail/{storePayoutDetail}', [StorePayoutController::class, 'deletePayoutDetail']);
         });
 
