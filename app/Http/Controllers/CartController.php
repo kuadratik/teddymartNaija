@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ListingType;
+use App\Enums\OrderStatusEnum;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Http\Requests\Cart\StoreShippingAddressRequest;
 use App\Models\Cart;
 use App\Models\Listing;
+use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\Store;
 use App\Models\UserShippingAddress;
 use App\Services\CartService;
 use Illuminate\Http\Request;
@@ -93,11 +96,19 @@ class CartController extends Controller
      */
     public function getOrderHistory(Request $request)
     {
-        $userOrderHistory = OrderDetail::whereHas('order', function ($query) use ($request) {
-            $query->where('user_id', $request->user()->id);
-        })->with('order')->paginate(20);
+        $userOrders = Order::where('user_id', $request->user()->id)->with('store:id,name', 'orderDetails')->get();
+        $userOrderHistory = $userOrders->groupBy('order_number');
 
         return $this->success($userOrderHistory);
+    }
+
+    /**
+     * Recieve order
+     */
+    public function recieveOrder(Order $order)
+    {
+        $order->update(['status' => OrderStatusEnum::DELIVERED->value]);
+        return $this->success();
     }
 
     /**
