@@ -226,7 +226,8 @@ class StoresController extends Controller
      */
     public function updateStoreOrderStatus(UpdateOrderRequest $request, Order $order)
     {
-        $order->update(['status' => $request->validated('status')]);
+        $order->status = $request->validated('status');
+        $order->save();
 
         return $this->success();
     }

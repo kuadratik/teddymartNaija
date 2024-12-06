@@ -110,7 +110,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('{userStore}/listings/create', [ListingsController::class, 'create']);
             Route::get('{userStore}/ratings', [StoresController::class, 'getStoreRatings']);
             Route::get('{store}/order/history', [StoresController::class, 'getStoreOrderHistory']);
-            Route::put('{store}/order/{order:uid}/status/update', [StoresController::class, 'updateStoreOrderStatus']);
+            Route::put('{store}/order/{order}/status/update', [StoresController::class, 'updateStoreOrderStatus']);
         });
 
         Route::prefix('listings')->group(function () {
