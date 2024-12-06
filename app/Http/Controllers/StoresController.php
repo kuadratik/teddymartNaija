@@ -131,7 +131,7 @@ class StoresController extends Controller
      */
     public function getStoreRatings(Store $userStore)
     {
-        $storeRatings = $userStore->ratings()->with('user:id,first_name,last_name,email', 'listing:id,')
+        $storeRatings = $userStore->ratings()->with('user:id,first_name,last_name,email', 'listing:id,name')
             ->paginate(20);
         return $this->success($storeRatings);
     }
