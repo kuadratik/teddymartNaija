@@ -62,7 +62,7 @@ class ChatService
                 'user_type' => $userType,
                 'content' => $details['message'],
             ]);
-
+      
 
             SendMessage::dispatch($message->toArray(), $respondent->id)->afterCommit();
             DB::commit();
