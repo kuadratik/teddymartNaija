@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\HtmlString;
 
-class AdsExpiredNotification extends Notification implements ShouldQueue
+class PromotionExpiredNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -36,15 +36,18 @@ class AdsExpiredNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $line1 = <<<EOT
-        Simply log into your account, navigate to Your Ads in the profile section, and renew your payment with just a few clicks to keep your ad live and impactful!
+        Just log into your account, go to My Promotions in the profile section, and renew your payment with a few quick steps to keep your store shining!
         EOT;
 
         return (new MailMessage)
-            ->subject('Oops! Your Ad Has Expired – Renew to Reach More Customers!!')
-            ->greeting("Dear {$notifiable->first_name}")
-            ->line('We wanted to let you know that your ad on myEki has now expired. We hope it brought great visibility to your offerings! Your ad will now be listed as a free ad, but you can easily renew it as a paid ad to continue reaching even more customers.')
+            ->subject('Oh no! Your Store Promotion has Expired - Time to Renew!')
+            ->greeting("Dear {$notifiable->name},")
+            ->line('We wanted to let you know that your store promotion on myEKI has now expired. We hope it helped drive great traffic and visibility to your business! Your listing will now appear without the promotional boost, but you can easily renew it to continue attracting more customers.')
             ->line(new HtmlString($line1))
-            ->line('If you have any questions, feel free to contact us. We are here to support.');
+            ->line('If you have any questions or need assistance, do not hesitate to reach out. We are here to support your success!')
+            ->line('Thank you for choosing myEKI!')
+            ->salutation('Best regards, The myEKI Team')
+            ->replyTo('vendorsupport@myEKI.market', 'myEKI Support');
     }
 
     /**
