@@ -10,6 +10,7 @@ use App\Models\Cart;
 use App\Models\Listing;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\StoreShippingMethod;
 use App\Support\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -138,12 +139,30 @@ class CartService
         $cumulativeTotalAmount = 0;
         $orderNumber = Str::uuid()->toString();
 
+        $shippingMethods = collect($request->validated('store_shipping_methods'))->keyBy('store_id');
+
         foreach ($cartItems as $storeId => $items) {
             $subtotal = $items->sum(function ($item) {
                 return $item->pivot->quantity * $item->price;
             });
 
-            $totalAmount = $subtotal;
+            $shippingMethodData = $shippingMethods->get($storeId);
+
+            if (!$shippingMethodData) {
+                abort(422, "Shipping method not provided for store ID {$storeId}.");
+            }
+
+            $shippingMethod = StoreShippingMethod::where('id', $shippingMethodData['shipping_method_id'])
+            ->where('store_id', $storeId)
+            ->first();
+
+            if (!$shippingMethod) {
+                abort(422, "Invalid shipping method ID {$shippingMethodData['shipping_method_id']} for store ID {$storeId}.");
+            }
+
+            $shippingCost = $shippingMethod->amount;
+
+            $totalAmount = $subtotal + $shippingCost;
 
             $cumulativeTotalAmount += $totalAmount;
 
@@ -156,12 +175,14 @@ class CartService
                 'email' => $request->validated('email'),
                 'phone' => $request->validated('phone'),
                 'subtotal' => $subtotal,
+                'shipping_cost' => $shippingCost,
                 'uid' => Str::uuid()->toString(),
                 'currency' => $items->first()?->store?->currency,
                 'total_amount' => $totalAmount,
                 'type' => ListingType::PRODUCT->value,
                 'status' => OrderStatusEnum::PENDING->value,
                 'payment_status' => OrderStatusEnum::PENDING_PAYMENT->value,
+                'shipping_method_id' => $shippingMethod->id,
             ]);
 
             $order->shippingAddress()->attach($request->validated('shipping_address_id'));
@@ -174,20 +195,19 @@ class CartService
                     'listing_price' => $item->price,
                 ]);
             }
-
-
         }
 
         return [
-                'currency_code' => $request->validated('currency_code'),
-                'total_amount' => $cumulativeTotalAmount,
-                'order_number' => $orderNumber,
-                'shipping_address' => $request->validated('shipping_address_id'),
-                'return_url' => $request->validated('return_url'),
-                'cancel_url' => $request->validated('cancel_url'),
-                'email' => $request->validated('email'),
-            ];
+            'currency_code' => $request->validated('currency_code'),
+            'total_amount' => $cumulativeTotalAmount,
+            'order_number' => $orderNumber,
+            'shipping_address' => $request->validated('shipping_address_id'),
+            'return_url' => $request->validated('return_url'),
+            'cancel_url' => $request->validated('cancel_url'),
+            'email' => $request->validated('email'),
+        ];
     }
+
 
     /**
      * Get orders for a specific user, with optional status filtering.
@@ -200,7 +220,7 @@ class CartService
         $orders = Order::with(['orderDetails', 'shippingAddress'])
             ->where('user_id', $user->id)
             ->where('type', ListingType::PRODUCT->value)
-            ->when($status, fn ($query) => $query->where('status', $status))
+            ->when($status, fn($query) => $query->where('status', $status))
             ->orderBy('created_at', 'desc')
             ->get()
             ->groupBy('order_number');
