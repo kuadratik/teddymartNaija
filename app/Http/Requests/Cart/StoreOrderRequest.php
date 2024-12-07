@@ -33,6 +33,8 @@ class StoreOrderRequest extends FormRequest
             'email' => ['required', 'string', 'email'],
             'phone' => ['required', 'string', 'max:14'],
             'shipping_address_id' => ['required', 'integer', 'exists:user_shipping_addresses,id'],
+            'store_shipping_methods' => ['required', 'array'],
+            'store_shipping_methods.*' => ['integer', 'exists:store_shipping_methods,id'],
             'currency_code' => ['required', 'string', Rule::enum(CurrencyType::class)],
             'payment_gateway' => ['required', 'string', Rule::enum(PaymentGatewayEnum::class)],
 
