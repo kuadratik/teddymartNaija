@@ -227,6 +227,36 @@ paths:
               schema:
                 type: object
 
+  /front/user/shipping-address/{shippingAddress}/delete:
+    delete:
+      tags:
+        - Shipping
+      summary: delete shipping address
+      description: delete shipping address
+      operationId: DeleteShippingAddress
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: shippingAddress
+          schema:
+            type: integer
+            example: 1
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/user/shipping-address:
     get:
       tags:
