@@ -563,15 +563,22 @@ paths:
               schema:
                 type: object
 
-  /front/{item}/recieve-item:
+  /front/{order}/recieve-order:
     patch:
       tags:
         - Customer Order
-      summary: Recieve Item In Order
-      description: Recieve Item In Order
-      operationId: RecieveItemInOrder
+      summary: Recieve Store Order
+      description: Recieve Store Order
+      operationId: RecieveStoreOrder
       security:
         - bearerAuth: []
+      parameters:
+        - in: path
+          name: order
+          schema:
+            type: number
+            example: 1
+          required: true
 
       responses:
         default:
