@@ -139,15 +139,26 @@ class CartService
         $cumulativeTotalAmount = 0;
         $orderNumber = Str::uuid()->toString();
 
+        $shippingMethods = collect($request->validated('store_shipping_methods'))->keyBy('store_id');
+
         foreach ($cartItems as $storeId => $items) {
             $subtotal = $items->sum(function ($item) {
                 return $item->pivot->quantity * $item->price;
             });
 
-            // Retrieve the selected shipping method for the store
-            $shippingMethod = StoreShippingMethod::where('id', $request->validated('store_shipping_method_id'))
+            $shippingMethodData = $shippingMethods->get($storeId);
+
+            if (!$shippingMethodData) {
+                abort(422, "Shipping method not provided for store ID {$storeId}.");
+            }
+
+            $shippingMethod = StoreShippingMethod::where('id', $shippingMethodData['shipping_method_id'])
             ->where('store_id', $storeId)
-            ->firstOrFail();
+            ->first();
+
+            if (!$shippingMethod) {
+                abort(422, "Invalid shipping method ID {$shippingMethodData['shipping_method_id']} for store ID {$storeId}.");
+            }
 
             $shippingCost = $shippingMethod->amount;
 
@@ -171,11 +182,10 @@ class CartService
                 'type' => ListingType::PRODUCT->value,
                 'status' => OrderStatusEnum::PENDING->value,
                 'payment_status' => OrderStatusEnum::PENDING_PAYMENT->value,
+                'shipping_method_id' => $shippingMethod->id,
             ]);
 
             $order->shippingAddress()->attach($request->validated('shipping_address_id'));
-            $order->shipping_method_id = $shippingMethod->id;
-            $order->save();
 
             foreach ($items as $item) {
                 OrderDetail::create([
@@ -197,6 +207,7 @@ class CartService
             'email' => $request->validated('email'),
         ];
     }
+
 
     /**
      * Get orders for a specific user, with optional status filtering.

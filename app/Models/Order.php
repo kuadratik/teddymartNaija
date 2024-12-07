@@ -30,7 +30,8 @@ class Order extends Model
         'subtotal',
         'type',
         'status',
-        'currency'
+        'currency',
+        'shipping_method_id'
     ];
 
 

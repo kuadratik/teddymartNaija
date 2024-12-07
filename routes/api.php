@@ -166,7 +166,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
         Route::post('cart/{cart}/payment', [PaymentController::class, 'payOrder']);
         Route::post('payment/{gateway}/verify', [PaymentController::class, 'verifyPayment']);
-        Route::get('{userStore}/methods', [StoreShippingController::class, 'ShippingMethods']);
+        Route::get('{store}/shipping/methods', [StoreShippingController::class, 'vendorShippingMethods']);
 
 
         Route::get('order', [CartController::class, 'getUserOrders']);
