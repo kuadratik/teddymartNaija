@@ -7,8 +7,10 @@ use App\Http\Requests\Chat\MessageRequest;
 use App\Http\Requests\Chat\ReadRequest;
 use App\Models\Chat;
 use App\Models\ChatUser;
+use App\Notifications\CustomerInquiryNotification;
 use App\Services\Chat\ChatService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class ChatsController extends Controller
 {
@@ -19,10 +21,6 @@ class ChatsController extends Controller
     {
         $newConversation = (new ChatService)->startConversation($request->conversationAttributes());
 
-        // if($request->convoRoute === 'gallery'){
-        
-        // // }
-        
         return $this->success($newConversation);
     }
 
