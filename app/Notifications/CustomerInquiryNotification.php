@@ -52,7 +52,7 @@ class CustomerInquiryNotification extends Notification
             ->line('You have a new message from a customer regarding one of your Ads on myEKI!')
             ->line(new HtmlString($line))
             ->line('To view and respond to this message, please log in to your myEKI account')
-            ->action('Log in to myEKI', url('/login'))
+            ->action('Log in to myEKI', env('FRONT_URL') . '/' . 'login')
             ->line('and navigate to your message. Timely responses can improve your')
             ->line('engagement and lead to successful sales.')
             ->line('')
