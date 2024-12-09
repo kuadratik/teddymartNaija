@@ -71,13 +71,12 @@ class ChatService
 
             $messagePayload = collect($message)->merge(['respondent' => $respondent]);
 
-            if (request()->convoRoute === 'gallery') {
-                $advertListing = AdvertListing::where('id', $details['advert_id'])->first();
+            $advertListing = AdvertListing::where('id', $details['advert_id'])->first();
 
-                if ($advertListing) {
-                    Notification::route('mail', $messagePayload['respondent']['email'])
-                        ->notify(new CustomerInquiryNotification($messagePayload['respondent'], $advertListing));
-                }
+            if (request()->convoRoute === 'gallery' &&  $advertListing) {
+    
+                Notification::route('mail', $messagePayload['respondent']['email'])
+                    ->notify(new CustomerInquiryNotification($messagePayload['respondent']->toArray(), $advertListing));
             }
 
             return $messagePayload;
