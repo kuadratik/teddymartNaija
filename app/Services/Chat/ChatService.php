@@ -3,11 +3,14 @@
 namespace App\Services\Chat;
 
 use App\Jobs\Messaging\SendMessage;
+use App\Models\AdvertListing;
 use App\Models\Chat;
 use App\Models\ChatUser;
 use App\Models\Message;
 use App\Models\User;
+use App\Notifications\CustomerInquiryNotification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
 class ChatService
@@ -62,12 +65,20 @@ class ChatService
                 'user_type' => $userType,
                 'content' => $details['message'],
             ]);
-      
 
             SendMessage::dispatch($message->toArray(), $respondent->id)->afterCommit();
             DB::commit();
 
             $messagePayload = collect($message)->merge(['respondent' => $respondent]);
+
+            $advertListing = AdvertListing::where('id', $details['advert_id'])->first();
+
+            if (request()->convoRoute === 'gallery' &&  $advertListing) {
+    
+                Notification::route('mail', $messagePayload['respondent']['email'])
+                    ->notify(new CustomerInquiryNotification($messagePayload['respondent']->toArray(), $advertListing));
+            }
+
             return $messagePayload;
         } catch (\Throwable $th) {
             DB::rollBack();
