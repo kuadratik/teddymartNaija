@@ -311,6 +311,30 @@ paths:
               schema:
                 type: object
 
+  /front/{order}/order:
+    get:
+      tags:
+        - Cart
+      summary: get order details
+      description: get order details
+      operationId: GetOrderDetails
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: order
+          schema:
+            type: integer
+            example: 1
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/wishlist/add/{product}:
     post:
       tags:
@@ -1317,6 +1341,37 @@ paths:
             example: "completed"
             description: "order status (completed, inprogress, cancelled,'pending','shipped')"
           required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/{store}/order/{order}/view:
+    get:
+      tags:
+       - Vendor Order
+      summary: View single order Invoice
+      description: View single order Invoice
+      operationId: ViewOrderDetailsInvoice
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+        - in: path
+          name: order
+          schema:
+            type: string
+            example: "1"
+          required: true
+
       responses:
         default:
           description: "success"
