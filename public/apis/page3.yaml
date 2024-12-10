@@ -1324,3 +1324,34 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /store/{store}/order/{order}/view:
+    get:
+      tags:
+       - Vendor Order
+      summary: View single order Invoice
+      description: View single order Invoice
+      operationId: ViewOrderDetailsInvoice
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+        - in: path
+          name: order
+          schema:
+            type: string
+            example: "1"
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
