@@ -46,6 +46,7 @@ class AdvertSuccessNotification extends Notification implements ShouldQueue
         EOT;
 
         return (new MailMessage)
+            ->priority(1)
             ->subject('Ads success')
             ->greeting('Yay! Your Ad Has Been Successfully Posted on myEKI!')
             ->line("Dear {$notifiable->first_name}")

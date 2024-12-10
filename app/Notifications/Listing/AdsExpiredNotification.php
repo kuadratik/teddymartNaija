@@ -40,6 +40,7 @@ class AdsExpiredNotification extends Notification implements ShouldQueue
         EOT;
 
         return (new MailMessage)
+            ->priority(1)
             ->subject('Oops! Your Ad Has Expired – Renew to Reach More Customers!!')
             ->greeting("Dear {$notifiable->first_name}")
             ->line('We wanted to let you know that your ad on myEki has now expired. We hope it brought great visibility to your offerings! Your ad will now be listed as a free ad, but you can easily renew it as a paid ad to continue reaching even more customers.')
