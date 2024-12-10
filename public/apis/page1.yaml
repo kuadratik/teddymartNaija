@@ -167,6 +167,32 @@ paths:
               schema:
                 type: object
 
+  /front/auth-confirmation:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Authentication
+      summary: Check if the auth user password is correct
+      description: Check if the auth user password is correct
+      operationId: AuthOnce
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  example: "12345678"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/reset/send-otp:
     post:
       tags:
