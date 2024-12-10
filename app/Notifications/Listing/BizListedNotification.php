@@ -41,8 +41,8 @@ class BizListedNotification extends Notification implements ShouldQueue
         EOT;
 
         return (new MailMessage)
-            ->subject('Yay!! Welcome to MEK Directory – Your Business is Now Listed!')
-            ->greeting("Dear {$notifiable->first_name}")
+            ->subject('Yay!! Welcome to MEK Directory - Your Business is Now Listed!')
+            ->greeting("Dear {$this->businessListing->business_name}")
             ->line(new HtmlString($line1))
             ->line('With your listing now live, your business will benefit from increased visibility and the chance to connect with customers searching for trusted providers just like you.')
             ->line('If you have any questions or need assistance, the support team is here to help.')

@@ -54,9 +54,9 @@ class StoresController extends Controller
 
         $stores = Store::query()
             ->where('type', $request->listingType)
-            ->when($request->sortType === 'alphanumeric', fn ($query) => $query->orderBy('name', 'asc'))
-            ->when($request->search, fn ($query) => $query->search($request->search))
-            ->when($request->category, fn ($query) => $query->byCategory($request->category))
+            ->when($request->sortType === 'alphanumeric', fn($query) => $query->orderBy('name', 'asc'))
+            ->when($request->search, fn($query) => $query->search($request->search))
+            ->when($request->category, fn($query) => $query->byCategory($request->category))
             ->where('currency', $currency)
             ->paginate(20);
 
@@ -189,11 +189,13 @@ class StoresController extends Controller
     public function showStoreListing(Store $store, Request $request)
     {
         $storeListing = $store->load(['listings' => function ($query) use ($request) {
-            $query->where('type', $request->listingType);
+            $query->where('type', $request->listingType)
+                ->with('ratings');
         }]);
 
         return $this->success($storeListing);
     }
+
 
     /**
      * Update the specified store.
@@ -215,7 +217,7 @@ class StoresController extends Controller
         $orders = $store->orders()
             ->where('type', ListingType::PRODUCT->value)
             ->whereNotIn('status', [OrderStatusEnum::PENDING->value, 'incart'])
-            ->when($status, fn ($query) => $query->where('status', $status))
+            ->when($status, fn($query) => $query->where('status', $status))
             ->orderBy('created_at', 'desc')
             ->with('orderDetails')
             ->paginate(20);
@@ -226,9 +228,13 @@ class StoresController extends Controller
     /**
      * Update the store order status.
      */
-    public function updateStoreOrderStatus(UpdateOrderRequest $request, Order $order)
+    public function updateStoreOrderStatus(UpdateOrderRequest $request, Store $store, Order $order)
     {
         $order->update(['status' => $request->validated('status')]);
+
+        abort_if($store->id !== $order->store_id, 403, 'Unauthorized');
+        $order->status = $request->validated('status');
+        $order->save();
 
         if (
             $order->wasChanged() &&
@@ -237,7 +243,18 @@ class StoresController extends Controller
             Notification::route('mail', $order->customer()->email)
                 ->notify(new OrderShippedNotification($order));
         }
-
+        
         return $this->success();
+    }
+
+
+    /**
+     * Show a single store order.
+     */
+    public function showStoreOrder(Store $store, Order $order)
+    {
+        abort_if($store->id !== $order->store_id, 403, 'Unauthorized');
+        $order->load(['orderDetails', 'store', 'customer', 'payments']);
+        return $this->success($order);
     }
 }

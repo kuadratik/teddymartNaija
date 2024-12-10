@@ -108,6 +108,19 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get a single shipping address by ID.
+     *
+     * @param int $id
+     * @return UserShippingAddress|null
+     */
+    public function shippingAddress($id)
+    {
+        return $this->shippingAddresses()->where('id', $id)->firstOrFail();
+    }
+
+
+
+    /**
      * Get all saved shipping addresses where 'saved' is true.
      */
     public function savedShippingAddresses(): HasMany

@@ -82,6 +82,17 @@ class CartController extends Controller
 
 
     /**
+     * Delete users shipping address
+     */
+    public function deleteShippingAddress(Request $request, UserShippingAddress $shippingAddress)
+    {
+        $address = $request->user()->shippingAddress($shippingAddress->id);
+        $address->delete();
+        return $this->success();
+    }
+
+
+    /**
      * Get user orders
      */
     public function getUserOrders(Request $request)
@@ -90,6 +101,17 @@ class CartController extends Controller
 
         return $this->success($data);
     }
+
+    /**
+     * show users single order
+     */
+    public function showUserOrder(Request $request, Order $order)
+    {
+        $data = $this->cartService->showUserOrder($request, $order);
+
+        return $this->success($data);
+    }
+
 
     /**
      * Get user's orders

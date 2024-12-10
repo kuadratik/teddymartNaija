@@ -227,6 +227,36 @@ paths:
               schema:
                 type: object
 
+  /front/user/shipping-address/{shippingAddress}/delete:
+    delete:
+      tags:
+        - Shipping
+      summary: delete shipping address
+      description: delete shipping address
+      operationId: DeleteShippingAddress
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: shippingAddress
+          schema:
+            type: integer
+            example: 1
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/user/shipping-address:
     get:
       tags:
@@ -273,6 +303,30 @@ paths:
             type: string
             example: "incart"
           required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/{order}/order:
+    get:
+      tags:
+        - Cart
+      summary: get order details
+      description: get order details
+      operationId: GetOrderDetails
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: order
+          schema:
+            type: integer
+            example: 1
+          required: true
       responses:
         default:
           description: "success"
@@ -429,8 +483,8 @@ paths:
     post:
       tags:
         - Payment
-      summary: make payment for cart order
-      description: make payment for cart order
+      summary: Make payment for cart order
+      description: Make payment for cart order, supporting multiple stores with individual shipping methods.
       operationId: MakePayment
       security:
         - bearerAuth: []
@@ -439,15 +493,18 @@ paths:
           name: session-uid
           schema:
             type: string
-            example:
+            example: "abc123-session-id"
           required: true
+          description: "Session UID for the authenticated user"
         - in: path
           name: cart
           schema:
             type: string
             example: "1"
           required: true
+          description: "Cart ID to process the order"
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -456,32 +513,54 @@ paths:
                 payment_gateway:
                   type: string
                   example: "paypal"
+                  description: "Selected payment gateway (paystack, paypal, stripe)"
                   required: true
-                  description: "selected payment gateway (paystack,paypal,stripe)"
                 currency_code:
                   type: string
                   example: "USD"
+                  description: "Currency code for the payment"
                   required: true
                 first_name:
                   type: string
                   example: "Teddy"
+                  description: "Customer's first name"
                   required: true
                 last_name:
                   type: string
                   example: "Edwardson"
+                  description: "Customer's last name"
                   required: true
                 email:
                   type: string
                   example: "teddyedward@teddyed.com"
+                  description: "Customer's email address"
                   required: true
                 phone:
                   type: string
                   example: "2348012345678"
+                  description: "Customer's phone number"
                   required: true
                 shipping_address_id:
                   type: integer
                   example: 1
+                  description: "ID of the shipping address to be used"
                   required: true
+                store_shipping_methods:
+                  type: array
+                  description: "Array of shipping methods selected for each store"
+                  items:
+                    type: object
+                    properties:
+                      store_id:
+                        type: integer
+                        example: 1
+                        description: "ID of the store"
+                        required: true
+                      shipping_method_id:
+                        type: integer
+                        example: 2
+                        description: "ID of the shipping method selected for the store"
+                        required: true
       responses:
         default:
           description: "success"
@@ -1177,6 +1256,37 @@ paths:
               schema:
                 type: object
 
+  /front/{store}/shipping/methods:
+    get:
+      tags:
+        - Shipping
+      summary: Get shipping methods
+      description: Get shipping methods
+      operationId: GetShippingMethods
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+          description: The store name of the user.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /store/{store}/order/history:
     get:
       tags:
@@ -1202,7 +1312,6 @@ paths:
               schema:
                 type: object
 
-
   /store/{store}/order/{order}/status/update:
     put:
       tags:
@@ -1226,12 +1335,43 @@ paths:
             example: "1"
           required: true
         - in: query
-          name: order_status
+          name: status
           schema:
             type: string
             example: "completed"
             description: "order status (completed, inprogress, cancelled,'pending','shipped')"
           required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/{store}/order/{order}/view:
+    get:
+      tags:
+       - Vendor Order
+      summary: View single order Invoice
+      description: View single order Invoice
+      operationId: ViewOrderDetailsInvoice
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+        - in: path
+          name: order
+          schema:
+            type: string
+            example: "1"
+          required: true
+
       responses:
         default:
           description: "success"

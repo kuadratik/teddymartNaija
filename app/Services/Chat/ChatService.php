@@ -73,7 +73,7 @@ class ChatService
 
             $messagePayload = collect($message)->merge(['respondent' => $respondent]);
 
-            $advertListing = AdvertListing::where('id', $details['advert_id'])->first();
+            $advertListing = AdvertListing::where('id', @$details['advert_id'])->first();
 
             if (request()->convoRoute === 'gallery' &&  $advertListing) {
     
