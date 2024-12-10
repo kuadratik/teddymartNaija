@@ -187,11 +187,13 @@ class StoresController extends Controller
     public function showStoreListing(Store $store, Request $request)
     {
         $storeListing = $store->load(['listings' => function ($query) use ($request) {
-            $query->where('type', $request->listingType);
+            $query->where('type', $request->listingType)
+                ->with('ratings');
         }]);
 
         return $this->success($storeListing);
     }
+
 
     /**
      * Update the specified store.

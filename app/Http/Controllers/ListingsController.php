@@ -21,10 +21,12 @@ class ListingsController extends Controller
         $this->user = $request->user();
     }
 
+    /**
+     * Retrieve the listings for a specific user store.
+     */
     public function getUserStoreListings(Request $request, Store $userStore)
     {
         abort_if($userStore->user_id !== $this->user->id, 403, "Unauthorized");
-
         $userStoreListings = $userStore->listings()
             ->latest()
             ->byType($request->listingType)
@@ -34,12 +36,11 @@ class ListingsController extends Controller
             ->when($request->filled('is_draft'), function ($query) use ($request) {
                 $query->where('is_draft', $request->is_draft);
             })
+            ->with('ratings')
             ->paginate();
 
         return $this->success($userStoreListings);
     }
-
-
 
     /**
      * Create a new listing for the specified user store.
@@ -160,14 +161,14 @@ class ListingsController extends Controller
 
         $listings = Listing::query()
             ->byListingType($request->listingType)
-            ->when($request->search, fn ($query) => $query->search($request->search))
-            ->when($request->category, fn ($query) => $query->byCategory($request->category))
-            ->when($request->availability, fn ($query) => $query->availability($request->availability))
+            ->when($request->search, fn($query) => $query->search($request->search))
+            ->when($request->category, fn($query) => $query->byCategory($request->category))
+            ->when($request->availability, fn($query) => $query->availability($request->availability))
             ->byCurrency($currency)
             ->get();
 
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
 
-        return $this->success($listings->load('store'));
+        return $this->success($listings->load('store', 'ratings'));
     }
 }
