@@ -43,6 +43,7 @@ class Promotion24hrsExpiredNotification extends Notification implements ShouldQu
     public function toMail($notifiable)
     {
         return (new MailMessage)
+            ->priority(1)
             ->subject('Oh no! Your Store Promotion Expires in 24 hours - Time to Renew!')
             ->greeting("Dear {$notifiable->name},")
             ->line('We wanted to let you know that your store promotion on myEKI will expire in 24 hours. We hope it helped drive great traffic and visibility to your business!')
