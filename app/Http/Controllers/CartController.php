@@ -103,6 +103,17 @@ class CartController extends Controller
     }
 
     /**
+     * show users single order
+     */
+    public function showUserOrder(Request $request, Order $order)
+    {
+        $data = $this->cartService->showUserOrder($request, $order);
+
+        return $this->success($data);
+    }
+
+
+    /**
      * Get user's orders
      */
     public function getOrderHistory(Request $request)

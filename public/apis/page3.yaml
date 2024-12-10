@@ -311,6 +311,30 @@ paths:
               schema:
                 type: object
 
+  /front/{order}/order:
+    get:
+      tags:
+        - Cart
+      summary: get order details
+      description: get order details
+      operationId: GetOrderDetails
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: order
+          schema:
+            type: integer
+            example: 1
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/wishlist/add/{product}:
     post:
       tags:

@@ -170,6 +170,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
         Route::get('order', [CartController::class, 'getUserOrders']);
+        Route::get('{order}/order', [CartController::class, 'showUserOrder']);
         Route::get('order-history', [CartController::class, 'getOrderHistory']);
         Route::patch('{order}/recieve-order', [CartController::class, 'recieveOrder']);
 
