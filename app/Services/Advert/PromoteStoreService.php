@@ -18,6 +18,7 @@ use App\Services\PaymentGateways\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PromoteStoreService
@@ -34,7 +35,7 @@ class PromoteStoreService
     /**
      * Create a new advert listing with promotion plan
      */
-    public function create(array $attributes, string $return_url = null, string $cancel_url = null): array
+    public function create(array $attributes, string $return_url = null, string $cancel_url = null)
     {
 
         return DB::transaction(function () use ($attributes, $return_url, $cancel_url) {
@@ -49,10 +50,12 @@ class PromoteStoreService
             ];
         });
     }
+
+
     /**
      *  update new advert listing with promotion plan
      */
-    public function update(array $attributes, string $return_url = null, string $cancel_url = null): array
+    public function update(array $attributes, string $return_url = null, string $cancel_url = null)
     {
 
         return DB::transaction(function () use ($attributes, $return_url, $cancel_url) {
@@ -70,6 +73,7 @@ class PromoteStoreService
             ];
         });
     }
+
 
     /**
      * Create the base listing
@@ -142,7 +146,7 @@ class PromoteStoreService
             return $res;
         } else {
             $paymentData = [
-                'email' => auth()->user()->email,
+                'email' => Auth::user()->email,
                 'currency_code' => $currency,
                 'total_amount' => $promotePlan->price,
                 'order_number' => $orderNumber,

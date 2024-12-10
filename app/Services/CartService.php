@@ -229,6 +229,16 @@ class CartService
     }
 
     /**
+     * show user order details
+     */
+    public function showUserOrder(Request $request, Order $order)
+    {
+        $user = $request->user();
+        abort_if($order->user_id !== $user->id, 403, 'You are not authorized to view this order.');
+        return $order->load(['orderDetails', 'shippingAddress', 'store', 'customer', 'payments']);
+    }
+
+    /**
      * Add product to wishlist from cart
      */
     public function addToWishlistFromCart(Request $request, Listing $product)
