@@ -40,6 +40,7 @@ class PromotionExpiredNotification extends Notification implements ShouldQueue
         EOT;
 
         return (new MailMessage)
+            ->priority(1)
             ->subject('Oh no! Your Store Promotion has Expired - Time to Renew!')
             ->greeting("Dear {$notifiable->name},")
             ->line('We wanted to let you know that your store promotion on myEKI has now expired. We hope it helped drive great traffic and visibility to your business! Your listing will now appear without the promotional boost, but you can easily renew it to continue attracting more customers.')
