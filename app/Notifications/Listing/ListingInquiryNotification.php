@@ -41,7 +41,7 @@ class ListingInquiryNotification extends Notification
         $line = <<<EOT
         Product/Service Details:
         <ul>
-            <li><strong>Ad title</strong>: {$this->listing->title}</li>
+            <li><strong>Product/Service Name:</strong>: {$this->listing->name}</li>
             <li><strong>Category</strong>: {$this->listing?->category?->name}</li>
         </ul>
         EOT;
