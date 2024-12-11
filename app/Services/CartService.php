@@ -274,6 +274,39 @@ class CartService
     }
 
     /**
+     * Retrieve available shipping methods for each store in the cart.
+     */
+    public function getShippingMethodsCart(Request $request, Cart $cart)
+    {
+        $cartItemsByStore = $cart->products()->with('store')->get()->groupBy('store_id');
+
+        $storeShippingDetails = [];
+
+        foreach ($cartItemsByStore as $storeId => $cartItems) {
+            $store = $cartItems->first()->store;
+
+            if (!$store) {
+                continue;
+            }
+
+            $storeShippingMethods = StoreShippingMethod::where('store_id', $store->id)->get();
+
+            $groupedMethods = $storeShippingMethods->groupBy('method_type');
+            $storeMethodTypes = $groupedMethods->keys();
+
+            $storeShippingDetails[] = [
+                'store_id' => $store->id,
+                'store_name' => $store->name,
+                'storeMethodTypes' => $storeMethodTypes,
+                'storeMethods' => $groupedMethods,
+            ];
+        }
+
+        return $storeShippingDetails;
+    }
+
+
+    /**
      * Get the user's cart based on the provided request.
      */
     private function getCart(Request $request): Cart

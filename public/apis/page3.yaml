@@ -257,6 +257,62 @@ paths:
               schema:
                 type: object
 
+  /front/user/shipping-address/{shippingAddress}/edit:
+    put:
+      tags:
+        - Shipping
+      summary: edit shipping address
+      description: edit shipping address
+      operationId: EditShippingAddress
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: shippingAddress
+          schema:
+            type: integer
+            example: 1
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                city:
+                  type: string
+                  example: "Ikeja"
+                  required: true
+                state:
+                  type: string
+                  example: "Lagos"
+                  required: true
+                country:
+                  type: string
+                  example: "Nigeria"
+                  required: true
+                lga:
+                  type: string
+                  example: "Ikeja"
+                  required: false
+                address:
+                  type: string
+                  example: "2, Ajegunle street"
+                  required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/user/shipping-address:
     get:
       tags:
@@ -1279,6 +1335,37 @@ paths:
             example: "amala-sky"
           required: true
           description: The store name of the user.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/cart/{cart}/shipping/methods:
+    get:
+      tags:
+        - Shipping
+      summary: Get shipping methods from cart id
+      description: Get shipping methods carts
+      operationId: GetShippingMethodsCarts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: path
+          name: cart
+          schema:
+            type: integer
+            example: 1
+          required: true
+          description: The cart Id.
       responses:
         default:
           description: "success"

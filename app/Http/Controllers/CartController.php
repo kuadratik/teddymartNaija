@@ -91,6 +91,18 @@ class CartController extends Controller
         return $this->success();
     }
 
+    /**
+     * Edit shipping address
+     */
+    public function editShippingAddress(StoreShippingAddressRequest $request, UserShippingAddress $shippingAddress)
+    {
+        $address = $request->user()->shippingAddress($shippingAddress->id);
+        $address->update($request->shippingAddressAttribute());
+        return $this->success($address->fresh());
+    }
+
+
+
 
     /**
      * Get user orders
@@ -112,6 +124,15 @@ class CartController extends Controller
         return $this->success($data);
     }
 
+
+    /**
+     * Get shipping methods supported for stores in cart
+     */
+    public function getShippingMethodsCart(Request $request, Cart $cart)
+    {
+        $data = $this->cartService->getShippingMethodsCart($request, $cart);
+        return $this->success($data);
+    }
 
     /**
      * Get user's orders
