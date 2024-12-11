@@ -81,7 +81,7 @@ class ChatService
                     ->notify(new CustomerInquiryNotification($messagePayload['respondent']->toArray(), $advertListing));
             }
 
-            $listing  = Listing::where('id' , $details['listing_id'])->first();
+            $listing  = Listing::where('id' , @$details['listing_id'])->first();
 
             if (request()->convoRoute === 'listing' && $listing) {
     
