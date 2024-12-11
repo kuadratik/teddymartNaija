@@ -6,9 +6,11 @@ use App\Jobs\Messaging\SendMessage;
 use App\Models\AdvertListing;
 use App\Models\Chat;
 use App\Models\ChatUser;
+use App\Models\Listing;
 use App\Models\Message;
 use App\Models\User;
 use App\Notifications\CustomerInquiryNotification;
+use App\Notifications\Listing\ListingInquiryNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
@@ -77,6 +79,14 @@ class ChatService
     
                 Notification::route('mail', $messagePayload['respondent']['email'])
                     ->notify(new CustomerInquiryNotification($messagePayload['respondent']->toArray(), $advertListing));
+            }
+
+            $listing  = Listing::where('id' , $details['listing_id'])->first();
+
+            if (request()->convoRoute === 'listing' && $listing) {
+    
+                Notification::route('mail', $messagePayload['respondent']['email'])
+                    ->notify(new ListingInquiryNotification($messagePayload['respondent']->toArray(), $listing));
             }
 
             return $messagePayload;

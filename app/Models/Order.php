@@ -49,6 +49,13 @@ class Order extends Model
         return $this->hasMany(OrderDetail::class)->with('listing:id,images');
     }
     /**
+     * Get the shipping method.
+     */
+    public function shippingMethod()
+    {
+        return $this->belongsTo(StoreShippingMethod::class, 'shipping_method_id', 'id');
+    }
+    /**
      * Get the store that owns  the order.
      */
     public function store()

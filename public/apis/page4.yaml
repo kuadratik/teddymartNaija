@@ -215,6 +215,9 @@ paths:
                 advert_id:
                   type: string
                   example: 1
+                listing_id:
+                  type: string
+                  example: 1
         
       responses:
         default:

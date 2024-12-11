@@ -11,10 +11,12 @@ use App\Http\Requests\Store\UpdateStoreRequest;
 use App\Jobs\RecordCategoryInteractions;
 use App\Models\Order;
 use App\Models\Store;
+use App\Notifications\Order\OrderShippedNotification;
 use App\Services\Auth\UserService;
 use App\Services\Store\MetricService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class StoresController extends Controller
 {
@@ -228,12 +230,22 @@ class StoresController extends Controller
      */
     public function updateStoreOrderStatus(UpdateOrderRequest $request, Store $store, Order $order)
     {
+        $order->update(['status' => $request->validated('status')]);
+
         abort_if($store->id !== $order->store_id, 403, 'Unauthorized');
         $order->status = $request->validated('status');
         $order->save();
+
+        if (
+            $order->wasChanged() &&
+            $order->status === OrderStatusEnum::SHIPPED->value
+        ) {
+            Notification::route('mail', $order->customer()->email)
+                ->notify(new OrderShippedNotification($order));
+        }
+        
         return $this->success();
     }
-
 
     /**
      * Show a single store order.
