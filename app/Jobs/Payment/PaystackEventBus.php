@@ -13,6 +13,9 @@ use App\Models\Payment;
 use App\Models\PaymentTransaction;
 use App\Models\StorePromotePlanStore;
 use App\Notifications\Listing\AdvertSuccessNotification;
+use App\Notifications\Listing\OrderPaymentFailedNotification;
+use App\Notifications\Listing\OrderSuccessfulNotification;
+use App\Notifications\Listing\VendorNewOrderNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -58,13 +61,13 @@ class PaystackEventBus implements ShouldQueue
     private function processSuccessfulCharge(array $payload): void
     {
 
-        Log::info('Paystack processing processSuccessfulCharge', ['event_type' => $payload]);
+        Log::info('Paystack processing processSuccessfulCharge');
 
         $orderId = $this->extractOrderId($payload);
         $paymentType = $this->extractPaymentType($payload);
 
         if (empty($paymentType)) {
-            Log::warning('payment type is missing or malformed', ['payload' => $payload]);
+            Log::warning('payment type is missing or malformed');
 
             return;
         }
@@ -182,7 +185,6 @@ class PaystackEventBus implements ShouldQueue
             }
 
             $paymentDetails = $this->extractPaymentDetails($payload);
-            Log::debug('paymentDetails found', ['paymentDetails' => $paymentDetails]);
             try {
                 DB::transaction(function () use ($orders, $paymentDetails, $payload) {
                     $payment = Payment::where('reference', $paymentDetails['reference'])->first();
@@ -220,11 +222,9 @@ class PaystackEventBus implements ShouldQueue
                             'status' => OrderStatusEnum::NEW,
                         ]);
 
-                        Log::info('Order completed successfully', [
-                            'order_id' => $order->id,
-                            'order_number' => $order->order_number,
-                            'payment_reference' => $paymentDetails['reference'],
-                        ]);
+                        $order->store->user->notify(new VendorNewOrderNotification($order));
+
+                        $order->customer->notify(new OrderSuccessfulNotification($order));
 
                         return response()->json(['status' => 'success'], 200);
                     }
@@ -400,6 +400,8 @@ class PaystackEventBus implements ShouldQueue
                             'payment_status' => OrderStatusEnum::PAYMENT_FAILED,
                             'status' => OrderStatusEnum::PENDING,
                         ]);
+
+                        $order->customer->notify(new OrderPaymentFailedNotification($order));
 
                         Log::info('Order marked as failed', [
                             'order_id' => $order->id,

@@ -153,8 +153,8 @@ class CartService
             }
 
             $shippingMethod = StoreShippingMethod::where('id', $shippingMethodData['shipping_method_id'])
-            ->where('store_id', $storeId)
-            ->first();
+                ->where('store_id', $storeId)
+                ->first();
 
             if (!$shippingMethod) {
                 abort(422, "Invalid shipping method ID {$shippingMethodData['shipping_method_id']} for store ID {$storeId}.");
@@ -182,10 +182,10 @@ class CartService
                 'type' => ListingType::PRODUCT->value,
                 'status' => OrderStatusEnum::PENDING->value,
                 'payment_status' => OrderStatusEnum::PENDING_PAYMENT->value,
-                'shipping_method_id' => $shippingMethod->id,
+                'store_shipping_method_id' => $shippingMethod->id,
+                'shipping_address_id' => $request->validated('shipping_address_id')
             ]);
 
-            $order->shippingAddress()->attach($request->validated('shipping_address_id'));
 
             foreach ($items as $item) {
                 OrderDetail::create([
@@ -193,12 +193,13 @@ class CartService
                     'listing_id' => $item->id,
                     'listing_name' => $item->name,
                     'listing_price' => $item->price,
+                    'quantity' => $item->pivot->quantity
                 ]);
             }
         }
 
         return [
-            'currency_code' => $request->validated('currency_code'),
+            'currency_code' => $items->first()?->store?->currency ?? $request->validated('currency_code'),
             'total_amount' => $cumulativeTotalAmount,
             'order_number' => $orderNumber,
             'shipping_address' => $request->validated('shipping_address_id'),
