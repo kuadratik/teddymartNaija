@@ -52,8 +52,8 @@ class ListingInquiryNotification extends Notification
             ->line('We’re pleased to inform you that a customer has sent you a message regarding one of your')
             ->line('products or services on myEKI.')
             ->line(new HtmlString($line))
-            ->line('Engaging with customers quickly can enhance their experience and increase your chances of')
-            ->line('making a sale. To view and respond to this message:')
+            ->line('Engaging with customers quickly can enhance their experience and increase your chances of making a sale.
+             To view and respond to this message:')
             ->action('Check your Inbox', env('FRONT_URL') . '/' . 'messages')
             ->line('For any questions or assistance, please reach out. We are here to help!')
             ->line('')
@@ -62,7 +62,6 @@ class ListingInquiryNotification extends Notification
             ->line('Best regards')
             ->line('The myEKI Team')
             ->line('vendorsupport@myEKI.market');
-
     }
 
     /**
