@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
                 CountriesTableSeeder::class,
                 StatesTableSeeder::class,
                 AdvertPromotePlansSeeder::class,
+                StorePromotePlanSeeder::class
             ]);
         }
 
@@ -34,6 +35,7 @@ class DatabaseSeeder extends Seeder
                 CountriesTableSeeder::class,
                 StatesTableSeeder::class,
                 AdvertPromotePlansSeeder::class,
+                StorePromotePlanSeeder::class,
             ]);
         }
     }

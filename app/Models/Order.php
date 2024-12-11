@@ -30,7 +30,8 @@ class Order extends Model
         'subtotal',
         'type',
         'status',
-        'currency'
+        'currency',
+        'shipping_method_id'
     ];
 
 
@@ -45,7 +46,14 @@ class Order extends Model
      */
     public function orderDetails()
     {
-        return $this->hasMany(OrderDetail::class);
+        return $this->hasMany(OrderDetail::class)->with('listing:id,images');
+    }
+    /**
+     * Get the shipping method.
+     */
+    public function shippingMethod()
+    {
+        return $this->belongsTo(StoreShippingMethod::class, 'shipping_method_id', 'id');
     }
     /**
      * Get the store that owns  the order.

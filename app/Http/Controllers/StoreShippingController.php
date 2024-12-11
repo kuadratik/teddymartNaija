@@ -13,7 +13,7 @@ use Illuminate\Validation\Rules\Enum;
 class StoreShippingController extends Controller
 {
     /**
-     * Fetch shipping methods
+     * Fetch vendor shipping methods for vendors
      */
     public function getShippingMethods(Request $request, Store $userStore)
     {
@@ -35,6 +35,23 @@ class StoreShippingController extends Controller
 
         return $this->success($storeShippingMethods);
     }
+
+    /**
+     * Fetch vendor shipping methods for public users
+     */
+    public function vendorShippingMethods(Request $request, Store $store)
+    {
+        $storeShippingMethods = StoreShippingMethod::where('store_id', $store->id)->get();
+        $groupedMethods = $storeShippingMethods->groupBy('method_type');
+        $storeMethodTypes = $groupedMethods->keys();
+        $storeShippingMethods = collect([
+            'storeMethodTypes' => $storeMethodTypes,
+            'storeMethods' => $groupedMethods
+        ])->toArray();
+
+        return $this->success($storeShippingMethods);
+    }
+
 
     /**
      * Saves a store shipping methods

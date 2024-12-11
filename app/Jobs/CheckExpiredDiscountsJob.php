@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Listing;
+use App\Models\ListingVariant;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -15,10 +16,8 @@ class CheckExpiredDiscountsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    // Number of times job can be attempted
     public $tries = 3;
 
-    // Maximum execution time
     public $timeout = 120;
 
     public function __construct()
@@ -26,32 +25,64 @@ class CheckExpiredDiscountsJob implements ShouldQueue
         //
     }
 
+    /**
+     * Handles the expiration of discounts for listings and their variants.
+     *
+     * This method retrieves all listings and variants with expired discounts
+     * and resets their prices and discount-related fields to their original
+     * values. It logs the success or failure of each update operation.
+     *
+     * @throws \Exception If an error occurs during the update process.
+     */
     public function handle()
     {
         $currentDate = now();
 
-        $expiredProducts = Listing::where('discount_end_date', '<', $currentDate)
+        $expiredListings = Listing::where('discount_end_date', '<', $currentDate)
             ->where('is_draft', false)
             ->get();
 
-        foreach ($expiredProducts as $product) {
+        foreach ($expiredListings as $listing) {
             try {
-                $product->update([
-                    'price' => $product->display_price,
+                $listing->update([
+                    'price' => $listing->display_price,
                     'discounted_price' => null,
                     'discount' => null,
                     'discount_start_date' => null,
                     'discount_end_date' => null
                 ]);
 
-                Log::info("Discount expired and reset for product: {$product->id}");
+                Log::info("Discount expired and reset for listing: {$listing->id}");
             } catch (\Exception $e) {
-                Log::error("Failed to update product {$product->id}: " . $e->getMessage());
+                Log::error("Failed to update listing {$listing->id}: " . $e->getMessage());
+            }
+        }
+
+        $expiredVariants = ListingVariant::where('discount_end_date', '<', $currentDate)->get();
+
+        foreach ($expiredVariants as $variant) {
+            try {
+                $variant->update([
+                    'price' => $variant->display_price,
+                    'discounted_price' => null,
+                    'discount' => null,
+                    'discount_start_date' => null,
+                    'discount_end_date' => null
+                ]);
+
+                Log::info("Discount expired and reset for variant: {$variant->id}");
+            } catch (\Exception $e) {
+                Log::error("Failed to update variant {$variant->id}: " . $e->getMessage());
             }
         }
     }
 
-    // Handle job failure
+
+    /**
+     * Logs an error message when the job fails.
+     *
+     * @param \Exception $exception The exception that caused the job to fail.
+     */
     public function failed(\Exception $exception)
     {
         Log::error('Expired Discounts Job Failed: ' . $exception->getMessage());

@@ -3,22 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Actions\FetchStoresAlphaNumericallyAction;
-use App\Actions\RecordCategoryInteractionsAction;
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
 use App\Http\Requests\Cart\UpdateOrderRequest;
 use App\Http\Requests\Store\CreateStoreRequest;
-use App\Http\Requests\Store\SaveShippingMethodRequest;
 use App\Http\Requests\Store\UpdateStoreRequest;
 use App\Jobs\RecordCategoryInteractions;
 use App\Models\Order;
 use App\Models\Store;
+use App\Notifications\Order\OrderShippedNotification;
 use App\Services\Auth\UserService;
 use App\Services\Store\MetricService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Notification;
 
 class StoresController extends Controller
 {
@@ -27,22 +25,23 @@ class StoresController extends Controller
      */
     public function getUserStoreMetrics(Request $request, UserService $userService, Store $userStore)
     {
-        abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
-        
+        abort_if($userStore->user_id !== $request->user()->id, 402, 'Unauthorized');
+
         $userStoreListingsCount = $userStore->listings()->byType($request->listingType)->count();
         $customersCount = $userService->getStoreCustomerCount($userStore);
 
-        return $this->success(["totalListingsCount" => $userStoreListingsCount, "totalCustomerCount" => $customersCount]);
+        return $this->success(['totalListingsCount' => $userStoreListingsCount, 'totalCustomerCount' => $customersCount]);
     }
 
     /**
-     * Display detailed store metrics 
+     * Display detailed store metrics
      */
     public function getStoreOverallMetrics(Request $request, Store $userStore)
     {
-        abort_if($userStore->user_id !== $request->user()->id, 402, "Unauthorized");
+        abort_if($userStore->user_id !== $request->user()->id, 402, 'Unauthorized');
 
         $metrics = (new MetricService($userStore))->storeMetrics();
+
         return $this->success($metrics);
     }
 
@@ -62,6 +61,7 @@ class StoresController extends Controller
             ->paginate(20);
 
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
+
         return $this->success($stores);
     }
 
@@ -123,6 +123,7 @@ class StoresController extends Controller
     public function getStoresAlphaNumerically(FetchStoresAlphaNumericallyAction $fetchStoreAction)
     {
         $stores = $fetchStoreAction->keyedStoreList();
+
         return $this->success($stores);
     }
 
@@ -131,8 +132,9 @@ class StoresController extends Controller
      */
     public function getStoreRatings(Store $userStore)
     {
-        $storeRatings = $userStore->ratings()->with('user:id,first_name,last_name,email')
+        $storeRatings = $userStore->ratings()->with('user:id,first_name,last_name,email', 'listing:id,name')
             ->paginate(20);
+
         return $this->success($storeRatings);
     }
 
@@ -142,6 +144,7 @@ class StoresController extends Controller
     public function addStoreViewsCount(Request $request, Store $store)
     {
         $store->increment('views_count');
+
         return $this->success();
     }
 
@@ -186,11 +189,13 @@ class StoresController extends Controller
     public function showStoreListing(Store $store, Request $request)
     {
         $storeListing = $store->load(['listings' => function ($query) use ($request) {
-            $query->where('type', $request->listingType);
+            $query->where('type', $request->listingType)
+                ->with('ratings');
         }]);
 
         return $this->success($storeListing);
     }
+
 
     /**
      * Update the specified store.
@@ -198,39 +203,57 @@ class StoresController extends Controller
     public function update(UpdateStoreRequest $request, Store $userStore)
     {
         $userStore->update($request->storeAttributes());
+
         return $this->success();
     }
-
 
     /**
      *  Show vendor Order history
      */
-    public function  getStoreOrderHistory(Request $request, Store $store)
+    public function getStoreOrderHistory(Request $request, Store $store)
     {
         $user = $request->user();
         $status = $request->query('order_status');
-        $orders = $store->orders()->where('user_id', $user->id)
+        $orders = $store->orders()
             ->where('type', ListingType::PRODUCT->value)
-            ->whereNot(['status' => OrderStatusEnum::PENDING->value, 'status' => 'incart'])
+            ->whereNotIn('status', [OrderStatusEnum::PENDING->value, 'incart'])
             ->when($status, fn($query) => $query->where('status', $status))
             ->orderBy('created_at', 'desc')
             ->with('orderDetails')
-        ->paginate(20);
-
-
+            ->paginate(20);
 
         return $this->success($orders);
     }
 
-
-
     /**
      * Update the store order status.
      */
-    public function updateStoreOrderStatus(UpdateOrderRequest $request, Order $order)
+    public function updateStoreOrderStatus(UpdateOrderRequest $request, Store $store, Order $order)
     {
         $order->update(['status' => $request->validated('status')]);
 
+        abort_if($store->id !== $order->store_id, 403, 'Unauthorized');
+        $order->status = $request->validated('status');
+        $order->save();
+
+        if (
+            $order->wasChanged() &&
+            $order->status === OrderStatusEnum::SHIPPED->value
+        ) {
+            Notification::route('mail', $order->customer()->email)
+                ->notify(new OrderShippedNotification($order));
+        }
+        
         return $this->success();
+    }
+
+    /**
+     * Show a single store order.
+     */
+    public function showStoreOrder(Store $store, Order $order)
+    {
+        abort_if($store->id !== $order->store_id, 403, 'Unauthorized');
+        $order->load(['orderDetails', 'store', 'customer', 'payments']);
+        return $this->success($order);
     }
 }

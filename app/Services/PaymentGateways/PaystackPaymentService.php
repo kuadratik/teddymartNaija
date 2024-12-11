@@ -34,7 +34,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
             return ['url' => $response['data']['authorization_url']];
         }
 
-        Log::error('paypal initialization error', $response);
+        Log::error('paypal initialization error', [$response]);
         abort(500, 'Something went wrong');
     }
 

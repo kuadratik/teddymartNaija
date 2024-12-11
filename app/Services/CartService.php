@@ -10,6 +10,7 @@ use App\Models\Cart;
 use App\Models\Listing;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\StoreShippingMethod;
 use App\Support\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,8 +18,6 @@ use Illuminate\Support\Str;
 
 class CartService
 {
-
-
     /**
      * Get detailed cart information including total items and product details
      */
@@ -130,20 +129,42 @@ class CartService
 
     /**
      * Get Payment data and create a pending order
+     *
      * @todo add shipping price  to total
      */
     public function getOrderPaymentData(StoreOrderRequest $request, Cart $cart): array
     {
         $cart = Cart::findOrFail($cart->id);
         $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
+        $cumulativeTotalAmount = 0;
+        $orderNumber = Str::uuid()->toString();
+
+        $shippingMethods = collect($request->validated('store_shipping_methods'))->keyBy('store_id');
 
         foreach ($cartItems as $storeId => $items) {
             $subtotal = $items->sum(function ($item) {
                 return $item->pivot->quantity * $item->price;
             });
 
-            $totalAmount = $subtotal;
-            $orderNumber = Str::uuid()->toString();
+            $shippingMethodData = $shippingMethods->get($storeId);
+
+            if (!$shippingMethodData) {
+                abort(422, "Shipping method not provided for store ID {$storeId}.");
+            }
+
+            $shippingMethod = StoreShippingMethod::where('id', $shippingMethodData['shipping_method_id'])
+            ->where('store_id', $storeId)
+            ->first();
+
+            if (!$shippingMethod) {
+                abort(422, "Invalid shipping method ID {$shippingMethodData['shipping_method_id']} for store ID {$storeId}.");
+            }
+
+            $shippingCost = $shippingMethod->amount;
+
+            $totalAmount = $subtotal + $shippingCost;
+
+            $cumulativeTotalAmount += $totalAmount;
 
             $order = Order::create([
                 'store_id' => $storeId,
@@ -154,12 +175,14 @@ class CartService
                 'email' => $request->validated('email'),
                 'phone' => $request->validated('phone'),
                 'subtotal' => $subtotal,
+                'shipping_cost' => $shippingCost,
                 'uid' => Str::uuid()->toString(),
                 'currency' => $items->first()?->store?->currency,
                 'total_amount' => $totalAmount,
                 'type' => ListingType::PRODUCT->value,
                 'status' => OrderStatusEnum::PENDING->value,
                 'payment_status' => OrderStatusEnum::PENDING_PAYMENT->value,
+                'shipping_method_id' => $shippingMethod->id,
             ]);
 
             $order->shippingAddress()->attach($request->validated('shipping_address_id'));
@@ -172,13 +195,19 @@ class CartService
                     'listing_price' => $item->price,
                 ]);
             }
-
-
-            return collect($order)->merge([
-                'currency_code' => $request->validated('currency_code')
-            ])->toArray();
         }
+
+        return [
+            'currency_code' => $request->validated('currency_code'),
+            'total_amount' => $cumulativeTotalAmount,
+            'order_number' => $orderNumber,
+            'shipping_address' => $request->validated('shipping_address_id'),
+            'return_url' => $request->validated('return_url'),
+            'cancel_url' => $request->validated('cancel_url'),
+            'email' => $request->validated('email'),
+        ];
     }
+
 
     /**
      * Get orders for a specific user, with optional status filtering.
@@ -199,7 +228,15 @@ class CartService
         return OrderResource::collection($orders);
     }
 
-
+    /**
+     * show user order details
+     */
+    public function showUserOrder(Request $request, Order $order)
+    {
+        $user = $request->user();
+        abort_if($order->user_id !== $user->id, 403, 'You are not authorized to view this order.');
+        return $order->load(['orderDetails', 'shippingAddress', 'store', 'customer', 'payments']);
+    }
 
     /**
      * Add product to wishlist from cart
@@ -234,7 +271,6 @@ class CartService
 
         return 'Product added to wishlist successfully and removed from cart.';
     }
-
 
     /**
      * Get the user's cart based on the provided request.

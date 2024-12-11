@@ -85,6 +85,16 @@ class FrontAuthController extends Controller
         return $this->success();
     }
 
+    /**
+     * Password verification for auth user
+     */
+    public function authConfirmation(Request $request)
+    {
+        $request->validate(['password' => 'required']);
+        $this->authService->authConfirmation($request->password);
+        
+        return $this->success();
+    }
 
     /**
      * logout user
@@ -94,6 +104,4 @@ class FrontAuthController extends Controller
         $this->authService->logout();
         return $this->success();
     }
-
-
 }

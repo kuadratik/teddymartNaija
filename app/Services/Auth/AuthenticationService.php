@@ -125,6 +125,15 @@ class AuthenticationService
     }
 
     /**
+     * Check if user password is correct
+     */
+    public function authConfirmation(?string $password)
+    {
+        return Hash::check($password, auth()->user()->password) ? true :
+            Utils::validateResp(['password' => ['The provided credentials are invalid.']]);
+    }
+
+    /**
      * logout user
      */
     public function logout(): bool

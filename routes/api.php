@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('front')->group(function () {
     Route::post('login', [FrontAuthController::class, 'login']);
+    Route::post('auth-confirmation', [FrontAuthController::class, 'authConfirmation'])->middleware(['auth:sanctum']);
     Route::post('google-auth', [FrontAuthController::class, 'googleAuth']);
     Route::post('register', [FrontAuthController::class, 'register']);
     Route::post('register/verify', [FrontAuthController::class, 'verifyEmailOtp']);
@@ -101,6 +102,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('store')->group(function () {
         Route::post('create', [StoresController::class, 'create']);
+
         Route::middleware('hasStore')->group(function () {
             Route::get('user-store', [StoresController::class, 'showUserStore']);
             Route::get('user-store/{userStore}/metrics', [StoresController::class, 'getUserStoreMetrics']);
@@ -110,8 +112,24 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('{userStore}/listings/create', [ListingsController::class, 'create']);
             Route::get('{userStore}/ratings', [StoresController::class, 'getStoreRatings']);
             Route::get('{store}/order/history', [StoresController::class, 'getStoreOrderHistory']);
-            Route::put('{store}/order/{order:uid}/status/update', [StoresController::class, 'updateStoreOrderStatus']);
-
+            Route::get('{store}/order/{order}/view', [StoresController::class, 'showStoreOrder']);
+            Route::put('{store}/order/{order}/status/update', [StoresController::class, 'updateStoreOrderStatus']);
+            Route::prefix('shipping')->group(function () {
+                Route::get('{userStore}/methods', [StoreShippingController::class, 'getShippingMethods']);
+                Route::post('save-method', [StoreShippingController::class, 'saveShippingMethod']);
+                Route::post('remove-method-type', [StoreShippingController::class, 'removeMethodType']);
+                Route::delete('delete-method/{shippingMethod}', [StoreShippingController::class, 'deleteShippingMethod']);
+            });
+            Route::prefix('payout')->group(function () {
+                Route::get('{userStore}/requestable-payouts', [StorePayoutController::class, 'getRequestPayoutOrders']);
+                Route::get('{userStore}/processed-payouts', [StorePayoutController::class, 'getProcessedPayouts']);
+                Route::patch('{userStore}/store/{payout}/process-payout', [StorePayoutController::class, 'processPayout']);
+                Route::get('{userStore}/payout-details', [StorePayoutController::class, 'getPayoutDetails']);
+                Route::post('save-detail', [StorePayoutController::class, 'savePayoutDetails']);
+                Route::get('{storePayoutDetail}/payout-detail', [StorePayoutController::class, 'showPayoutDetail']);
+                Route::patch('update-detail/{storePayoutDetail}', [StorePayoutController::class, 'updatePayoutDetail']);
+                Route::delete('delete-detail/{storePayoutDetail}', [StorePayoutController::class, 'deletePayoutDetail']);
+            });
         });
 
         Route::prefix('listings')->group(function () {
@@ -122,21 +140,6 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::patch('{userStore}/listing/{listing}/update', [ListingsController::class, 'update']);
                 Route::delete('{userStore}/listing/{listing}/delete', [ListingsController::class, 'delete']);
             });
-        });
-
-        Route::prefix('shipping')->group(function () {
-            Route::get('{userStore}/methods', [StoreShippingController::class, 'getShippingMethods']);
-            Route::post('save-method', [StoreShippingController::class, 'saveShippingMethod']);
-            Route::post('remove-method-type', [StoreShippingController::class, 'removeMethodType']);
-            Route::delete('delete-method/{shippingMethod}', [StoreShippingController::class, 'deleteShippingMethod']);
-        });
-
-        Route::prefix('payout')->group(function () {
-            Route::get('{userStore}/payout-details', [StorePayoutController::class, 'getPayoutDetails']);
-            Route::post('save-detail', [StorePayoutController::class, 'savePayoutDetails']);
-            Route::get('{storePayoutDetail}/payout-detail', [StorePayoutController::class, 'showPayoutDetail']);
-            Route::patch('update-detail/{storePayoutDetail}', [StorePayoutController::class, 'updatePayoutDetail']);
-            Route::delete('delete-detail/{storePayoutDetail}', [StorePayoutController::class, 'deletePayoutDetail']);
         });
 
         Route::prefix('advert')->group(function () {
@@ -164,9 +167,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('clip/{order}/send-to-vendor', [UserController::class, 'sendOrderToVendor']);
         Route::post('cart/{cart}/payment', [PaymentController::class, 'payOrder']);
         Route::post('payment/{gateway}/verify', [PaymentController::class, 'verifyPayment']);
+        Route::get('{store}/shipping/methods', [StoreShippingController::class, 'vendorShippingMethods']);
+
+
         Route::get('order', [CartController::class, 'getUserOrders']);
+        Route::get('{order}/order', [CartController::class, 'showUserOrder']);
         Route::get('order-history', [CartController::class, 'getOrderHistory']);
-        
+        Route::patch('{order}/recieve-order', [CartController::class, 'recieveOrder']);
+
         Route::prefix('wishlist')->group(function () {
             Route::post('add/{product}', [CartController::class, 'addToWishlist']);
             Route::post('add-from-cart/{product}', [CartController::class, 'addToWishlistFromCart']);
@@ -181,6 +189,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::patch('change-password', [UserController::class, 'updateUserPassword']);
             Route::post('logout',  [FrontAuthController::class, 'logout']);
             Route::post('shipping-address/create', [CartController::class, 'storeShippingAddress']);
+            Route::delete('shipping-address/{shippingAddress}/delete', [CartController::class, 'deleteShippingAddress']);
             Route::get('shipping-address', [UserController::class, 'savedShippingAddresses']);
             Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         });
@@ -199,5 +208,4 @@ Route::post('webhook/{gateway}', [WebhookController::class, 'handleWebhook'])
 Route::get('payment/success', [PaymentController::class, 'paypalSuccess'])->name('payment.success');
 Route::get('payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
-Route::prefix('console')->group(function () {
-});
+Route::prefix('console')->group(function () {});

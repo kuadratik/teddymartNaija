@@ -190,6 +190,14 @@ paths:
       summary: Start Conversation
       description: Start Conversation
       operationId: StartConversation
+      parameters:
+        - in: query
+          name: convoRoute
+          schema:
+            type: string
+            example: ""
+          required: false
+
       requestBody:
         content:
           application/json:
@@ -204,6 +212,12 @@ paths:
                   type: string
                   example: "Ojuyobo Titus"
                   required: true
+                advert_id:
+                  type: string
+                  example: 1
+                listing_id:
+                  type: string
+                  example: 1
         
       responses:
         default:

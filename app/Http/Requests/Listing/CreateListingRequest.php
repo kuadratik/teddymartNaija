@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Listing;
 
-use App\Enums\CurrencyType;
 use App\Enums\ListingType;
 use App\Models\Store;
 use App\Support\Utils;
@@ -27,19 +26,19 @@ class CreateListingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string'],
-            'type' => ['required', 'string', Rule::enum(ListingType::class)],
-            'price' => ['required_if:type,product', 'numeric'],
-            'description' => ['required', 'string', 'max:500'],
+            'is_draft' => ['required', 'boolean'],
+            'name' => ['required_if:is_daft,false', 'nullable', 'string'],
+            'type' => ['required_if:is_daft,false', 'nullable', 'string', Rule::enum(ListingType::class)],
+            'price' => ['required_if:is_daft,false,type,product', 'nullable', 'numeric'],
+            'description' => ['required_if:is_daft,false', 'nullable', 'string', 'max:500'],
             'additional_information' => ['nullable', 'string', 'max:1000'],
-            'quantity' => ['required', 'integer', 'min:0'],
-            'images' => ['required', 'array'],
-            'category' => ['required', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
+            'quantity' => ['required_if:is_daft,false', 'nullable', 'integer', 'min:0'],
+            'images' => ['required_if:is_daft,false', 'nullable', 'array'],
+            'category' => ['required_if:is_daft,false', 'nullable', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
             'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'discount_start_date' => ['nullable', 'required_with:discount', 'date'],
             'discount_end_date' => ['nullable', 'required_with:discount', 'date', 'after:discount_start_date'],
             'sku' => ['nullable', 'string', 'max:50'],
-            'is_draft' => ['required', 'boolean'],
 
             'attributes.measurement' => ['nullable', 'array'],
             'attributes.measurement.*' => ['nullable', 'array'],
@@ -76,9 +75,12 @@ class CreateListingRequest extends FormRequest
     /**
      * Move images to permanent storage.
      */
-    public function images(array $data)
+    public function images($data)
     {
-        if (empty($data)) return [];
+        if (empty($data)) {
+            return [];
+        }
+
         return Utils::moveToPermanentPath($data, 'images');
     }
 
@@ -87,13 +89,14 @@ class CreateListingRequest extends FormRequest
      */
     public function listingAttributes(Store $userStore)
     {
-        return collect($this->safe()->except(['images', 'category', 'attributes', 'variants']))->merge([
+        return collect($this->safe()->except(['images', 'category', 'attributes', 'variants', 'name']))->merge([
+            'name' => $this->name ?? 'draft_'.now()->format('Y-m-d_H-i-s'),
             'category_id' => $this->category,
             'store_id' => $userStore->id,
             'user_id' => $this->user()->id,
             'images' => $this->images($this->safe()->images),
-            'is_available' => true,
-            'currency' => $userStore->currency
+            'is_available' => $this->is_draft ? false : true,
+            'currency' => $userStore->currency,
         ])->toArray();
     }
 
@@ -104,9 +107,9 @@ class CreateListingRequest extends FormRequest
     {
         return collect($this->safe()['attributes'] ?? [])->except(['size_chart_image', 'size', 'tags', 'measurement'])->merge([
             'size_chart_image' => $this->images([@$this->safe()['attributes']['size_chart_image']] ?? [])[0],
-            'size' => json_encode(optional($this->safe()['attributes']['size'] ?? [])),
-            'tags' => json_encode(optional($this->safe()['attributes']['tags'] ?? [])),
-            'measurement' => json_encode(optional($this->safe()['attributes']['measurement'] ?? []))
+            'size' => json_encode($this->safe()['attributes']['size'] ?? []),
+            'tags' => json_encode($this->safe()['attributes']['tags'] ?? []),
+            'measurement' => json_encode($this->safe()['attributes']['measurement'] ?? []),
 
         ])->toArray();
     }
@@ -118,8 +121,8 @@ class CreateListingRequest extends FormRequest
     {
         return collect($this->safe()['variants'] ?? [])->map(function ($variant) {
             return collect($variant)->except(['images', 'measurement'])->merge([
-                'images' => optional($this->images($variant['images'] ?? [])),
-                'measurement' => optional(json_encode($variant['measurement'] ?? []))
+                'images' => $this->images($variant['images'] ?? []),
+                'measurement' => json_encode($variant['measurement'] ?? []),
             ])->toArray();
         })->toArray();
     }

@@ -23,7 +23,9 @@ class ConversationRequest extends FormRequest
     {
         return [
             'user_id' => ['required',  'exists:users,id'],
-            'message' => ['required', 'string']
+            'message' => ['required', 'string'],
+            'advert_id' => ['nullable' , 'integer'],
+            'listing_id' => ['nullable' , 'integer']
         ];
     }
 
