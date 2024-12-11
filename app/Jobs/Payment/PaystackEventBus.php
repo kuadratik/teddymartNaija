@@ -58,7 +58,7 @@ class PaystackEventBus implements ShouldQueue
      * Process a successful charge by updating order statuses, recording payment transactions,
      * and attaching payments to corresponding orders.
      */
-    private function processSuccessfulCharge(array $payload): void
+    private function processSuccessfulCharge(array $payload)
     {
 
         Log::info('Paystack processing processSuccessfulCharge');
@@ -226,9 +226,10 @@ class PaystackEventBus implements ShouldQueue
 
                         $order->customer->notify(new OrderSuccessfulNotification($order));
 
-                        return response()->json(['status' => 'success'], 200);
+
                     }
                 });
+               return response()->json(['status' => 'success'], 200);
             } catch (\Exception $e) {
                 Log::error('Failed to process successful charge', [
                     'order_number' => $orderId,

@@ -269,7 +269,7 @@ class PayPalEventBus implements ShouldQueue
      * Process an approved payment by creating a new payment record, updating order statuses,
      * and recording a payment transaction. If the order ID is missing or malformed, appropriate logs are generated.
      */
-    private function processApprovedPayment(array $payload): void
+    private function processApprovedPayment(array $payload)
     {
         $orderId = $this->extractOrderId($payload);
         $paymentType = $this->extractPaymentType($payload);
@@ -437,6 +437,9 @@ class PayPalEventBus implements ShouldQueue
                     'response_payload' => json_encode($enhancedPayload),
                 ]);
             });
+
+            return response()->json(['status' => 'success'], 200);
+
         }
     }
 
