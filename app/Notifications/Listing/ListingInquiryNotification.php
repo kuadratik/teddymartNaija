@@ -54,7 +54,7 @@ class ListingInquiryNotification extends Notification
             ->line(new HtmlString($line))
             ->line('Engaging with customers quickly can enhance their experience and increase your chances of')
             ->line('making a sale. To view and respond to this message:')
-            ->action('Check your Inbox', url('/'))
+            ->action('Check your Inbox', env('FRONT_URL') . '/' . 'messages')
             ->line('For any questions or assistance, please reach out. We are here to help!')
             ->line('')
             ->line('Thank you for your dedication to providing quality service on myEKI. We look forward to your continued success')

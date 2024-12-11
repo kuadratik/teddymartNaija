@@ -7,9 +7,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\HtmlString;
 
-class OrderShippedNotification extends Notification
+class OrderDeliveredNotification extends Notification
 {
     use Queueable;
 
@@ -43,21 +42,26 @@ class OrderShippedNotification extends Notification
         $line = <<<EOT
         Shopping details:
         <ul>
-            <li><strong>Shopping Method</strong>: {$order->shippingMethod->method_type}</li>
-            <li><strong>Shopping Address</strong>: {}</li>
+            <li><strong>Order Number</strong>: {$orderNumber}</li>
+            <li><strong>Shipping Date</strong>: {}</li>
         </ul>
         EOT;
 
         return (new MailMessage)
-            ->subject("Hooray!! Your Order Has Been Shipped – {$orderNumber}")
+            ->subject("Reminder: Please Update the Status of Order {$orderNumber}")
             ->greeting("Dear {$respondent},")
-            ->line("Great news! Your Order {$orderNumber} is now on its way!")
-            ->line(new HtmlString($line))
-            ->line("If you have any questions or concerns about your shipment or tracking information, please don't")
-            ->line('hesitate to contact our customer support team.')
+            ->line("We hope this email finds you well. We’re following up regarding Order {$orderNumber}. As per")
+            ->line("our records, the order was shipped on [Shipping Date], but we noticed that the status has not ")
+            ->line('yet been updated in our system.')
             ->line('')
-            ->line('Thank you for choosing myEKI for your online shopping needs.')
+            ->line('To ensure our records are up to date and to provide the customer with accurate information, we')
+            ->line('kindly ask that you update the delivery status of this order as soon as possible.')
+            ->line($line)
+            ->line('If the order has already been delivered, please update the status to “Delivered” in the myEKI')
+            ->line("vendor portal. If you require any assistance or have further questions, please don’t hesitate to")
+            ->line('contact us.')
             ->line('')
+            ->line('Thank you for your prompt attention to this matter, and your continued partnership.')
             ->line("Best regards,")
             ->line('The myEKI Team')
             ->line('vendorsupport@myEKI.market');

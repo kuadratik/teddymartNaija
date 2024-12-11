@@ -247,7 +247,6 @@ class StoresController extends Controller
         return $this->success();
     }
 
-
     /**
      * Show a single store order.
      */
