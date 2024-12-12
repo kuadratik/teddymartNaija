@@ -27,6 +27,7 @@ class ListingsController extends Controller
     public function getUserStoreListings(Request $request, Store $userStore)
     {
         abort_if($userStore->user_id !== $this->user->id, 403, "Unauthorized");
+
         $userStoreListings = $userStore->listings()
             ->latest()
             ->byType($request->listingType)
@@ -34,13 +35,14 @@ class ListingsController extends Controller
                 $query->availability($request->availability);
             })
             ->when($request->filled('is_draft'), function ($query) use ($request) {
-                $query->where('is_draft', $request->is_draft);
+                $query->isDraft($request->query('is_draft'));
             })
             ->with('ratings')
             ->paginate();
 
         return $this->success($userStoreListings);
     }
+
 
     /**
      * Create a new listing for the specified user store.
@@ -79,7 +81,7 @@ class ListingsController extends Controller
      */
     public function show(Store $Store, Listing $listing)
     {
-        return $this->success($listing->load(['variants', 'attributes','ratings']));
+        return $this->success($listing->load(['variants', 'attributes', 'ratings']));
     }
 
     /**
