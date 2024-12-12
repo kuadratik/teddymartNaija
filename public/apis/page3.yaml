@@ -625,6 +625,45 @@ paths:
               schema:
                 type: object
 
+  /front/payment/{gateway}/verify:
+    post:
+      tags:
+        - Payment
+      summary: Verify payment
+      description: Verify payment
+      operationId: VerifyPayment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: path
+          name: gateway
+          schema:
+            type: string
+            example: "paystack"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: "paystack-reference"
+                  required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
   /front/order-history:
     get:
       tags:
