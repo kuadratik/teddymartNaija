@@ -153,6 +153,14 @@ class Listing extends Model
     }
 
     /**
+     * scope by is_draft
+     */
+    public function scopeIsDraft(Builder $query, $isDraft)
+    {
+        $query->where('is_draft', filter_var($isDraft, FILTER_VALIDATE_BOOL));
+    }
+
+    /**
      * Scope by listing type
      */
     public function scopeByListingType($query, $listingType)
