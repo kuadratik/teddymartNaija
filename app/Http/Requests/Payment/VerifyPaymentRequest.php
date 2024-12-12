@@ -27,13 +27,10 @@ class VerifyPaymentRequest extends FormRequest
     {
         return [
 
-            'token' => ['required', 'string']
+            'token' => ['required', 'string'],
         ];
     }
 
 
-    public function getPaymentAtribute(): array
-    {
-        return $this->collect($this->validated())->toArray();
-    }
+
 }

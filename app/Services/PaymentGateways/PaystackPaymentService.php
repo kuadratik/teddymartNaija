@@ -3,7 +3,12 @@
 namespace App\Services\PaymentGateways;
 
 use App\Contracts\PaymentGatewayInterface;
+use App\Enums\OrderStatusEnum;
+use App\Enums\PaymentStatusEnum;
 use App\Enums\PaymentType;
+use App\Models\AdvertListingPromotePlan;
+use App\Models\Order;
+use App\Models\StorePromotePlanStore;
 use AWS\CRT\HTTP\Message;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -16,6 +21,9 @@ class PaystackPaymentService implements PaymentGatewayInterface
         //
     }
 
+    /**
+     * initialize paystack payment
+     */
     public function initialize(array $data): array
     {
         $response = Http::withToken($this->secretKey)->post(config('services.paystack.payment_url') . '/transaction/initialize', [
@@ -38,14 +46,147 @@ class PaystackPaymentService implements PaymentGatewayInterface
         abort(500, 'Something went wrong');
     }
 
-
+    /**
+     * verify paystack payment
+     */
     public function verify(array $data): array
+    {
+        $token = $data['token'];
+
+
+        $response = $this->verifyPaystackTransaction($token);
+
+        if (!$response->successful()) {
+            return $this->handleVerificationFailure($response);
+        }
+
+        $responseData = $response->json();
+
+        if ($responseData['status'] === false) {
+            return $this->handleFailedTransaction($responseData);
+        }
+
+        return $this->processSuccessfulTransaction($responseData['data']);
+    }
+
+    /**
+     * refund paystack payment
+     */
+    public function refund(string $reference, float $amount): array
     {
         return [];
     }
 
-    public function refund(string $reference, float $amount): array
+    /**
+     * verify paystack transaction by refrence id
+     */
+    private function verifyPaystackTransaction(string $token)
     {
-        return [];
+        return Http::withToken($this->secretKey)
+            ->get(config('services.paystack.payment_url') . '/transaction/verify/' . $token);
+    }
+
+    /**
+     * handle failed verification
+     */
+    private function handleVerificationFailure($response): array
+    {
+        $responseData = $response->json();
+        return [
+            'status' => 'error',
+            'message' => $responseData['message'] ?? 'Failed to verify transaction',
+            'code' => $responseData['code'] ?? null
+        ];
+    }
+
+    /**
+     * handles payment transaction is failed
+     */
+    private function handleFailedTransaction(array $responseData): array
+    {
+        return [
+            'status' => 'failed',
+            'message' => $responseData['message'] ?? 'Transaction verification failed',
+            'code' => $responseData['code'] ?? null
+        ];
+    }
+
+
+    /**
+     * handles payment transaction is success
+     */
+    private function processSuccessfulTransaction(array $transactionData): array
+    {
+        if ($transactionData['status'] !== 'success') {
+            return [
+                'status' => 'failed',
+                'message' => $transactionData['message'] ?? 'Transaction not successful',
+                'data' => $transactionData
+            ];
+        }
+
+        return match ($transactionData['metadata']['type']) {
+            PaymentType::CHECKOUT->value => $this->handleCheckoutPayment($transactionData),
+            PaymentType::ADVERT->value => $this->handleAdvertPayment($transactionData),
+            PaymentType::PROMOTION->value => $this->handlePromotionPayment($transactionData),
+            default => [$transactionData]
+        };
+    }
+
+    /**
+     * Handle if payment type is checkout
+     */
+    private function handleCheckoutPayment(array $transactionData): array
+    {
+        $order = Order::where([
+            'order_number' => $transactionData['metadata']['order_number'],
+            'payment_status' => OrderStatusEnum::PENDING_PAYMENT
+        ])->first();
+
+        if ($order) {
+            $order->update([
+                'payment_status' => OrderStatusEnum::PENDING,
+            ]);
+        }
+
+        return [$transactionData];
+    }
+
+    /**
+     * Handle if payment type is advert
+     */
+    private function handleAdvertPayment(array $transactionData): array
+    {
+        $advert = AdvertListingPromotePlan::where([
+            'order_number' => $transactionData['metadata']['order_number'],
+            'status' => OrderStatusEnum::PENDING_PAYMENT
+        ])->first();
+
+        if ($advert) {
+            $advert->update([
+                'status' => OrderStatusEnum::PENDING,
+            ]);
+        }
+
+        return [$transactionData];
+    }
+
+    /**
+     * Handle if payment type is promotion
+     */
+    private function handlePromotionPayment(array $transactionData): array
+    {
+        $promotion = StorePromotePlanStore::where([
+            'order_number' => $transactionData['metadata']['order_number'],
+            'status' => OrderStatusEnum::PENDING_PAYMENT
+        ])->first();
+
+        if ($promotion) {
+            $promotion->update([
+                'status' => OrderStatusEnum::PENDING,
+            ]);
+        }
+
+        return [$transactionData];
     }
 }

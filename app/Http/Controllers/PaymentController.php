@@ -35,7 +35,7 @@ class PaymentController extends Controller
     public function verifyPayment(VerifyPaymentRequest $request, PaymentGatewayEnum $gateway)
     {
 
-        $attr = $request->getPaymentAtribute();
+        $attr = $request->validated();
         $res = $this->paymentService->gateway($gateway->value)->verify($attr);
         return $this->success($res);
     }
