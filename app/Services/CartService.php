@@ -153,8 +153,8 @@ class CartService
             }
 
             $shippingMethod = StoreShippingMethod::where('id', $shippingMethodData['shipping_method_id'])
-            ->where('store_id', $storeId)
-            ->first();
+                ->where('store_id', $storeId)
+                ->first();
 
             if (!$shippingMethod) {
                 abort(422, "Invalid shipping method ID {$shippingMethodData['shipping_method_id']} for store ID {$storeId}.");
@@ -182,10 +182,10 @@ class CartService
                 'type' => ListingType::PRODUCT->value,
                 'status' => OrderStatusEnum::PENDING->value,
                 'payment_status' => OrderStatusEnum::PENDING_PAYMENT->value,
-                'shipping_method_id' => $shippingMethod->id,
+                'store_shipping_method_id' => $shippingMethod->id,
+                'shipping_address_id' => $request->validated('shipping_address_id')
             ]);
 
-            $order->shippingAddress()->attach($request->validated('shipping_address_id'));
 
             foreach ($items as $item) {
                 OrderDetail::create([
@@ -193,12 +193,13 @@ class CartService
                     'listing_id' => $item->id,
                     'listing_name' => $item->name,
                     'listing_price' => $item->price,
+                    'quantity' => $item->pivot->quantity
                 ]);
             }
         }
 
         return [
-            'currency_code' => $request->validated('currency_code'),
+            'currency_code' => $items->first()?->store?->currency ?? $request->validated('currency_code'),
             'total_amount' => $cumulativeTotalAmount,
             'order_number' => $orderNumber,
             'shipping_address' => $request->validated('shipping_address_id'),
@@ -271,6 +272,39 @@ class CartService
 
         return 'Product added to wishlist successfully and removed from cart.';
     }
+
+    /**
+     * Retrieve available shipping methods for each store in the cart.
+     */
+    public function getShippingMethodsCart(Request $request, Cart $cart)
+    {
+        $cartItemsByStore = $cart->products()->with('store')->get()->groupBy('store_id');
+
+        $storeShippingDetails = [];
+
+        foreach ($cartItemsByStore as $storeId => $cartItems) {
+            $store = $cartItems->first()->store;
+
+            if (!$store) {
+                continue;
+            }
+
+            $storeShippingMethods = StoreShippingMethod::where('store_id', $store->id)->get();
+
+            $groupedMethods = $storeShippingMethods->groupBy('method_type');
+            $storeMethodTypes = $groupedMethods->keys();
+
+            $storeShippingDetails[] = [
+                'store_id' => $store->id,
+                'store_name' => $store->name,
+                'storeMethodTypes' => $storeMethodTypes,
+                'storeMethods' => $groupedMethods,
+            ];
+        }
+
+        return $storeShippingDetails;
+    }
+
 
     /**
      * Get the user's cart based on the provided request.

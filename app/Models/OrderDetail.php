@@ -14,6 +14,7 @@ class OrderDetail extends Model
         'listing_id',
         'listing_name',
         'listing_price',
+        'quantity',
     ];
 
 
