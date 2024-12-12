@@ -1398,6 +1398,13 @@ paths:
             type: string
           required: true
           description: The unique session identifier for the user.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by.
         - in: path
           name: cart
           schema:
