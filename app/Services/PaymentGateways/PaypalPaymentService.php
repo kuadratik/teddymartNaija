@@ -101,27 +101,31 @@ class PaypalPaymentService implements PaymentGatewayInterface
         $type = $transactionData['type'];
 
         return match ($type) {
-            PaymentType::CHECKOUT->value => $this->handleCheckout($transactionData, $order),
+            PaymentType::CHECKOUT->value => $this->handleCheckout($transactionData),
             PaymentType::ADVERT->value => $this->handleAdvert($transactionData, $order),
             PaymentType::PROMOTION->value => $this->handlePromotion($transactionData, $order),
             default => $this->handleUnknownType($transactionData, $order)
         };
     }
 
-    private function handleCheckout(array $transactionData, array $order): array
+    private function handleCheckout(array $transactionData): array
     {
-        $order = Order::where([
-            'order_number' => $transactionData['order_number'],
-            'payment_status' => OrderStatusEnum::PENDING_PAYMENT
-        ])->first();
 
-        if ($order) {
-            $order->update([
-                'payment_status' => OrderStatusEnum::PENDING,
-            ]);
+        $orders = Order::where('order_number', $transactionData['order_number'])->get();
+        $mergedOrderDetails = [];
+        if ($orders->isNotEmpty()) {
+            foreach ($orders as $order) {
+
+                if ($order->payment_status == OrderStatusEnum::PENDING_PAYMENT->value) {
+                    $order->update(['payment_status' => OrderStatusEnum::PENDING]);
+                }
+
+                $orderDetails = $order->load(['orderDetails']);
+
+                $mergedOrderDetails[] = $orderDetails->toArray();
+            }
         }
-
-        return [$order];
+        return $mergedOrderDetails;
     }
 
     private function handleAdvert(array $transactionData, array $order): array

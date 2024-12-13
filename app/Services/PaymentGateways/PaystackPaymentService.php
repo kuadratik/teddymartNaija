@@ -8,6 +8,7 @@ use App\Enums\PaymentStatusEnum;
 use App\Enums\PaymentType;
 use App\Models\AdvertListingPromotePlan;
 use App\Models\Order;
+use App\Models\OrderDetail;
 use App\Models\StorePromotePlanStore;
 use AWS\CRT\HTTP\Message;
 use Illuminate\Support\Facades\Auth;
@@ -138,18 +139,22 @@ class PaystackPaymentService implements PaymentGatewayInterface
      */
     private function handleCheckoutPayment(array $transactionData): array
     {
-        $order = Order::where([
-            'order_number' => $transactionData['metadata']['order_number'],
-            'payment_status' => OrderStatusEnum::PENDING_PAYMENT
-        ])->first();
+        $orders = Order::where('order_number', $transactionData['metadata']['order_number'])->get();
+        $mergedOrderDetails = [];
+        if ($orders->isNotEmpty()) {
+            foreach ($orders as $order) {
 
-        if ($order) {
-            $order->update([
-                'payment_status' => OrderStatusEnum::PENDING,
-            ]);
+                if ($order->payment_status == OrderStatusEnum::PENDING_PAYMENT->value) {
+                    $order->update(['payment_status' => OrderStatusEnum::PENDING]);
+                }
+
+                $orderDetails = $order->load(['orderDetails']);
+
+                $mergedOrderDetails[] = $orderDetails->toArray();
+            }
+
         }
-
-        return [$transactionData];
+        return $mergedOrderDetails;
     }
 
     /**
