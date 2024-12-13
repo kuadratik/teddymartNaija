@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\CurrencyType;
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
 use App\Http\Requests\Cart\StoreOrderRequest;
@@ -278,14 +279,18 @@ class CartService
      */
     public function getShippingMethodsCart(Request $request, Cart $cart)
     {
+
         $cartItemsByStore = $cart->products()->with('store')->get()->groupBy('store_id');
 
         $storeShippingDetails = [];
 
+        $currency = $request->header('currency', 'USD');
+
         foreach ($cartItemsByStore as $storeId => $cartItems) {
+
             $store = $cartItems->first()->store;
 
-            if (!$store) {
+            if (!$store || $store->currency !== $currency) {
                 continue;
             }
 
