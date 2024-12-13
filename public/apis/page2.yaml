@@ -1030,6 +1030,31 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /store/payout/{userStore}/payout-details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Get User Store Payout Details
+      description: "Get User Store Payout Details"
+      operationId: GetUserStorePayoutDetails
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+
+      responses:
+        default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
   
   /store/payout/{storePayoutDetail}/payout-detail:
     get:
