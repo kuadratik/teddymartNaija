@@ -38,7 +38,7 @@ class OrderSuccessfulNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->priority(1)
             ->subject("🎉 Hooray! Your Order #{$this->order->order_number} is Successful!")
-            ->greeting("Dear {$notifiable->name},")
+            ->greeting("Dear {$notifiable->first_name},")
             ->line("Thank you for shopping with us on myEKI! We're thrilled to let you know that your order has been successfully placed and payment has been processed.")
             ->line("**Order Summary:**")
             ->line("**Order Number:** {$this->order->order_number}")

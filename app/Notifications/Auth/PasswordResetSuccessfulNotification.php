@@ -37,7 +37,7 @@ class PasswordResetSuccessfulNotification extends Notification implements Should
         return (new MailMessage)
             ->priority(1)
             ->subject('Password Reset Successfully!')
-            ->greeting("Dear {$notifiable->name},")
+            ->greeting("Dear {$notifiable->first_name},")
             ->line('This is to confirm that your myEKI account password has been successfully reset.')
             ->line('If you did not reset your password, please contact our customer support team immediately to ensure your account security.')
             ->line('Thank you for using myEKI. We are always here to assist you with any questions or concerns.');

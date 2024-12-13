@@ -69,7 +69,7 @@ class VendorNewOrderNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject('New Order Placed - [' . $this->order->uid . ']')
-            ->greeting('Dear ' . $notifiable->name . ',')
+            ->greeting('Dear ' . $notifiable->first_name . ',')
             ->line('We are pleased to inform you that a new order has been placed on myEKI. Congratulations on your sale!')
             ->line('Please find the details of the order below:')
             ->line('**Order ID:** ' . $this->order->uid)
