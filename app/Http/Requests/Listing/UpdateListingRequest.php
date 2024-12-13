@@ -33,8 +33,8 @@ class UpdateListingRequest extends FormRequest
             'images' => ['required_if:is_draft,false','nullable', 'array'],
             'category' => ['required_if:is_draft,false','nullable', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
             'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'discount_start_date' => ['required_if:is_draft,false','nullable', 'required_with:discount', 'date'],
-            'discount_end_date' => ['required_if:is_draft,false','nullable', 'required_with:discount', 'date', 'after:discount_start_date'],
+            'discount_start_date' => ['nullable', 'required_with:discount', 'date'],
+            'discount_end_date' => ['nullable', 'required_with:discount', 'date', 'after:discount_start_date'],
             'sku' => ['nullable', 'string', 'max:50'],
 
             'attributes.measurement' => ['nullable', 'array'],
