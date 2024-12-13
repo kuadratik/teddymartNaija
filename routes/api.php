@@ -126,6 +126,7 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::patch('{userStore}/store/{payout}/process-payout', [StorePayoutController::class, 'processPayout']);
                 Route::get('{userStore}/payout-details', [StorePayoutController::class, 'getPayoutDetails']);
                 Route::post('save-detail', [StorePayoutController::class, 'savePayoutDetails']);
+                Route::patch('{userStore}/store/{storePayoutDetail}/set-default', [StorePayoutController::class, 'setDefaultPayoutDetail']);
                 Route::get('{storePayoutDetail}/payout-detail', [StorePayoutController::class, 'showPayoutDetail']);
                 Route::patch('update-detail/{storePayoutDetail}', [StorePayoutController::class, 'updatePayoutDetail']);
                 Route::delete('delete-detail/{storePayoutDetail}', [StorePayoutController::class, 'deletePayoutDetail']);
@@ -208,4 +209,5 @@ Route::post('webhook/{gateway}', [WebhookController::class, 'handleWebhook'])
 Route::get('payment/success', [PaymentController::class, 'paypalSuccess'])->name('payment.success');
 Route::get('payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
-Route::prefix('console')->group(function () {});
+Route::prefix('console')->group(function () {
+});
