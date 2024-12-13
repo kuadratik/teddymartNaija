@@ -97,7 +97,7 @@ class PaypalPaymentService implements PaymentGatewayInterface
 
     private function processTransactionByType(array $order): array
     {
-        $transactionData = json_decode($order['purchase_units'][0]['custom_id'], true);
+        $transactionData = json_decode($order['purchase_units'][0]['payments']['captures'][0]['custom_id'], true);
         $type = $transactionData['type'];
 
         return match ($type) {
