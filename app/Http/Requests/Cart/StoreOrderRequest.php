@@ -40,6 +40,8 @@ class StoreOrderRequest extends FormRequest
             ],
             'currency_code' => ['required', 'string', Rule::enum(CurrencyType::class)],
             'payment_gateway' => ['required', 'string', Rule::enum(PaymentGatewayEnum::class)],
+            'return_url' => ['required', 'string', 'url'],
+            'cancel_url' => ['required', 'string', 'url'],
         ];
     }
 
