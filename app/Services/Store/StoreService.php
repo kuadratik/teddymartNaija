@@ -42,7 +42,7 @@ class StoreService
                 return match ($request->sort_date) {
                     'oldest' => $q->oldest(),
                     'newest' => $q->latest(),
-                    default => $q
+                    default => $q->latest()
                 };
             })
             ->when($request->filled('sort_price'), function ($q) use ($request) {
