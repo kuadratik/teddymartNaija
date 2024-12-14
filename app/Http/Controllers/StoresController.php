@@ -14,12 +14,18 @@ use App\Models\Store;
 use App\Notifications\Order\OrderShippedNotification;
 use App\Services\Auth\UserService;
 use App\Services\Store\MetricService;
+use App\Services\Store\StoreService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 class StoresController extends Controller
 {
+    public function __construct(Request $request, protected StoreService $storeService)
+    {
+        //
+    }
+
     /**
      * Display store metrics including listings count and customer count
      */
@@ -208,20 +214,11 @@ class StoresController extends Controller
     }
 
     /**
-     *  Show vendor Order history
+     * Show vendor Order history
      */
     public function getStoreOrderHistory(Request $request, Store $store)
     {
-        $user = $request->user();
-        $status = $request->query('order_status');
-        $orders = $store->orders()
-            ->where('type', ListingType::PRODUCT->value)
-            ->whereNotIn('status', [OrderStatusEnum::PENDING->value, 'incart'])
-            ->when($status, fn($query) => $query->where('status', $status))
-            ->orderBy('created_at', 'desc')
-            ->with('orderDetails')
-            ->paginate(20);
-
+        $orders = $this->storeService->getAllStoreOrders($request, $store);
         return $this->success($orders);
     }
 
@@ -253,7 +250,7 @@ class StoresController extends Controller
     public function showStoreOrder(Store $store, Order $order)
     {
         abort_if($store->id !== $order->store_id, 403, 'Unauthorized');
-        $order->load(['orderDetails', 'store', 'customer', 'payments']);
+        $order->load(['orderDetails', 'store', 'customer', 'payments', 'shippingAddress', '']);
         return $this->success($order);
     }
 }

@@ -23,106 +23,68 @@ class StoreService
      */
     public function getUserStoreListings(Request $request, Store $userStore)
     {
-        $query = $userStore->listings();
+        $query = $userStore->listings()
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $searchTerm = '%' . $request->search . '%';
+                return $q->where(function ($query) use ($searchTerm) {
+                    $query->where('name', 'like', $searchTerm)
+                        ->orWhere('description', 'like', $searchTerm)
+                        ->orWhere('slug', 'like', $searchTerm);
+                });
+            })
+            ->when($request->filled('availability'), function ($q) use ($request) {
+                return $q->availability($request->availability);
+            })
+            ->when($request->filled('is_draft'), function ($q) use ($request) {
+                return $q->isDraft($request->is_draft);
+            })
+            ->when($request->filled('sort_date'), function ($q) use ($request) {
+                return match ($request->sort_date) {
+                    'oldest' => $q->oldest(),
+                    'newest' => $q->latest(),
+                    default => $q->latest()
+                };
+            })
+            ->when($request->filled('sort_price'), function ($q) use ($request) {
+                return match ($request->sort_price) {
+                    'lowest'  => $q->orderBy('display_price', 'asc'),
+                    'highest' => $q->orderBy('display_price', 'desc'),
+                    default   => $q
+                };
+            })
+            ->with('ratings');
 
-        $query = $this->applySearchFilter($query, $request);
-        $query = $this->applyAvailabilityFilter($query, $request);
-        $query = $this->applyDraftFilter($query, $request);
-        $query = $this->applySortByDate($query, $request);
-        $query = $this->applySortByPrice($query, $request);
-
-        return $query
-            ->with('ratings')
-            ->paginate();
+        return $query->paginate();
     }
 
-    /**
-     * Applies a search filter to the query based on the 'search' parameter in the request.
-     * Filters listings by matching the search term against the 'name', 'description',
-     * and 'slug' fields using a case-insensitive 'like' query.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
-     * @param \Illuminate\Http\Request $request The HTTP request containing search parameters.
-     * @return \Illuminate\Database\Eloquent\Builder The modified query with the search filter applied.
-     */
-    private function applySearchFilter($query, $request)
-    {
-        return $query->when($request->filled('search'), function ($q) use ($request) {
-            $searchTerm = '%' . $request->search . '%';
-            return $q->where(function ($query) use ($searchTerm) {
-                $query->where('name', 'like', $searchTerm)
-                    ->orWhere('description', 'like', $searchTerm)
-                    ->orWhere('slug', 'like', $searchTerm);
-            });
-        });
-    }
-
 
     /**
-     * Applies an availability filter to the query based on the 'availability' parameter in the request.
-     * Filters listings by the specified availability status.
+     * Retrieves a paginated list of orders for a specific store.
+     * Filters orders by type, status, and optional search criteria.
+     * Orders are sorted by creation date in descending order.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
-     * @param \Illuminate\Http\Request $request The HTTP request containing availability parameters.
-     * @return \Illuminate\Database\Eloquent\Builder The modified query with the availability filter applied.
+     * @param \Illuminate\Http\Request $request The HTTP request containing filter parameters.
+     * @param \App\Models\Store $store The store model instance for which to retrieve orders.
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator The paginated list of filtered orders.
      */
-    private function applyAvailabilityFilter($query, $request)
+    public function getAllStoreOrders(Request $request, Store $store)
     {
-        return $query->when($request->filled('availability'), function ($q) use ($request) {
-            return $q->availability($request->availability);
-        });
-    }
+        $orders = $store->orders()
+            ->where('type', ListingType::PRODUCT->value)
+            ->whereNotIn('status', [OrderStatusEnum::PENDING->value, 'incart'])
+            ->when($request->filled('order_status'), function ($query) use ($request) {
+                $query->where('status', $request->order_status);
+            })
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $searchTerm = $request->search;
+                return $query->where(function ($q) use ($searchTerm) {
+                    $q->whereAny(['order_number', 'first_name', 'last_name', 'email', 'phone'], 'LIKE', "%{$searchTerm}%");
+                });
+            })
+            ->latest()
+            ->with(['orderDetails', 'customer'])
+            ->paginate(20);
 
-    /**
-     * Applies a draft filter to the query based on the 'is_draft' parameter in the request.
-     * Filters listings by their draft status.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
-     * @param \Illuminate\Http\Request $request The HTTP request containing draft status parameters.
-     * @return \Illuminate\Database\Eloquent\Builder The modified query with the draft filter applied.
-     */
-    private function applyDraftFilter($query, $request)
-    {
-        return $query->when($request->filled('is_draft'), function ($q) use ($request) {
-            return $q->isDraft($request->is_draft);
-        });
-    }
-
-    /**
-     * Applies a date sorting to the query based on the 'sort_date' parameter in the request.
-     * Sorts listings by their creation date, either from oldest to newest or vice versa.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
-     * @param \Illuminate\Http\Request $request The HTTP request containing date sorting parameters.
-     * @return \Illuminate\Database\Eloquent\Builder The modified query with the date sorting applied.
-     */
-    private function applySortByDate($query, $request)
-    {
-        return $query->when($request->filled('sort_date'), function ($q) use ($request) {
-            return match ($request->sort_date) {
-                'oldest' => $q->oldest(),
-                'newest' => $q->latest(),
-                default => $q
-            };
-        });
-    }
-
-    /**
-     * Applies a price sorting to the query based on the 'sort_price' parameter in the request.
-     * Sorts listings by their display price, either from lowest to highest or vice versa.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query The query builder instance.
-     * @param \Illuminate\Http\Request $request The HTTP request containing price sorting parameters.
-     * @return \Illuminate\Database\Eloquent\Builder The modified query with the price sorting applied.
-     */
-    private function applySortByPrice($query, $request)
-    {
-        return $query->when($request->filled('sort_price'), function ($q) use ($request) {
-            return match ($request->sort_price) {
-                'lowest'  => $q->orderBy('display_price', 'asc'),
-                'highest' => $q->orderBy('display_price', 'desc'),
-                default   => $q
-            };
-        });
+        return $orders;
     }
 }

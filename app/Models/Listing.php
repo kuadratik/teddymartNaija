@@ -36,7 +36,8 @@ class Listing extends Model
         'currency',
         'discount_start_date',
         'discount_end_date',
-        'is_draft'
+        'is_draft',
+
     ];
 
     /**
@@ -63,20 +64,16 @@ class Listing extends Model
      */
     protected $with = ['attributes', 'variants'];
 
-    /**
-     * The booted method of the model.
-     */
     protected static function booted()
     {
         static::saving(function (Listing $model) {
             $model->slug = str($model->name)->slug();
-
-            if ($model->discount > 0) {
-                $model->discounted_price = $model->price - ($model->price * ($model->discount / 100));
-                $model->display_price = $model->discounted_price + env('COMPANY_RATE', 0.13) * $model->price;
-            } else {
-                $model->display_price = $model->price + env('COMPANY_RATE', 0.13) * $model->price;
-            }
+            $companyRate = env('COMPANY_RATE', 0.13);
+            $basePrice = $model->discount > 0
+                ? $model->price * (1 - ($model->discount / 100))
+                : $model->price;
+            $model->discounted_price = $model->discount > 0 ? $basePrice : null;
+            $model->display_price = $basePrice * (1 + $companyRate);
         });
     }
 
