@@ -70,7 +70,7 @@ class ListingsController extends Controller
      */
     public function show(Store $Store, Listing $listing)
     {
-        return $this->success($listing->load(['variants', 'attributes', 'ratings', 'store']));
+        return $this->success($listing->load(['variants', 'attributes', 'ratings', 'store.shippingMethods']));
     }
 
     /**
