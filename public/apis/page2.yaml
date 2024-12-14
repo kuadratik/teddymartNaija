@@ -63,7 +63,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object                
+                type: object
 
   /store/user-store/{userStore}/metrics:
     get:
@@ -243,7 +243,6 @@ paths:
             type: string
             example: amala-sky
           required: true
-
         - in: query
           name: listingType
           schema:
@@ -261,6 +260,31 @@ paths:
           schema:
             type: boolean
             example: false
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "amala"
+          required: false
+        - in: query
+          name: sort_date
+          schema:
+            type: string
+            enum:
+              - oldest
+              - newest
+            example: "newest"
+          required: false
+        - in: query
+          name: sort_price
+          schema:
+            type: string
+            enum:
+              - highest
+              - lowest
+            example: "lowest"
+          required: false
+
       responses:
         default:
           description: "success"
@@ -907,7 +931,7 @@ paths:
               application/json:
                 schema:
                   type: object
-  
+
 
   /store/payout/{userStore}/requestable-payouts:
     get:
@@ -933,7 +957,7 @@ paths:
               application/json:
                 schema:
                   type: object
-  
+
   /store/payout/{userStore}/processed-payouts:
     get:
       security:
@@ -989,7 +1013,7 @@ paths:
               application/json:
                 schema:
                   type: object
-  
+
   /store/payout/save-detail:
     post:
       security:
@@ -1022,7 +1046,7 @@ paths:
                   type: string
                   example: "1234567890"
                   required: true
-              
+
       responses:
         default:
           description: "success"
@@ -1055,7 +1079,7 @@ paths:
               application/json:
                 schema:
                   type: object
-  
+
   /store/payout/{storePayoutDetail}/payout-detail:
     get:
       security:
@@ -1120,7 +1144,7 @@ paths:
                   type: string
                   example: "1234567890"
                   required: true
-              
+
       responses:
         default:
           description: "success"
@@ -1128,7 +1152,7 @@ paths:
             application/json:
               schema:
                 type: object
-              
+
   /store/payout/{userStore}/store/{storePayoutDetail}/set-default:
     patch:
       security:
@@ -1159,7 +1183,7 @@ paths:
               application/json:
                 schema:
                   type: object
-  
+
   /store/payout/delete-detail/{storePayoutDetail}:
     delete:
       security:
@@ -1176,7 +1200,7 @@ paths:
             type: string
             example: 1
           required: true
-              
+
       responses:
         default:
           description: "success"
