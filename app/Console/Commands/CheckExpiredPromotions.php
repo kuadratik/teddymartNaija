@@ -42,7 +42,7 @@ class CheckExpiredPromotions extends Command
 
         foreach ($expiredPlans as $plan) {
 
-            $user = $plan->advertListing->user;
+            $user = $plan->store->user;
 
             $user->notify(new PromotionExpiredNotification);
 
@@ -60,7 +60,7 @@ class CheckExpiredPromotions extends Command
         $plansExpiringSoon = $this->getPlansExpiringIn24Hours();
 
         foreach ($plansExpiringSoon as $plan) {
-            $user = $plan->advertListing->user;
+            $user = $plan->store->user;
             if ($user) {
                 $user->notify(new Promotion24hrsExpiredNotification($plan));
             }

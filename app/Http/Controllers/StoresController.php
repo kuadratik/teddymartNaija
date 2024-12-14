@@ -240,10 +240,10 @@ class StoresController extends Controller
             $order->wasChanged() &&
             $order->status === OrderStatusEnum::SHIPPED->value
         ) {
-            Notification::route('mail', $order->customer()->email)
-                ->notify(new OrderShippedNotification($order));
+            // Notification::route('mail', $order->customer()->email)
+            //     ->notify(new OrderShippedNotification($order));
         }
-        
+
         return $this->success();
     }
 
