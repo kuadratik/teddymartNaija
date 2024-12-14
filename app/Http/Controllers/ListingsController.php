@@ -151,11 +151,13 @@ class ListingsController extends Controller
         $currency = $request->header('currency', 'USD');
 
         $listings = Listing::query()
+            ->byIsDraft(false)
             ->byListingType($request->listingType)
             ->when($request->search, fn($query) => $query->search($request->search))
             ->when($request->category, fn($query) => $query->byCategory($request->category))
             ->when($request->availability, fn($query) => $query->availability($request->availability))
             ->byCurrency($currency)
+
             ->get();
 
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));

@@ -168,6 +168,13 @@ class Listing extends Model
     }
 
     /**
+     * scope not draft
+     */
+    public function scopeByIsDraft($query, $value)  {
+        return $query->where('is_draft', $value);
+    }
+
+    /**
      * Scope to search by name or store name
      */
     public function scopeSearch($query, $search)
