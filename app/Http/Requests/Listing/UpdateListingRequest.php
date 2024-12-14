@@ -24,14 +24,14 @@ class UpdateListingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'is_draft' => ['required','boolean'],
-            'name' => ['required_if:is_draft,false','nullable', 'string'],
-            'type' => ['required_if:is_draft,false','nullable', 'string', Rule::enum(ListingType::class)],
-            'price' => ['required_if:is_draft,false','nullable', 'numeric'],
-            'description' => ['required_if:is_draft,false','nullable', 'string', 'max:500'],
+            'is_draft' => ['required', 'boolean'],
+            'name' => ['required_if:is_draft,false', 'nullable', 'string'],
+            'type' => ['required_if:is_draft,false', 'nullable', 'string', Rule::enum(ListingType::class)],
+            'price' => ['required_if:is_draft,false', 'nullable', 'numeric'],
+            'description' => ['required_if:is_draft,false', 'nullable', 'string', 'max:500'],
             'additional_information' => ['nullable', 'string', 'max:1000'],
-            'images' => ['required_if:is_draft,false','nullable', 'array'],
-            'category' => ['required_if:is_draft,false','nullable', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
+            'images' => ['required_if:is_draft,false', 'nullable', 'array'],
+            'category' => ['required_if:is_draft,false', 'nullable', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
             'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'discount_start_date' => ['nullable', 'required_with:discount', 'date'],
             'discount_end_date' => ['nullable', 'required_with:discount', 'date', 'after:discount_start_date'],
@@ -75,7 +75,7 @@ class UpdateListingRequest extends FormRequest
      */
     public function images(array $data)
     {
-         if (empty($data)) return [];
+        if (empty($data)) return [];
         return Utils::moveToPermanentPath($data, 'images');
     }
 
@@ -85,7 +85,6 @@ class UpdateListingRequest extends FormRequest
     public function listingAttributes(Store $userStore)
     {
         return collect($this->safe()->except(['images', 'category', 'attributes', 'variants']))
-            ->filter() // Remove null values
             ->merge([
                 'category_id' => $this->category,
                 'store_id' => $userStore->id,
@@ -116,7 +115,8 @@ class UpdateListingRequest extends FormRequest
     {
         return collect($this->safe()['variants'] ?? [])->map(function ($variant) {
             return collect($variant)->except(['images', 'size', 'measurement'])->merge([
-                'images' => $this->images($variant['images'] ?? []),'size' => json_encode($variant['size'] ?? []),
+                'images' => $this->images($variant['images'] ?? []),
+                'size' => json_encode($variant['size'] ?? []),
                 'measurement' => json_encode($variant['measurement'] ?? [])
 
             ])->toArray();
