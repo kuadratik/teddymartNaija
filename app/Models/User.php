@@ -68,7 +68,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function store(): HasMany
     {
-        return $this->hasMany(Store::class)->with('country');
+        return $this->hasMany(Store::class)->with('country', 'shippingMethods');
     }
 
 

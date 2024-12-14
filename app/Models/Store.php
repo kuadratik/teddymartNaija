@@ -97,6 +97,14 @@ class Store extends Model
         return $this->listings()->where('type', 'service');
     }
 
+    /**
+     * Shipping Method for each store
+     */
+    public function shippingMethods()
+    {
+        return $this->hasMany(StoreShippingMethod::class, 'store_id');
+    }
+
 
      /**
      * Get the store orders
