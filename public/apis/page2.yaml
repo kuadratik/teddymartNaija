@@ -243,7 +243,6 @@ paths:
             type: string
             example: amala-sky
           required: true
-
         - in: query
           name: listingType
           schema:
@@ -267,6 +266,25 @@ paths:
             type: string
             example: "amala"
           required: false
+        - in: query
+          name: sort_date
+          schema:
+            type: string
+            enum:
+              - oldest
+              - newest
+            example: "newest"
+          required: false
+        - in: query
+          name: sort_price
+          schema:
+            type: string
+            enum:
+              - highest
+              - lowest
+            example: "lowest"
+          required: false
+
       responses:
         default:
           description: "success"
