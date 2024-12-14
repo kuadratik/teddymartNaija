@@ -11,12 +11,10 @@ use App\Http\Requests\Store\UpdateStoreRequest;
 use App\Jobs\RecordCategoryInteractions;
 use App\Models\Order;
 use App\Models\Store;
-use App\Notifications\Order\OrderShippedNotification;
 use App\Services\Auth\UserService;
 use App\Services\Store\MetricService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 
 class StoresController extends Controller
 {
@@ -54,9 +52,9 @@ class StoresController extends Controller
 
         $stores = Store::query()
             ->where('type', $request->listingType)
-            ->when($request->sortType === 'alphanumeric', fn($query) => $query->orderBy('name', 'asc'))
-            ->when($request->search, fn($query) => $query->search($request->search))
-            ->when($request->category, fn($query) => $query->byCategory($request->category))
+            ->when($request->sortType === 'alphanumeric', fn ($query) => $query->orderBy('name', 'asc'))
+            ->when($request->search, fn ($query) => $query->search($request->search))
+            ->when($request->category, fn ($query) => $query->byCategory($request->category))
             ->where('currency', $currency)
             ->paginate(20);
 
@@ -130,10 +128,19 @@ class StoresController extends Controller
     /**
      *  Get store ratings
      */
-    public function getStoreRatings(Store $userStore)
+    public function getStoreRatings(Request $request, Store $userStore)
     {
-        $storeRatings = $userStore->ratings()->with('user:id,first_name,last_name,email', 'listing:id,name')
-            ->paginate(20);
+        $search = $request->product;
+
+        $storeRatings = $userStore->ratings()->whereHas(
+            'listing',
+            function ($query) use ($search) {
+                $query->where('name', "like", "%{$search}%");
+            }
+        )->with(
+            'user:id,first_name,last_name,email',
+            'listing:id,name'
+        )->paginate(20);
 
         return $this->success($storeRatings);
     }
@@ -217,7 +224,7 @@ class StoresController extends Controller
         $orders = $store->orders()
             ->where('type', ListingType::PRODUCT->value)
             ->whereNotIn('status', [OrderStatusEnum::PENDING->value, 'incart'])
-            ->when($status, fn($query) => $query->where('status', $status))
+            ->when($status, fn ($query) => $query->where('status', $status))
             ->orderBy('created_at', 'desc')
             ->with('orderDetails')
             ->paginate(20);
@@ -230,22 +237,12 @@ class StoresController extends Controller
      */
     public function updateStoreOrderStatus(UpdateOrderRequest $request, Store $store, Order $order)
     {
-        $order->update(['status' => $request->validated('status')]);
-
         abort_if($store->id !== $order->store_id, 403, 'Unauthorized');
         $order->status = $request->validated('status');
         $order->save();
-
-        if (
-            $order->wasChanged() &&
-            $order->status === OrderStatusEnum::SHIPPED->value
-        ) {
-            Notification::route('mail', $order->customer()->email)
-                ->notify(new OrderShippedNotification($order));
-        }
-        
         return $this->success();
     }
+
 
     /**
      * Show a single store order.
