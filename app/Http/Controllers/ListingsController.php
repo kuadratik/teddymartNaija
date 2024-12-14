@@ -31,6 +31,13 @@ class ListingsController extends Controller
         $userStoreListings = $userStore->listings()
             ->latest()
             ->byType($request->listingType)
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%')
+                        ->orWhere('description', 'like', '%' . $request->search . '%')
+                        ->orWhere('slug', 'like', '%' . $request->search . '%');
+                });
+            })
             ->when($request->filled('availability'), function ($query) use ($request) {
                 $query->availability($request->availability);
             })
@@ -81,7 +88,7 @@ class ListingsController extends Controller
      */
     public function show(Store $Store, Listing $listing)
     {
-        return $this->success($listing->load(['variants', 'attributes', 'ratings','store']));
+        return $this->success($listing->load(['variants', 'attributes', 'ratings', 'store']));
     }
 
     /**
