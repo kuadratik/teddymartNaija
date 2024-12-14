@@ -1436,6 +1436,20 @@ paths:
             type: string
             example: "amala-sky"
           required: true
+        - in: query
+          name: order_status
+          schema:
+            type: string
+            example: "new"
+          required: false
+          description: Filter by order status (new, shipped, delivered)
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "amala"
+          required: false
+          description: Search term to match in ['order_number', 'first_name', 'last_name', 'email', 'phone'].
 
       responses:
         default:
@@ -1485,7 +1499,7 @@ paths:
   /store/{store}/order/{order}/view:
     get:
       tags:
-       - Vendor Order
+        - Vendor Order
       summary: View single order Invoice
       description: View single order Invoice
       operationId: ViewOrderDetailsInvoice
