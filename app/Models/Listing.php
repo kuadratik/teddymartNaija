@@ -38,6 +38,7 @@ class Listing extends Model
         'discount_start_date',
         'discount_end_date',
         'is_draft',
+        'sku'
 
     ];
 
