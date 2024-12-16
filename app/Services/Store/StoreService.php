@@ -82,7 +82,7 @@ class StoreService
                 });
             })
             ->latest()
-            ->with(['orderDetails', 'customer'])
+            ->with(['orderDetails', 'customer', 'shippingMethod'])
             ->paginate(20);
 
         return $orders;
