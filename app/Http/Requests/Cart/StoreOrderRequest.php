@@ -33,11 +33,7 @@ class StoreOrderRequest extends FormRequest
             'shipping_address_id' => ['required', 'integer', 'exists:user_shipping_addresses,id'],
             'store_shipping_methods' => ['required', 'array', 'min:1'],
             'store_shipping_methods.*.store_id' => ['required', 'integer', 'exists:stores,id'],
-            'store_shipping_methods.*.shipping_method_id' => [
-                'required',
-                'integer',
-                'exists:store_shipping_methods,id',
-            ],
+            'store_shipping_methods.*.shipping_method_id' => ['required', 'integer','exists:store_shipping_methods,id'],
             'currency_code' => ['required', 'string', Rule::enum(CurrencyType::class)],
             'payment_gateway' => ['required', 'string', Rule::enum(PaymentGatewayEnum::class)],
             'return_url' => ['required', 'string', 'url'],

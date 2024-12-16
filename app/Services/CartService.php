@@ -279,12 +279,11 @@ class CartService
      */
     public function getShippingMethodsCart(Request $request, Cart $cart)
     {
-
-        $cartItemsByStore = $cart->products()->with('store')->get()->groupBy('store_id');
+        $currency = $request->header('currency', 'USD');
+        $cartItemsByStore = $cart->products()->where('currency',$currency)->with('store')->get()->groupBy('store_id');
 
         $storeShippingDetails = [];
 
-        $currency = $request->header('currency', 'USD');
 
         foreach ($cartItemsByStore as $storeId => $cartItems) {
 
@@ -301,6 +300,7 @@ class CartService
 
             $storeShippingDetails[] = [
                 'store_id' => $store->id,
+                'store_slug' => $store->slug,
                 'store_name' => $store->name,
                 'storeMethodTypes' => $storeMethodTypes,
                 'storeMethods' => $groupedMethods,
