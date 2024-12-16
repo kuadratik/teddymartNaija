@@ -62,14 +62,30 @@ class CheckExpiredAdverts extends Command
         $plansExpiringSoon = $this->getPlansExpiringIn24Hours();
 
         foreach ($plansExpiringSoon as $plan) {
+            $cacheKey = $this->getNotificationCacheKey($plan->id);
+
+            if (cache()->has($cacheKey)) {
+                continue;
+            }
+
             $user = $plan->advertListing->user;
             if ($user) {
                 $user->notify(new Ads24hrsExpiredNotification($plan));
+                cache()->put($cacheKey, true, now()->addDay());
             }
         }
 
         $this->info('Expiry notifications sent successfully.');
     }
+
+    /**
+     * Generate a unique cache key for the notification.
+     */
+    protected function getNotificationCacheKey(int $planId): string
+    {
+        return "ads_notification_sent_{$planId}";
+    }
+
 
     /**
      * Get expired plans.
