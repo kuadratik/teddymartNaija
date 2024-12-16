@@ -16,7 +16,7 @@ class CheckExpiredAdverts extends Command
      *
      * @var string
      */
-    protected $signature = 'advert:check-expired-advert';
+    protected $signature = 'advert:check-expired-adverts';
 
     /**
      * The console command description.
