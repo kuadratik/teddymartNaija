@@ -4,6 +4,7 @@ namespace App\Http\Requests\Listing;
 
 use App\Enums\ListingType;
 use App\Models\Store;
+use App\Rules\PriceQuantityRule;
 use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,12 +24,13 @@ class UpdateListingRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'is_draft' => ['required', 'boolean'],
             'name' => ['required_if:is_draft,false', 'nullable', 'string'],
             'type' => ['required_if:is_draft,false', 'nullable', 'string', Rule::enum(ListingType::class)],
             'price' => ['required_if:is_draft,false', 'nullable', 'numeric'],
             'description' => ['required_if:is_draft,false', 'nullable', 'string', 'max:500'],
+            'quantity' => ['required_if:is_draft,false', 'nullable', 'integer', new PriceQuantityRule($this->price)],
             'additional_information' => ['nullable', 'string', 'max:1000'],
             'images' => ['required_if:is_draft,false', 'nullable', 'array'],
             'category' => ['required_if:is_draft,false', 'nullable', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
@@ -46,7 +48,7 @@ class UpdateListingRequest extends FormRequest
             'attributes.material' => ['nullable', 'string'],
             'attributes.color' => ['nullable', 'string'],
             'attributes.size' => ['nullable', 'array'],
-            'attributes.size.*' => ['required', 'string'],
+            'attributes.size.*' => ['nullable', 'string'],
             'attributes.tags' => ['nullable', 'array'],
             'attributes.tags.*' => ['nullable', 'string'],
             'attributes.size_chart_html' => ['nullable', 'string'],
@@ -58,7 +60,7 @@ class UpdateListingRequest extends FormRequest
             'variants.*.price' => ['nullable', 'numeric', 'min:0'],
             'variants.*.discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'variants.*.size' => ['nullable', 'array'],
-            'variants.*.size.*' => ['required', 'string'],
+            'variants.*.size.*' => ['nullable', 'string'],
             'variants.*.color' => ['nullable', 'string'],
             'variants.*.measurement' => ['nullable', 'array'],
             'variants.*.measurement.*' => ['nullable', 'array'],
@@ -68,7 +70,14 @@ class UpdateListingRequest extends FormRequest
             'variants.*.discount_end_date' => ['nullable', 'required_with:variants.*.discount', 'date', 'after:variants.*.discount_start_date'],
             'variants.*.images.*' => ['nullable', 'string'],
         ];
+
+        foreach ($this->input('variants', []) as $index => $variant) {
+            $rules["variants.$index.quantity"][] = new PriceQuantityRule($variant['price'] ?? null);
+        }
+
+        return $rules;
     }
+
 
     /**
      * Move images to permanent storage.
