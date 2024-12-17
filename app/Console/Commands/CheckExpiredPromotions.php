@@ -60,14 +60,31 @@ class CheckExpiredPromotions extends Command
         $plansExpiringSoon = $this->getPlansExpiringIn24Hours();
 
         foreach ($plansExpiringSoon as $plan) {
+            $cacheKey = $this->getNotificationCacheKey($plan->id);
+
+            if (cache()->has($cacheKey)) {
+                continue;
+            }
+
             $user = $plan->store->user;
             if ($user) {
                 $user->notify(new Promotion24hrsExpiredNotification($plan));
+
+                cache()->put($cacheKey, true, now()->addDay());
             }
         }
 
         $this->info('Expiry notifications sent successfully.');
     }
+
+    /**
+     * Generate a unique cache key for the plan notification.
+     */
+    protected function getNotificationCacheKey(int $planId): string
+    {
+        return "promotion_notification_sent_{$planId}";
+    }
+
 
     /**
      * Get expired plans.
