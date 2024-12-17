@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ShippingMethodEnum;
 use App\Http\Requests\Store\SaveShippingMethodRequest;
+use App\Models\Cart;
 use App\Models\Store;
 use App\Models\StoreShippingMethod;
 use Illuminate\Http\Request;
@@ -35,6 +36,7 @@ class StoreShippingController extends Controller
 
         return $this->success($storeShippingMethods);
     }
+
 
     /**
      * Fetch vendor shipping methods for public users

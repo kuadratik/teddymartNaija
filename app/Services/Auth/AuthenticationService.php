@@ -4,10 +4,12 @@ namespace App\Services\Auth;
 
 use App\Models\Otp;
 use App\Models\User;
+use App\Notifications\Auth\PasswordResetSuccessfulNotification;
 use App\Notifications\OnboardingUserNotification;
 use App\Notifications\SendEmailVerificationOtp;
 use App\Notifications\ResetPasswordNotification;
 use App\Support\Utils;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -34,7 +36,7 @@ class AuthenticationService
     /**
      * Verify OTP and create the user after verification.
      */
-    public function verifyOtpAndCreateUser(array $data): array
+    public function verifyOtpAndCreateUser(array $data)
     {
         return DB::transaction(function () use ($data) {
             $otpRecord = Otp::where('email', $data['email'])->firstOrFail();
@@ -113,13 +115,14 @@ class AuthenticationService
     /**
      * reset password with otp
      */
-    public function resetPasswordWithOtp(array $data): bool
+    public function resetPasswordWithOtp(array $data)
     {
         return DB::transaction(function () use ($data) {
             $otpRecord = Otp::where('email', $data['email'])->firstOrFail();
             $user = User::where('email', $data['email'])->firstOrFail();
             $user->update(['password' => bcrypt($data['new_password'])]);
             $otpRecord->delete();
+            $user->notify(new PasswordResetSuccessfulNotification());
             return true;
         });
     }
@@ -127,9 +130,9 @@ class AuthenticationService
     /**
      * Check if user password is correct
      */
-    public function authConfirmation(string $password)
+    public function authConfirmation(?string $password)
     {
-        return Hash::check($password, auth()->user()->password) ? true :
+        return Hash::check($password, Auth::user()->password) ? true :
             Utils::validateResp(['password' => ['The provided credentials are invalid.']]);
     }
 
@@ -138,7 +141,7 @@ class AuthenticationService
      */
     public function logout(): bool
     {
-        auth()->user()->currentAccessToken()->delete();
+        request()->user()->currentAccessToken()->delete();
         return true;
     }
 }

@@ -36,7 +36,7 @@ class StorePromotePlanStore extends Model
     public function promotePlans(): BelongsToMany
     {
         return $this->belongsToMany(StorePromotePlan::class, 'store_promote_plan_store', 'store_id', 'store_promote_plan_id')
-        ->withPivot(['status', 'order_number', 'started_at', 'expires_at', 'created_at', 'updated_at']);
+            ->withPivot(['status', 'order_number', 'started_at', 'expires_at', 'created_at', 'updated_at']);
     }
 
     /**
@@ -53,5 +53,8 @@ class StorePromotePlanStore extends Model
     /**
      * store
      */
-    public function store(){}
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'store_id');
+    }
 }

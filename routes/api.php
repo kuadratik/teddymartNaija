@@ -169,6 +169,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('cart/{cart}/payment', [PaymentController::class, 'payOrder']);
         Route::post('payment/{gateway}/verify', [PaymentController::class, 'verifyPayment']);
         Route::get('{store}/shipping/methods', [StoreShippingController::class, 'vendorShippingMethods']);
+        Route::get('cart/{cart}/shipping/methods', [CartController::class, 'getShippingMethodsCart']);
 
 
         Route::get('order', [CartController::class, 'getUserOrders']);
@@ -191,6 +192,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('logout',  [FrontAuthController::class, 'logout']);
             Route::post('shipping-address/create', [CartController::class, 'storeShippingAddress']);
             Route::delete('shipping-address/{shippingAddress}/delete', [CartController::class, 'deleteShippingAddress']);
+            Route::put('shipping-address/{shippingAddress}/edit', [CartController::class, 'editShippingAddress']);
             Route::get('shipping-address', [UserController::class, 'savedShippingAddresses']);
             Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         });

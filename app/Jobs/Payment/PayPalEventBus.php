@@ -13,6 +13,10 @@ use App\Models\Payment;
 use App\Models\PaymentTransaction;
 use App\Models\StorePromotePlanStore;
 use App\Notifications\Listing\AdvertSuccessNotification;
+use App\Notifications\Listing\OrderPaymentFailedNotification;
+use App\Notifications\Listing\OrderSuccessfulNotification;
+use App\Notifications\Listing\PaymentFailedNotification;
+use App\Notifications\Listing\VendorNewOrderNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -86,13 +90,13 @@ class PayPalEventBus implements ShouldQueue
         $paymentType = $this->extractPaymentType($payload);
 
         if (empty($orderId)) {
-            Log::warning('Order ID is missing or malformed', ['payload' => $payload]);
+            Log::warning('Order ID is missing or malformed');
 
             return;
         }
 
         if (empty($paymentType)) {
-            Log::warning('payment type is missing or malformed', ['payload' => $payload]);
+            Log::warning('payment type is missing or malformed');
 
             return;
         }
@@ -182,7 +186,6 @@ class PayPalEventBus implements ShouldQueue
                     'status_message' => 'COMPLETED',
                     'response_payload' => json_encode($payload),
                 ]);
-
             });
         } else {
 
@@ -250,7 +253,6 @@ class PayPalEventBus implements ShouldQueue
                         'status_message' => 'COMPLETED',
                         'response_payload' => json_encode($enhancedPayload),
                     ]);
-
                 });
             } catch (\Exception $e) {
                 Log::error('Failed to process completed payment', [
@@ -267,19 +269,19 @@ class PayPalEventBus implements ShouldQueue
      * Process an approved payment by creating a new payment record, updating order statuses,
      * and recording a payment transaction. If the order ID is missing or malformed, appropriate logs are generated.
      */
-    private function processApprovedPayment(array $payload): void
+    private function processApprovedPayment(array $payload)
     {
         $orderId = $this->extractOrderId($payload);
         $paymentType = $this->extractPaymentType($payload);
 
         if (empty($orderId)) {
-            Log::warning('Failed payment: Order ID missing', ['payload' => $payload]);
+            Log::warning('Failed payment: Order ID missing');
 
             return;
         }
 
         if (empty($paymentType)) {
-            Log::warning('payment type is missing or malformed', ['payload' => $payload]);
+            Log::warning('payment type is missing or malformed');
 
             return;
         }
@@ -328,6 +330,9 @@ class PayPalEventBus implements ShouldQueue
                         'status_message' => 'APPROVED',
                         'response_payload' => json_encode($payload),
                     ]);
+
+                    $customer = $advert->advertListing->user;
+                    $customer->notify(new AdvertSuccessNotification($advert->advertListing));
                 }
             );
         } elseif ($paymentType == PaymentType::PROMOTION->value) {
@@ -417,6 +422,8 @@ class PayPalEventBus implements ShouldQueue
                     $order->payment_status = OrderStatusEnum::APPROVED_PAYMENT;
                     $order->status = OrderStatusEnum::NEW;
                     $order->save();
+                    $order->store->user->notify(new VendorNewOrderNotification($order));
+                    $order->customer->notify(new OrderSuccessfulNotification($order));
                 }
 
                 PaymentTransaction::create([
@@ -430,6 +437,9 @@ class PayPalEventBus implements ShouldQueue
                     'response_payload' => json_encode($enhancedPayload),
                 ]);
             });
+
+            return response()->json(['status' => 'success'], 200);
+
         }
     }
 
@@ -443,13 +453,13 @@ class PayPalEventBus implements ShouldQueue
         $paymentType = $this->extractPaymentType($payload);
 
         if (empty($orderId)) {
-            Log::warning('Failed payment: Order ID missing', ['payload' => $payload]);
+            Log::warning('Failed payment: Order ID missing');
 
             return;
         }
 
         if (empty($paymentType)) {
-            Log::warning('Payment type is missing or malformed', ['payload' => $payload]);
+            Log::warning('Payment type is missing or malformed');
 
             return;
         }
@@ -580,6 +590,8 @@ class PayPalEventBus implements ShouldQueue
                             'status_message' => $paymentDetails['status_message'],
                             'response_payload' => json_encode($enhancedPayload),
                         ]);
+
+                        $order->customer->notify(new OrderPaymentFailedNotification($order));
                     }
                 });
             }

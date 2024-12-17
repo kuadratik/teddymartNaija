@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Notifications\Listing;
+namespace App\Notifications\Auth;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\HtmlString;
 
-class AdsExpiredNotification extends Notification implements ShouldQueue
+class PasswordResetSuccessfulNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -35,18 +34,15 @@ class AdsExpiredNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $line1 = <<<EOT
-        Simply log into your account, navigate to Your Ads in the profile section, and renew your payment with just a few clicks to keep your ad live and impactful!
-        EOT;
-
         return (new MailMessage)
             ->priority(1)
-            ->subject('Oops! Your Ad Has Expired – Renew to Reach More Customers!!')
-            ->greeting("Dear {$notifiable->first_name}")
-            ->line('We wanted to let you know that your ad on myEki has now expired. We hope it brought great visibility to your offerings! Your ad will now be listed as a free ad, but you can easily renew it as a paid ad to continue reaching even more customers.')
-            ->line(new HtmlString($line1))
-            ->line('If you have any questions, feel free to contact us. We are here to support.');
+            ->subject('Password Reset Successfully!')
+            ->greeting("Dear {$notifiable->first_name},")
+            ->line('This is to confirm that your myEKI account password has been successfully reset.')
+            ->line('If you did not reset your password, please contact our customer support team immediately to ensure your account security.')
+            ->line('Thank you for using myEKI. We are always here to assist you with any questions or concerns.');
     }
+
 
     /**
      * Get the array representation of the notification.
@@ -56,7 +52,7 @@ class AdsExpiredNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'message' => 'Your password has been successfully reset.',
         ];
     }
 }

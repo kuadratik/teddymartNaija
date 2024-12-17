@@ -1,0 +1,26 @@
+version: '3'
+services:
+  teddymart-dev:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+      args:
+          PHP_FPM_PORT: 9030
+          REVERRB_PORT: 8030
+    container_name: teddymart-dev
+    restart: unless-stopped
+    ports:
+      - "9030:9030"
+      - "8030:8030"
+    volumes:
+      - .:/var/www
+    networks:
+      tednet:
+        ipv4_address: 172.25.0.4
+networks:
+  tednet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.25.0.0/24

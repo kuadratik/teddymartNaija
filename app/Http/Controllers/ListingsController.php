@@ -9,6 +9,7 @@ use App\Jobs\RecordCategoryInteractions;
 use App\Models\Listing;
 use App\Models\ListingRating;
 use App\Models\Store;
+use App\Services\Store\StoreService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -16,7 +17,7 @@ class ListingsController extends Controller
 {
     protected $user;
 
-    public function __construct(Request $request)
+    public function __construct(Request $request, protected StoreService $storeService)
     {
         $this->user = $request->user();
     }
@@ -27,20 +28,10 @@ class ListingsController extends Controller
     public function getUserStoreListings(Request $request, Store $userStore)
     {
         abort_if($userStore->user_id !== $this->user->id, 403, "Unauthorized");
-        $userStoreListings = $userStore->listings()
-            ->latest()
-            ->byType($request->listingType)
-            ->when($request->filled('availability'), function ($query) use ($request) {
-                $query->availability($request->availability);
-            })
-            ->when($request->filled('is_draft'), function ($query) use ($request) {
-                $query->where('is_draft', $request->is_draft);
-            })
-            ->with('ratings')
-            ->paginate();
-
+        $userStoreListings = $this->storeService->getUserStoreListings($request, $userStore);
         return $this->success($userStoreListings);
     }
+
 
     /**
      * Create a new listing for the specified user store.
@@ -79,7 +70,7 @@ class ListingsController extends Controller
      */
     public function show(Store $Store, Listing $listing)
     {
-        return $this->success($listing->load(['variants', 'attributes']));
+        return $this->success($listing->load(['variants', 'attributes', 'ratings', 'store.shippingMethods']));
     }
 
     /**
@@ -160,11 +151,13 @@ class ListingsController extends Controller
         $currency = $request->header('currency', 'USD');
 
         $listings = Listing::query()
+            ->byIsDraft(false)
             ->byListingType($request->listingType)
             ->when($request->search, fn($query) => $query->search($request->search))
             ->when($request->category, fn($query) => $query->byCategory($request->category))
             ->when($request->availability, fn($query) => $query->availability($request->availability))
             ->byCurrency($currency)
+
             ->get();
 
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));

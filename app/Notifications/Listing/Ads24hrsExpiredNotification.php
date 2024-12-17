@@ -39,8 +39,9 @@ class Ads24hrsExpiredNotification extends Notification implements ShouldQueue
         $expiryDate = $this->plan->expires_at->format('F j, Y, g:i A');
 
         return (new MailMessage)
+            ->priority(1)
             ->subject('Oops! Your Ad is Expiring in 24 hours - Renew to Reach More Customers!!')
-            ->greeting("Dear {$notifiable->name},")
+            ->greeting("Dear {$notifiable->first_name},")
             ->line("We wanted to let you know that your ad promotion on myEKI for '{$advertTitle}'  will expire on {$expiryDate}. We hope it brought great visibility to your offerings!")
             ->line('You can renew this promo or create a new one to continue attracting more customers.')
             ->line('Simply log into your account, navigate to **Your Ads** in the profile section, and renew with just a few clicks to keep your ad live and impactful!')
