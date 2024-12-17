@@ -317,7 +317,7 @@ class CartService
 
             $storeShippingDetails[] = [
                 'store_id' => $store->id,
-                'store_slug' => $store->slug,
+                'store_d' => $store->slug,
                 'store_name' => $store->name,
                 'storeMethodTypes' => $storeMethodTypes,
                 'storeMethods' => $groupedMethods,
