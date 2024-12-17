@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class Listing extends Model
 {
@@ -69,7 +70,7 @@ class Listing extends Model
     protected static function booted()
     {
         static::saving(function (Listing $model) {
-            $model->slug = str($model->name)->slug();
+            $model->slug = str("{$model->name}-" . Str::random(6))->slug();
             $companyRate = env('COMPANY_RATE', 0.13);
             $basePrice = $model->discount > 0
                 ? $model->price * (1 - ($model->discount / 100))
