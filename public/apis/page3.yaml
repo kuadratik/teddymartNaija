@@ -552,6 +552,12 @@ paths:
             example: "abc123-session-id"
           required: true
           description: "Session UID for the authenticated user"
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "NGN"
+          required: true
         - in: path
           name: cart
           schema:
