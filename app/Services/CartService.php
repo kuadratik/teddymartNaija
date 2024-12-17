@@ -135,14 +135,30 @@ class CartService
      */
     public function getOrderPaymentData(StoreOrderRequest $request, Cart $cart): array
     {
-        $cart = Cart::findOrFail($cart->id);
-        $cartItems = $cart->products()->with('store')->get()->groupBy('store_id');
+        $currency = $request->header('currency', 'USD');
+
+        $cartItems = $cart->products()
+            ->where('currency', $currency)
+            ->with('store')
+            ->get()
+            ->groupBy('store_id');
+
+        if ($cartItems->isEmpty()) {
+            abort(422, "No items in the cart for currency {$currency}.");
+        }
+
         $cumulativeTotalAmount = 0;
         $orderNumber = Str::uuid()->toString();
 
         $shippingMethods = collect($request->validated('store_shipping_methods'))->keyBy('store_id');
 
         foreach ($cartItems as $storeId => $items) {
+            $store = $items->first()?->store;
+
+            if (!$store || $store->currency !== $currency) {
+                abort(422, "Invalid store or mismatched currency for store ID {$storeId}.");
+            }
+
             $subtotal = $items->sum(function ($item) {
                 return $item->pivot->quantity * $item->price;
             });
@@ -158,11 +174,10 @@ class CartService
                 ->first();
 
             if (!$shippingMethod) {
-                abort(422, "Invalid shipping method ID {$shippingMethodData['shipping_method_id']} for store ID {$storeId}.");
+                abort(422, "Invalid or unsupported shipping method for store ID {$storeId}.");
             }
 
             $shippingCost = $shippingMethod->amount;
-
             $totalAmount = $subtotal + $shippingCost;
 
             $cumulativeTotalAmount += $totalAmount;
@@ -178,7 +193,7 @@ class CartService
                 'subtotal' => $subtotal,
                 'shipping_cost' => $shippingCost,
                 'uid' => Str::uuid()->toString(),
-                'currency' => $items->first()?->store?->currency,
+                'currency' => $currency,
                 'total_amount' => $totalAmount,
                 'type' => ListingType::PRODUCT->value,
                 'status' => OrderStatusEnum::PENDING->value,
@@ -186,7 +201,6 @@ class CartService
                 'store_shipping_method_id' => $shippingMethod->id,
                 'shipping_address_id' => $request->validated('shipping_address_id')
             ]);
-
 
             foreach ($items as $item) {
                 OrderDetail::create([
@@ -200,7 +214,7 @@ class CartService
         }
 
         return [
-            'currency_code' => $items->first()?->store?->currency ?? $request->validated('currency_code'),
+            'currency_code' => $currency,
             'total_amount' => $cumulativeTotalAmount,
             'order_number' => $orderNumber,
             'shipping_address' => $request->validated('shipping_address_id'),
@@ -209,6 +223,8 @@ class CartService
             'email' => $request->validated('email'),
         ];
     }
+
+
 
 
     /**
@@ -280,7 +296,7 @@ class CartService
     public function getShippingMethodsCart(Request $request, Cart $cart)
     {
         $currency = $request->header('currency', 'USD');
-        $cartItemsByStore = $cart->products()->where('currency',$currency)->with('store')->get()->groupBy('store_id');
+        $cartItemsByStore = $cart->products()->where('currency', $currency)->with('store')->get()->groupBy('store_id');
 
         $storeShippingDetails = [];
 
@@ -300,7 +316,7 @@ class CartService
 
             $storeShippingDetails[] = [
                 'store_id' => $store->id,
-                'store_slug' => $store->slug,
+                'store_d' => $store->slug,
                 'store_name' => $store->name,
                 'storeMethodTypes' => $storeMethodTypes,
                 'storeMethods' => $groupedMethods,
