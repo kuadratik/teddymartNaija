@@ -923,6 +923,11 @@ paths:
             type: string
             example: amala-sky
           required: true
+        - in: query
+          name: product
+          schema:
+            type: string
+            example: yam
 
       responses:
         default:
@@ -983,15 +988,16 @@ paths:
                 schema:
                   type: object
 
-  /store/payout/{userStore}/store/{payout}/payout:
+
+  /store/payout/{userStore}/store/{payout}/process-payout:
     patch:
       security:
         - bearerAuth: []
       tags:
         - User Store Payouts
-      summary: Get User Store Payouts
-      description: "Get User Store Payouts"
-      operationId: GetUserStorePayouts
+      summary: Process User Store Payout
+      description: "Process User Store Payout"
+      operationId: ProcesstUserStorePayout
       parameters:
         - in: path
           name: userStore
@@ -1034,6 +1040,10 @@ paths:
                   type: integer
                   example: 1
                   required: true
+                detail_type:
+                  type: string
+                  example: "local"
+                  required: true
                 bank_name:
                   type: string
                   example: "Opay"
@@ -1046,7 +1056,35 @@ paths:
                   type: string
                   example: "1234567890"
                   required: true
-
+                bank_code:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                sort_code:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                iban:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                institution_number:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                transit_number:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                interac_information:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                zelle_information:
+                  type: string
+                  example: "1234567890"
+                  required: true
+              
       responses:
         default:
           description: "success"

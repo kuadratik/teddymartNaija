@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Store;
 
+use App\Enums\PayoutDetailType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 
 class SavePayoutDetailRequest extends FormRequest
 {
@@ -22,11 +24,44 @@ class SavePayoutDetailRequest extends FormRequest
      */
     public function rules(): array
     {
+
+        $requiredForInternation = 'required_if:detail_type,' . PayoutDetailType::INTERNATION->value;
+
         return [
-            'bank_name' => ['required', 'string'],
+            'store_id' => ['required',  Rule::exists('stores', 'id')->where('user_id', $this->user()->id)],
+            'detail_type' => ['required', new Enum(PayoutDetailType::class)],
             'account_name' => ['required', 'string'],
             'account_number' => ['required'],
-            'store_id' => ['required',  Rule::exists('stores', 'id')->where('user_id', $this->user()->id)]
+            'bank_name' => ['required', 'string'],
+            'bank_code' => [
+                $requiredForInternation, fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
+            ],
+            'iban' => [
+                $requiredForInternation, fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
+            ],
+            'institution_number' => [
+                $requiredForInternation, fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
+            ],
+            'transit_number' => [
+                $requiredForInternation, fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
+            ],
+            'sort_code' => [
+                'nullable', fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
+            ],
+            'interac_information' => [
+                'nullable', fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
+            ],
+            'zelle_information' => [
+                'nullable', fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
+            ]
+
         ];
+    }
+
+    public function checkInternation($attribute, $val, $fail)
+    {
+        if (!is_null($val) && $this->detail_type !== PayoutDetailType::INTERNATION->value) {
+            return $fail(':attribute is only for internation payout configuration');
+        }
     }
 }
