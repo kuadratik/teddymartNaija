@@ -44,6 +44,7 @@ class CartService
                     'name' => $product->name,
                     'price' => $product->price,
                     'quantity' => $product->pivot->quantity,
+                    'product_quantity' => $product->quantity,
                     'currency_code' => $product->currency,
                     'total_price' => $product->pivot->quantity * $product->price,
                     'images' => $product->images,
