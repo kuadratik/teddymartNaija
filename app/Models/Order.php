@@ -54,7 +54,7 @@ class Order extends Model
      */
     public function shippingMethod()
     {
-        return $this->belongsTo(StoreShippingMethod::class, 'shipping_method_id', 'id');
+        return $this->belongsTo(StoreShippingMethod::class, 'store_shipping_method_id', 'id');
     }
     /**
      * Get the store that owns  the order.
