@@ -46,7 +46,7 @@ class StorePayoutController extends Controller
      */
     public function processPayout(Request $request, Store $userStore, Order $payout)
     {
-        $payout->update(['status', OrderStatusEnum::PROCESSING->value]);
+        $payout->update(['status' => OrderStatusEnum::PROCESSING->value]);
         return $this->success();
     }
 
