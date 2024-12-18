@@ -140,7 +140,7 @@ class CartController extends Controller
     public function getOrderHistory(Request $request)
     {
         $userOrders = Order::where('user_id', $request->user()->id)->with('store:id,name', 'orderDetails')
-            ->latest()->get();
+            ->latest()->paginate(20);
         $userOrderHistory = $userOrders->groupBy('order_number');
 
         return $this->success($userOrderHistory);
