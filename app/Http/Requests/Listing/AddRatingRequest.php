@@ -27,18 +27,15 @@ class AddRatingRequest extends FormRequest
     {
         return [
             'listing_id' => [
-                'required', Rule::exists('listings', 'id')->where('type', ListingType::PRODUCT->value),
+                'required', Rule::exists('listings', 'id'),
                 function ($attr, $val, $fail) {
 
                     if (ListingRating::where('listing_id', $val)->where('user_id', $this->user()->id)->exists()) {
-                        $fail('You are not allowed rate a product twice!');
+                        $fail('You are not allowed rate a product or service twice!');
                     }
                 }
             ],
-            'store_id' => ['required', Rule::exists('listings', 'store_id')->where(
-                'type',
-                ListingType::PRODUCT->value,
-            )->where('id', $this->listing_id)],
+            'store_id' => ['required', Rule::exists('listings', 'store_id')->where('id', $this->listing_id)],
             'rating' => ['required', 'numeric', 'integer', 'max:5']
         ];
     }
