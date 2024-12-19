@@ -10,6 +10,7 @@ use App\Models\Cart;
 use App\Models\Listing;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\ServiceInteraction;
 use App\Models\Store;
 use App\Models\UserShippingAddress;
 use App\Services\CartService;
@@ -143,6 +144,17 @@ class CartController extends Controller
         $userOrderHistory = $userOrders->groupBy('order_number');
 
         return $this->success($userOrderHistory);
+    }
+
+    /**
+     * Get user's service interaction
+     */
+    public function getServiceHistory(Request $request)
+    {
+        $serviceIds = ServiceInteraction::where('user_id', $request->user()->id)->pluck('listing_id');
+        $userServices = Listing::whereIn('id', $serviceIds)->get();
+
+        return  $this->success($userServices);
     }
 
     /**
