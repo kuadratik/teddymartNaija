@@ -670,6 +670,7 @@ paths:
             application/json:
               schema:
                 type: object
+
   /front/order-history:
     get:
       tags:
@@ -677,6 +678,24 @@ paths:
       summary: Get Order History
       description: Get Order History
       operationId: GetOrderHistory
+      security:
+        - bearerAuth: []
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+  
+  /front/service-history:
+    get:
+      tags:
+        - Customer Order
+      summary: Get Service History
+      description: Get Service History
+      operationId: GetServiceHistory
       security:
         - bearerAuth: []
 
