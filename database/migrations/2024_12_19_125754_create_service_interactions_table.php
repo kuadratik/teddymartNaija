@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('listing_ratings', function (Blueprint $table) {
-            $table->dropUnique('listing_id');
-            $table->unique(['listing_id' , 'user_id'] , 'listing_ratings_2cols_unique');
+        Schema::create('service_interactions', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('listing_id');
+            $table->foreignId('user_id');
+            $table->unique(['listing_id', 'user_id']);
+            $table->timestamps();
         });
     }
 
@@ -22,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('listing_ratings', function (Blueprint $table) {
-            $table->dropIndex('listing_ratings_2cols_unique');
-        });
+        Schema::dropIfExists('service_interactions');
     }
 };

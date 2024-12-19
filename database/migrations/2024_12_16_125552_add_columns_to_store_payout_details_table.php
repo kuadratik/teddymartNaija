@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::table('store_payout_details', function (Blueprint $table) {
             $table->string('detail_type')->after('store_id');
-            $table->after('account_number' , function($table){
-               $table->string('bank_code')->nullable(); 
-               $table->string('sort_code')->nullable(); 
-               $table->string('iban')->nullable();
-               $table->string('institution_number')->nullable();
-               $table->string('transit_number')->nullable();
-               $table->text('interac_information')->nullable();
-               $table->text('zelle_information')->nullable();
+            $table->after('account_number', function ($table) {
+                $table->string('bank_code')->nullable();
+                $table->string('sort_code')->nullable();
+                $table->string('iban')->nullable();
+                $table->string('institution_number')->nullable();
+                $table->string('transit_number')->nullable();
+                $table->text('interac_information')->nullable();
+                $table->text('zelle_information')->nullable();
             });
         });
     }
@@ -31,7 +31,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('store_payout_details', function (Blueprint $table) {
-            //
+            $table->dropColumn([
+                'detail_type', 'account_number', 'bank_code', 'sort_code', 'iban', 'institution_number', 'transit_number',
+                'interac_information', 'zelle_information'
+            ]);
         });
     }
 };
