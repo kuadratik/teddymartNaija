@@ -9,6 +9,7 @@ use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Cart;
 use App\Models\Listing;
+use App\Models\ListingVariant;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\StoreShippingMethod;
@@ -30,7 +31,7 @@ class CartService
         }]);
 
         $totalCartPrice = $cart->products->sum(function ($product) {
-            return $product->pivot->quantity * $product->price;
+            return $product->pivot->quantity * $product->display_price ?? $product->price;
         });
 
         $cartDetails = [
@@ -43,6 +44,7 @@ class CartService
                     'listing_id' => $product->id,
                     'name' => $product->name,
                     'price' => $product->price,
+                    'display_price' => $product->display_price,
                     'quantity' => $product->pivot->quantity,
                     'product_quantity' => $product->quantity,
                     'currency_code' => $product->currency,
@@ -75,6 +77,14 @@ class CartService
         ]);
 
         return $cart->fresh(['products']);
+    }
+
+    /**
+     * Add a product varient to cart
+     */
+    public function addVarientToCart(Request $request, ListingVariant $varient)
+    {
+        $cart = $this->getCart($request);
     }
 
     /**
@@ -161,7 +171,7 @@ class CartService
             }
 
             $subtotal = $items->sum(function ($item) {
-                return $item->pivot->quantity * $item->price;
+                return $item->pivot->quantity * $item->display_price ?? $item->price;
             });
 
             $shippingMethodData = $shippingMethods->get($storeId);
@@ -208,7 +218,7 @@ class CartService
                     'order_id' => $order->id,
                     'listing_id' => $item->id,
                     'listing_name' => $item->name,
-                    'listing_price' => $item->price,
+                    'listing_price' => $item->display_price ?? $item->price,
                     'quantity' => $item->pivot->quantity
                 ]);
             }
