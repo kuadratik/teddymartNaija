@@ -59,8 +59,6 @@ class FetchStoresAlphaNumericallyAction
 
         $stores = Cache::remember($cacheKey, 180, fn() => $this->fetch($currency->value, $storeType));
 
-        logger($stores);
-
         if (count($stores) <= 0) {
             Cache::forget($cacheKey);
         }
