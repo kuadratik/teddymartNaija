@@ -188,7 +188,7 @@ class CartService
                 abort(422, "Invalid or unsupported shipping method for store ID {$storeId}.");
             }
 
-            $shippingCost = $shippingMethod->amount;
+            $shippingCost = $shippingMethod->amount ?? 0;
             $totalAmount = $subtotal + $shippingCost;
 
             $cumulativeTotalAmount += $totalAmount;
