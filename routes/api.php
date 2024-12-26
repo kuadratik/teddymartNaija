@@ -126,6 +126,7 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::patch('{userStore}/store/{payout}/process-payout', [StorePayoutController::class, 'processPayout']);
                 Route::get('{userStore}/payout-details', [StorePayoutController::class, 'getPayoutDetails']);
                 Route::post('save-detail', [StorePayoutController::class, 'savePayoutDetails']);
+                Route::patch('{userStore}/store/{storePayoutDetail}/set-default', [StorePayoutController::class, 'setDefaultPayoutDetail']);
                 Route::get('{storePayoutDetail}/payout-detail', [StorePayoutController::class, 'showPayoutDetail']);
                 Route::patch('update-detail/{storePayoutDetail}', [StorePayoutController::class, 'updatePayoutDetail']);
                 Route::delete('delete-detail/{storePayoutDetail}', [StorePayoutController::class, 'deletePayoutDetail']);
@@ -168,11 +169,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('cart/{cart}/payment', [PaymentController::class, 'payOrder']);
         Route::post('payment/{gateway}/verify', [PaymentController::class, 'verifyPayment']);
         Route::get('{store}/shipping/methods', [StoreShippingController::class, 'vendorShippingMethods']);
+        Route::get('cart/{cart}/shipping/methods', [CartController::class, 'getShippingMethodsCart']);
 
 
         Route::get('order', [CartController::class, 'getUserOrders']);
         Route::get('{order}/order', [CartController::class, 'showUserOrder']);
         Route::get('order-history', [CartController::class, 'getOrderHistory']);
+         Route::get('service-history', [CartController::class, 'getServiceHistory']);
         Route::patch('{order}/recieve-order', [CartController::class, 'recieveOrder']);
 
         Route::prefix('wishlist')->group(function () {
@@ -190,6 +193,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('logout',  [FrontAuthController::class, 'logout']);
             Route::post('shipping-address/create', [CartController::class, 'storeShippingAddress']);
             Route::delete('shipping-address/{shippingAddress}/delete', [CartController::class, 'deleteShippingAddress']);
+            Route::put('shipping-address/{shippingAddress}/edit', [CartController::class, 'editShippingAddress']);
             Route::get('shipping-address', [UserController::class, 'savedShippingAddresses']);
             Route::post('clip/{clip}/order', [UserController::class, 'storeClipOrder']);
         });
@@ -208,4 +212,5 @@ Route::post('webhook/{gateway}', [WebhookController::class, 'handleWebhook'])
 Route::get('payment/success', [PaymentController::class, 'paypalSuccess'])->name('payment.success');
 Route::get('payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
-Route::prefix('console')->group(function () {});
+Route::prefix('console')->group(function () {
+});

@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Actions\FetchStoresAlphaNumericallyAction;
+use App\Enums\CurrencyCodeEnum;
 use App\Enums\CurrencyType;
+use App\Enums\StoreType;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 
@@ -26,19 +28,12 @@ class CacheStores extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(FetchStoresAlphaNumericallyAction $storeAction)
     {
-        $currencyTypes = CurrencyType::cases();
-
-        foreach ($currencyTypes as $currencyType) {
-
-            $cacheKey = "currency_data:{$currencyType->value}";
-
-            $currencyStores = (new FetchStoresAlphaNumericallyAction())->fetch($currencyType->value);
-
-            if (!$currencyStores->isEmpty()) {
-                Cache::put($cacheKey, $currencyStores);
-            }
-        }
+        collect(CurrencyCodeEnum::cases())->each(
+            fn(CurrencyCodeEnum $currency) => collect(StoreType::cases())->each(
+                fn($type) => $storeAction->commandKeyedStoreList($currency, $type)
+            )
+        );
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Listing;
 
 use App\Enums\ListingType;
 use App\Models\Store;
+use App\Rules\PriceQuantityRule;
 use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,14 +26,14 @@ class CreateListingRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'is_draft' => ['required', 'boolean'],
             'name' => ['required_if:is_daft,false', 'nullable', 'string'],
             'type' => ['required_if:is_daft,false', 'nullable', 'string', Rule::enum(ListingType::class)],
             'price' => ['required_if:is_daft,false,type,product', 'nullable', 'numeric'],
             'description' => ['required_if:is_daft,false', 'nullable', 'string', 'max:500'],
             'additional_information' => ['nullable', 'string', 'max:1000'],
-            'quantity' => ['required_if:is_daft,false', 'nullable', 'integer', 'min:0'],
+            'quantity' => ['required_if:is_daft,false', 'nullable', 'integer', new PriceQuantityRule($this->price)],
             'images' => ['required_if:is_daft,false', 'nullable', 'array'],
             'category' => ['required_if:is_daft,false', 'nullable', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
             'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
@@ -70,7 +71,14 @@ class CreateListingRequest extends FormRequest
             'variants.*.discount_end_date' => ['nullable', 'required_with:variants.*.discount', 'date', 'after:variants.*.discount_start_date'],
             'variants.*.images.*' => ['nullable', 'string'],
         ];
+
+        foreach ($this->input('variants', []) as $index => $variant) {
+            $rules["variants.$index.quantity"][] = new PriceQuantityRule($variant['price'] ?? null);
+        }
+
+        return $rules;
     }
+
 
     /**
      * Move images to permanent storage.
@@ -90,7 +98,7 @@ class CreateListingRequest extends FormRequest
     public function listingAttributes(Store $userStore)
     {
         return collect($this->safe()->except(['images', 'category', 'attributes', 'variants', 'name']))->merge([
-            'name' => $this->name ?? 'draft_'.now()->format('Y-m-d_H-i-s'),
+            'name' => $this->name ?? 'draft_' . now()->format('Y-m-d_H-i-s'),
             'category_id' => $this->category,
             'store_id' => $userStore->id,
             'user_id' => $this->user()->id,

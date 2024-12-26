@@ -9,7 +9,7 @@ fi
 
 # Validate the application name
 case $1 in
-teddymart-prod | teddymart-staging) ;;
+teddymart-prod | teddymart-staging | teddymart-dev) ;;
 *)
    echo "Wrong container name"
    exit 1

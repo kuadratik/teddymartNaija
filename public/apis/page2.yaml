@@ -63,7 +63,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object                
+                type: object
 
   /store/user-store/{userStore}/metrics:
     get:
@@ -243,7 +243,6 @@ paths:
             type: string
             example: amala-sky
           required: true
-
         - in: query
           name: listingType
           schema:
@@ -261,6 +260,31 @@ paths:
           schema:
             type: boolean
             example: false
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "amala"
+          required: false
+        - in: query
+          name: sort_date
+          schema:
+            type: string
+            enum:
+              - oldest
+              - newest
+            example: "newest"
+          required: false
+        - in: query
+          name: sort_price
+          schema:
+            type: string
+            enum:
+              - highest
+              - lowest
+            example: "lowest"
+          required: false
+
       responses:
         default:
           description: "success"
@@ -899,6 +923,11 @@ paths:
             type: string
             example: amala-sky
           required: true
+        - in: query
+          name: product
+          schema:
+            type: string
+            example: yam
 
       responses:
         default:
@@ -907,7 +936,7 @@ paths:
               application/json:
                 schema:
                   type: object
-  
+
 
   /store/payout/{userStore}/requestable-payouts:
     get:
@@ -933,7 +962,7 @@ paths:
               application/json:
                 schema:
                   type: object
-  
+
   /store/payout/{userStore}/processed-payouts:
     get:
       security:
@@ -959,15 +988,16 @@ paths:
                 schema:
                   type: object
 
-  /store/payout/{userStore}/store/{payout}/payout:
+
+  /store/payout/{userStore}/store/{payout}/process-payout:
     patch:
       security:
         - bearerAuth: []
       tags:
         - User Store Payouts
-      summary: Get User Store Payouts
-      description: "Get User Store Payouts"
-      operationId: GetUserStorePayouts
+      summary: Process User Store Payout
+      description: "Process User Store Payout"
+      operationId: ProcesstUserStorePayout
       parameters:
         - in: path
           name: userStore
@@ -989,7 +1019,7 @@ paths:
               application/json:
                 schema:
                   type: object
-  
+
   /store/payout/save-detail:
     post:
       security:
@@ -1010,6 +1040,10 @@ paths:
                   type: integer
                   example: 1
                   required: true
+                detail_type:
+                  type: string
+                  example: "local"
+                  required: true
                 bank_name:
                   type: string
                   example: "Opay"
@@ -1022,6 +1056,34 @@ paths:
                   type: string
                   example: "1234567890"
                   required: true
+                bank_code:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                sort_code:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                iban:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                institution_number:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                transit_number:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                interac_information:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                zelle_information:
+                  type: string
+                  example: "1234567890"
+                  required: true
               
       responses:
         default:
@@ -1030,7 +1092,32 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
+  /store/payout/{userStore}/payout-details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Get User Store Payout Details
+      description: "Get User Store Payout Details"
+      operationId: GetUserStorePayoutDetails
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+
+      responses:
+        default:
+            description: 'success'
+            content:
+              application/json:
+                schema:
+                  type: object
+
   /store/payout/{storePayoutDetail}/payout-detail:
     get:
       security:
@@ -1095,7 +1182,7 @@ paths:
                   type: string
                   example: "1234567890"
                   required: true
-              
+
       responses:
         default:
           description: "success"
@@ -1103,7 +1190,7 @@ paths:
             application/json:
               schema:
                 type: object
-              
+
   /store/payout/{userStore}/store/{storePayoutDetail}/set-default:
     patch:
       security:
@@ -1134,7 +1221,7 @@ paths:
               application/json:
                 schema:
                   type: object
-  
+
   /store/payout/delete-detail/{storePayoutDetail}:
     delete:
       security:
@@ -1151,7 +1238,7 @@ paths:
             type: string
             example: 1
           required: true
-              
+
       responses:
         default:
           description: "success"

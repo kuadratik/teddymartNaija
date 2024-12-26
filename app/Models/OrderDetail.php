@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ListingType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,8 +15,13 @@ class OrderDetail extends Model
         'listing_id',
         'listing_name',
         'listing_price',
+        'quantity',
     ];
 
+    /**
+     * eager load relationships
+     */
+    protected $with = ['userRating'];
 
 
     /**
@@ -37,5 +43,16 @@ class OrderDetail extends Model
     public function listing(): BelongsTo
     {
         return $this->belongsTo(Listing::class);
+    }
+    
+     /**
+     * Get user rating for listing detail
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function userRating()
+    {
+        return $this->hasMany(ListingRating::class, 'listing_id', 'listing_id')
+            ->where('user_id', request()->user()->id);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Enums\CurrencyCodeEnum;
 use App\Enums\StoreType;
 use App\Models\Store;
 use Illuminate\Support\Facades\Cache;
@@ -46,5 +47,20 @@ class FetchStoresAlphaNumericallyAction
         }
 
         return $stores;
+    }
+    
+    /**
+     * Return the alpha-numerically cached keyed stores record
+     */
+    public function commandKeyedStoreList(CurrencyCodeEnum $currency, StoreType $storeType)
+    {
+        $cacheKey = "keyed-stores-{$storeType->value}-{$currency->value}";
+        Cache::forget($cacheKey);
+
+        $stores = Cache::remember($cacheKey, 180, fn() => $this->fetch($currency->value, $storeType));
+
+        if (count($stores) <= 0) {
+            Cache::forget($cacheKey);
+        }
     }
 }

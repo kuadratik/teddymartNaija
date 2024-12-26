@@ -3,8 +3,12 @@
 namespace App\Services\PaymentGateways;
 
 use App\Contracts\PaymentGatewayInterface;
+use App\Enums\OrderStatusEnum;
 use App\Enums\PaymentGatewayEnum;
 use App\Enums\PaymentType;
+use App\Models\AdvertListingPromotePlan;
+use App\Models\Order;
+use App\Models\StorePromotePlanStore;
 use App\Services\CartService;
 use Illuminate\Support\Facades\Log;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
@@ -60,27 +64,145 @@ class PaypalPaymentService implements PaymentGatewayInterface
         }
     }
 
-    /**
-     * Verifies a payment order by capturing the payment using the provided token.
-     */
     public function verify(array $data): array
     {
-        $order = $this->provider->capturePaymentOrder($data['token']);
+        try {
+            $order = $this->provider->capturePaymentOrder($data['token']);
 
-        $response = [
-            'reference_id' => $order['id'],
-            'amount' => $order['purchase_units']['amount']['value'],
-            'currency' => $order['purchase_units']['amount']['currency_code'],
-            'status' => $order['status'],
-            'gateway' => PaymentGatewayEnum::PAYPAL->value,
-            // 'response' => $order
-        ];
+            if (!isset($order['status'])) {
+                return $this->handleApiFailure($order);
+            }
 
-        if (isset($response['status'])) {
+            if (isset($order['success']) && $order['success'] === false) {
+                return $this->handleAlreadyCapturedOrder($order);
+            }
 
-            return [$response];
+            if (!$this->isOrderCompleted($order)) {
+                return $this->handleIncompleteOrder($order);
+            }
+
+            return $this->processTransactionByType($order);
+        } catch (\Exception $e) {
+            return $this->handleVerificationException($e);
         }
     }
+
+    private function isOrderCompleted(array $order): bool
+    {
+        return ($order['status'] === 'COMPLETED') ||
+            ($order['status'] === 'APPROVED') ||
+            (isset($order['status']['COMPLETED']) && $order['status']['COMPLETED']) ||
+            (isset($order['status']['APPROVED']) && $order['status']['APPROVED']);
+    }
+
+    private function processTransactionByType(array $order): array
+    {
+        $transactionData = json_decode($order['purchase_units'][0]['payments']['captures'][0]['custom_id'], true);
+        $type = $transactionData['type'];
+
+        return match ($type) {
+            PaymentType::CHECKOUT->value => $this->handleCheckout($transactionData),
+            PaymentType::ADVERT->value => $this->handleAdvert($transactionData, $order),
+            PaymentType::PROMOTION->value => $this->handlePromotion($transactionData, $order),
+            default => $this->handleUnknownType($transactionData, $order)
+        };
+    }
+
+    private function handleCheckout(array $transactionData): array
+    {
+
+        $orders = Order::where('order_number', $transactionData['order_number'])->get();
+        $mergedOrderDetails = [];
+        if ($orders->isNotEmpty()) {
+            foreach ($orders as $order) {
+
+                if ($order->payment_status == OrderStatusEnum::PENDING_PAYMENT->value) {
+                    $order->update(['payment_status' => OrderStatusEnum::PENDING]);
+                }
+
+                $orderDetails = $order->load(['orderDetails', 'store']);
+
+                $mergedOrderDetails[] = $orderDetails->toArray();
+            }
+        }
+        return $mergedOrderDetails;
+    }
+
+    private function handleAdvert(array $transactionData, array $order): array
+    {
+        $advert = AdvertListingPromotePlan::where([
+            'order_number' => $transactionData['order_number'],
+            'status' => OrderStatusEnum::PENDING_PAYMENT
+        ])->first();
+
+        if ($advert) {
+            $advert->update([
+                'status' => OrderStatusEnum::PENDING,
+            ]);
+        }
+
+        return [$advert];
+    }
+
+    private function handlePromotion(array $transactionData, array $order): array
+    {
+        $promotion = StorePromotePlanStore::where([
+            'order_number' => $transactionData['order_number'],
+            'status' => OrderStatusEnum::PENDING_PAYMENT
+        ])->first();
+
+        if ($promotion) {
+            $promotion->update([
+                'status' => OrderStatusEnum::PENDING,
+            ]);
+        }
+
+        return [$promotion];
+    }
+
+    private function handleUnknownType(array $transactionData, array $order): array
+    {
+        return [
+            'status' => 'unknown_type',
+            'message' => 'Unhandled payment type',
+            'data' => $transactionData
+        ];
+    }
+
+    private function handleApiFailure(array $order): array
+    {
+        return [
+            'status' => 'error',
+            'message' => 'Payment verification failed',
+            'details' => $order['error']['details'] ?? 'Unknown error'
+        ];
+    }
+
+    private function handleAlreadyCapturedOrder(array $order): array
+    {
+        return [
+            'status' => 'already_captured',
+            'message' => $order['message'] ?? 'Order already captured',
+        ];
+    }
+
+    private function handleIncompleteOrder(array $order): array
+    {
+        return [
+            'status' => 'incomplete',
+            'message' => 'Payment not completed',
+            'details' => $order
+        ];
+    }
+
+    private function handleVerificationException(\Exception $e): array
+    {
+        return [
+            'status' => 'error',
+            'message' => 'Verification exception: ' . $e->getMessage()
+        ];
+    }
+
 
     public function refund(string $reference, float $amount): array
     {

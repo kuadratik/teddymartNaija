@@ -19,7 +19,7 @@ class StorePayoutController extends Controller
     public function getRequestPayoutOrders(Request $request, Store $userStore)
     {
         $deliverdOrders = $userStore->orders()->where('user_id', $request->user()->id)
-            ->where('type', ListingType::PRODUCT->value)
+            // ->where('type', ListingType::PRODUCT->value)
             ->whereIn('status', [OrderStatusEnum::DELIVERED->value, OrderStatusEnum::PROCESSING->value])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -33,7 +33,7 @@ class StorePayoutController extends Controller
     public function getProcessedPayouts(Request $request, Store $userStore)
     {
         $deliverdOrders = $userStore->orders()->where('user_id', $request->user()->id)
-            ->where('type', ListingType::PRODUCT->value)
+            // ->where('type', ListingType::PRODUCT->value)
             ->where('status', OrderStatusEnum::PAID->value)
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -46,7 +46,7 @@ class StorePayoutController extends Controller
      */
     public function processPayout(Request $request, Store $userStore, Order $payout)
     {
-        $payout->update(['status', OrderStatusEnum::PROCESSING->value]);
+        $payout->update(['status' => OrderStatusEnum::PROCESSING->value]);
         return $this->success();
     }
 

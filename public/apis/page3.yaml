@@ -257,6 +257,62 @@ paths:
               schema:
                 type: object
 
+  /front/user/shipping-address/{shippingAddress}/edit:
+    put:
+      tags:
+        - Shipping
+      summary: edit shipping address
+      description: edit shipping address
+      operationId: EditShippingAddress
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: shippingAddress
+          schema:
+            type: integer
+            example: 1
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                city:
+                  type: string
+                  example: "Ikeja"
+                  required: true
+                state:
+                  type: string
+                  example: "Lagos"
+                  required: true
+                country:
+                  type: string
+                  example: "Nigeria"
+                  required: true
+                lga:
+                  type: string
+                  example: "Ikeja"
+                  required: false
+                address:
+                  type: string
+                  example: "2, Ajegunle street"
+                  required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/user/shipping-address:
     get:
       tags:
@@ -496,6 +552,12 @@ paths:
             example: "abc123-session-id"
           required: true
           description: "Session UID for the authenticated user"
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "NGN"
+          required: true
         - in: path
           name: cart
           schema:
@@ -569,6 +631,46 @@ paths:
               schema:
                 type: object
 
+  /front/payment/{gateway}/verify:
+    post:
+      tags:
+        - Payment
+      summary: Verify payment
+      description: Verify payment
+      operationId: VerifyPayment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: path
+          name: gateway
+          schema:
+            type: string
+            example: "paystack"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: "paystack-reference"
+                  required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/order-history:
     get:
       tags:
@@ -576,6 +678,24 @@ paths:
       summary: Get Order History
       description: Get Order History
       operationId: GetOrderHistory
+      security:
+        - bearerAuth: []
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+  
+  /front/service-history:
+    get:
+      tags:
+        - Customer Order
+      summary: Get Service History
+      description: Get Service History
+      operationId: GetServiceHistory
       security:
         - bearerAuth: []
 
@@ -1287,6 +1407,44 @@ paths:
               schema:
                 type: object
 
+  /front/cart/{cart}/shipping/methods:
+    get:
+      tags:
+        - Shipping
+      summary: Get shipping methods from cart id
+      description: Get shipping methods carts
+      operationId: GetShippingMethodsCarts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by.
+        - in: path
+          name: cart
+          schema:
+            type: integer
+            example: 1
+          required: true
+          description: The cart Id.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /store/{store}/order/history:
     get:
       tags:
@@ -1303,6 +1461,20 @@ paths:
             type: string
             example: "amala-sky"
           required: true
+        - in: query
+          name: order_status
+          schema:
+            type: string
+            example: "new"
+          required: false
+          description: Filter by order status (new, shipped, delivered)
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "amala"
+          required: false
+          description: Search term to match in ['order_number', 'first_name', 'last_name', 'email', 'phone'].
 
       responses:
         default:
@@ -1352,7 +1524,7 @@ paths:
   /store/{store}/order/{order}/view:
     get:
       tags:
-       - Vendor Order
+        - Vendor Order
       summary: View single order Invoice
       description: View single order Invoice
       operationId: ViewOrderDetailsInvoice

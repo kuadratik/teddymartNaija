@@ -31,7 +31,8 @@ class Order extends Model
         'type',
         'status',
         'currency',
-        'shipping_method_id'
+        'store_shipping_method_id',
+        'shipping_address_id'
     ];
 
 
@@ -53,7 +54,7 @@ class Order extends Model
      */
     public function shippingMethod()
     {
-        return $this->belongsTo(StoreShippingMethod::class, 'shipping_method_id', 'id');
+        return $this->belongsTo(StoreShippingMethod::class, 'store_shipping_method_id', 'id');
     }
     /**
      * Get the store that owns  the order.
@@ -99,8 +100,8 @@ class Order extends Model
      */
     public function shippingAddress()
     {
-        return $this->belongsToMany(UserShippingAddress::class, 'order_shipping_address', 'order_id', 'shipping_address_id')
-            ->withTimestamps();
+        return $this->belongsTo(UserShippingAddress::class, 'shipping_address_id');
+
     }
 
     /**
