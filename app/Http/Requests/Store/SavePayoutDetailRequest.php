@@ -34,16 +34,16 @@ class SavePayoutDetailRequest extends FormRequest
             'account_number' => ['required'],
             'bank_name' => ['required', 'string'],
             'bank_code' => [
-                $requiredForInternation, fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
+                'nullable', fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
             ],
             'iban' => [
-                $requiredForInternation, fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
+                'nullable', fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
             ],
             'institution_number' => [
-                $requiredForInternation, fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
+                'nullable', fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
             ],
             'transit_number' => [
-                $requiredForInternation, fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
+                'nullable', fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
             ],
             'sort_code' => [
                 'nullable', fn ($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail), 'string'
