@@ -11,6 +11,10 @@ class RecordUserInteractionAction
      */
     public function record($categories, $userUid)
     {
+        if (is_null($userUid) || empty($userUid)) {
+            return;
+        }
+
         $userInteraction = UserInteraction::firstOrCreate(['user_uid' => $userUid]);
 
         if ($userInteraction) {
