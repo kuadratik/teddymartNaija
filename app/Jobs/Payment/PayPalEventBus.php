@@ -439,7 +439,6 @@ class PayPalEventBus implements ShouldQueue
             });
 
             return response()->json(['status' => 'success'], 200);
-
         }
     }
 
@@ -632,7 +631,7 @@ class PayPalEventBus implements ShouldQueue
      */
     private function extractOrderId(array $payload): string
     {
-        $customId = $payload['resource']['purchase_units'][0]['custom_id'] ?? '';
+        $customId = $payload['resource']['purchase_units'][0]['custom_id'] ??  $payload['resource']['custom_id'] ?? '';
         $customData = json_decode($customId, true);
 
         return $customData['order_number'] ?? '';
@@ -643,7 +642,7 @@ class PayPalEventBus implements ShouldQueue
      */
     private function extractPaymentType(array $payload): string
     {
-        $customId = $payload['resource']['purchase_units'][0]['custom_id'] ?? '';
+        $customId = $payload['resource']['purchase_units'][0]['custom_id'] ??  $payload['resource']['custom_id'] ?? '';
         $customData = json_decode($customId, true);
 
         return $customData['type'] ?? '';
