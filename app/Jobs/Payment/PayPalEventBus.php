@@ -38,20 +38,11 @@ class PayPalEventBus implements ShouldQueue
     }
 
     /**
-     * Returns the maximum number of attempts for processing the job.
+     * The number of times the job may be attempted.
+     *
+     * @var int
      */
-    public function maxAttempts()
-    {
-        return 5;
-    }
-
-    /**
-     * Returns the time until the job should be retried, which is 10 minutes from the current time.
-     */
-    public function retryUntil()
-    {
-        return now()->addMinutes(10);
-    }
+    public $tries = 3;
 
     /**
      * Execute the job.
