@@ -34,7 +34,7 @@ class PriceQuantityRule implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if ($this->price < 1000000 && $value < 5) {
-            $fail('For prices below 1,000,000, the quantity must be at least 5.');
+            $fail('For prices below 1,000,000 the quantity must be at least 5');
         }
     }
 }
