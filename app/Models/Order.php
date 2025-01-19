@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatusEnum;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -101,7 +103,6 @@ class Order extends Model
     public function shippingAddress()
     {
         return $this->belongsTo(UserShippingAddress::class, 'shipping_address_id');
-
     }
 
     /**
@@ -113,6 +114,16 @@ class Order extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Query scope to get payoutable order
+     */
+    public function scopePayoutable(Builder $query)
+    {
+        return $query->whereIn('orders.status', [
+            OrderStatusEnum::DELIVERED->value,
+            OrderStatusEnum::PROCESSING->value
+        ])->latest('created_at');
+    }
 
     /**
      * update order status
