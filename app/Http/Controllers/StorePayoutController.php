@@ -18,11 +18,8 @@ class StorePayoutController extends Controller
      */
     public function getRequestPayoutOrders(Request $request, Store $userStore)
     {
-        $deliverdOrders = $userStore->orders()->where('user_id', $request->user()->id)
-            // ->where('type', ListingType::PRODUCT->value)
-            ->whereIn('status', [OrderStatusEnum::DELIVERED->value, OrderStatusEnum::PROCESSING->value])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        abort_if($userStore->user_id !== $request->user()->id, 403);
+        $deliverdOrders = $userStore->orders()->payoutable()->paginate(20);
 
         return $this->success($deliverdOrders);
     }
