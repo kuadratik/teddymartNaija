@@ -131,7 +131,7 @@ class Order extends Model
     public function scopePocketablePayout(Builder $query)
     {
         return $query->whereIn('orders.payout_status', [
-            OrderStatusEnum::FRESH->value,
+            OrderStatusEnum::NEW->value,
             OrderStatusEnum::PROCESSING->value
         ])->where('orders.status', OrderStatusEnum::DELIVERED);
     }
