@@ -19,4 +19,5 @@ enum OrderStatusEnum: string
     case COMPLETED_PAYMENT  = 'completed_payment';
     case APPROVED_PAYMENT = 'approved_payment';
     case PAYMENT_FAILED = 'failed_payment';
+    case FRESH = 'new';
 }

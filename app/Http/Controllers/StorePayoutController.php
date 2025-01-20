@@ -29,21 +29,19 @@ class StorePayoutController extends Controller
      */
     public function getProcessedPayouts(Request $request, Store $userStore)
     {
-        $deliverdOrders = $userStore->orders()->where('user_id', $request->user()->id)
-            // ->where('type', ListingType::PRODUCT->value)
-            ->where('status', OrderStatusEnum::PAID->value)
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        abort_if($userStore->user_id !== $request->user()->id, 403);
+        $orders = $userStore->orders()->paidPayouts()->paginate(20);
 
-        return $this->success($deliverdOrders);
+        return $this->success($orders);
     }
 
     /**
      *  Process payout orders
      */
-    public function processPayout(Request $request, Store $userStore, Order $payout)
+    public function processPayout(Request $request, Store $userStore, Order $order)
     {
-        $payout->update(['status' => OrderStatusEnum::PROCESSING->value]);
+        abort_if($userStore->user_id !== $request->user()->id, 403);
+        $order->update(['payout_status' => OrderStatusEnum::PROCESSING->value]);
         return $this->success();
     }
 
