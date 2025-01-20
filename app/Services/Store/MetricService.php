@@ -20,9 +20,9 @@ class MetricService
     public function storeMetrics()
     {
         $counts = collect([
-            'totalRevenue' => $this->userStore->orders()->where('status' , OrderStatusEnum::PAID->value)->sum('total_amount'),
-            'payoutAccrued' => '',
-            'orderFulfilled' => $this->userStore->orders()->where('status' , OrderStatusEnum::PAID->value)->count(),
+            'totalRevenue' => $this->userStore->orders()->paidPayout()->sum('total_amount'),
+            'payoutAccrued' => $this->userStore->orders()->pocketablePayout()->sum('total_amount'),
+            'orderFulfilled' => $this->userStore->orders()->delivered()->count(),
             'myCustomers' => $this->userStore->orders()->distinct('user_id')->count('user_id'),
             'productListed' => $this->userStore->listings()->where('type', ListingType::PRODUCT->value)->count(),
         ]);
