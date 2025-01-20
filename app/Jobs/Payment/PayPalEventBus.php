@@ -56,7 +56,7 @@ class PayPalEventBus implements ShouldQueue
         try {
             match ($eventType) {
                 'PAYMENT.CAPTURE.COMPLETED' => $this->processCompletedPayment($payload),
-                'CHECKOUT.ORDER.APPROVED' => $this->processApprovedPayment($payload),
+                // 'CHECKOUT.ORDER.APPROVED' => $this->processApprovedPayment($payload),
                 'PAYMENT.CAPTURE.DECLINED',
                 'PAYMENT.CAPTURE.DENIED' => $this->processFailedPayment($payload),
                 default => Log::warning('Unhandled PayPal event type', ['event_type' => $eventType]),
