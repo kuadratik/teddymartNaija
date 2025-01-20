@@ -222,14 +222,14 @@ class PaystackEventBus implements ShouldQueue
                             'status' => OrderStatusEnum::NEW,
                         ]);
 
+                        $this->processOrderDetails($order);
+
                         $order->store->user->notify(new VendorNewOrderNotification($order));
 
                         $order->customer->notify(new OrderSuccessfulNotification($order));
-
-
                     }
                 });
-               return response()->json(['status' => 'success'], 200);
+                return response()->json(['status' => 'success'], 200);
             } catch (\Exception $e) {
                 Log::error('Failed to process successful charge', [
                     'order_number' => $orderId,
@@ -447,6 +447,48 @@ class PaystackEventBus implements ShouldQueue
         Log::info('payment type', [$payload['data']['metadata']['type'] ?? '']);
 
         return $payload['data']['metadata']['type'] ?? '';
+    }
+
+    /**
+     * Process order details and update listing quantities.
+     *
+     * @param Order $order
+     */
+    private function processOrderDetails(Order $order): void
+    {
+        foreach ($order->orderDetails as $orderDetail) {
+            try {
+                $listing = $orderDetail->listing;
+
+                if (!$listing) {
+                    Log::error('Listing not found for order detail', [
+                        'order_detail_id' => $orderDetail->id,
+                    ]);
+                    continue;
+                }
+
+                $newQuantity = $listing->quantity - $orderDetail->quantity;
+
+                if ($newQuantity < 0) {
+                    Log::error('Insufficient listing quantity', [
+                        'listing_id' => $listing->id,
+                        'current_quantity' => $listing->quantity,
+                        'required_quantity' => $orderDetail->quantity,
+                    ]);
+                    continue;
+                }
+
+                $listing->update([
+                    'quantity' => $newQuantity,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Error processing order detail', [
+                    'order_detail_id' => $orderDetail->id,
+                    'error' => $e->getMessage(),
+                ]);
+                throw $e;
+            }
+        }
     }
 
     public function maxAttempts()
