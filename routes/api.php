@@ -123,7 +123,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::prefix('payout')->group(function () {
                 Route::get('{userStore}/requestable-payouts', [StorePayoutController::class, 'getRequestPayoutOrders']);
                 Route::get('{userStore}/processed-payouts', [StorePayoutController::class, 'getProcessedPayouts']);
-                Route::patch('{userStore}/store/{payout}/process-payout', [StorePayoutController::class, 'processPayout']);
+                Route::patch('{userStore}/store/{order}/process-payout', [StorePayoutController::class, 'processPayout']);
                 Route::get('{userStore}/payout-details', [StorePayoutController::class, 'getPayoutDetails']);
                 Route::post('save-detail', [StorePayoutController::class, 'savePayoutDetails']);
                 Route::patch('{userStore}/store/{storePayoutDetail}/set-default', [StorePayoutController::class, 'setDefaultPayoutDetail']);
