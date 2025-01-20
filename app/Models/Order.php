@@ -32,6 +32,7 @@ class Order extends Model
         'subtotal',
         'type',
         'status',
+        'payout_status',
         'currency',
         'store_shipping_method_id',
         'shipping_address_id'
@@ -121,8 +122,42 @@ class Order extends Model
     {
         return $query->whereIn('orders.status', [
             OrderStatusEnum::DELIVERED->value,
-            OrderStatusEnum::PROCESSING->value
         ])->latest('created_at');
+    }
+
+    /**
+     * Query scope to get retrieve payout in flight
+     */
+    public function scopePocketablePayout(Builder $query)
+    {
+        return $query->whereIn('orders.payout_status', [
+            OrderStatusEnum::FRESH->value,
+            OrderStatusEnum::PROCESSING->value
+        ])->where('orders.status', OrderStatusEnum::DELIVERED);
+    }
+
+    /**
+     * Query scope to get retrieve paid payouts
+     */
+    public function scopePaidPayouts(Builder $query)
+    {
+        return $query->where('orders.payout_status', OrderStatusEnum::PAID)->latest('id');
+    }
+    
+    /**
+     * Query scope to get retrieve paid payout
+     */
+    public function scopePaidPayout(Builder $query)
+    {
+        return $query->where('orders.payout_status', OrderStatusEnum::PAID);
+    }
+
+    /**
+     * Query scope to get retrieve delivered orders
+     */
+    public function scopeDelivered(Builder $query)
+    {
+        return $query->where('orders.status', OrderStatusEnum::DELIVERED);
     }
 
     /**
