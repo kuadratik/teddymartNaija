@@ -607,17 +607,19 @@ class PayPalEventBus implements ShouldQueue
      */
     private function extractPaymentDetails(array $payload): array
     {
-        $purchaseUnit = $payload['resource']['purchase_units'][0] ?? [];
+        $purchaseUnit = $payload['resource']['purchase_units'][0];
         $resource = $payload['resource'] ?? [];
 
         return [
             'reference' => $resource['id'] ?? '',
-            'amount' => $purchaseUnit['amount']['value'] ?? null,
-            'currency' => $purchaseUnit['amount']['currency_code'] ?? null,
+            'amount' => $purchaseUnit['amount']['value'] ?? $resource['amount']['value'] ?? null,
+            'currency' => $purchaseUnit['amount']['currency_code'] ?? $resource['amount']['currency_code']?? null,
             'status_message' => $resource['status'] ?? 'FAILED',
             'failure_reason' => $resource['status_details']['reason'] ?? 'Unknown error',
         ];
     }
+
+
 
     /**
      * Extracts the order ID from the provided payload array.
