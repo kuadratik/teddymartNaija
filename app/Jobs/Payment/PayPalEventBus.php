@@ -607,7 +607,7 @@ class PayPalEventBus implements ShouldQueue
      */
     private function extractPaymentDetails(array $payload): array
     {
-        $purchaseUnit = $payload['resource']['purchase_units'][0];
+        $purchaseUnit = $payload['resource']['purchase_units'][0] ?? null;
         $resource = $payload['resource'] ?? [];
 
         return [
