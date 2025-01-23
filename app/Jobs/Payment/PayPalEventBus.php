@@ -612,12 +612,14 @@ class PayPalEventBus implements ShouldQueue
 
         return [
             'reference' => $resource['id'] ?? '',
-            'amount' => $purchaseUnit['amount']['value'] ?? null,
-            'currency' => $purchaseUnit['amount']['currency_code'] ?? null,
+            'amount' => $resource['amount']['value'] ?? $purchaseUnit['amount']['value']  ?? null,
+            'currency' => $resource['amount']['currency_code'] ?? $purchaseUnit['amount']['currency_code']  ?? null,
             'status_message' => $resource['status'] ?? 'FAILED',
             'failure_reason' => $resource['status_details']['reason'] ?? 'Unknown error',
         ];
     }
+
+
 
     /**
      * Extracts the order ID from the provided payload array.
