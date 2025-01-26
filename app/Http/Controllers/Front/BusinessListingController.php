@@ -8,6 +8,7 @@ use App\Http\Requests\Advert\CreateAdvertRequest;
 use App\Models\BusinessListing;
 use App\Models\Industry;
 use App\Notifications\Listing\BizListedNotification;
+use App\Support\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 
@@ -58,5 +59,15 @@ class BusinessListingController extends Controller
             ->notify(new BizListedNotification($business));
 
         return $this->success($business);
+    }
+
+    /**
+     * Delete business listing
+     */
+    public function delete(BusinessListing $businessListing)
+    {
+        Utils::deleteSpaceFiles([$businessListing->business_logo_url]);
+        $businessListing->delete();
+        return $this->success();
     }
 }
