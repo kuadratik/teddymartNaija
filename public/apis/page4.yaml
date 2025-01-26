@@ -70,6 +70,33 @@ paths:
               schema:
                 type: object
 
+  /front/business-listings/scrape-site:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Scrable business site for meta information
+      description: Scrable business site for meta information
+      operationId: BusinessListingScrapeSite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: number
+                  example: 'https://vusithembekwayo.com'
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
   /front/business-listings/create:
     post:
       security:
@@ -88,43 +115,63 @@ paths:
                 industry_id:
                   type: number
                   example: 1
-                  required: true
                 business_name:
                   type: string
-                  example: "Ojuyobo Titus"
-                  required: true
+                  example: "Logic importer & exporter"
                 business_description:
                   type: string
                   example: "Ikeja"
-                  required: true
                 business_email:
                   type: string
                   example: "ojuyobo@gmail.com"
-                  required: true
+                secondary_business_email:
+                  type: string
+                  example: "ojuyobo2@gmail.com"
                 business_address:
                   type: string
-                  example: ""
-                  required: fals
+                  example: "Kings boulevard"
+                country_id:
+                  type: number
+                  example: 1
+                state:
+                  type: string
+                  example: "Fisherman court"
                 business_contact_number:
                   type: string
-                  example: ""
-                  required: true
+                  example: "+1 (4585) 4521 454"
+                secondary_contact_number:
+                  type: string
+                  example: "+1 (4585) 4521 454"
+                website_link:
+                  type: string
+                  example: "www.google.com"
+                owner_name: 
+                  type: string
+                  example: "Ojuyobo Titus"
+                owner_role: 
+                  type: string
+                  example: "CEO, Director"
                 business_logo_url:
                   type: string
                   example: ""
-                  required: true
                 show_business_description:
                   type: boolean
                   example: true
-                  required: true
                 show_business_email:
                   type: boolean
                   example: true
-                  required: true
                 show_business_address:
                   type: boolean
                   example: true
-                  required: true
+                show_secondary_email:
+                  type: boolean
+                  example: true
+                show_secondary_contact:
+                  type: boolean
+                  example: true
+                show_website_link:
+                  type: boolean
+                  example: true
       responses:
         default:
           description: "success"

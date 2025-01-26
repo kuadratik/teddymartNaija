@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Actions\Customer\BusinessScrapeAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Advert\CreateAdvertRequest;
 use App\Models\BusinessListing;
@@ -33,6 +34,17 @@ class BusinessListingController extends Controller
     {
         $industries = Industry::get();
         return $this->success($industries);
+    }
+
+    /**
+     * Site scraping for website information
+     */
+    public function scrapeBusinessInfo(Request $request, BusinessScrapeAction $action)
+    {
+        $request->validate(['url' => 'required|string']);
+        $res = $action->handle($request->input('url'));
+
+        return $this->success($res);
     }
 
     /**
