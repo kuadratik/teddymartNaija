@@ -136,8 +136,20 @@ class Utils
         foreach ($filePaths as $filePath) {
             $fullPath = 'teddymart/' . $permanentDirectory . '/' . $filePath;
 
-            if (Storage::disk('spaces')->exists($fullPath)) {
+            if (!empty(basename($fullPath)) && Storage::disk('spaces')->exists($fullPath)) {
                 Storage::disk('spaces')->delete($fullPath);
+            }
+        }
+    }
+
+    /**
+     * Delete multiple files from a permanent directory.
+     */
+    public static function deleteSpaceFiles(array $filePaths)
+    {
+        foreach ($filePaths as $filePath) {
+            if (!empty(basename($filePath)) && Storage::disk('spaces')->exists($filePath)) {
+                Storage::disk('spaces')->delete($filePath);
             }
         }
     }

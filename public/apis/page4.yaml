@@ -96,6 +96,29 @@ paths:
               schema:
                 type: object
 
+  /front/business-listings/{businessListing}/delete:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Delete business listings
+      description: Delete business listings
+      operationId: deleteBusinessListing
+      parameters:
+        - in: path
+          name: businessListing
+          schema:
+            type: string
+            example: ""
+          required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /front/business-listings/create:
     post:
