@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class BusinessListing extends Model
 {
-    use HasFactory , Notifiable;
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -21,12 +21,22 @@ class BusinessListing extends Model
         'business_slug',
         'business_description',
         'business_email',
+        'secondary_business_email',
         'business_address',
+        'country_id',
+        'state',
         'business_contact_number',
+        'secondary_contact_number',
+        'website_link',
+        'owner_role',
+        'owner_name',
         'business_logo_url',
         'industry_id',
         'show_business_description',
         'show_business_email',
+        'show_secondary_email',
+        'show_secondary_contact',
+        'show_website_link',
         'show_business_address',
     ];
 
@@ -40,6 +50,10 @@ class BusinessListing extends Model
         return [
             'show_business_description' => 'boolean',
             'show_business_email' => 'boolean',
+            'show_business_address' => 'boolean',
+            'show_secondary_email' => 'boolean',
+            'show_secondary_contact' => 'boolean',
+            'show_website_link' => 'boolean',
             'show_business_address' => 'boolean',
         ];
     }
