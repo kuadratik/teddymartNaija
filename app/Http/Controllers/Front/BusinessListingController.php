@@ -21,11 +21,8 @@ class BusinessListingController extends Controller
      */
     public function index(Request $request)
     {
-        $businesses = BusinessListing::when($request->filled('search'))
-            ->where('business_name', 'LIKE', "%{$request->search}%")
-            ->when($request->filled('industry'))
-            ->whereIn('industry_id', explode(',', $request->industry))
-            ->paginate();
+        $businesses = BusinessListing::search($request->search)
+            ->byIndustry()->byUser()->with(['country', 'industry'])->paginate();
 
         return $this->success($businesses);
     }
@@ -51,6 +48,14 @@ class BusinessListingController extends Controller
     }
 
     /**
+     * show the business listing information
+     */
+    public function show(BusinessListing $businessListing)
+    {
+        return $this->success($businessListing->load(['industry', 'country']));
+    }
+
+    /**
      * Create business listings
      */
     public function create(CreateAdvertRequest $request)
@@ -66,8 +71,10 @@ class BusinessListingController extends Controller
     /**
      * Delete business listing
      */
-    public function delete(BusinessListing $businessListing)
+    public function delete(Request $request, BusinessListing $businessListing)
     {
+        abort_if(403, $businessListing->user_id != $request->user()->id);
+
         Utils::deleteSpaceFiles([$businessListing->business_logo_url]);
         $businessListing->delete();
         return $this->success();
@@ -78,8 +85,9 @@ class BusinessListingController extends Controller
      */
     public function update(UpdateBusinessListingRequest $request, BusinessListing $businessListing)
     {
+        abort_if(403, $businessListing->user_id != $request->user()->id);
+
         $businessListing->update($request->businessAttributes());
         return $this->success($businessListing);
     }
-
 }
