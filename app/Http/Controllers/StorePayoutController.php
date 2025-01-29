@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
 use App\Http\Requests\Store\SavePayoutDetailRequest;
 use App\Models\Order;
@@ -50,7 +49,6 @@ class StorePayoutController extends Controller
      */
     public function getPayoutDetails(Store $userStore)
     {
-
         $payoutDetails = StorePayoutDetail::where('store_id', $userStore->id)->get();
         return $this->success($payoutDetails);
     }
@@ -60,7 +58,7 @@ class StorePayoutController extends Controller
      */
     public function savePayoutDetails(SavePayoutDetailRequest $request)
     {
-        StorePayoutDetail::create($request->validated());
+        StorePayoutDetail::create($request->payoutAttributes());
         return $this->success();
     }
 

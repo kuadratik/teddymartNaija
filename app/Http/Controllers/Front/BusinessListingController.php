@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Actions\Customer\BusinessScrapeAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Advert\CreateAdvertRequest;
 use App\Http\Requests\Advert\UpdateBusinessAdvertRequest;
+use App\Http\Requests\Advert\UpdateBusinessListingRequest;
 use App\Models\BusinessListing;
 use App\Models\Industry;
 use App\Notifications\Listing\BizListedNotification;
+use App\Support\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 
@@ -37,6 +40,17 @@ class BusinessListingController extends Controller
     }
 
     /**
+     * Site scraping for website information
+     */
+    public function scrapeBusinessInfo(Request $request, BusinessScrapeAction $action)
+    {
+        $request->validate(['url' => 'required|string']);
+        $res = $action->handle($request->input('url'));
+
+        return $this->success($res);
+    }
+
+    /**
      * Create business listings
      */
     public function create(CreateAdvertRequest $request)
@@ -50,11 +64,22 @@ class BusinessListingController extends Controller
     }
 
     /**
-     * Update a business listing.
+     * Delete business listing
      */
-    public function update(UpdateBusinessAdvertRequest $request, BusinessListing $business)
+    public function delete(BusinessListing $businessListing)
     {
-        $business->update($request->businessAttributes());
-        return $this->success($business);
+        Utils::deleteSpaceFiles([$businessListing->business_logo_url]);
+        $businessListing->delete();
+        return $this->success();
     }
+
+    /**
+     * Update business listing information
+     */
+    public function update(UpdateBusinessListingRequest $request, BusinessListing $businessListing)
+    {
+        $businessListing->update($request->businessAttributes());
+        return $this->success($businessListing);
+    }
+
 }

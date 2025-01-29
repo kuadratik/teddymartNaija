@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Actions\FetchPopularRecommenationAction;
 use App\Actions\FetchUserMostInteractedCategoriesAction;
-use Google\Service\CloudSearch\Id;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
