@@ -33,6 +33,7 @@ class CreateAdvertRequest extends FormRequest
             'business_contact_number' => ['required', 'string'],
             'secondary_contact_number' => ['nullable', 'string'],
             'website_link' => ['nullable', 'string'],
+            'color' => ['nullable', 'string'],
             'owner_role' => ['nullable', 'string'],
             'owner_name' => ['nullable'],
             'business_logo_url' => ['nullable', 'string'],
@@ -60,7 +61,8 @@ class CreateAdvertRequest extends FormRequest
     public function businessAttributes()
     {
         return collect($this->safe()->except('business_logo_url'))->merge([
-            'business_logo_url' => $this->media()[0]
+            'business_logo_url' => $this->media()[0],
+            'user_id' => $this->user()->id
         ])->toArray();
     }
 }

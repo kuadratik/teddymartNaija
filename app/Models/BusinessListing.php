@@ -17,6 +17,7 @@ class BusinessListing extends Model
      * @var array<string, string>
      */
     protected $fillable = [
+        'user_id',
         'business_name',
         'business_slug',
         'business_description',
@@ -28,6 +29,7 @@ class BusinessListing extends Model
         'business_contact_number',
         'secondary_contact_number',
         'website_link',
+        'color',
         'owner_role',
         'owner_name',
         'business_logo_url',

@@ -25,7 +25,7 @@ paths:
       summary: Get the list of business industries
       description: Get the list of business industries
       operationId: GetBusinessindustries
-     
+
       responses:
         default:
           description: "success"
@@ -168,10 +168,13 @@ paths:
                 website_link:
                   type: string
                   example: "www.google.com"
-                owner_name: 
+                color:
+                  type: string
+                  example: 'Green'
+                owner_name:
                   type: string
                   example: "Ojuyobo Titus"
-                owner_role: 
+                owner_role:
                   type: string
                   example: "CEO, Director"
                 business_logo_url:
@@ -202,7 +205,122 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
+  /front/business-listings/{id}/update:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Update Business Listing
+      description: Update an existing business listing by ID.
+      operationId: UpdateBusinessListing
+      parameters:
+        - name: id
+          in: path
+          description: ID of the business listing to update
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                business_name:
+                  type: string
+                  example: "Updated Business Name"
+                  required: false
+                business_description:
+                  type: string
+                  example: "Updated description"
+                  required: false
+                business_email:
+                  type: string
+                  example: "updated@gmail.com"
+                  required: false
+                secondary_business_email:
+                  type: string
+                  example: "secondary@gmail.com"
+                  required: false
+                business_address:
+                  type: string
+                  example: "Updated Address"
+                  required: false
+                country_id:
+                  type: integer
+                  example: 1
+                  required: false
+                state:
+                  type: string
+                  example: "Updated State"
+                  required: false
+                business_contact_number:
+                  type: string
+                  example: "1234567890"
+                  required: false
+                secondary_contact_number:
+                  type: string
+                  example: "0987654321"
+                  required: false
+                website_link:
+                  type: string
+                  example: "https://updatedwebsite.com"
+                  required: false
+                color:
+                  type: string
+                  example: "#FFFFFF"
+                  required: false
+                owner_role:
+                  type: string
+                  example: "CEO"
+                  required: false
+                owner_name:
+                  type: string
+                  example: "John Doe"
+                  required: false
+                business_logo_url:
+                  type: string
+                  example: "path/to/updated/logo.png"
+                  required: false
+                industry_id:
+                  type: integer
+                  example: 1
+                  required: false
+                show_business_description:
+                  type: boolean
+                  example: true
+                  required: false
+                show_business_email:
+                  type: boolean
+                  example: false
+                  required: false
+                show_business_address:
+                  type: boolean
+                  example: true
+                  required: false
+                show_secondary_email:
+                  type: boolean
+                  example: false
+                  required: false
+                show_secondary_contact:
+                  type: boolean
+                  example: false
+                  required: false
+                show_website_link:
+                  type: boolean
+                  example: true
+                  required: false
+      responses:
+        default:
+            description: "success"
+            content:
+              application/json:
+                schema:
+                  type: object
+
   /chats:
     get:
       security:
@@ -219,7 +337,7 @@ paths:
             type: string
             example: ""
           required: false
-            
+
       responses:
         default:
           description: "success"
@@ -227,7 +345,7 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
   /chats/{uid}/details:
     get:
       security:
@@ -288,7 +406,7 @@ paths:
                 listing_id:
                   type: string
                   example: 1
-        
+
       responses:
         default:
           description: "success"
@@ -320,7 +438,7 @@ paths:
                   type: string
                   example: "Ojuyobo Titus"
                   required: true
-        
+
       responses:
         default:
           description: "success"
@@ -343,7 +461,7 @@ paths:
           name: chat
           schema:
             type: number
-            example: 
+            example:
           required: true
       requestBody:
         content:
@@ -357,7 +475,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object 
+                type: object
 
   /chats/{chat}/messages:
     get:
@@ -374,7 +492,7 @@ paths:
           name: chat
           schema:
             type: number
-            example: 
+            example:
           required: true
       responses:
         default:
@@ -382,6 +500,5 @@ paths:
           content:
             application/json:
               schema:
-                type: object 
-  
-  
+                type: object
+
