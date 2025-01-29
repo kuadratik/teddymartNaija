@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Actions\Customer\BusinessScrapeAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Advert\CreateAdvertRequest;
+use App\Http\Requests\Advert\UpdateBusinessListingRequest;
 use App\Models\BusinessListing;
 use App\Models\Industry;
 use App\Notifications\Listing\BizListedNotification;
@@ -69,5 +70,14 @@ class BusinessListingController extends Controller
         Utils::deleteSpaceFiles([$businessListing->business_logo_url]);
         $businessListing->delete();
         return $this->success();
+    }
+
+    /**
+     * Update business listing information
+     */
+    public function update(UpdateBusinessListingRequest $request, BusinessListing $businessListing)
+    {
+        $businessListing->update($request->businessAttributes());
+        return $this->success($businessListing);
     }
 }
