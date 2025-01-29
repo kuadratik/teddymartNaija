@@ -82,6 +82,7 @@ Route::prefix('front')->group(function () {
 
     Route::prefix('business-listings')->group(function () {
         Route::get('/', [BusinessListingController::class, 'index']);
+        Route::get('/{businessListing:business_slug}/details', [BusinessListingController::class, 'show']);
         Route::post('scrape-site', [BusinessListingController::class, 'scrapeBusinessInfo']);
     });
 

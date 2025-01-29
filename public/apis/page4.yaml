@@ -61,7 +61,12 @@ paths:
               description: Filter by industry
               example: 1
             required: false
-
+        - in: query
+          name: user
+          schema:
+            type: number
+            example: ""
+          required: false
       responses:
         default:
           description: "success"
@@ -112,6 +117,31 @@ paths:
             type: string
             example: ""
           required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/business-listings/{slug}/details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Get Business Listing
+      description: Get an existing business listing by ID.
+      operationId: GetBusinessListingDetails
+      parameters:
+        - name: slug
+          in: path
+          description: listing slug
+          required: true
+          schema:
+            type: string
+            example: ''
       responses:
         default:
           description: "success"

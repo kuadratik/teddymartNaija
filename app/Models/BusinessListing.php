@@ -71,10 +71,43 @@ class BusinessListing extends Model
     }
 
     /**
+     * Load the country for this listing
+     */
+    public function country()
+    {
+        return $this->belongsTo(Country::class, 'country_id');
+    }
+
+    /**
      * Get the category for this listing
      */
     public function industry()
     {
         return $this->belongsTo(Industry::class);
+    }
+
+    /**
+     * Scope search
+     */
+    public function scopeSearch($query, mixed $search)
+    {
+        return $query->when($search)->where('business_listings.business_name', 'LIKE', "%{$search}%");
+    }
+
+    /**
+     * scope by industry
+     */
+    public function scopeByIndustry($query)
+    {
+        return $query->when(request()->filled('industry'))
+            ->whereIn('industry_id', explode(',', request()->industry));
+    }
+
+    /**
+     * scope by industry
+     */
+    public function scopeByUser($query)
+    {
+        return $query->when(request()->filled('user'))->where('user_id', request()->user);
     }
 }
