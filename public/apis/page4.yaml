@@ -168,6 +168,9 @@ paths:
                 website_link:
                   type: string
                   example: "www.google.com"
+                color: 
+                  type: string
+                  example: 'Green'
                 owner_name: 
                   type: string
                   example: "Ojuyobo Titus"

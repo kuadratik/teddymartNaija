@@ -85,6 +85,7 @@ Route::prefix('front')->group(function () {
         Route::post('scrape-site', [BusinessListingController::class, 'scrapeBusinessInfo']);
         Route::post('create', [BusinessListingController::class, 'create']);
         Route::delete('{businessListing}/delete', [BusinessListingController::class, 'delete']);
+        Route::delete('{businessListing}/update', [BusinessListingController::class, 'update']);
     });
 
     Route::prefix('advert')->group(function () {
