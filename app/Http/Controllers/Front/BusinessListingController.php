@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Actions\Customer\BusinessScrapeAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Advert\CreateAdvertRequest;
+use App\Http\Requests\Advert\UpdateBusinessAdvertRequest;
 use App\Http\Requests\Advert\UpdateBusinessListingRequest;
 use App\Models\BusinessListing;
 use App\Models\Industry;
@@ -55,7 +56,7 @@ class BusinessListingController extends Controller
     public function create(CreateAdvertRequest $request)
     {
         $business = BusinessListing::create($request->businessAttributes());
-         
+
         Notification::route('mail', $business['business_email'])
             ->notify(new BizListedNotification($business));
 
@@ -80,4 +81,5 @@ class BusinessListingController extends Controller
         $businessListing->update($request->businessAttributes());
         return $this->success($businessListing);
     }
+
 }

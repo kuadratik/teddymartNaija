@@ -5,7 +5,7 @@ namespace App\Http\Requests\Advert;
 use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateBusinessListingRequest extends FormRequest
+class UpdateBusinessAdvertRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,27 +23,16 @@ class UpdateBusinessListingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'business_name' => ['sometimes', 'string', 'max:50'],
+            'business_name' => ['sometimes', 'string', 'max:20'],
             'business_description' => ['nullable', 'string'],
             'business_email' => ['nullable', 'email'],
-            'secondary_business_email' => ['nullable', 'email'],
             'business_address' => ['nullable', 'string'],
-            'country_id' => ['sometimes', 'numeric'],
-            'state' => ['sometimes', 'string'],
             'business_contact_number' => ['sometimes', 'string'],
-            'secondary_contact_number' => ['nullable', 'string'],
-            'website_link' => ['nullable', 'string'],
-            'color' => ['nullable', 'string'],
-            'owner_role' => ['nullable', 'string'],
-            'owner_name' => ['nullable', 'string'],
             'business_logo_url' => ['nullable', 'string'],
             'industry_id' => ['sometimes', 'exists:industries,id'],
             'show_business_description' => ['sometimes', 'boolean'],
             'show_business_email' => ['sometimes', 'boolean'],
-            'show_business_address' => ['sometimes', 'boolean'],
-            'show_secondary_email' => ['sometimes', 'boolean'],
-            'show_secondary_contact' => ['sometimes', 'boolean'],
-            'show_website_link' => ['sometimes', 'boolean'],
+            'show_business_address' => ['sometimes', 'boolean']
         ];
     }
 
