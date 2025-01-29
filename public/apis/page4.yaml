@@ -25,7 +25,7 @@ paths:
       summary: Get the list of business industries
       description: Get the list of business industries
       operationId: GetBusinessindustries
-     
+
       responses:
         default:
           description: "success"
@@ -132,7 +132,78 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
+  /front/business-listings/{id}/update:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Update Business Listing
+      description: Update an existing business listing by ID.
+      operationId: UpdateBusinessListing
+      parameters:
+        - name: id
+          in: path
+          description: ID of the business listing to update
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                industry_id:
+                  type: number
+                  example: 1
+                  required: false
+                business_name:
+                  type: string
+                  example: "Updated Business Name"
+                  required: false
+                business_description:
+                  type: string
+                  example: "Updated description"
+                  required: false
+                business_email:
+                  type: string
+                  example: "updated@gmail.com"
+                  required: false
+                business_address:
+                  type: string
+                  example: "Updated Address"
+                  required: false
+                business_contact_number:
+                  type: string
+                  example: "1234567890"
+                  required: false
+                business_logo_url:
+                  type: string
+                  example: "path/to/updated/logo.png"
+                  required: false
+                show_business_description:
+                  type: boolean
+                  example: false
+                  required: false
+                show_business_email:
+                  type: boolean
+                  example: false
+                  required: false
+                show_business_address:
+                  type: boolean
+                  example: false
+                  required: false
+      responses:
+        default:
+            description: "success"
+            content:
+              application/json:
+                schema:
+                  type: object
+
   /chats:
     get:
       security:
@@ -149,7 +220,7 @@ paths:
             type: string
             example: ""
           required: false
-            
+
       responses:
         default:
           description: "success"
@@ -157,7 +228,7 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
   /chats/{uid}/details:
     get:
       security:
@@ -218,7 +289,7 @@ paths:
                 listing_id:
                   type: string
                   example: 1
-        
+
       responses:
         default:
           description: "success"
@@ -250,7 +321,7 @@ paths:
                   type: string
                   example: "Ojuyobo Titus"
                   required: true
-        
+
       responses:
         default:
           description: "success"
@@ -273,7 +344,7 @@ paths:
           name: chat
           schema:
             type: number
-            example: 
+            example:
           required: true
       requestBody:
         content:
@@ -287,7 +358,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object 
+                type: object
 
   /chats/{chat}/messages:
     get:
@@ -304,7 +375,7 @@ paths:
           name: chat
           schema:
             type: number
-            example: 
+            example:
           required: true
       responses:
         default:
@@ -312,6 +383,5 @@ paths:
           content:
             application/json:
               schema:
-                type: object 
-  
-  
+                type: object
+

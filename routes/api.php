@@ -83,6 +83,7 @@ Route::prefix('front')->group(function () {
     Route::prefix('business-listings')->group(function () {
         Route::get('/', [BusinessListingController::class, 'index']);
         Route::post('create', [BusinessListingController::class, 'create']);
+        Route::put('{business}/update', [BusinessListingController::class, 'update']);
     });
 
     Route::prefix('advert')->group(function () {
