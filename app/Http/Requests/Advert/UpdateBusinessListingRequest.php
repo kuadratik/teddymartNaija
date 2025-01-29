@@ -55,7 +55,8 @@ class UpdateBusinessListingRequest extends FormRequest
         if ($this->has('business_logo_url')) {
             return Utils::moveToPermanentPath([$this->safe()->business_logo_url], 'business/media');
         }
-        return null;
+
+        return [];
     }
 
     /**
@@ -66,7 +67,7 @@ class UpdateBusinessListingRequest extends FormRequest
         $attributes = collect($this->safe()->except('business_logo_url'));
 
         if ($this->has('business_logo_url')) {
-            $attributes->put('business_logo_url', $this->media()[0]);
+            $attributes->put('business_logo_url', @$this->media()[0]);
         }
 
         return $attributes->toArray();
