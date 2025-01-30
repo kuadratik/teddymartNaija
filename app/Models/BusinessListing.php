@@ -104,6 +104,17 @@ class BusinessListing extends Model
     }
 
     /**
+     * query scope to add location filter
+     */
+    public function scopeByLocation($query)
+    {
+        return $query->when(request()->filled('country'))
+            ->where('business_listings.country_id', request()->country)
+            ->when(request()->filled('state'))
+            ->where(fn($q) => $q->where('business_listings.state', request()->country));
+    }
+
+    /**
      * scope by industry
      */
     public function scopeByUser($query)

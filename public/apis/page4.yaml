@@ -67,6 +67,18 @@ paths:
             type: number
             example: ""
           required: false
+        - in: query
+          name: country
+          schema:
+            type: number
+            example: ""
+          required: false
+        - in: query
+          name: state
+          schema:
+            type: string
+            example: ""
+          required: false
       responses:
         default:
           description: "success"
