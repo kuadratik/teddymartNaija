@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Front;
 use App\Actions\Customer\BusinessScrapeAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Advert\CreateAdvertRequest;
-use App\Http\Requests\Advert\UpdateBusinessAdvertRequest;
 use App\Http\Requests\Advert\UpdateBusinessListingRequest;
 use App\Models\BusinessListing;
 use App\Models\Industry;
@@ -22,7 +21,7 @@ class BusinessListingController extends Controller
     public function index(Request $request)
     {
         $businesses = BusinessListing::search($request->search)
-            ->byIndustry()->byUser()->with(['country', 'industry'])->paginate();
+            ->byIndustry()->byUser()->byLocation()->with(['country', 'industry'])->paginate();
 
         return $this->success($businesses);
     }
