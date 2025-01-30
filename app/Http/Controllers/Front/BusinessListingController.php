@@ -73,7 +73,7 @@ class BusinessListingController extends Controller
      */
     public function delete(Request $request, BusinessListing $businessListing)
     {
-        abort_if($businessListing->user_id != $request->user()->id, 403);
+        abort_if($businessListing->user_id != $request->user()->id, 403, 'You are not allowed to perform this action');
 
         Utils::deleteSpaceFiles([$businessListing->business_logo_url]);
         $businessListing->delete();
@@ -85,7 +85,7 @@ class BusinessListingController extends Controller
      */
     public function update(UpdateBusinessListingRequest $request, BusinessListing $businessListing)
     {
-        abort_if($businessListing->user_id != $request->user()->id, 403);
+        abort_if($businessListing->user_id != $request->user()->id, 403, 'You are not allowed to perform this action');
 
         $businessListing->update($request->businessAttributes());
         return $this->success($businessListing);
