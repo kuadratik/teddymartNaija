@@ -50,9 +50,13 @@ class CreateAdvertRequest extends FormRequest
     /**
      *  Move media to permanent storage.
      */
-    public function media()
+    public function mediaPath()
     {
-        return Utils::moveToPermanentPath([$this->safe()->business_logo_url], 'business/media');
+        if(!empty(basename($this->safe()->business_logo_url))) {
+            return collect(Utils::moveToPermanentPath([$this->safe()->business_logo_url], 'business/media'))->first();
+        }
+
+        return null;
     }
 
     /**
@@ -61,7 +65,7 @@ class CreateAdvertRequest extends FormRequest
     public function businessAttributes()
     {
         return collect($this->safe()->except('business_logo_url'))->merge([
-            'business_logo_url' => $this->media()[0],
+            'business_logo_url' => $this->mediaPath(),
             'user_id' => $this->user()->id
         ])->toArray();
     }
