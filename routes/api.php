@@ -95,12 +95,12 @@ Route::prefix('front')->group(function () {
     });
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::prefix('location')->group(function () {
-        Route::get('countries', [GeneralController::class, 'countries']);
-        Route::get('countries/{country}/divisions', [GeneralController::class, 'countryDivision']);
-    });
+Route::prefix('location')->group(function () {
+    Route::get('countries', [GeneralController::class, 'countries']);
+    Route::get('countries/{country}/divisions', [GeneralController::class, 'countryDivision']);
+});
 
+Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('store')->group(function () {
         Route::post('create', [StoresController::class, 'create']);
         Route::middleware('hasStore')->group(function () {
