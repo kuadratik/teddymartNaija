@@ -52,11 +52,11 @@ class UpdateBusinessListingRequest extends FormRequest
      */
     public function media()
     {
-        if ($this->has('business_logo_url')) {
-            return Utils::moveToPermanentPath([$this->safe()->business_logo_url], 'business/media');
+        if (!empty(basename($this->safe()->business_logo_url))) {
+            return collect(Utils::moveToPermanentPath([$this->safe()->business_logo_url], 'business/media'))->first();
         }
 
-        return [];
+        return null;
     }
 
     /**
@@ -64,12 +64,8 @@ class UpdateBusinessListingRequest extends FormRequest
      */
     public function businessAttributes()
     {
-        $attributes = collect($this->safe()->except('business_logo_url'));
-
-        if ($this->has('business_logo_url')) {
-            $attributes->put('business_logo_url', @$this->media()[0]);
-        }
-
-        return $attributes->toArray();
+        return collect($this->safe()->except('business_logo_url'))
+            ->put('business_logo_url', $this->media())
+            ->toArray();
     }
 }
