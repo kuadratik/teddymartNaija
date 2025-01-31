@@ -65,7 +65,7 @@ class BusinessListing extends Model
      */
     protected static function booted()
     {
-        static::saving(function (BusinessListing $model) {
+        static::creating(function (BusinessListing $model) {
             $model->business_slug = str("{$model->business_name}-" . Str::random(6))->slug();
         });
     }
