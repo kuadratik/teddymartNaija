@@ -29,7 +29,7 @@ class PostAdvertRequest extends FormRequest
         return [
             // 'type' => ['required', Rule::enum(ListingType::class)],
             'title' => ['required', 'string', 'max:255'],
-            'category_id' => ['required', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
+            'category_id' => ['required', 'integer', Rule::exists('categories', 'id')],
             'quantity' => ['nullable', 'integer'],
             'description' => ['required', 'string'],
             'price_on_request' => ['boolean'],
