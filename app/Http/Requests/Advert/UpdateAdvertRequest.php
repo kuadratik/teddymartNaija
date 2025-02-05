@@ -31,7 +31,7 @@ class UpdateAdvertRequest extends FormRequest
             'category_id' => [
                 'sometimes',
                 'integer',
-                Rule::exists('categories', 'id')->where('type', $this->type),
+                Rule::exists('categories', 'id'),
             ],
             'quantity' => ['nullable', 'integer'],
             'description' => ['sometimes', 'string'],
