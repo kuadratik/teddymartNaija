@@ -167,15 +167,16 @@ class StoresController extends Controller
     public function create(CreateStoreRequest $request)
     {
         $user = $request->user();
-        $store = null;
 
-        DB::transaction(function () use ($request, $user, &$store) {
+        $store = DB::transaction(function () use ($request, $user) {
             $store = Store::create($request->storeAttributes());
             $user->update([
                 'offers_service' => $request->offers_service,
                 'offers_product' => $request->offers_product,
                 'has_store' => true,
             ]);
+
+            return $store;
         });
 
         return $this->success(['store' => $store]);
