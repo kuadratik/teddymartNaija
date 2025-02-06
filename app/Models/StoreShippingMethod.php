@@ -12,6 +12,7 @@ class StoreShippingMethod extends Model
      * @var array<int, string>
      */
      protected $fillable = [
+        'id',
         'store_id',
         'method_type',
         'pick_up_time',
