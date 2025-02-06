@@ -43,7 +43,7 @@ class CreateStoreRequest extends FormRequest
             'country' => ['required', 'integer', new SupportedCountry()],
             'offers_service' => ['required', 'boolean'],
             'offers_product' => ['required', 'boolean'],
-            'type' => ['required', Rule::enum(StoreType::class),'string']
+            'type' => ['required', Rule::enum(StoreType::class), 'string']
         ];
     }
 
@@ -54,7 +54,8 @@ class CreateStoreRequest extends FormRequest
     {
         $country = Country::find($this->safe()->country);
 
-        return collect($this->safe()->except(['profile_picture_path', 'banner_path', 'country']))
+        return collect($this->safe()
+            ->except(['profile_picture_path', 'offers_service', 'offers_product', 'banner_path', 'country']))
             ->merge([
                 'user_id' => $this->user()->id,
                 'banner_path' => Utils::moveToPermanentPath([$this->safe()->banner_path], 'images')[0],
