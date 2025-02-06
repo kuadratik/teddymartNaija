@@ -21,7 +21,7 @@ class BusinessListingController extends Controller
     public function index(Request $request)
     {
         $businesses = BusinessListing::search($request->search)
-            ->byIndustry()->byUser()->byLocation()->with(['country', 'industry'])->paginate();
+            ->byIndustry()->byUser()->byLocation()->with(['country', 'industry'])->paginate(16);
 
         return $this->success($businesses);
     }
