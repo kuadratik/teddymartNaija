@@ -6,6 +6,7 @@ use App\Enums\ListingType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 
 class OrderDetail extends Model
 {
@@ -44,15 +45,15 @@ class OrderDetail extends Model
     {
         return $this->belongsTo(Listing::class);
     }
-    
-     /**
+
+    /**
      * Get user rating for listing detail
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function userRating()
     {
         return $this->hasMany(ListingRating::class, 'listing_id', 'listing_id')
-            ->where('user_id', request()->user()->id);
+            ->where('user_id', Auth::id());
     }
 }
