@@ -643,46 +643,50 @@ class PayPalEventBus implements ShouldQueue
         return $customData['type'] ?? '';
     }
 
+
     /**
-     * Process order details and update listing quantities.
+     * Process order details and update listing quantities atomically
      *
      * @param Order $order
+     * @throws \Throwable
      */
     private function processOrderDetails(Order $order): void
     {
-        foreach ($order->orderDetails as $orderDetail) {
-            try {
-                $listing = $orderDetail->listing;
+        DB::transaction(function () use ($order) {
+            $order->load(['orderDetails.listing' => function ($query) {
+                $query->lockForUpdate();
+            }]);
 
-                if (!$listing) {
-                    Log::error('Listing not found for order detail', [
+            $orderDetails = $order->orderDetails;
+
+            foreach ($orderDetails as $orderDetail) {
+                try {
+                    $listing = $orderDetail->listing;
+
+                    if (!$listing) {
+                        throw new \RuntimeException("Listing not found for order detail {$orderDetail->id}");
+                    }
+
+                    $affectedRows = $listing->newQuery()
+                        ->where('id', $listing->id)
+                        ->where('quantity', '>=', $orderDetail->quantity)
+                        ->decrement('quantity', $orderDetail->quantity);
+
+                    if ($affectedRows === 0) {
+                        throw new \RuntimeException("Insufficient quantity for listing {$listing->id}. Available: {$listing->quantity}, Required: {$orderDetail->quantity}");
+                    }
+
+                    $listing->refresh();
+                } catch (\Throwable $e) {
+                    Log::error('Order processing failed', [
                         'order_detail_id' => $orderDetail->id,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
                     ]);
-                    continue;
+                    throw $e;
                 }
-
-                $newQuantity = $listing->quantity - $orderDetail->quantity;
-
-                if ($newQuantity < 0) {
-                    Log::error('Insufficient listing quantity', [
-                        'listing_id' => $listing->id,
-                        'current_quantity' => $listing->quantity,
-                        'required_quantity' => $orderDetail->quantity,
-                    ]);
-                    continue;
-                }
-
-                $listing->update([
-                    'quantity' => $newQuantity,
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Error processing order detail', [
-                    'order_detail_id' => $orderDetail->id,
-                    'error' => $e->getMessage(),
-                ]);
-                throw $e;
             }
-        }
+        }, 5);
     }
 
     /**
