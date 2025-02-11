@@ -25,7 +25,7 @@ paths:
       summary: Get the list of business industries
       description: Get the list of business industries
       operationId: GetBusinessindustries
-     
+
       responses:
         default:
           description: "success"
@@ -61,7 +61,99 @@ paths:
               description: Filter by industry
               example: 1
             required: false
+        - in: query
+          name: user
+          schema:
+            type: number
+            example: ""
+          required: false
+        - in: query
+          name: country
+          schema:
+            type: number
+            example: ""
+          required: false
+        - in: query
+          name: state
+          schema:
+            type: string
+            example: ""
+          required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
+  /front/business-listings/scrape-site:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Scrable business site for meta information
+      description: Scrable business site for meta information
+      operationId: BusinessListingScrapeSite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: number
+                  example: 'https://vusithembekwayo.com'
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/business-listings/{businessListing}/delete:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Delete business listings
+      description: Delete business listings
+      operationId: deleteBusinessListing
+      parameters:
+        - in: path
+          name: businessListing
+          schema:
+            type: string
+            example: ""
+          required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/business-listings/{slug}/details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Get Business Listing
+      description: Get an existing business listing by ID.
+      operationId: GetBusinessListingDetails
+      parameters:
+        - name: slug
+          in: path
+          description: listing slug
+          required: true
+          schema:
+            type: string
+            example: ''
       responses:
         default:
           description: "success"
@@ -88,43 +180,66 @@ paths:
                 industry_id:
                   type: number
                   example: 1
-                  required: true
                 business_name:
                   type: string
-                  example: "Ojuyobo Titus"
-                  required: true
+                  example: "Logic importer & exporter"
                 business_description:
                   type: string
                   example: "Ikeja"
-                  required: true
                 business_email:
                   type: string
                   example: "ojuyobo@gmail.com"
-                  required: true
+                secondary_business_email:
+                  type: string
+                  example: "ojuyobo2@gmail.com"
                 business_address:
                   type: string
-                  example: ""
-                  required: fals
+                  example: "Kings boulevard"
+                country_id:
+                  type: number
+                  example: 1
+                state:
+                  type: string
+                  example: "Fisherman court"
                 business_contact_number:
                   type: string
-                  example: ""
-                  required: true
+                  example: "+1 (4585) 4521 454"
+                secondary_contact_number:
+                  type: string
+                  example: "+1 (4585) 4521 454"
+                website_link:
+                  type: string
+                  example: "www.google.com"
+                color:
+                  type: string
+                  example: 'Green'
+                owner_name:
+                  type: string
+                  example: "Ojuyobo Titus"
+                owner_role:
+                  type: string
+                  example: "CEO, Director"
                 business_logo_url:
                   type: string
                   example: ""
-                  required: true
                 show_business_description:
                   type: boolean
                   example: true
-                  required: true
                 show_business_email:
                   type: boolean
                   example: true
-                  required: true
                 show_business_address:
                   type: boolean
                   example: true
-                  required: true
+                show_secondary_email:
+                  type: boolean
+                  example: true
+                show_secondary_contact:
+                  type: boolean
+                  example: true
+                show_website_link:
+                  type: boolean
+                  example: true
       responses:
         default:
           description: "success"
@@ -132,7 +247,122 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
+  /front/business-listings/{id}/update:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Update Business Listing
+      description: Update an existing business listing by ID.
+      operationId: UpdateBusinessListing
+      parameters:
+        - name: id
+          in: path
+          description: ID of the business listing to update
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                business_name:
+                  type: string
+                  example: "Updated Business Name"
+                  required: false
+                business_description:
+                  type: string
+                  example: "Updated description"
+                  required: false
+                business_email:
+                  type: string
+                  example: "updated@gmail.com"
+                  required: false
+                secondary_business_email:
+                  type: string
+                  example: "secondary@gmail.com"
+                  required: false
+                business_address:
+                  type: string
+                  example: "Updated Address"
+                  required: false
+                country_id:
+                  type: integer
+                  example: 1
+                  required: false
+                state:
+                  type: string
+                  example: "Updated State"
+                  required: false
+                business_contact_number:
+                  type: string
+                  example: "1234567890"
+                  required: false
+                secondary_contact_number:
+                  type: string
+                  example: "0987654321"
+                  required: false
+                website_link:
+                  type: string
+                  example: "https://updatedwebsite.com"
+                  required: false
+                color:
+                  type: string
+                  example: "#FFFFFF"
+                  required: false
+                owner_role:
+                  type: string
+                  example: "CEO"
+                  required: false
+                owner_name:
+                  type: string
+                  example: "John Doe"
+                  required: false
+                business_logo_url:
+                  type: string
+                  example: "path/to/updated/logo.png"
+                  required: false
+                industry_id:
+                  type: integer
+                  example: 1
+                  required: false
+                show_business_description:
+                  type: boolean
+                  example: true
+                  required: false
+                show_business_email:
+                  type: boolean
+                  example: false
+                  required: false
+                show_business_address:
+                  type: boolean
+                  example: true
+                  required: false
+                show_secondary_email:
+                  type: boolean
+                  example: false
+                  required: false
+                show_secondary_contact:
+                  type: boolean
+                  example: false
+                  required: false
+                show_website_link:
+                  type: boolean
+                  example: true
+                  required: false
+      responses:
+        default:
+            description: "success"
+            content:
+              application/json:
+                schema:
+                  type: object
+
   /chats:
     get:
       security:
@@ -149,7 +379,7 @@ paths:
             type: string
             example: ""
           required: false
-            
+
       responses:
         default:
           description: "success"
@@ -157,7 +387,7 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
   /chats/{uid}/details:
     get:
       security:
@@ -218,7 +448,7 @@ paths:
                 listing_id:
                   type: string
                   example: 1
-        
+
       responses:
         default:
           description: "success"
@@ -250,7 +480,7 @@ paths:
                   type: string
                   example: "Ojuyobo Titus"
                   required: true
-        
+
       responses:
         default:
           description: "success"
@@ -273,7 +503,7 @@ paths:
           name: chat
           schema:
             type: number
-            example: 
+            example:
           required: true
       requestBody:
         content:
@@ -287,7 +517,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object 
+                type: object
 
   /chats/{chat}/messages:
     get:
@@ -304,7 +534,7 @@ paths:
           name: chat
           schema:
             type: number
-            example: 
+            example:
           required: true
       responses:
         default:
@@ -312,6 +542,5 @@ paths:
           content:
             application/json:
               schema:
-                type: object 
-  
-  
+                type: object
+

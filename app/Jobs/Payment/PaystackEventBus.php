@@ -222,14 +222,14 @@ class PaystackEventBus implements ShouldQueue
                             'status' => OrderStatusEnum::NEW,
                         ]);
 
+                        $this->processOrderDetails($order);
+
                         $order->store->user->notify(new VendorNewOrderNotification($order));
 
                         $order->customer->notify(new OrderSuccessfulNotification($order));
-
-
                     }
                 });
-               return response()->json(['status' => 'success'], 200);
+                return response()->json(['status' => 'success'], 200);
             } catch (\Exception $e) {
                 Log::error('Failed to process successful charge', [
                     'order_number' => $orderId,
@@ -447,6 +447,51 @@ class PaystackEventBus implements ShouldQueue
         Log::info('payment type', [$payload['data']['metadata']['type'] ?? '']);
 
         return $payload['data']['metadata']['type'] ?? '';
+    }
+
+    /**
+     * Process order details and update listing quantities atomically
+     *
+     * @param Order $order
+     * @throws \Throwable
+     */
+    private function processOrderDetails(Order $order): void
+    {
+        DB::transaction(function () use ($order) {
+            $order->load(['orderDetails.listing' => function ($query) {
+                $query->lockForUpdate();
+            }]);
+
+            $orderDetails = $order->orderDetails;
+
+            foreach ($orderDetails as $orderDetail) {
+                try {
+                    $listing = $orderDetail->listing;
+
+                    if (!$listing) {
+                        throw new \RuntimeException("Listing not found for order detail {$orderDetail->id}");
+                    }
+
+                    $affectedRows = $listing->newQuery()
+                        ->where('id', $listing->id)
+                        ->where('quantity', '>=', $orderDetail->quantity)
+                        ->decrement('quantity', $orderDetail->quantity);
+
+                    if ($affectedRows === 0) {
+                        throw new \RuntimeException("Insufficient quantity for listing {$listing->id}. Available: {$listing->quantity}, Required: {$orderDetail->quantity}");
+                    }
+
+                    $listing->refresh();
+                } catch (\Throwable $e) {
+                    Log::error('Order processing failed', [
+                        'order_detail_id' => $orderDetail->id,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    throw $e;
+                }
+            }
+        }, 5);
     }
 
     public function maxAttempts()

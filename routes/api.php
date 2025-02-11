@@ -82,7 +82,8 @@ Route::prefix('front')->group(function () {
 
     Route::prefix('business-listings')->group(function () {
         Route::get('/', [BusinessListingController::class, 'index']);
-        Route::post('create', [BusinessListingController::class, 'create']);
+        Route::get('/{businessListing:business_slug}/details', [BusinessListingController::class, 'show']);
+        Route::post('scrape-site', [BusinessListingController::class, 'scrapeBusinessInfo']);
     });
 
     Route::prefix('advert')->group(function () {
@@ -94,15 +95,14 @@ Route::prefix('front')->group(function () {
     });
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::prefix('location')->group(function () {
-        Route::get('countries', [GeneralController::class, 'countries']);
-        Route::get('countries/{country}/divisions', [GeneralController::class, 'countryDivision']);
-    });
+Route::prefix('location')->group(function () {
+    Route::get('countries', [GeneralController::class, 'countries']);
+    Route::get('countries/{country}/divisions', [GeneralController::class, 'countryDivision']);
+});
 
+Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('store')->group(function () {
         Route::post('create', [StoresController::class, 'create']);
-
         Route::middleware('hasStore')->group(function () {
             Route::get('user-store', [StoresController::class, 'showUserStore']);
             Route::get('user-store/{userStore}/metrics', [StoresController::class, 'getUserStoreMetrics']);
@@ -123,7 +123,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::prefix('payout')->group(function () {
                 Route::get('{userStore}/requestable-payouts', [StorePayoutController::class, 'getRequestPayoutOrders']);
                 Route::get('{userStore}/processed-payouts', [StorePayoutController::class, 'getProcessedPayouts']);
-                Route::patch('{userStore}/store/{payout}/process-payout', [StorePayoutController::class, 'processPayout']);
+                Route::patch('{userStore}/store/{order}/process-payout', [StorePayoutController::class, 'processPayout']);
                 Route::get('{userStore}/payout-details', [StorePayoutController::class, 'getPayoutDetails']);
                 Route::post('save-detail', [StorePayoutController::class, 'savePayoutDetails']);
                 Route::patch('{userStore}/store/{storePayoutDetail}/set-default', [StorePayoutController::class, 'setDefaultPayoutDetail']);
@@ -175,7 +175,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('order', [CartController::class, 'getUserOrders']);
         Route::get('{order}/order', [CartController::class, 'showUserOrder']);
         Route::get('order-history', [CartController::class, 'getOrderHistory']);
-         Route::get('service-history', [CartController::class, 'getServiceHistory']);
+        Route::get('service-history', [CartController::class, 'getServiceHistory']);
         Route::patch('{order}/recieve-order', [CartController::class, 'recieveOrder']);
 
         Route::prefix('wishlist')->group(function () {
@@ -184,6 +184,12 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/', [CartController::class, 'getUserWishlist']);
             Route::delete('remove/{product}', [CartController::class, 'removeFromWishlist']);
             Route::post('add-to-cart/{product}', [CartController::class, 'addWishlistToCart']);
+        });
+
+        Route::prefix('business-listings')->group(function () {
+            Route::post('create', [BusinessListingController::class, 'create']);
+            Route::delete('{businessListing}/delete', [BusinessListingController::class, 'delete']);
+            Route::put('{businessListing}/update', [BusinessListingController::class, 'update']);
         });
 
         Route::prefix('user')->group(function () {
@@ -212,5 +218,4 @@ Route::post('webhook/{gateway}', [WebhookController::class, 'handleWebhook'])
 Route::get('payment/success', [PaymentController::class, 'paypalSuccess'])->name('payment.success');
 Route::get('payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
-Route::prefix('console')->group(function () {
-});
+Route::prefix('console')->group(function () {});

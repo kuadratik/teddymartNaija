@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\BlockConcurrency;
 use App\Http\Middleware\CheckIfUserHasStore;
 use App\Http\Middleware\EnsureClipUidHeader;
 use App\Http\Middleware\EnsureSessionUidHeader;
@@ -23,6 +24,7 @@ use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -41,9 +43,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'hasStore' => CheckIfUserHasStore::class,
             'optionalAuth' => OptionalSanctum::class,
             'verifyWebhookSignature' => VerifyWebhookSignature::class,
+            'stopper' => BlockConcurrency::class
         ]);
         $middleware->validateCsrfTokens(except: [
-        'https://9f6d9d9fe38133.lhr.life/api/webhook/paypal'
+            'https://9f6d9d9fe38133.lhr.life/api/webhook/paypal'
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
@@ -98,5 +101,16 @@ return Application::configure(basePath: dirname(__DIR__))
                     return Utils::failure();
                 }
             }
+        });
+
+        $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
+            if ($request->is('api/*') || $request->wantsJson()) {
+                return match ($response->getStatusCode()) {
+                    400 => Utils::failure($exception->getMessage(), 400),
+                    default => $response,
+                };
+            }
+
+            return $response;
         });
     })->create();

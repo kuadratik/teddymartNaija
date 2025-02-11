@@ -136,8 +136,20 @@ class Utils
         foreach ($filePaths as $filePath) {
             $fullPath = 'teddymart/' . $permanentDirectory . '/' . $filePath;
 
-            if (Storage::disk('spaces')->exists($fullPath)) {
+            if (!empty(basename($fullPath)) && Storage::disk('spaces')->exists($fullPath)) {
                 Storage::disk('spaces')->delete($fullPath);
+            }
+        }
+    }
+
+    /**
+     * Delete multiple files from a permanent directory.
+     */
+    public static function deleteSpaceFiles(array $filePaths)
+    {
+        foreach ($filePaths as $filePath) {
+            if (!empty(basename($filePath)) && Storage::disk('spaces')->exists($filePath)) {
+                Storage::disk('spaces')->delete($filePath);
             }
         }
     }
@@ -164,8 +176,23 @@ class Utils
      */
     public static function replaceCallback($subject)
     {
-        return preg_replace_callback('/(\d+)/', function ($matches) {
-            return '#' . ($matches[1] + 1);
+        // return preg_replace_callback('/(\d+)/', function ($matches) {
+        //     return '#' . ($matches[1] + 1);
+        // }, $subject, 4, $count);
+
+        return preg_replace_callback('/(?<=^|\D)\.(\d+)\.(?=\D|$)|(?<=^|\D)\.(\d+)|(\d+)\.(?=\D|$)/', function ($matches) {
+            // Case 1: .1.
+            if (!empty($matches[1])) {
+                return '#' . ($matches[1] + 1);
+            }
+            // Case 2: .100
+            if (!empty($matches[2])) {
+                return '#' . '.' . ($matches[2] + 1);
+            }
+            // Case 3: 100.
+            if (!empty($matches[3])) {
+                return '#' . ($matches[3] + 1) . '.';
+            }
         }, $subject, 4, $count);
     }
 

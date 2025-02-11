@@ -56,7 +56,7 @@ class PayPalEventBus implements ShouldQueue
         try {
             match ($eventType) {
                 'PAYMENT.CAPTURE.COMPLETED' => $this->processCompletedPayment($payload),
-                'CHECKOUT.ORDER.APPROVED' => $this->processApprovedPayment($payload),
+                // 'CHECKOUT.ORDER.APPROVED' => $this->processApprovedPayment($payload),
                 'PAYMENT.CAPTURE.DECLINED',
                 'PAYMENT.CAPTURE.DENIED' => $this->processFailedPayment($payload),
                 default => Log::warning('Unhandled PayPal event type', ['event_type' => $eventType]),
@@ -91,6 +91,8 @@ class PayPalEventBus implements ShouldQueue
 
             return;
         }
+
+
 
         if ($paymentType == PaymentType::ADVERT->value) {
             $advert = AdvertListingPromotePlan::where('order_number', $orderId)->with('advertListing')->first();
@@ -180,7 +182,7 @@ class PayPalEventBus implements ShouldQueue
             });
         } else {
 
-            $orders = Order::where('order_number', $orderId)->get();
+            $orders = Order::where('order_number', $orderId)->with(['orderDetails.listing'])->get();
 
             if ($orders->isEmpty()) {
                 Log::error('No orders found', ['order_number' => $orderId]);
@@ -214,13 +216,12 @@ class PayPalEventBus implements ShouldQueue
                     ]);
 
                     foreach ($orders as $order) {
-                        if ($order->payment_status !== OrderStatusEnum::APPROVED_PAYMENT) {
+                        if ($order->payment_status == OrderStatusEnum::COMPLETED_PAYMENT) {
                             Log::warning('Skipping order - Invalid state transition', [
                                 'order_id' => $order->id,
                                 'order_number' => $order->order_number,
                                 'current_status' => $order->payment_status,
                             ]);
-
                             continue;
                         }
 
@@ -232,6 +233,8 @@ class PayPalEventBus implements ShouldQueue
                             'payment_status' => OrderStatusEnum::COMPLETED_PAYMENT,
                             'status' => OrderStatusEnum::NEW,
                         ]);
+
+                        $this->processOrderDetails($order);
                     }
 
                     PaymentTransaction::create([
@@ -610,12 +613,14 @@ class PayPalEventBus implements ShouldQueue
 
         return [
             'reference' => $resource['id'] ?? '',
-            'amount' => $purchaseUnit['amount']['value'] ?? null,
-            'currency' => $purchaseUnit['amount']['currency_code'] ?? null,
+            'amount' => $resource['amount']['value'] ?? $purchaseUnit['amount']['value']  ?? null,
+            'currency' => $resource['amount']['currency_code'] ?? $purchaseUnit['amount']['currency_code']  ?? null,
             'status_message' => $resource['status'] ?? 'FAILED',
             'failure_reason' => $resource['status_details']['reason'] ?? 'Unknown error',
         ];
     }
+
+
 
     /**
      * Extracts the order ID from the provided payload array.
@@ -637,6 +642,52 @@ class PayPalEventBus implements ShouldQueue
         $customData = json_decode($customId, true);
 
         return $customData['type'] ?? '';
+    }
+
+
+    /**
+     * Process order details and update listing quantities atomically
+     *
+     * @param Order $order
+     * @throws \Throwable
+     */
+    private function processOrderDetails(Order $order): void
+    {
+        DB::transaction(function () use ($order) {
+            $order->load(['orderDetails.listing' => function ($query) {
+                $query->lockForUpdate();
+            }]);
+
+            $orderDetails = $order->orderDetails;
+
+            foreach ($orderDetails as $orderDetail) {
+                try {
+                    $listing = $orderDetail->listing;
+
+                    if (!$listing) {
+                        throw new \RuntimeException("Listing not found for order detail {$orderDetail->id}");
+                    }
+
+                    $affectedRows = $listing->newQuery()
+                        ->where('id', $listing->id)
+                        ->where('quantity', '>=', $orderDetail->quantity)
+                        ->decrement('quantity', $orderDetail->quantity);
+
+                    if ($affectedRows === 0) {
+                        throw new \RuntimeException("Insufficient quantity for listing {$listing->id}. Available: {$listing->quantity}, Required: {$orderDetail->quantity}");
+                    }
+
+                    $listing->refresh();
+                } catch (\Throwable $e) {
+                    Log::error('Order processing failed', [
+                        'order_detail_id' => $orderDetail->id,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    throw $e;
+                }
+            }
+        }, 5);
     }
 
     /**

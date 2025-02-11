@@ -26,12 +26,12 @@ class UpdateAdvertRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => ['sometimes', Rule::enum(ListingType::class)],
+            // 'type' => ['sometimes', Rule::enum(ListingType::class)],
             'title' => ['sometimes', 'string', 'max:255'],
             'category_id' => [
                 'sometimes',
                 'integer',
-                Rule::exists('categories', 'id')->where('type', $this->type),
+                Rule::exists('categories', 'id'),
             ],
             'quantity' => ['nullable', 'integer'],
             'description' => ['sometimes', 'string'],
