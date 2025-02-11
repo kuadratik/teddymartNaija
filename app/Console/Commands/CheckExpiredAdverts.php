@@ -42,6 +42,10 @@ class CheckExpiredAdverts extends Command
         $expiredPlans = $this->getExpiredPlans();
 
         foreach ($expiredPlans as $plan) {
+            if (!$plan->advertListing || !$plan->advertListing->user) {
+                $this->warn("No user associated with plan id: {$plan->id}. Skipping.");
+                continue;
+            }
 
             $user = $plan->advertListing->user;
 
@@ -94,6 +98,7 @@ class CheckExpiredAdverts extends Command
     {
         return AdvertListingPromotePlan::where('expires_at', '<', now())
             ->where('status', OrderStatusEnum::ACTIVE)
+            ->whereHas('advertListing.user')
             ->get();
     }
 
