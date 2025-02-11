@@ -92,6 +92,8 @@ class PayPalEventBus implements ShouldQueue
             return;
         }
 
+
+
         if ($paymentType == PaymentType::ADVERT->value) {
             $advert = AdvertListingPromotePlan::where('order_number', $orderId)->with('advertListing')->first();
 
@@ -214,13 +216,12 @@ class PayPalEventBus implements ShouldQueue
                     ]);
 
                     foreach ($orders as $order) {
-                        if ($order->payment_status !== OrderStatusEnum::APPROVED_PAYMENT) {
+                        if ($order->payment_status == OrderStatusEnum::COMPLETED_PAYMENT) {
                             Log::warning('Skipping order - Invalid state transition', [
                                 'order_id' => $order->id,
                                 'order_number' => $order->order_number,
                                 'current_status' => $order->payment_status,
                             ]);
-
                             continue;
                         }
 
