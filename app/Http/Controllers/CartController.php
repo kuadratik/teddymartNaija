@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
+use App\Http\Requests\Cart\AddToCartRequest;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Http\Requests\Cart\StoreShippingAddressRequest;
 use App\Models\Cart;
@@ -23,10 +24,12 @@ class CartController extends Controller
         //
     }
 
-    public function addToCart(Request $request, Listing $product)
+    /**
+     * Adds a product to the cart.
+     */
+    public function addToCart(AddToCartRequest $request, Listing $product)
     {
         $data = $this->cartService->addToCart($request, $product);
-
         return $this->success($data);
     }
 
