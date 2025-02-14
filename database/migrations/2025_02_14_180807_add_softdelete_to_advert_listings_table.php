@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('advert_listings', function (Blueprint $table) {
-        $table->dropSoftDeletes();
+            $table->dropSoftDeletes();
         });
     }
 };
