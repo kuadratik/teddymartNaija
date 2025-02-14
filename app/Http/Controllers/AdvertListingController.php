@@ -129,4 +129,15 @@ class AdvertListingController extends Controller
         $listing = $this->promoteStoreService->update($request->postAdvertAttributes(), $request->validated('return_url'), $request->validated('cancel_url'));
         return  $this->success($listing);
     }
+
+    /**
+     * Delete classified ads
+     */
+   public function softDeleteAdvert(Request $request, AdvertListing $advert)
+   {
+        $advert = $request->user()->advertListings()->where('id', $advert->id)->firstOrFail();
+        $advert->delete();
+        return $this->success();
+   }
 }
+

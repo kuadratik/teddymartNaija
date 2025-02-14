@@ -981,6 +981,30 @@ paths:
               schema:
                 type: object
 
+  /front/advert/{advert}/delete:
+    delete:
+     tags:
+        - Advertisement
+     summary: Delete advert listing
+     description: Delete advert listing
+     operationId: DeleteAdvert
+     security:
+       - bearerAuth: []
+     parameters:
+      - in: path
+        name: advert
+        schema:
+          type: integer
+          example: 1
+        required: true
+     responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/advert/plans:
     get:
       tags:
