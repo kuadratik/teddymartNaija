@@ -688,7 +688,7 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
   /front/service-history:
     get:
       tags:
@@ -825,6 +825,10 @@ paths:
                   type: number
                   example: 1000
                   required: false
+                is_available:
+                  type: boolean
+                  example: true
+                  required: true
                 media:
                   type: array
                   items:
@@ -930,6 +934,10 @@ paths:
                   type: number
                   example: 1000
                   required: false
+                is_available:
+                  type: boolean
+                  example: true
+                  required: false
                 media:
                   type: array
                   items:
@@ -951,7 +959,7 @@ paths:
                 promote_plan_id:
                   type: integer
                   example: 9
-                  required: true
+                  required: false
                 country_code:
                   type: string
                   example: "NG"
