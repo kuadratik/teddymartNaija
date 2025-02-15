@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class AdvertListing extends Model
 {
-    use HasFactory;
+    use HasFactory,SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -29,6 +31,7 @@ class AdvertListing extends Model
         'phone_number',
         'promote_plan_id',
         'currency',
+        'is_available',
     ];
 
     protected $casts = [
@@ -48,7 +51,6 @@ class AdvertListing extends Model
     {
         return $this->belongsTo(Category::class);
     }
-
 
     /**
      * Get the media associated with the advert listing.
@@ -81,6 +83,7 @@ class AdvertListing extends Model
             ->withPivot(['payment_id', 'status', 'started_at', 'expires_at', 'order_number'])
             ->withTimestamps();
     }
+
     /**
      * Get the payment associated with this advert listing's promote plan.
      *
@@ -97,7 +100,6 @@ class AdvertListing extends Model
             'payment_id'
         );
     }
-
 
     public function getActivePromotePlanStatusAttribute()
     {

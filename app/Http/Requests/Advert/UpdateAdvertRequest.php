@@ -28,15 +28,12 @@ class UpdateAdvertRequest extends FormRequest
         return [
             // 'type' => ['sometimes', Rule::enum(ListingType::class)],
             'title' => ['sometimes', 'string', 'max:255'],
-            'category_id' => [
-                'sometimes',
-                'integer',
-                Rule::exists('categories', 'id'),
-            ],
+            'category_id' => ['sometimes','integer',Rule::exists('categories', 'id')],
             'quantity' => ['nullable', 'integer'],
             'description' => ['sometimes', 'string'],
             'price_on_request' => ['sometimes', 'boolean'],
             'price' => ['nullable', 'numeric', 'min:0', Rule::requiredIf(fn() => !$this->price_on_request)],
+            'is_available' => ['sometimes', 'boolean'],
             'state' => ['sometimes', 'string'],
             'country_id' => ['sometimes', 'exists:countries,id'],
             'phone_number' => ['sometimes', 'string', 'max:20'],
