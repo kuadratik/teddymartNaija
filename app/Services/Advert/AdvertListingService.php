@@ -28,8 +28,9 @@ class AdvertListingService
 
     /**
      * Create a new advert listing with promotion plan
+     * @return array
      */
-    public function create(array $attributes, string $return_url = null, string $cancel_url = null): array
+    public function create(array $attributes, string $return_url = null, string $cancel_url = null)
     {
 
         return DB::transaction(function () use ($attributes, $return_url, $cancel_url) {
@@ -52,8 +53,9 @@ class AdvertListingService
 
     /**
      * update advert listing with promotion plan
+     * @return array
      */
-    public function update(AdvertListing $listing, array $attributes, string $return_url = null, string $cancel_url = null): array
+    public function update(AdvertListing $listing, array $attributes, string $return_url = null, string $cancel_url = null)
     {
         if ($listing->getActivePromotePlanStatusAttribute() && $listing->promotePlans()->first()->price > 0) {
             abort(422, 'Advert listing already active');
