@@ -184,6 +184,12 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/', [CartController::class, 'getUserWishlist']);
             Route::delete('remove/{product}', [CartController::class, 'removeFromWishlist']);
             Route::post('add-to-cart/{product}', [CartController::class, 'addWishlistToCart']);
+
+            Route::prefix('advert')->group(function () {
+                Route::post('add/{advert}', [AdvertListingController::class, 'addAdvertToWishlist']);
+                Route::get('/', [AdvertListingController::class, 'getAdvertWishlist']);
+                Route::delete('remove/{advert}', [AdvertListingController::class, 'removeAdvertFromWishlist']);
+            });
         });
 
         Route::prefix('business-listings')->group(function () {
@@ -208,6 +214,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('create', [AdvertListingController::class, 'postAdvert']);
             Route::put('{advert}/update', [AdvertListingController::class, 'updateAdvert']);
             Route::delete('{advert}/delete', [AdvertListingController::class, 'softDeleteAdvert']);
+            Route::get('/', [AdvertListingController::class, 'getUserAdverts']);
+
         });
     });
 });

@@ -277,7 +277,7 @@ class CartService
 
         $user = $request->user();
 
-        $wishlistExists = $user->wishlist()->where('listing_id', $product->id)->exists();
+        $wishlistExists = $user->wishlists()->where('listing_id', $product->id)->exists();
         abort_if($wishlistExists, 422, 'The product is already in your wishlist.');
 
         $cart = $user->carts()
@@ -291,7 +291,7 @@ class CartService
 
         DB::transaction(function () use ($user, $product, $cart) {
             $cart->products()->detach($product->id);
-            $user->wishlist()->attach($product->id);
+            $user->wishlists()->attach($product->id);
 
             if ($cart->products()->count() === 0) {
                 $cart->delete();

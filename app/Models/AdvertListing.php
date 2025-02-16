@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 
@@ -107,5 +108,11 @@ class AdvertListing extends Model
             ->wherePivot('status', 'active')
             ->first()
             ->pivot->status ?? null;
+    }
+
+    public function wishlistedByUsers(): MorphToMany
+    {
+        return $this->morphToMany(User::class, 'wishlistable', 'wishlists')
+        ->withTimestamps();
     }
 }
