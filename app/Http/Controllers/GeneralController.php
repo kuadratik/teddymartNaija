@@ -92,13 +92,13 @@ class GeneralController extends Controller
     public function countries(Request $request)
     {
         $countries = DB::table('countries')
-            ->select('id', 'name', 'emoji', 'currency_code', 'phonecode')
-            ->where(function ($query) use ($request) {
-                if ($request->has('search')) {
-                    $query->where('name', 'LIKE', "%$request->search%")
-                        ->orWhere('phonecode', 'LIKE', "%$request->search%");
-                }
-            })->get();
+            ->select('id', 'name', 'emoji', 'code', 'currency_code', 'phonecode')
+            ->when($request->filled('search'))->where(
+                fn($q) => $q->where('name', 'LIKE', "%$request->search%")
+                    ->orWhere('phonecode', 'LIKE', "%$request->search%")
+            )->get();
+
+        $countries->map(fn($c) => collect($c)->merge(['flag' => strtolower("https://flagcdn.com/120x90/{$C['code']}.png")]));
 
         return $this->success($countries);
     }
