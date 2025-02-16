@@ -9,6 +9,7 @@ use App\Enums\PaymentStatusEnum;
 use App\Enums\CurrencyType;
 use App\Enums\OrderStatusEnum;
 use App\Enums\PaymentType;
+use App\Enums\WishlistType;
 use App\Models\User;
 use App\Services\Media\MediaService;
 use App\Services\PaymentGateways\PaymentService;
@@ -293,6 +294,15 @@ class AdvertListingService
         ];
     }
 
+    /**
+     * Retrieve all adverts based on the provided request filters.
+     *
+     * This method fetches adverts with optional filtering by category, status, type, price range,
+     * search term, and currency. It also supports pagination.
+     *
+     * @param Request $request The HTTP request containing filter parameters.
+     * @return array An array containing the filtered adverts and pagination details.
+     */
     public function getAllAdverts(Request $request)
     {
         $validated = $request->validate([
@@ -351,5 +361,45 @@ class AdvertListingService
                 'last_page' => $ads->lastPage()
             ]
         ];
+    }
+
+
+    /**
+     * Adds an advert to the user's wishlist.
+     *
+     * This method checks if the advert is already in the user's wishlist.
+     * If it is, the operation is aborted with a 422 status code.
+     * Otherwise, the advert is attached to the user's wishlist.
+     */
+    public function addAdvertToWishlist(AdvertListing $advert, User $user)
+    {
+        abort_if($user->hasAdvertWishlisted($advert), 422, 'The advert is already in your wishlist.');
+
+        return $user->advertWishlists()->attach($advert->id);
+    }
+
+
+    /**
+     * Retrieves the user's advert wishlist.
+     *
+     * This method fetches the user's advert wishlist and includes the store details for each advert.
+     */
+    public function getUserAdvertWishlist(User $user)
+    {
+        return $user->advertWishlists()->with('user.store')->get();
+    }
+
+    /**
+     * Removes an advert from the user's wishlist.
+     *
+     * This method checks if the advert is in the user's wishlist.
+     * If it is, the advert is detached from the user's wishlist.
+     * Otherwise, the operation is aborted with a 422 status code.
+     */
+    public function removeAdvertFromWishlist(AdvertListing $advert, User $user)
+    {
+        abort_if(!$user->hasAdvertWishlisted($advert), 422, 'The advert is not in your wishlist.');
+
+        return $user->advertWishlists()->detach($advert->id);
     }
 }
