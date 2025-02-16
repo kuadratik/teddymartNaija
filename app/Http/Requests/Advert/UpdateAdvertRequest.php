@@ -29,10 +29,10 @@ class UpdateAdvertRequest extends FormRequest
             // 'type' => ['sometimes', Rule::enum(ListingType::class)],
             'title' => ['sometimes', 'string', 'max:255'],
             'category_id' => ['sometimes','integer',Rule::exists('categories', 'id')],
-            'quantity' => ['nullable', 'integer'],
+            'quantity' => ['sometimes', 'integer'],
             'description' => ['sometimes', 'string'],
             'price_on_request' => ['sometimes', 'boolean'],
-            'price' => ['nullable', 'numeric', 'min:0', Rule::requiredIf(fn() => !$this->price_on_request)],
+            'price' => ['sometimes', 'numeric', 'min:0', Rule::requiredIf(fn() => !$this->price_on_request)],
             'is_available' => ['sometimes', 'boolean'],
             'state' => ['sometimes', 'string'],
             'country_id' => ['sometimes', 'exists:countries,id'],
@@ -40,7 +40,7 @@ class UpdateAdvertRequest extends FormRequest
             'country_code' => ['sometimes', 'string', 'max:4'],
             'promote_plan_id' => ['sometimes', 'exists:advert_promote_plans,id'],
             'media' => ['sometimes', 'array'],
-            'media.*' => ['string'],
+            'media.*' => ['sometimes','string'],
             'cancel_url' => ['sometimes', 'url'],
             'return_url' => ['sometimes', 'url'],
         ];
@@ -65,6 +65,6 @@ class UpdateAdvertRequest extends FormRequest
             'media' => $this->media(),
             'user_id' => $this->user()->id,
             'currency' => $this->header('currency', CurrencyType::USD->value),
-        ])->filter()->toArray();
+        ])->filter(fn($value) => $value !== null)->toArray();
     }
 }
