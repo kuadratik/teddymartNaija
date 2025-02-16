@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\CurrencyType;
+use App\Enums\WishlistType;
 use App\Http\Requests\Advert\PostAdvertRequest;
 use App\Http\Requests\Advert\PostStoreAdvertRequest;
 use App\Http\Requests\Advert\UpdateAdvertRequest;
@@ -94,7 +95,7 @@ class AdvertListingController extends Controller
         $ads = $this->promoteStoreService->getStoresWithActivePromotions($request);
         return $this->success($ads);
     }
-    
+
     public function getUserPromotedStore(Request $request)
     {
         $ads = $this->promoteStoreService->getUserPromotedStore($request);
@@ -130,14 +131,41 @@ class AdvertListingController extends Controller
         return  $this->success($listing);
     }
 
+
+    /**
+     * Add advert to wishlist
+     */
+    public function addAdvertToWishlist(Request $request, AdvertListing $advert)
+    {
+        $this->advertListingService->addAdvertToWishlist($advert, $request->user());
+        return $this->success('Advert added to wishlist');
+    }
+
+    /**
+     * get advert wishlist
+     */
+    public function getAdvertWishlist(Request $request)
+    {
+        $wishlist = $this->advertListingService->getUserAdvertWishlist($request->user());
+        return $this->success($wishlist);
+    }
+
+    /**
+     * Remove advert from wishlist
+     */
+    public function removeAdvertFromWishlist(Request $request, AdvertListing $advert)
+    {
+        $this->advertListingService->removeAdvertFromWishlist($advert, $request->user());
+        return $this->success('Advert removed from wishlist');
+    }
+
     /**
      * Delete classified ads
      */
-   public function softDeleteAdvert(Request $request, AdvertListing $advert)
-   {
+    public function softDeleteAdvert(Request $request, AdvertListing $advert)
+    {
         $advert = $request->user()->advertListings()->where('id', $advert->id)->firstOrFail();
         $advert->delete();
         return $this->success();
-   }
+    }
 }
-

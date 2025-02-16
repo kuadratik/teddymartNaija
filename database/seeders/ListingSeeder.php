@@ -51,6 +51,6 @@ class ListingSeeder extends Seeder
         $listings->each(function ($listing) {
           Listing::create($listing);
         });
-        
+
     }
 }

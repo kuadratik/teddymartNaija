@@ -421,6 +421,36 @@ paths:
               schema:
                 type: object
 
+  /front/wishlist/advert/add/{advert}:
+    post:
+      tags:
+        - Wishlist
+      summary: add advert to wishlist
+      description: add advert to wishlist
+      operationId: AddAdvertToWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/wishlist/add-from-cart/{product}:
     post:
       tags:
@@ -443,6 +473,36 @@ paths:
             type: string
             example:
           required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/advert/remove/{advert}:
+    delete:
+      tags:
+        - Wishlist
+      summary: remove advert from wishlist
+      description: remove advert from wishlist
+      operationId: RemoveAdvertFromWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: false
       responses:
         default:
           description: "success"
@@ -488,6 +548,30 @@ paths:
       summary: get wishlist
       description: get wishlist
       operationId: GetWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/advert:
+    get:
+      tags:
+        - Wishlist
+      summary: get wishlist adverts
+      description: get wishlist adverts
+      operationId: GetWishlistAdverts
       security:
         - bearerAuth: []
       parameters:

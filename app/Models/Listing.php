@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -297,5 +298,12 @@ class Listing extends Model
                 'discount_end_date' => null
             ]);
         }
+    }
+
+
+    public function wishlistedByUsers(): MorphToMany
+    {
+        return $this->morphToMany(User::class, 'wishlistable', 'wishlists')
+        ->withTimestamps();
     }
 }
