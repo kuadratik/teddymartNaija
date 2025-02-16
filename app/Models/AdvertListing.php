@@ -40,6 +40,7 @@ class AdvertListing extends Model
         'quantity' => 'integer',
         'type' => ListingType::class,
         'curerency' => CurrencyType::class,
+        'is_available' => 'boolean',
 
     ];
 
