@@ -14,10 +14,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('wishlists', function (Blueprint $table) {
-            $table->unsignedBigInteger('wishlistable_id')->nullable()->after('user_id');
-            $table->string('wishlistable_type')->nullable()->after('wishlistable_id');
-        });
+        if (! Schema::hasColumn('wishlists', 'wishlistable_id')) {
+            Schema::table('wishlists', function (Blueprint $table) {
+                $table->unsignedBigInteger('wishlistable_id')->nullable()->after('user_id');
+            });
+        }
+
+        if (! Schema::hasColumn('wishlists', 'wishlistable_type')) {
+            Schema::table('wishlists', function (Blueprint $table) {
+                $table->string('wishlistable_type')->nullable()->after('wishlistable_id');
+            });
+        }
 
         foreach (Wishlist::whereNull('wishlistable_type')->get() as $wishlist) {
             $wishlist->wishlistable_id = $wishlist->listing_id;
@@ -26,10 +33,14 @@ return new class extends Migration
         }
 
         Schema::table('wishlists', function (Blueprint $table) {
-            $table->dropForeign(['listing_id']);
-            $table->dropColumn('listing_id');
+            if (Schema::hasColumn('wishlists', 'listing_id')) {
+                $table->dropForeign(['listing_id']);
+                $table->dropColumn('listing_id');
+            }
+
             $table->unsignedBigInteger('wishlistable_id')->nullable(false)->change();
             $table->string('wishlistable_type')->nullable(false)->change();
+
             $table->unique(['user_id', 'wishlistable_id', 'wishlistable_type']);
         });
     }
@@ -40,7 +51,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('wishlists', function (Blueprint $table) {
-            $table->foreignId('listing_id')->nullable()->constrained('listings')->onDelete('cascade');
+            $table->foreignId('listing_id')
+                ->nullable()
+                ->constrained('listings')
+                ->onDelete('cascade');
+
             $table->dropUnique(['user_id', 'wishlistable_id', 'wishlistable_type']);
             $table->dropColumn(['wishlistable_id', 'wishlistable_type']);
         });
