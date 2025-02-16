@@ -58,7 +58,6 @@ class AdvertListingService
      */
     public function update(AdvertListing $listing, array $attributes, string $return_url = null, string $cancel_url = null)
     {
-
         return DB::transaction(function () use ($listing, $attributes, $return_url, $cancel_url) {
             $mediaPaths = $attributes['media'] ?? [];
             unset($attributes['media']);
