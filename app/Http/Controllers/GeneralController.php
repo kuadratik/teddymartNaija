@@ -98,9 +98,10 @@ class GeneralController extends Controller
                     ->orWhere('phonecode', 'LIKE', "%$request->search%")
             )->get();
 
-        $countries->map(fn($c) => collect($c)->merge(['flag' => strtolower("https://flagcdn.com/120x90/{$c->code}.png")]));
+        $mapped = $countries->map(fn($c) => collect($c)
+            ->merge(['flag' => strtolower("https://flagcdn.com/120x90/{$c->code}.png")]));
 
-        return $this->success($countries);
+        return $this->success($mapped);
     }
 
     /**
