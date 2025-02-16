@@ -58,9 +58,6 @@ class AdvertListingService
      */
     public function update(AdvertListing $listing, array $attributes, string $return_url = null, string $cancel_url = null)
     {
-        if ($listing->getActivePromotePlanStatusAttribute() && $listing->promotePlans()->first()->price > 0) {
-            abort(422, 'Advert listing already active');
-        }
 
         return DB::transaction(function () use ($listing, $attributes, $return_url, $cancel_url) {
             $mediaPaths = $attributes['media'] ?? [];
@@ -69,7 +66,6 @@ class AdvertListingService
             if (!empty($mediaPaths)) {
                 $this->mediaService->storeMedia($listing->id, $mediaPaths);
             }
-
 
             if (isset($attributes['promote_plan_id'])) {
                 $url =  $this->updatePromotion($listing, $attributes['promote_plan_id'], $attributes['currency'] ?? CurrencyType::USD, $return_url, $cancel_url);
