@@ -14,35 +14,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (! Schema::hasColumn('wishlists', 'wishlistable_id')) {
-            Schema::table('wishlists', function (Blueprint $table) {
-                $table->unsignedBigInteger('wishlistable_id')->nullable()->after('user_id');
-            });
-        }
-
-        if (! Schema::hasColumn('wishlists', 'wishlistable_type')) {
-            Schema::table('wishlists', function (Blueprint $table) {
-                $table->string('wishlistable_type')->nullable()->after('wishlistable_id');
-            });
-        }
-
-        foreach (Wishlist::whereNull('wishlistable_type')->get() as $wishlist) {
-            $wishlist->wishlistable_id = $wishlist->listing_id;
-            $wishlist->wishlistable_type = Listing::class;
-            $wishlist->save();
-        }
-
         Schema::table('wishlists', function (Blueprint $table) {
-            if (Schema::hasColumn('wishlists', 'listing_id')) {
-                $table->dropForeign(['listing_id']);
-                $table->dropColumn('listing_id');
+            if (! Schema::hasColumn('wishlists', 'wishlistable_id')) {
+                $table->unsignedBigInteger('wishlistable_id')->nullable()->after('user_id');
             }
-
-            $table->unsignedBigInteger('wishlistable_id')->nullable(false)->change();
-            $table->string('wishlistable_type')->nullable(false)->change();
-
-            $table->unique(['user_id', 'wishlistable_id', 'wishlistable_type']);
+            if (! Schema::hasColumn('wishlists', 'wishlistable_type')) {
+                $table->string('wishlistable_type')->nullable()->after('wishlistable_id');
+            }
         });
+
+        Wishlist::whereNull('wishlistable_type')
+            ->chunkById(100, function ($wishlists) {
+                foreach ($wishlists as $wishlist) {
+                    $wishlist->wishlistable_id = $wishlist->listing_id;
+                    $wishlist->wishlistable_type = Listing::class;
+                    $wishlist->save();
+                }
+            });
     }
 
     /**
@@ -54,9 +42,21 @@ return new class extends Migration
             $table->foreignId('listing_id')
                 ->nullable()
                 ->constrained('listings')
-                ->onDelete('cascade');
+                ->onDelete('cascade')
+                ->after('user_id');
+        });
 
-            $table->dropUnique(['user_id', 'wishlistable_id', 'wishlistable_type']);
+        DB::transaction(function () {
+            DB::table('wishlists')
+                ->where('wishlistable_type', Listing::class)
+                ->update(['listing_id' => DB::raw('wishlistable_id')]);
+        });
+
+        Schema::table('wishlists', function (Blueprint $table) {
+            $table->unique(['user_id', 'listing_id']);
+        });
+
+        Schema::table('wishlists', function (Blueprint $table) {
             $table->dropColumn(['wishlistable_id', 'wishlistable_type']);
         });
     }
