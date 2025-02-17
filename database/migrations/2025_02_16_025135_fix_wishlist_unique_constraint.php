@@ -12,8 +12,8 @@ return new class extends Migration
         Schema::table('wishlists', function (Blueprint $table) {
             // $table->dropForeign('wishlists_user_id_foreign');
             // $table->dropForeign('wishlists_listing_id_foreign');
-            // $table->dropUnique('wishlists_user_id_listing_id_unique');
-            // $table->dropIndex('wishlists_listing_id_foreign');
+            $table->dropUnique('wishlists_user_id_listing_id_unique');
+            $table->dropIndex('wishlists_listing_id_foreign');
             $table->dropColumn('listing_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unique(['user_id', 'wishlistable_id', 'wishlistable_type']);
