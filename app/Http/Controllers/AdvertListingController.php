@@ -146,7 +146,7 @@ class AdvertListingController extends Controller
      */
     public function getAdvertWishlist(Request $request)
     {
-        $wishlist = $this->advertListingService->getUserAdvertWishlist($request->user());
+        $wishlist = $this->advertListingService->getUserAdvertWishlist($request->user(), $request);
         return $this->success($wishlist);
     }
 

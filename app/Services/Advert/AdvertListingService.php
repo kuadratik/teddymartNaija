@@ -303,6 +303,8 @@ class AdvertListingService
         $validated = $request->validate([
             'category_id' => 'nullable|array',
             'category_id.*' => 'integer|exists:categories,id',
+            'country_id' => 'nullable|integer|exists:countries,id',
+            'state' => 'nullable|string|max:255',
         ]);
 
         $query = AdvertListing::with(['media', 'category', 'payment', 'promotePlans']);
@@ -313,6 +315,7 @@ class AdvertListingService
             ->addSelect(DB::raw('MIN(advert_promote_plans.price) as min_promote_plan_price'))
             ->groupBy('advert_listings.id')
             ->orderBy('min_promote_plan_price', 'desc');
+
 
         $query->when($request->filled('status'), function ($query) use ($request) {
             $query->whereHas('promotePlans', function ($q) use ($request) {
@@ -338,11 +341,12 @@ class AdvertListingService
                         ->orWhere('advert_listings.description', 'like', '%' . $request->search . '%');
                 });
             })
-
             ->when($request->hasHeader('currency'), function ($query) use ($request) {
                 $currency = $request->header('currency');
                 $query->where('advert_listings.currency', $currency);
-            });
+            })
+            ->when($request->filled('country_id'), fn($query) => $query->where('advert_listings.country_id', $request->country_id))
+            ->when($request->filled('state'), fn($query) => $query->where('advert_listings.state', $request->state));
 
         $perPage = $request->input('per_page', 15);
         $ads = $query->paginate($perPage)->appends($request->query());
@@ -378,10 +382,19 @@ class AdvertListingService
      * Retrieves the user's advert wishlist.
      *
      * This method fetches the user's advert wishlist and includes the store details for each advert.
+     * It also supports optional search filtering by title or description.
      */
-    public function getUserAdvertWishlist(User $user)
+    public function getUserAdvertWishlist(User $user, Request $request)
     {
-        return $user->advertWishlists()->with('user.store')->get();
+        $query = $user->advertWishlists()->with(['user.store', 'media', 'category', 'payment', 'promotePlans']);
+
+        $query->when($request->filled('search'), fn($query) => $query->where(
+            fn($q) =>
+            $q->where('title', 'like', '%' . $request->input('search') . '%')
+                ->orWhere('description', 'like', '%' . $request->input('search') . '%')
+        ));
+
+        return $query->get();
     }
 
     /**
