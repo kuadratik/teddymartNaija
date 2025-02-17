@@ -10,7 +10,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('wishlists', function (Blueprint $table) {
-            $table->dropForeign('wishlists_user_id_foreign');
+            // $table->dropForeign('wishlists_user_id_foreign');
             // $table->dropForeign('wishlists_listing_id_foreign');
             $table->dropUnique('wishlists_user_id_listing_id_unique');
             $table->dropIndex('wishlists_listing_id_foreign');
