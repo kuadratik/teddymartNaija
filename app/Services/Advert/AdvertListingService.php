@@ -63,7 +63,7 @@ class AdvertListingService
             unset($attributes['media']);
             $listing->update($attributes);
             if (!empty($mediaPaths)) {
-                $this->mediaService->storeMedia($listing->id, $mediaPaths);
+                $this->mediaService->updateMedia($listing->id, $mediaPaths);
             }
 
             if (isset($attributes['promote_plan_id'])) {
