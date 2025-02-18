@@ -1510,6 +1510,80 @@ paths:
               schema:
                 type: object
 
+  /front/advert/{advert}/rate:
+    post:
+      tags:
+        - Advertisement
+      summary: Rate and review advert listing
+      description: Rate and review advert listing as a user or a guest
+      operationId: Advertisement
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: false
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: integer
+                  example: 1
+                  required: true
+                review:
+                  type: string
+                  example: "This is a review"
+                  required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/{advert}/ratings:
+    get:
+      tags:
+        - Advertisement
+      summary: Get advert ratings and reviews
+      description: Get advert ratings and reviews
+      operationId: GetAdvertRatings
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: false
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/{store}/shipping/methods:
     get:
       tags:
