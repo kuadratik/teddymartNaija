@@ -10,6 +10,7 @@ use App\Enums\CurrencyType;
 use App\Enums\OrderStatusEnum;
 use App\Enums\PaymentType;
 use App\Enums\WishlistType;
+use App\Models\AdvertRating;
 use App\Models\User;
 use App\Services\Media\MediaService;
 use App\Services\PaymentGateways\PaymentService;
@@ -409,5 +410,47 @@ class AdvertListingService
         abort_if(!$user->hasAdvertWishlisted($advert), 422, 'The advert is not in your wishlist.');
 
         return $user->advertWishlists()->detach($advert->id);
+    }
+
+    /**
+     * Store advert ratings and reviews.
+     *
+     * @param AdvertListing $advert The advert listing to rate.
+     * @param array $validatedData The validated rating and review data.
+     * @param User|null $user The user submitting the rating and review.
+     *
+     * @return AdvertRating
+     */
+    public function storeAdvertRating(AdvertListing $advert, array $validatedData, ?User $user = null)
+    {
+        $identifierColumn = $user ? 'user_id' : 'guest_id';
+        $identifierValue  = $user ? $user->id : request()->ip();
+        $existingAdvert = AdvertRating::where('advert_listing_id', $advert->id)->where($identifierColumn, $identifierValue)->exists();
+        abort_if($existingAdvert, 422, 'You have already rated this advert.');
+
+        return AdvertRating::create([
+            'advert_listing_id' => $advert->id,
+            'rating' => $validatedData['rating'],
+            'review' => $validatedData['review'] ?? null,
+            'user_id' => $user ? $user->id : null,
+            'guest_id' => $user ? null : request()->ip(),
+        ]);
+    }
+
+    /**
+     * Get  all ratings and reviews for an advert.
+     * @param AdvertListing $advert The advert listing to get ratings for.
+     * @return array An array containing the ratings, average rating, and total ratings.
+     */
+    public function getAdvertRatings(AdvertListing $advert)
+    {
+        $ratings = $advert->ratings()->with('user')->get();
+        $averageRating = $ratings->avg('rating');
+        $totalRatings = $ratings->count();
+        return [
+            'ratings' => $ratings,
+            'average_rating' => $averageRating,
+            'total_ratings' => $totalRatings
+        ];
     }
 }

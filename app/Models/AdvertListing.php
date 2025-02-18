@@ -7,6 +7,7 @@ use App\Enums\ListingType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AdvertListing extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -114,6 +115,26 @@ class AdvertListing extends Model
     public function wishlistedByUsers(): MorphToMany
     {
         return $this->morphToMany(User::class, 'wishlistable', 'wishlists')
-        ->withTimestamps();
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the ratings associated with the advert listing.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(AdvertRating::class);
+    }
+
+    /**
+     * Get the average rating of the advert listing.
+     *
+     * @return float
+     */
+    public function getAverageRatingAttribute()
+    {
+        return $this->ratings()->avg('rating');
     }
 }
