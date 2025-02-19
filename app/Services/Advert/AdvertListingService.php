@@ -337,10 +337,10 @@ class AdvertListingService
             ->when($request->filled('price_min'), fn($query) => $query->where('advert_promote_plans.price', '>=', $request->price_min))
             ->when($request->filled('price_max'), fn($query) => $query->where('advert_promote_plans.price', '<=', $request->price_max))
             ->when($request->filled('search'), function ($query) use ($request) {
-                $query->where(function ($q) use ($request) {
-                    $q->where('advert_listings.title', 'like', '%' . $request->search . '%')
-                        ->orWhere('advert_listings.description', 'like', '%' . $request->search . '%');
-                });
+                $query->where(
+                    fn($q) => $q->where('advert_listings.title', 'like', '%' . $request->search . '%')
+                        ->orWhere('advert_listings.description', 'like', '%' . $request->search . '%')
+                );
             })
             ->when($request->hasHeader('currency'), function ($query) use ($request) {
                 $currency = $request->header('currency');
@@ -434,6 +434,7 @@ class AdvertListingService
             'review' => $validatedData['review'] ?? null,
             'user_id' => $user ? $user->id : null,
             'guest_id' => $user ? null : request()->ip(),
+            'name' => $validatedData['name'] ?? null,
         ]);
     }
 
