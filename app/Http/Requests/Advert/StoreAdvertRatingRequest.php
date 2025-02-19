@@ -24,6 +24,7 @@ class StoreAdvertRatingRequest extends FormRequest
         return [
             "rating" => ["required", "integer", "min:1", "max:5"],
             "review" => ["nullable", "string"],
+            "name" => ["required", "string"],
         ];
     }
 }

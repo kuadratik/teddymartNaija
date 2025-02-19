@@ -434,6 +434,7 @@ class AdvertListingService
             'review' => $validatedData['review'] ?? null,
             'user_id' => $user ? $user->id : null,
             'guest_id' => $user ? null : request()->ip(),
+            'name' => $validatedData['name'] ?? null,
         ]);
     }
 

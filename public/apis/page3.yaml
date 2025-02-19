@@ -1546,6 +1546,10 @@ paths:
                   type: string
                   example: "This is a review"
                   required: false
+                name:
+                  type: string
+                  example: "John Doe"
+                  required: false
       responses:
         default:
           description: "success"
