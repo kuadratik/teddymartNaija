@@ -16,6 +16,7 @@ class AdvertRating extends Model
         'guest_id',
         'rating',
         'review',
+        'name',
     ];
 
     /**
