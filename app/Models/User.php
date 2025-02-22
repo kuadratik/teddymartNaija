@@ -27,6 +27,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'first_name',
         'last_name',
         'email',
+        'referral_code',
+        'referred_by_user_id',
         'offers_product',
         'offers_service',
         'has_store',
@@ -61,6 +63,15 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+
+    protected static function booted()
+    {
+        static::saving(function ($user) {
+            if (empty($user->referral_code)) {
+                $user->referral_code = 'REF' . strtoupper($user->first_name . ($user->id ?? rand(1000, 9999)) . substr(uniqid(), 0, 6));
+            }
+        });
+    }
 
 
     /**
@@ -189,5 +200,49 @@ class User extends Authenticatable implements MustVerifyEmail
     public function advertListings(): HasMany
     {
         return $this->hasMany(AdvertListing::class);
+    }
+
+    /**
+     * Get all referrals for the User
+     *
+     */
+    public function referrals()
+    {
+        return $this->hasMany(Referral::class, 'referrer_id');
+    }
+    /**
+     * Get all referrals for the User
+     *
+     */
+    public function referredBys()
+    {
+        return $this->hasMany(Referral::class, 'referred_id');
+    }
+
+
+
+    /**
+     * Get user that referred you
+     *
+     */
+    public function referredBy()
+    {
+        return $this->belongsTo(User::class, 'referred_by_user_id');
+    }
+
+
+    public function referredUsers()
+    {
+        return $this->hasMany(User::class, 'referred_by_user_id');
+    }
+
+    public function generateReferralCode()
+    {
+        if (!$this->referral_code) {
+            $this->referral_code = 'REF' . strtoupper(substr($this->first_name, 0, 3) . $this->id . substr(uniqid(), 0, 6));
+            $this->save();
+        }
+
+        return $this->referral_code;
     }
 }
