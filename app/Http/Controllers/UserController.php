@@ -26,7 +26,7 @@ class UserController extends Controller
      */
     public function getUserProfile(Request $request)
     {
-        $user = $request->user()->load('store');
+        $user = $request->user()->load('store', 'referredBys.referrer', 'referrals.referred');
         return $this->success($user);
     }
 
