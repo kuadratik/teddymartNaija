@@ -89,6 +89,7 @@ class AuthenticationService
             'user' => $user->load('store'),
         ];
     }
+
     /**
      * Verify gogle token and create or login account
      */
