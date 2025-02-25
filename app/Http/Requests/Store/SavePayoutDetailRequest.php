@@ -20,75 +20,41 @@ class SavePayoutDetailRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
-
-        $requiredForInternation = 'required_if:detail_type,' . PayoutDetailType::INTERNATION->value;
+        $internationType = PayoutDetailType::INTERNATION->value;
 
         return [
-            'store_id' => ['required',  Rule::exists('stores', 'id')->where('user_id', $this->user()->id)],
+            'store_id' => [
+                'required',
+                Rule::exists('stores', 'id')->where('user_id', $this->user()->id)
+            ],
             'detail_type' => ['required', new Enum(PayoutDetailType::class)],
             'account_name' => ['required', 'string'],
             'account_number' => ['required'],
             'bank_name' => ['required', 'string'],
-            'bank_code' => [
-                'nullable',
-                fn($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail),
-                'string'
-            ],
-            'iban' => [
-                'nullable',
-                fn($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail),
-                'string'
-            ],
-            'institution_number' => [
-                'nullable',
-                fn($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail),
-                'string'
-            ],
-            'transit_number' => [
-                'nullable',
-                fn($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail),
-                'string'
-            ],
-            'sort_code' => [
-                'nullable',
-                fn($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail),
-                'string'
-            ],
-            'interac_information' => [
-                'nullable',
-                fn($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail),
-                'string'
-            ],
-            'zelle_information' => [
-                'nullable',
-                fn($attr, $val, $fail) => $this->checkInternation($attr, $val, $fail),
-                'string'
-            ]
-
+            'bank_code' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
+            'iban' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
+            'institution_number' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
+            'transit_number' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
+            'sort_code' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
+            'interac_information' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
+            'zelle_information' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
         ];
-    }
-
-    public function checkInternation($attribute, $val, $fail)
-    {
-        if (!is_null($val) && $this->detail_type !== PayoutDetailType::INTERNATION->value) {
-            return $fail(':attribute is only for internation payout configuration');
-        }
     }
 
     /**
      * Prepare payout attributes to save
      */
-    public function payoutAttributes()
+    public function payoutAttributes(): array
     {
-        $hasDetail = StorePayoutDetail::where('store_id', $this->input('store_id'))->exists();
+        $attributes = $this->validated();
 
-        return collect($this->validate())
-            ->when(!$hasDetail)->merge(['is_default' => true])
-            ->toArray();
+        if (!StorePayoutDetail::where('store_id', $this->input('store_id'))->exists()) {
+            $attributes['is_default'] = true;
+        }
+
+        return $attributes;
     }
 }
