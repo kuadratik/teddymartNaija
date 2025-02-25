@@ -445,7 +445,7 @@ class AdvertListingService
      */
     public function getAdvertRatings(AdvertListing $advert)
     {
-        $ratings = $advert->ratings()->with('user')->get();
+        $ratings = $advert->ratings()->with('user')->latest()->get();
         $averageRating = $ratings->avg('rating');
         $totalRatings = $ratings->count();
         return [
