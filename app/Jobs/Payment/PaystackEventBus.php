@@ -28,10 +28,7 @@ class PaystackEventBus implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(public array $webhookData)
-    {
-        //
-    }
+    public function __construct(public array $webhookData) {}
 
     public function handle(): void
     {
@@ -55,374 +52,247 @@ class PaystackEventBus implements ShouldQueue
     }
 
     /**
-     * Process a successful charge by updating order statuses, recording payment transactions,
-     * and attaching payments to corresponding orders.
+     * Process a payment event based on status and type
      */
-    private function processSuccessfulCharge(array $payload)
+    private function processPaymentEvent(array $payload, bool $isSuccess): void
     {
-
-        Log::info('Paystack processing processSuccessfulCharge');
-
         $orderId = $this->extractOrderId($payload);
         $paymentType = $this->extractPaymentType($payload);
 
-        if (empty($paymentType)) {
-            Log::warning('payment type is missing or malformed');
-
-            return;
-        }
-
         if (empty($orderId)) {
-            Log::warning('Order ID is missing or malformed', ['payload' => $payload]);
-
+            Log::warning('Order ID is missing or malformed', ['payload' => json_encode($payload)]);
             return;
         }
 
-        if ($paymentType == PaymentType::ADVERT->value) {
+        if (empty($paymentType)) {
+            Log::warning('Payment type is missing or malformed');
+            return;
+        }
 
-            $advert = AdvertListingPromotePlan::where('order_number', $orderId)->first();
+        $paymentDetails = $this->extractPaymentDetails($payload);
+        $paymentStatus = $isSuccess ? PaymentStatusEnum::SUCCESS : PaymentStatusEnum::FAILED;
+        $orderStatus = $isSuccess ? OrderStatusEnum::ACTIVE : OrderStatusEnum::PAYMENT_FAILED;
+        $orderPaymentStatus = $isSuccess ? OrderStatusEnum::COMPLETED_PAYMENT : OrderStatusEnum::PAYMENT_FAILED;
+        $statusMessage = $isSuccess ? 'APPROVED' : 'FAILED';
 
-            if (! $advert) {
-                Log::error('No advert listing promotion found', ['order_number' => $orderId]);
-
-                return;
-            }
-
-            $paymentDetails = $this->extractPaymentDetails($payload);
-
-            DB::transaction(function () use ($advert, $paymentDetails, $payload) {
-
-                $payment = Payment::where('reference', $paymentDetails['reference'])->first();
-
-                if (! $payment) {
-
-                    $payment = Payment::create([
-                        'reference' => $paymentDetails['reference'],
-                        'amount' => $paymentDetails['amount'],
-                        'currency' => $paymentDetails['currency'],
-                        'gateway' => PaymentGatewayEnum::PAYSTACK->value,
-                        'status' => PaymentStatusEnum::SUCCESS,
-                        'description' => 'paystack Payment for ads',
-                    ]);
-                }
-
-                if ($advert->status !== OrderStatusEnum::ACTIVE->value) {
-                    $advert->status = OrderStatusEnum::ACTIVE->value;
-                    $advert->started_at = now();
-                    $advert->expires_at = now()->addDays($advert->advertPromotePlan->duration_days);
-                    $advert->payment_id = $payment->id;
-                    $advert->save();
-                }
-                PaymentTransaction::create([
-                    'payment_id' => $payment->id,
-                    'reference' => $paymentDetails['reference'],
-                    'type' => PaymentTransactionTypeEnum::CHARGE,
-                    'amount' => $payment->amount,
-                    'currency' => $payment->currency,
-                    'is_success' => true,
-                    'status_message' => 'APPROVED',
-                    'status_message' => 'APPROVED',
-                    'response_payload' => json_encode($payload),
-                ]);
-
-                $customer = $advert->advertListing->user;
-                $customer->notify(new AdvertSuccessNotification($advert->advertListing));
-            });
-        } elseif ($paymentType == PaymentType::PROMOTION->value) {
-
-            $advert = StorePromotePlanStore::where('order_number', $orderId)->first();
-
-            if (! $advert) {
-                Log::error('No store promotion found', ['order_number' => $orderId]);
-
-                return;
-            }
-
-            $paymentDetails = $this->extractPaymentDetails($payload);
-
-            DB::transaction(function () use ($advert, $paymentDetails, $payload) {
-
-                $payment = Payment::where('reference', $paymentDetails['reference'])->first();
-
-                if (! $payment) {
-                    $payment = Payment::create([
-                        'reference' => $paymentDetails['reference'],
-                        'amount' => $paymentDetails['amount'],
-                        'currency' => $paymentDetails['currency'],
-                        'gateway' => PaymentGatewayEnum::PAYSTACK->value,
-                        'status' => PaymentStatusEnum::SUCCESS,
-                        'description' => 'paystack Payment for  promotion',
-                    ]);
-                }
-
-                if ($advert->status !== OrderStatusEnum::ACTIVE->value) {
-
-                    $advert->status = OrderStatusEnum::ACTIVE->value;
-                    $advert->started_at = now();
-                    $advert->expires_at = now()->addDays($advert->storePromotePlan->duration_days);
-                    $advert->payment_id = $payment->id;
-                    $advert->save();
-                }
-
-                PaymentTransaction::create([
-                    'payment_id' => $payment->id,
-                    'reference' => $paymentDetails['reference'],
-                    'type' => PaymentTransactionTypeEnum::CHARGE,
-                    'amount' => $payment->amount,
-                    'currency' => $payment->currency,
-                    'is_success' => true,
-                    'status_message' => 'APPROVED',
-                    'response_payload' => json_encode($payload),
-                ]);
-            });
-        } else {
-
-            $orders = Order::where('order_number', $orderId)->get();
-            if ($orders->isEmpty()) {
-                Log::error('No orders found', ['order_number' => $orderId]);
-
-                return;
-            }
-
-            $paymentDetails = $this->extractPaymentDetails($payload);
-            try {
-                DB::transaction(function () use ($orders, $paymentDetails, $payload) {
-                    $payment = Payment::where('reference', $paymentDetails['reference'])->first();
-
-                    if (! $payment) {
-                        $payment = Payment::create([
-                            'reference' => $paymentDetails['reference'],
-                            'amount' => $paymentDetails['amount'],
-                            'currency' => $paymentDetails['currency'],
-                            'gateway' => PaymentGatewayEnum::PAYSTACK->value,
-                            'description' => 'Paystack Payment',
-                            'status' => $paymentDetails['status_message'],
-
-                        ]);
-                    }
-
-                    foreach ($orders as $order) {
-                        if (! $order->payments()->where('payment_id', $payment->id)->exists()) {
-                            $order->payments()->attach($payment->id);
-                        }
-
-                        PaymentTransaction::create([
-                            'payment_id' => $payment->id,
-                            'reference' => $paymentDetails['reference'],
-                            'type' => PaymentTransactionTypeEnum::CHARGE,
-                            'amount' => $payment->amount,
-                            'currency' => $payment->currency,
-                            'is_success' => true,
-                            'status_message' => 'COMPLETED',
-                            'response_payload' => json_encode($payload),
-                        ]);
-
-                        $order->update([
-                            'payment_status' => OrderStatusEnum::COMPLETED_PAYMENT,
-                            'status' => OrderStatusEnum::NEW,
-                        ]);
-
-                        $this->processOrderDetails($order);
-
-                        $order->store->user->notify(new VendorNewOrderNotification($order));
-
-                        $order->customer->notify(new OrderSuccessfulNotification($order));
-                    }
-                });
-                return response()->json(['status' => 'success'], 200);
-            } catch (\Exception $e) {
-                Log::error('Failed to process successful charge', [
-                    'order_number' => $orderId,
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                ]);
-                throw $e;
-            }
+        try {
+            match ($paymentType) {
+                PaymentType::ADVERT->value => $this->processAdvertPayment($orderId, $paymentDetails, $payload, $paymentStatus, $orderStatus, $statusMessage),
+                PaymentType::PROMOTION->value => $this->processPromotionPayment($orderId, $paymentDetails, $payload, $paymentStatus, $orderStatus, $statusMessage),
+                default => $this->processOrderPayment($orderId, $paymentDetails, $payload, $paymentStatus, $orderPaymentStatus, $statusMessage),
+            };
+        } catch (\Exception $e) {
+            $status = $isSuccess ? 'successful' : 'failed';
+            Log::error("Failed to process {$status} charge", [
+                'order_id' => $orderId,
+                'payment_type' => $paymentType,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
         }
     }
 
     /**
-     * Process a failed charge by updating order statuses, recording a failed payment transaction,
-     * and handling advert-specific failure logic.
+     * Process a successful charge
+     */
+    private function processSuccessfulCharge(array $payload): void
+    {
+        Log::info('Paystack processing processSuccessfulCharge');
+        $this->processPaymentEvent($payload, true);
+    }
+
+    /**
+     * Process a failed charge
      */
     private function processFailedCharge(array $payload): void
     {
-        $orderId = $this->extractOrderId($payload);
-        $paymentType = $this->extractPaymentType($payload);
-
-        if (empty($orderId)) {
-            Log::warning('Order ID is missing or malformed for failed charge', ['payload' => $payload]);
-
-            return;
-        }
-
-        if ($paymentType == PaymentType::ADVERT->value) {
-            $advert = AdvertListingPromotePlan::where('order_number', $orderId)->first();
-
-            if (! $advert) {
-                Log::error('No advert listing promotion found for failed charge', ['order_number' => $orderId]);
-
-                return;
-            }
-
-            $paymentDetails = $this->extractPaymentDetails($payload);
-
-            try {
-                DB::transaction(function () use ($advert, $paymentDetails, $payload) {
-                    $payment = Payment::firstOrCreate(
-                        ['reference' => $paymentDetails['reference']],
-                        [
-                            'amount' => $paymentDetails['amount'],
-                            'currency' => $paymentDetails['currency'],
-                            'gateway' => PaymentGatewayEnum::PAYSTACK->value,
-                            'status' => PaymentStatusEnum::FAILED,
-                            'description' => 'Paystack Payment for advert - Failed',
-                        ]
-                    );
-
-                    $advert->status = OrderStatusEnum::PAYMENT_FAILED->value;
-                    $advert->payment_id = $payment->id;
-                    $advert->save();
-
-                    PaymentTransaction::create([
-                        'payment_id' => $payment->id,
-                        'reference' => $paymentDetails['reference'],
-                        'type' => PaymentTransactionTypeEnum::CHARGE,
-                        'amount' => $payment->amount,
-                        'currency' => $payment->currency,
-                        'is_success' => false,
-                        'status_message' => 'FAILED',
-                        'response_payload' => json_encode($payload),
-                    ]);
-
-                    Log::info('Advert marked as failed', [
-                        'advert_id' => $advert->id,
-                        'payment_reference' => $paymentDetails['reference'],
-                    ]);
-                });
-            } catch (\Exception $e) {
-                Log::error('Failed to process failed advert charge', [
-                    'order_number' => $orderId,
-                    'error' => $e->getMessage(),
-                ]);
-                throw $e;
-            }
-        } elseif ($paymentType == PaymentType::PROMOTION->value) {
-            $promotion = StorePromotePlanStore::where('order_number', $orderId)->first();
-
-            if (! $promotion) {
-                Log::error('No store promotion found for failed charge', ['order_number' => $orderId]);
-
-                return;
-            }
-
-            $paymentDetails = $this->extractPaymentDetails($payload);
-
-            try {
-                DB::transaction(function () use ($promotion, $paymentDetails, $payload) {
-                    $payment = Payment::firstOrCreate(
-                        ['reference' => $paymentDetails['reference']],
-                        [
-                            'amount' => $paymentDetails['amount'],
-                            'currency' => $paymentDetails['currency'],
-                            'gateway' => PaymentGatewayEnum::PAYSTACK->value,
-                            'status' => PaymentStatusEnum::FAILED,
-                            'description' => 'Paystack Payment for promotion - Failed',
-                        ]
-                    );
-
-                    $promotion->status = OrderStatusEnum::PAYMENT_FAILED->value;
-                    $promotion->payment_id = $payment->id;
-                    $promotion->save();
-
-                    PaymentTransaction::create([
-                        'payment_id' => $payment->id,
-                        'reference' => $paymentDetails['reference'],
-                        'type' => PaymentTransactionTypeEnum::CHARGE,
-                        'amount' => $payment->amount,
-                        'currency' => $payment->currency,
-                        'is_success' => false,
-                        'status_message' => 'FAILED',
-                        'response_payload' => json_encode($payload),
-                    ]);
-
-                    Log::info('Store promotion marked as failed', [
-                        'promotion_id' => $promotion->id,
-                        'payment_reference' => $paymentDetails['reference'],
-                    ]);
-                });
-            } catch (\Exception $e) {
-                Log::error('Failed to process failed store promotion charge', [
-                    'order_number' => $orderId,
-                    'error' => $e->getMessage(),
-                ]);
-                throw $e;
-            }
-        } else {
-            $orders = Order::where('order_number', $orderId)->get();
-            if ($orders->isEmpty()) {
-                Log::error('No orders found for failed charge', ['order_number' => $orderId]);
-
-                return;
-            }
-
-            $paymentDetails = $this->extractPaymentDetails($payload);
-
-            try {
-                DB::transaction(function () use ($orders, $paymentDetails, $payload) {
-                    $payment = Payment::firstOrCreate(
-                        ['reference' => $paymentDetails['reference']],
-                        [
-                            'amount' => $paymentDetails['amount'],
-                            'currency' => $paymentDetails['currency'],
-                            'gateway' => PaymentGatewayEnum::PAYSTACK->value,
-                            'status' => PaymentStatusEnum::FAILED,
-                            'description' => 'Paystack Payment - Failed',
-                        ]
-                    );
-
-                    foreach ($orders as $order) {
-                        if (! $order->payments()->where('payment_id', $payment->id)->exists()) {
-                            $order->payments()->attach($payment->id);
-                        }
-
-                        PaymentTransaction::create([
-                            'payment_id' => $payment->id,
-                            'reference' => $paymentDetails['reference'],
-                            'type' => PaymentTransactionTypeEnum::CHARGE,
-                            'amount' => $payment->amount,
-                            'currency' => $payment->currency,
-                            'is_success' => false,
-                            'status_message' => 'FAILED',
-                            'response_payload' => json_encode($payload),
-                        ]);
-
-                        $order->update([
-                            'payment_status' => OrderStatusEnum::PAYMENT_FAILED,
-                            'status' => OrderStatusEnum::PENDING,
-                        ]);
-
-                        $order->customer->notify(new OrderPaymentFailedNotification($order));
-
-                        Log::info('Order marked as failed', [
-                            'order_id' => $order->id,
-                            'order_number' => $order->order_number,
-                            'payment_reference' => $paymentDetails['reference'],
-                        ]);
-                    }
-                });
-            } catch (\Exception $e) {
-                Log::error('Failed to process failed charge for order', [
-                    'order_number' => $orderId,
-                    'error' => $e->getMessage(),
-                ]);
-                throw $e;
-            }
-        }
+        $this->processPaymentEvent($payload, false);
     }
 
     /**
-     * Extracts payment details from the Paystack payload.
+     * Process advertisement payment
+     */
+    private function processAdvertPayment(string $orderId, array $paymentDetails, array $payload, PaymentStatusEnum $paymentStatus, OrderStatusEnum $orderStatus, string $statusMessage): void
+    {
+        $advert = AdvertListingPromotePlan::where('order_number', $orderId)->with('advertListing')->first();
+
+        if (!$advert) {
+            Log::error('No advert listing promotion found', ['order_number' => $orderId]);
+            return;
+        }
+
+        DB::transaction(function () use ($advert, $paymentDetails, $payload, $paymentStatus, $orderStatus, $statusMessage) {
+            $payment = $this->findOrCreatePayment(
+                $paymentDetails,
+                $paymentStatus,
+                'Paystack Payment for ads' . ($statusMessage === 'FAILED' ? ' - Failed' : '')
+            );
+
+            if ($orderStatus === OrderStatusEnum::ACTIVE && $advert->status === OrderStatusEnum::ACTIVE->value && $advert->payment_id === $payment->id) {
+                Log::info('Advert is already active, skipping update.', ['order_number' => $advert->order_number]);
+                return;
+            }
+
+            if ($orderStatus === OrderStatusEnum::ACTIVE) {
+                $advert->status = $orderStatus->value;
+                $advert->started_at = now();
+                $advert->expires_at = now()->addDays($advert->advertPromotePlan->duration_days);
+            } else {
+                $advert->status = $orderStatus->value;
+            }
+
+            $advert->payment_id = $payment->id;
+            $advert->save();
+
+            $this->createPaymentTransaction($payment, $paymentDetails, $payload, $statusMessage !== 'FAILED', $statusMessage);
+
+            if ($orderStatus === OrderStatusEnum::ACTIVE && isset($advert->advertListing->user)) {
+                $advert->advertListing->user->notify(new AdvertSuccessNotification($advert->advertListing));
+            }
+
+            Log::info('Advert payment processed', [
+                'advert_id' => $advert->id,
+                'status' => $orderStatus->value,
+                'payment_reference' => $paymentDetails['reference'],
+            ]);
+        });
+    }
+
+    /**
+     * Process promotion payment
+     */
+    private function processPromotionPayment(string $orderId, array $paymentDetails, array $payload, PaymentStatusEnum $paymentStatus, OrderStatusEnum $orderStatus, string $statusMessage): void
+    {
+        $promotion = StorePromotePlanStore::where('order_number', $orderId)->first();
+
+        if (!$promotion) {
+            Log::error('No store promotion found', ['order_number' => $orderId]);
+            return;
+        }
+
+        DB::transaction(function () use ($promotion, $paymentDetails, $payload, $paymentStatus, $orderStatus, $statusMessage) {
+            $payment = $this->findOrCreatePayment(
+                $paymentDetails,
+                $paymentStatus,
+                'Paystack Payment for promotion' . ($statusMessage === 'FAILED' ? ' - Failed' : '')
+            );
+
+            if ($orderStatus === OrderStatusEnum::ACTIVE && $promotion->status === OrderStatusEnum::ACTIVE->value && $promotion->payment_id === $payment->id) {
+                Log::info('Promotion is already active, skipping update.', ['order_number' => $promotion->order_number]);
+                return;
+            }
+
+            if ($orderStatus === OrderStatusEnum::ACTIVE) {
+                $promotion->status = $orderStatus->value;
+                $promotion->started_at = now();
+                $promotion->expires_at = now()->addDays($promotion->storePromotePlan->duration_days);
+            } else {
+                $promotion->status = $orderStatus->value;
+            }
+
+            $promotion->payment_id = $payment->id;
+            $promotion->save();
+
+            $this->createPaymentTransaction($payment, $paymentDetails, $payload, $statusMessage !== 'FAILED', $statusMessage);
+
+            Log::info('Promotion payment processed', [
+                'promotion_id' => $promotion->id,
+                'status' => $orderStatus->value,
+                'payment_reference' => $paymentDetails['reference'],
+            ]);
+        });
+    }
+
+    /**
+     * Process order payment
+     */
+    private function processOrderPayment(string $orderId, array $paymentDetails, array $payload, PaymentStatusEnum $paymentStatus, OrderStatusEnum $orderPaymentStatus, string $statusMessage): void
+    {
+        $orders = Order::where('order_number', $orderId)->with(['orderDetails.listing'])->get();
+
+        if ($orders->isEmpty()) {
+            Log::error('No orders found', ['order_number' => $orderId]);
+            return;
+        }
+
+        DB::transaction(function () use ($orders, $paymentDetails, $payload, $paymentStatus, $orderPaymentStatus, $statusMessage) {
+            $payment = $this->findOrCreatePayment($paymentDetails, $paymentStatus, 'Paystack Payment' . ($statusMessage === 'FAILED' ? ' - Failed' : ''));
+            $isSuccess = $statusMessage !== 'FAILED';
+            $orderStatus = $isSuccess ? OrderStatusEnum::NEW : OrderStatusEnum::PENDING;
+
+            foreach ($orders as $order) {
+                if (!$order->payments()->where('payment_id', $payment->id)->exists()) {
+                    $order->payments()->attach($payment->id);
+                }
+
+                $order->payment_status = $orderPaymentStatus->value;
+                $order->status = $orderStatus->value;
+                $order->save();
+
+                $this->createPaymentTransaction($payment, $paymentDetails, $payload, $isSuccess, $statusMessage);
+
+                if ($isSuccess) {
+                    $this->processOrderDetails($order);
+
+                    if (isset($order->store->user)) {
+                        $order->store->user->notify(new VendorNewOrderNotification($order));
+                    }
+
+                    if (isset($order->customer)) {
+                        $order->customer->notify(new OrderSuccessfulNotification($order));
+                    }
+                } elseif (isset($order->customer)) {
+                    $order->customer->notify(new OrderPaymentFailedNotification($order));
+                }
+
+                Log::info('Order payment processed', [
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'status' => $order->status,
+                    'payment_status' => $order->payment_status,
+                    'payment_reference' => $paymentDetails['reference'],
+                ]);
+            }
+        });
+    }
+
+    /**
+     * Find or create a payment record
+     */
+    private function findOrCreatePayment(array $paymentDetails, PaymentStatusEnum $status, string $description): Payment
+    {
+        return Payment::firstOrCreate(
+            ['reference' => $paymentDetails['reference']],
+            [
+                'amount' => $paymentDetails['amount'],
+                'currency' => $paymentDetails['currency'],
+                'gateway' => PaymentGatewayEnum::PAYSTACK->value,
+                'status' => $status->value,
+                'description' => $description,
+            ]
+        );
+    }
+
+    /**
+     * Create a payment transaction record
+     */
+    private function createPaymentTransaction(Payment $payment, array $paymentDetails, array $payload, bool $isSuccess, string $statusMessage): void
+    {
+        PaymentTransaction::create([
+            'payment_id' => $payment->id,
+            'reference' => $paymentDetails['reference'],
+            'type' => PaymentTransactionTypeEnum::CHARGE,
+            'amount' => $payment->amount,
+            'currency' => $payment->currency,
+            'is_success' => $isSuccess,
+            'status_message' => $statusMessage,
+            'response_payload' => json_encode($payload),
+        ]);
+    }
+
+    /**
+     * Extracts payment details from the Paystack payload
      */
     private function extractPaymentDetails(array $payload): array
     {
@@ -435,25 +305,24 @@ class PaystackEventBus implements ShouldQueue
     }
 
     /**
-     * Extracts the order ID from the Paystack payload.
+     * Extracts the order ID from the Paystack payload
      */
     private function extractOrderId(array $payload): string
     {
         return $payload['data']['metadata']['order_number'] ?? '';
     }
 
-    private function extractPaymentType(array $payload)
+    /**
+     * Extracts the payment type from the Paystack payload
+     */
+    private function extractPaymentType(array $payload): string
     {
-        Log::info('payment type', [$payload['data']['metadata']['type'] ?? '']);
-
-        return $payload['data']['metadata']['type'] ?? '';
+        $type = $payload['data']['metadata']['type'] ?? '';
+        return $type;
     }
 
     /**
      * Process order details and update listing quantities atomically
-     *
-     * @param Order $order
-     * @throws \Throwable
      */
     private function processOrderDetails(Order $order): void
     {
@@ -462,9 +331,7 @@ class PaystackEventBus implements ShouldQueue
                 $query->lockForUpdate();
             }]);
 
-            $orderDetails = $order->orderDetails;
-
-            foreach ($orderDetails as $orderDetail) {
+            foreach ($order->orderDetails as $orderDetail) {
                 try {
                     $listing = $orderDetail->listing;
 
@@ -478,7 +345,10 @@ class PaystackEventBus implements ShouldQueue
                         ->decrement('quantity', $orderDetail->quantity);
 
                     if ($affectedRows === 0) {
-                        throw new \RuntimeException("Insufficient quantity for listing {$listing->id}. Available: {$listing->quantity}, Required: {$orderDetail->quantity}");
+                        throw new \RuntimeException(
+                            "Insufficient quantity for listing {$listing->id}. " .
+                                "Available: {$listing->quantity}, Required: {$orderDetail->quantity}"
+                        );
                     }
 
                     $listing->refresh();
@@ -494,16 +364,17 @@ class PaystackEventBus implements ShouldQueue
         }, 5);
     }
 
-    public function maxAttempts()
+    /**
+     * Define maximum number of attempts
+     */
+    public function maxAttempts(): int
     {
         return 5;
     }
 
-    public function retryUntil()
-    {
-        return now()->addMinutes(10);
-    }
-
+    /**
+     * Logs the details of a failed payment event
+     */
     public function failed(\Throwable $exception): void
     {
         Log::error('Paystack Event Bus Failed', [
