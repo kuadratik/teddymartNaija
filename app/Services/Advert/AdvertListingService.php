@@ -317,7 +317,7 @@ class AdvertListingService
             $q->whereHas('promotePlans', fn($subQ) => $subQ->where('advert_listing_promote_plans.status', $request->status));
         });
 
-        $query->when($request->filled('category_id'), function ($q) use ($validated) {
+        $query->when($request->has('category_id'), function ($q) use ($validated) {
             $q->whereIn('advert_listings.category_id', $validated['category_id']);
         });
 
