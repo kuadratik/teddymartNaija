@@ -293,61 +293,44 @@ class AdvertListingService
     /**
      * Retrieve all adverts based on the provided request filters.
      *
-     * This method fetches adverts with optional filtering by category, status, type, price range,
-     * search term, and currency. It also supports pagination.
-     *
      * @param Request $request The HTTP request containing filter parameters.
      * @return array An array containing the filtered adverts and pagination details.
      */
     public function getAllAdverts(Request $request)
     {
         $validated = $request->validate([
-            'category_id' => 'nullable|array',
+            'category_id'   => 'nullable|array',
             'category_id.*' => 'integer|exists:categories,id',
             'country_id' => 'nullable|integer|exists:countries,id',
             'state' => 'nullable|string|max:255',
         ]);
 
-        $query = AdvertListing::with(['media', 'category', 'payment', 'promotePlans']);
-
-        $query->leftJoin('advert_listing_promote_plans', 'advert_listings.id', '=', 'advert_listing_promote_plans.advert_listing_id')
+        $query = AdvertListing::with(['media', 'category', 'payment', 'promotePlans'])
+            ->leftJoin('advert_listing_promote_plans', 'advert_listings.id', '=', 'advert_listing_promote_plans.advert_listing_id')
             ->leftJoin('advert_promote_plans', 'advert_listing_promote_plans.advert_promote_plan_id', '=', 'advert_promote_plans.id')
             ->select('advert_listings.*')
             ->addSelect(DB::raw('MIN(advert_promote_plans.price) as min_promote_plan_price'))
             ->groupBy('advert_listings.id')
             ->orderBy('min_promote_plan_price', 'desc');
 
-
-        $query->when($request->filled('status'), function ($query) use ($request) {
-            $query->whereHas('promotePlans', function ($q) use ($request) {
-                $q->where('advert_listing_promote_plans.status', $request->status);
-            });
+        $query->when($request->filled('status'), function ($q) use ($request) {
+            $q->whereHas('promotePlans', fn($subQ) => $subQ->where('advert_listing_promote_plans.status', $request->status));
         });
 
-        if ($request->filled('category_id')) {
-            $categoryIds = $validated['category_id'];
-            $query->where(function ($q) use ($categoryIds) {
-                foreach ($categoryIds as $categoryId) {
-                    $q->orWhere('advert_listings.category_id', $categoryId);
-                }
-            });
-        }
+        $query->when($request->filled('category_id'), function ($q) use ($validated) {
+            $q->whereIn('advert_listings.category_id', $validated['category_id']);
+        });
 
-        $query->when($request->filled('type'), fn($query) => $query->where('advert_listings.type', $request->type))
-            ->when($request->filled('price_min'), fn($query) => $query->where('advert_promote_plans.price', '>=', $request->price_min))
-            ->when($request->filled('price_max'), fn($query) => $query->where('advert_promote_plans.price', '<=', $request->price_max))
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $query->where(
-                    fn($q) => $q->where('advert_listings.title', 'like', '%' . $request->search . '%')
-                        ->orWhere('advert_listings.description', 'like', '%' . $request->search . '%')
-                );
-            })
-            ->when($request->hasHeader('currency'), function ($query) use ($request) {
-                $currency = $request->header('currency');
-                $query->where('advert_listings.currency', $currency);
-            })
-            ->when($request->filled('country_id'), fn($query) => $query->where('advert_listings.country_id', $request->country_id))
-            ->when($request->filled('state'), fn($query) => $query->where('advert_listings.state', $request->state));
+        $query->when($request->filled('type'), fn($q) => $q->where('advert_listings.type', $request->type))
+            ->when($request->filled('price_min'), fn($q) => $q->where('advert_promote_plans.price', '>=', $request->price_min))
+            ->when($request->filled('price_max'), fn($q) => $q->where('advert_promote_plans.price', '<=', $request->price_max));
+
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $q->where(fn($subQ) => $subQ->where('advert_listings.title', 'like', "%{$request->search}%")
+                ->orWhere('advert_listings.description', 'like', "%{$request->search}%"));
+        });
+
+        $query->when($request->hasHeader('currency'), fn($q) => $q->where('advert_listings.currency', $request->header('currency')));
 
         $perPage = $request->input('per_page', 15);
         $ads = $query->paginate($perPage)->appends($request->query());
@@ -362,6 +345,7 @@ class AdvertListingService
             ]
         ];
     }
+
 
 
     /**
@@ -445,7 +429,7 @@ class AdvertListingService
      */
     public function getAdvertRatings(AdvertListing $advert)
     {
-        $ratings = $advert->ratings()->with('user')->get();
+        $ratings = $advert->ratings()->with('user')->latest()->get();
         $averageRating = $ratings->avg('rating');
         $totalRatings = $ratings->count();
         return [
