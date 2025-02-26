@@ -38,12 +38,21 @@ paths:
                 email:
                   type: string
                   example: "kings@eki.market"
+                refferalCode:
+                  type: string
+                  example: "REFTED123456"
+                  nullable: true
+                refferalType:
+                  type: string
+                  example: "vendor"
+                  nullable: true
                 password:
                   type: string
                   example: "12345678"
                 password_confirmation:
                   type: string
                   example: "12345678"
+
       responses:
         default:
           description: "success"
@@ -98,6 +107,14 @@ paths:
                 email:
                   type: string
                   example: "kings@eki.market"
+                refferalCode:
+                  type: string
+                  example: "REFTED123456"
+                  nullable: true
+                refferalType:
+                  type: string
+                  example: "vendor"
+                  nullable: true
                 password:
                   type: string
                   example: "12345678"
@@ -273,31 +290,31 @@ paths:
                 type: object
 
   /front/record-interaction/{category}:
-      get:
-        tags:
-          - Category
-        summary: Record category interaction
-        description: Record category interaction
-        operationId: RecordCategoryInteraction
-        parameters:
-          - name: interactUid
-            in: header
-            required: true
-            schema:
-              type: string
-          - name: category
-            in: path
-            required: true
-            schema:
-              type: string
+    get:
+      tags:
+        - Category
+      summary: Record category interaction
+      description: Record category interaction
+      operationId: RecordCategoryInteraction
+      parameters:
+        - name: interactUid
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
 
-        responses:
-          default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /front/user/profile:
     get:
@@ -608,7 +625,6 @@ paths:
               schema:
                 type: object
 
-
   /front/add-to-clip/{product}:
     post:
       tags:
@@ -864,7 +880,7 @@ paths:
       tags:
         - Clip
       summary: send clip order to vendor
-      description:  send clip order to vendor
+      description: send clip order to vendor
       operationId: SendOrderClip
       security:
         - bearerAuth: []
@@ -882,8 +898,6 @@ paths:
             application/json:
               schema:
                 type: object
-
-
 
   /front/stores/{store}:
     get:
@@ -1043,34 +1057,34 @@ paths:
                 type: object
 
   /front/stores/grouped-alpha-numeric:
-     get:
-        security:
-          - bearerAuth: []
-        tags:
-          - Stores
-        summary: Get Stores In Alpha numeric Order
-        description: 'GetStoresInAlphaNumericOrder'
-        operationId: GetStoresInAlphaNumericOrder
-        parameters:
-          - name: currency
-            in: header
-            required: true
-            schema:
-              type: string
-              example: "USD"
-          - name: store_type
-            in: query
-            required: true
-            schema:
-              type: string
-              example: "product"
-        responses:
-          default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Stores In Alpha numeric Order
+      description: "GetStoresInAlphaNumericOrder"
+      operationId: GetStoresInAlphaNumericOrder
+      parameters:
+        - name: currency
+          in: header
+          required: true
+          schema:
+            type: string
+            example: "USD"
+        - name: store_type
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "product"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /front/stores/{store}/listings/{listing}:
     get:
@@ -1102,7 +1116,6 @@ paths:
             application/json:
               schema:
                 type: object
-
 
   /front/stores/{store}/add-view:
     post:
@@ -1138,7 +1151,6 @@ paths:
       description: "Add Store Listing View"
       operationId: AddStoreListingView
       parameters:
-
         - in: path
           name: listing
           schema:
@@ -1152,7 +1164,6 @@ paths:
             application/json:
               schema:
                 type: object
-
 
   /front/stores/popular:
     get:
@@ -1261,4 +1272,3 @@ paths:
             application/json:
               schema:
                 type: object
-

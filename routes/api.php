@@ -92,6 +92,10 @@ Route::prefix('front')->group(function () {
         Route::post('gallery', [AdvertListingController::class, 'getAllAdverts']);
         Route::get('{advert}/gallery', [AdvertListingController::class, 'showAdvert']);
         Route::get('store/promote', [AdvertListingController::class, 'getAllPromotedStores']);
+        Route::middleware(['optionalAuth'])->group(function () {
+            Route::post('{advert}/rate', [AdvertListingController::class, 'storeAdvertRating']);
+            Route::get('{advert}/ratings', [AdvertListingController::class, 'getAdvertRatings']);
+        });
     });
 });
 
@@ -215,7 +219,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('{advert}/update', [AdvertListingController::class, 'updateAdvert']);
             Route::delete('{advert}/delete', [AdvertListingController::class, 'softDeleteAdvert']);
             Route::get('/', [AdvertListingController::class, 'getUserAdverts']);
-
         });
     });
 });

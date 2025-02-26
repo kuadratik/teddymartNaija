@@ -7,14 +7,15 @@ use App\Enums\ListingType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Support\Facades\Auth;
 
 class AdvertListing extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -43,6 +44,10 @@ class AdvertListing extends Model
         'is_available' => 'boolean',
 
     ];
+
+
+    protected $appends = ['is_favourited_by_user'];
+
 
     /**
      * Get the category that the advert listing belongs to.
@@ -114,6 +119,47 @@ class AdvertListing extends Model
     public function wishlistedByUsers(): MorphToMany
     {
         return $this->morphToMany(User::class, 'wishlistable', 'wishlists')
-        ->withTimestamps();
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the ratings associated with the advert listing.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(AdvertRating::class);
+    }
+
+    /**
+     * Get the average rating of the advert listing.
+     *
+     * @return float
+     */
+    public function getAverageRatingAttribute()
+    {
+        return $this->ratings()->avg('rating');
+    }
+
+    /**
+     * Accessor to determine if the advert is favourited by the authenticated user.
+     *
+     * @return bool
+     */
+    public function getIsFavouritedByUserAttribute()
+    {
+        return $this->isUserFavourite();
+    }
+
+    /**
+     * Determine if the advert is favourited by the authenticated user.
+     *
+     * @return bool
+     */
+    public function isUserFavourite(): bool
+    {
+        $user = request()->user('api');
+        return $user ? $this->wishlistedByUsers()->where('user_id', $user->id)->exists() : false;
     }
 }

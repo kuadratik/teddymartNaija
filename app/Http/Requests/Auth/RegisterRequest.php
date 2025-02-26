@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Enums\ReferralType;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 
@@ -28,7 +29,10 @@ class RegisterRequest extends FormRequest
             'first_name' =>  ['required', 'string'],
             'last_name' =>  ['required', 'string'],
             'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required','string','confirmed',Password::min(8)->mixedCase()->letters()->numbers()->symbols()],
+            'password' => ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->letters()->numbers()->symbols()],
+            'refferalCode' => ['nullable', 'string', Rule::exists('users', 'referral_code')],
+            'referralType' => ['required_with:referralCode', 'string', Rule::enum(ReferralType::class)],
+
         ];
     }
 }

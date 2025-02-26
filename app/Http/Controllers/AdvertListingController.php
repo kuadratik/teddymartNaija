@@ -6,6 +6,7 @@ use App\Enums\CurrencyType;
 use App\Enums\WishlistType;
 use App\Http\Requests\Advert\PostAdvertRequest;
 use App\Http\Requests\Advert\PostStoreAdvertRequest;
+use App\Http\Requests\Advert\StoreAdvertRatingRequest;
 use App\Http\Requests\Advert\UpdateAdvertRequest;
 use App\Models\AdvertListing;
 use App\Models\User;
@@ -146,7 +147,7 @@ class AdvertListingController extends Controller
      */
     public function getAdvertWishlist(Request $request)
     {
-        $wishlist = $this->advertListingService->getUserAdvertWishlist($request->user());
+        $wishlist = $this->advertListingService->getUserAdvertWishlist($request->user(), $request);
         return $this->success($wishlist);
     }
 
@@ -167,5 +168,25 @@ class AdvertListingController extends Controller
         $advert = $request->user()->advertListings()->where('id', $advert->id)->firstOrFail();
         $advert->delete();
         return $this->success();
+    }
+
+
+    /**
+     * store advert rating and review
+     */
+    public function storeAdvertRating(StoreAdvertRatingRequest $request, AdvertListing $advert)
+    {
+        $rating = $this->advertListingService->storeAdvertRating($advert, $request->validated(), $request->user());
+        return $this->success($rating, 'Rating and review added successfully');
+    }
+
+
+    /**
+     * Get the user's advert ratings.
+     */
+    public function getAdvertRatings(Request $request, AdvertListing $advert)
+    {
+        $ratings = $this->advertListingService->getAdvertRatings($advert);
+        return $this->success($ratings);
     }
 }
