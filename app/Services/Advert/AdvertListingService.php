@@ -300,7 +300,7 @@ class AdvertListingService
             'state' => 'nullable|string|max:255',
         ]);
 
-        $query = AdvertListing::with(['media', 'category', 'payment', 'wishlistedByUsers', 'promotePlans'])
+        $query = AdvertListing::with(['media', 'category', 'payment', 'promotePlans'])
             ->addSelect([
                 'advert_listings.*',
                 'min_promote_plan_price' => AdvertPromotePlan::selectRaw('MIN(price)')
@@ -333,7 +333,7 @@ class AdvertListingService
             $query->where(function ($q) use ($request) {
                 $search = '%' . addcslashes($request->search, '%_\\') . '%';
                 $q->where('title', 'like', $search)
-                ->orWhere('description', 'like', $search);
+                    ->orWhere('description', 'like', $search);
             });
         });
 
@@ -344,8 +344,8 @@ class AdvertListingService
 
         $perPage = $request->input('per_page', 15);
         $paginator = $query->orderBy('min_promote_plan_price', 'desc')
-                        ->paginate($perPage)
-                        ->appends($request->query());
+            ->paginate($perPage)
+            ->appends($request->query());
 
         return [
             'data' => $paginator->items(),
