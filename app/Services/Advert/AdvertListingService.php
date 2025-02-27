@@ -158,7 +158,6 @@ class AdvertListingService
 
     /**
      * Creates a payment order link for a given advert listing and promotion plan.
-     *
      */
     private function createPayment(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null)
     {
@@ -243,7 +242,6 @@ class AdvertListingService
         return AdvertPromotePlan::where('currency', $currency)->get();
     }
 
-
     /**
      * Retrieve the user's adverts based on the provided request filters.
      */
@@ -291,62 +289,74 @@ class AdvertListingService
     }
 
     /**
-     * Retrieve all adverts based on the provided request filters.
-     *
-     * @param Request $request The HTTP request containing filter parameters.
-     * @return array An array containing the filtered adverts and pagination details.
+     * Retrieve filtered adverts with optimized queries and structure
      */
     public function getAllAdverts(Request $request)
     {
         $validated = $request->validate([
-            'category_id'   => 'nullable|array',
+            'category_id' => 'nullable|array',
             'category_id.*' => 'integer|exists:categories,id',
             'country_id' => 'nullable|integer|exists:countries,id',
             'state' => 'nullable|string|max:255',
         ]);
 
-        $query = AdvertListing::with(['media', 'category', 'payment', 'promotePlans'])
-            ->leftJoin('advert_listing_promote_plans', 'advert_listings.id', '=', 'advert_listing_promote_plans.advert_listing_id')
-            ->leftJoin('advert_promote_plans', 'advert_listing_promote_plans.advert_promote_plan_id', '=', 'advert_promote_plans.id')
-            ->select('advert_listings.*')
-            ->addSelect(DB::raw('MIN(advert_promote_plans.price) as min_promote_plan_price'))
-            ->groupBy('advert_listings.id')
-            ->orderBy('min_promote_plan_price', 'desc');
+        $query = AdvertListing::with(['media', 'category', 'payment', 'wishlistedByUsers', 'promotePlans'])
+            ->addSelect([
+                'advert_listings.*',
+                'min_promote_plan_price' => AdvertPromotePlan::selectRaw('MIN(price)')
+                    ->join('advert_listing_promote_plans', 'advert_promote_plans.id', '=', 'advert_listing_promote_plans.advert_promote_plan_id')
+                    ->whereColumn('advert_listing_promote_plans.advert_listing_id', 'advert_listings.id')
+                    ->groupBy('advert_listing_promote_plans.advert_listing_id')
+            ]);
 
-        $query->when($request->filled('status'), function ($q) use ($request) {
-            $q->whereHas('promotePlans', fn($subQ) => $subQ->where('advert_listing_promote_plans.status', $request->status));
+
+        $query->when($request->filled('status'), function ($query) use ($request) {
+            $query->whereExists(function ($subQuery) use ($request) {
+                $subQuery->select(DB::raw(1))
+                    ->from('advert_listing_promote_plans')
+                    ->whereColumn('advert_listing_promote_plans.advert_listing_id', 'advert_listings.id')
+                    ->where('status', $request->status);
+            });
         });
 
-        $query->when($request->has('category_id'), function ($q) use ($validated) {
-            $q->whereIn('advert_listings.category_id', $validated['category_id']);
+        $query->when($request->filled('category_id'), function ($query) use ($validated) {
+            $query->whereIn('advert_listings.category_id', $validated['category_id']);
         });
 
-        $query->when($request->filled('type'), fn($q) => $q->where('advert_listings.type', $request->type))
-            ->when($request->filled('price_min'), fn($q) => $q->where('advert_promote_plans.price', '>=', $request->price_min))
-            ->when($request->filled('price_max'), fn($q) => $q->where('advert_promote_plans.price', '<=', $request->price_max));
-
-        $query->when($request->filled('search'), function ($q) use ($request) {
-            $q->where(fn($subQ) => $subQ->where('advert_listings.title', 'like', "%{$request->search}%")
-                ->orWhere('advert_listings.description', 'like', "%{$request->search}%"));
+        $query->when($request->filled('price_min'), function ($query) use ($request) {
+            $query->where('min_promote_plan_price', '>=', $request->price_min);
+        })->when($request->filled('price_max'), function ($query) use ($request) {
+            $query->where('min_promote_plan_price', '<=', $request->price_max);
         });
 
-        $query->when($request->hasHeader('currency'), fn($q) => $q->where('advert_listings.currency', $request->header('currency')));
+        $query->when($request->filled('search'), function ($query) use ($request) {
+            $query->where(function ($q) use ($request) {
+                $search = '%' . addcslashes($request->search, '%_\\') . '%';
+                $q->where('title', 'like', $search)
+                ->orWhere('description', 'like', $search);
+            });
+        });
+
+        $query->when($request->filled('type'), fn($q) => $q->where('type', $request->type))
+            ->when($request->hasHeader('currency'), fn($q) => $q->where('currency', $request->header('currency')))
+            ->when($request->filled('country_id'), fn($q) => $q->where('country_id', $request->country_id))
+            ->when($request->filled('state'), fn($q) => $q->where('state', $request->state));
 
         $perPage = $request->input('per_page', 15);
-        $ads = $query->paginate($perPage)->appends($request->query());
+        $paginator = $query->orderBy('min_promote_plan_price', 'desc')
+                        ->paginate($perPage)
+                        ->appends($request->query());
 
         return [
-            'data' => $ads->items(),
+            'data' => $paginator->items(),
             'pagination' => [
-                'current_page' => $ads->currentPage(),
-                'per_page' => $ads->perPage(),
-                'total' => $ads->total(),
-                'last_page' => $ads->lastPage()
+                'current_page' => $paginator->currentPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+                'last_page' => $paginator->lastPage()
             ]
         ];
     }
-
-
 
     /**
      * Adds an advert to the user's wishlist.
@@ -361,7 +371,6 @@ class AdvertListingService
 
         return $user->advertWishlists()->attach($advert->id);
     }
-
 
     /**
      * Retrieves the user's advert wishlist.
