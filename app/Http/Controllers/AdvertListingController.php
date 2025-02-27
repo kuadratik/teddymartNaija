@@ -108,13 +108,7 @@ class AdvertListingController extends Controller
      */
     public function showAdvert(AdvertListing $advert)
     {
-        return $this->success($advert->load([
-            'user',
-            'media',
-            'category',
-            'payment',
-            'promotePlans'
-        ]));
+        return $this->success($advert->load(['user', 'media', 'category', 'payment', 'promotePlans', 'wishlistedByUsers']));
     }
 
     /**
