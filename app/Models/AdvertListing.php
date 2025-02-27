@@ -159,7 +159,7 @@ class AdvertListing extends Model
      */
     public function isUserFavourite(): bool
     {
-        $user = request()->user('api');
+        $user = Auth::user();
         return $user ? $this->wishlistedByUsers()->where('user_id', $user->id)->exists() : false;
     }
 }
