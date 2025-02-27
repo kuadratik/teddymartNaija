@@ -300,7 +300,7 @@ class AdvertListingService
             'state' => 'nullable|string|max:255',
         ]);
 
-        $query = AdvertListing::with(['media', 'category', 'payment', 'promotePlans'])
+        $query = AdvertListing::with(['media', 'category', 'payment', 'wishlistedByUsers', 'promotePlans'])
             ->addSelect([
                 'advert_listings.*',
                 'min_promote_plan_price' => AdvertPromotePlan::selectRaw('MIN(price)')
@@ -309,7 +309,7 @@ class AdvertListingService
                     ->groupBy('advert_listing_promote_plans.advert_listing_id')
             ]);
 
-       
+
         $query->when($request->filled('status'), function ($query) use ($request) {
             $query->whereExists(function ($subQuery) use ($request) {
                 $subQuery->select(DB::raw(1))
