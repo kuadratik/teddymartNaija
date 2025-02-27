@@ -46,7 +46,6 @@ class AdvertListing extends Model
     ];
 
 
-    protected $appends = ['is_favourited_by_user'];
 
 
     /**
@@ -108,13 +107,6 @@ class AdvertListing extends Model
         );
     }
 
-    public function getActivePromotePlanStatusAttribute()
-    {
-        return $this->promotePlans()
-            ->wherePivot('status', 'active')
-            ->first()
-            ->pivot->status ?? null;
-    }
 
     public function wishlistedByUsers(): MorphToMany
     {
@@ -152,14 +144,5 @@ class AdvertListing extends Model
         return $this->isUserFavourite();
     }
 
-    /**
-     * Determine if the advert is favourited by the authenticated user.
-     *
-     * @return bool
-     */
-    public function isUserFavourite(): bool
-    {
-        $user = Auth::user();
-        return $user ? $this->wishlistedByUsers()->where('user_id', $user->id)->exists() : false;
-    }
+
 }
