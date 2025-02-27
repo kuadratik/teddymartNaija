@@ -202,14 +202,15 @@ class CartController extends Controller
         return $this->success($wishlist->load('store'));
     }
 
+
     /**
      * Remove product from wishlist
      */
     public function removeFromWishlist(Request $request, Listing $product)
     {
-        abort_if(!$request->user()->wishlists()->where('listing_id', $product->id)->exists(), 422, 'Product not found in wishlist');
-        $request->user()->wishlists()->detach($product->id);
-
+        $user = $request->user();
+        $detachedCount = $user->wishlists()->detach($product);
+        abort_if($detachedCount === 0, 422, 'Product not found in wishlist');
         return $this->success();
     }
 
