@@ -421,6 +421,36 @@ paths:
               schema:
                 type: object
 
+  /front/wishlist/advert/add/{advert}:
+    post:
+      tags:
+        - Wishlist
+      summary: add advert to wishlist
+      description: add advert to wishlist
+      operationId: AddAdvertToWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/wishlist/add-from-cart/{product}:
     post:
       tags:
@@ -443,6 +473,36 @@ paths:
             type: string
             example:
           required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/advert/remove/{advert}:
+    delete:
+      tags:
+        - Wishlist
+      summary: remove advert from wishlist
+      description: remove advert from wishlist
+      operationId: RemoveAdvertFromWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: false
       responses:
         default:
           description: "success"
@@ -497,6 +557,37 @@ paths:
             type: string
             example:
           required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/advert:
+    get:
+      tags:
+        - Wishlist
+      summary: get wishlist adverts
+      description: get wishlist adverts
+      operationId: GetWishlistAdverts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+          type: string
+          example:
+          required: true
+        - in: query
+          name: search
+          schema:
+          type: string
+          example: "yam"
+          required: false
+          description: "Search term to filter wishlist adverts"
       responses:
         default:
           description: "success"
@@ -688,7 +779,7 @@ paths:
             application/json:
               schema:
                 type: object
-  
+
   /front/service-history:
     get:
       tags:
@@ -825,6 +916,10 @@ paths:
                   type: number
                   example: 1000
                   required: false
+                is_available:
+                  type: boolean
+                  example: true
+                  required: true
                 media:
                   type: array
                   items:
@@ -930,6 +1025,10 @@ paths:
                   type: number
                   example: 1000
                   required: false
+                is_available:
+                  type: boolean
+                  example: true
+                  required: false
                 media:
                   type: array
                   items:
@@ -951,7 +1050,7 @@ paths:
                 promote_plan_id:
                   type: integer
                   example: 9
-                  required: true
+                  required: false
                 country_code:
                   type: string
                   example: "NG"
@@ -965,6 +1064,30 @@ paths:
                   example: "https://staging.eki.market"
                   required: false
 
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/{advert}/delete:
+    delete:
+      tags:
+        - Advertisement
+      summary: Delete advert listing
+      description: Delete advert listing
+      operationId: DeleteAdvert
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
       responses:
         default:
           description: "success"
@@ -1125,13 +1248,24 @@ paths:
             format: float
           required: false
           description: Maximum price for listings plan.
-
         - in: query
           name: search
           schema:
             type: string
           required: false
           description: Search term to match in title or description.
+        - in: query
+          name: country_id
+          schema:
+            type: integer
+          required: false
+          description: Filter by country ID.
+        - in: query
+          name: state
+          schema:
+            type: string
+          required: false
+          description: Filter by state.
         - in: query
           name: per_page
           schema:
@@ -1367,6 +1501,84 @@ paths:
           schema:
             type: string
             example: USD
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/{advert}/rate:
+    post:
+      tags:
+        - Advertisement
+      summary: Rate and review advert listing
+      description: Rate and review advert listing as a user or a guest
+      operationId: Advertisement
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: false
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: integer
+                  example: 1
+                  required: true
+                review:
+                  type: string
+                  example: "This is a review"
+                  required: false
+                name:
+                  type: string
+                  example: "John Doe"
+                  required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/{advert}/ratings:
+    get:
+      tags:
+        - Advertisement
+      summary: Get advert ratings and reviews
+      description: Get advert ratings and reviews
+      operationId: GetAdvertRatings
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: false
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
           required: true
       responses:
         default:

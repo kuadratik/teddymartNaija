@@ -34,6 +34,7 @@ class PostAdvertRequest extends FormRequest
             'description' => ['required', 'string'],
             'price_on_request' => ['boolean'],
             'price' => ['nullable', 'numeric', 'min:0', 'required_if:price_on_request,false'],
+            'is_available' => ['required','boolean'],
             'state' => ['required', 'string'],
             'country_id' => ['required', 'exists:countries,id'],
             'phone_number' => ['required', 'string', 'max:20'],

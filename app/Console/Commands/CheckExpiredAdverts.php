@@ -8,132 +8,122 @@ use App\Models\AdvertPromotePlan;
 use App\Notifications\Listing\Ads24hrsExpiredNotification;
 use App\Notifications\Listing\AdsExpiredNotification;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class CheckExpiredAdverts extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'advert:check-expired-adverts';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Check for expired Adverts records and update to Free plan. Send email notifications 24 hours before expiry.';
 
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
         $this->updateExpiredPlans();
         $this->sendExpiryNotifications();
     }
 
-    /**
-     * Update the status of expired plans to "Expired".
-     */
     protected function updateExpiredPlans()
     {
         $expiredPlans = $this->getExpiredPlans();
 
-        foreach ($expiredPlans as $plan) {
-            if (!$plan->advertListing || !$plan->advertListing->user) {
-                $this->warn("No user associated with plan id: {$plan->id}. Skipping.");
-                continue;
-            }
-
-            $user = $plan->advertListing->user;
-
-            $user->notify(new AdsExpiredNotification);
-
-            $this->updatePlanStatus($plan, OrderStatusEnum::EXPIRED->value);
-            $this->updateAdvertListingPromotePlan($plan);
+        if ($expiredPlans->isEmpty()) {
+            $this->info('No expired plans found.');
+            return;
         }
 
-        $this->info('Expired plans updated successfully.');
+        $expiredPlans->each(function ($plan) {
+            if (!$user = optional($plan->advertListing)->user) {
+                Log::warning("No user associated with plan id: {$plan->id}");
+                return;
+            }
+
+            try {
+                $user->notify(new AdsExpiredNotification);
+                $this->updatePlanStatus($plan, OrderStatusEnum::EXPIRED->value);
+                $this->revertToFreePlan($plan);
+            } catch (\Exception $e) {
+                Log::error("Failed to process plan {$plan->id}: " . $e->getMessage());
+            }
+        });
+
+        $this->info("Processed {$expiredPlans->count()} expired plans.");
     }
 
-    /**
-     * Send notifications for plans expiring within the next 24 hours.
-     */
     protected function sendExpiryNotifications()
     {
-        $plansExpiringSoon = $this->getPlansExpiringIn24Hours();
+        $expiringPlans = $this->getPlansExpiringIn24Hours();
 
-        foreach ($plansExpiringSoon as $plan) {
-            $cacheKey = $this->getNotificationCacheKey($plan->id);
-
-            if (cache()->has($cacheKey)) {
-                continue;
-            }
-
-            $user = $plan->advertListing->user;
-            if ($user) {
-                $user->notify(new Ads24hrsExpiredNotification($plan));
-                cache()->put($cacheKey, true, now()->addDay());
-            }
+        if ($expiringPlans->isEmpty()) {
+            $this->info('No plans expiring soon found.');
+            return;
         }
 
-        $this->info('Expiry notifications sent successfully.');
+        $expiringPlans->each(function ($plan) {
+            $cacheKey = $this->getNotificationCacheKey($plan->id);
+
+            if (cache()->has($cacheKey) || !$user = optional($plan->advertListing)->user) {
+                return;
+            }
+
+            try {
+                $user->notify(new Ads24hrsExpiredNotification($plan));
+                cache()->put($cacheKey, true, now()->addDay());
+            } catch (\Exception $e) {
+                Log::error("Failed to send notification for plan {$plan->id}: " . $e->getMessage());
+            }
+        });
+
+        $this->info("Sent notifications for {$expiringPlans->count()} plans.");
     }
 
-    /**
-     * Generate a unique cache key for the notification.
-     */
-    protected function getNotificationCacheKey(int $planId): string
+    private function getExpiredPlans()
     {
-        return "ads_notification_sent_{$planId}";
-    }
-
-
-    /**
-     * Get expired plans.
-     */
-    protected function getExpiredPlans()
-    {
-        return AdvertListingPromotePlan::where('expires_at', '<', now())
+        return AdvertListingPromotePlan::with(['advertListing.user', 'advertPromotePlan'])
+            ->whereNotNull('expires_at')
+            ->where('expires_at', '<=', now())
             ->where('status', OrderStatusEnum::ACTIVE)
-            ->whereHas('advertListing.user')
-            ->get();
+            ->get()
+            ->each(function ($plan) {
+                Log::info("Processing expired plan ID: {$plan->id}");
+            });
     }
 
-    /**
-     * Get plans expiring in the next 24 hours.
-     */
-    protected function getPlansExpiringIn24Hours()
+    private function getPlansExpiringIn24Hours()
     {
-        return AdvertListingPromotePlan::whereBetween('expires_at', [now(), now()->addDay()])
-            ->where('status',  OrderStatusEnum::ACTIVE)
-            ->get();
+        return AdvertListingPromotePlan::with(['advertListing.user'])
+            ->whereBetween('expires_at', [now(), now()->addDay()])
+            ->where('status', OrderStatusEnum::ACTIVE)
+            ->get()
+            ->each(function ($plan) {
+                Log::info("Processing expiring soon plan ID: {$plan->id}");
+            });
     }
 
-    /**
-     * Update the status of a given plan.
-     */
-    protected function updatePlanStatus(AdvertListingPromotePlan $plan, string $status)
+    private function revertToFreePlan(AdvertListingPromotePlan $plan)
     {
-        $plan->status = $status;
-        $plan->save();
+        $freePlan = AdvertPromotePlan::where('currency', $plan->advertPromotePlan->currency)
+            ->where('price', 0)
+            ->first();
+
+        if (!$freePlan) {
+            Log::error("No free plan available for currency: {$plan->advertPromotePlan->currency}");
+            return;
+        }
+
+        $plan->update([
+            'advert_promote_plan_id' => $freePlan->id,
+            'expires_at' => null,
+            'started_at' => now(), // Reset start date for new plan
+            'payment_id' => null
+        ]);
     }
 
-
-
-    /**
-     * Revrt advert listing promote plan to free
-     */
-    protected function updateAdvertListingPromotePlan(AdvertListingPromotePlan $plan)
+    private function updatePlanStatus(AdvertListingPromotePlan $plan, string $status)
     {
-        $currentPlanCurrency =  $plan->advertPromotePlan->currency;
-        $advertPromotePlans = AdvertPromotePlan::where('currency', $currentPlanCurrency)->where('price', 0)->first();
-        $plan->advert_promote_plan_id = $advertPromotePlans->id;
-        $plan->expired_at = null;
-        $plan->started_at = null;
-        $plan->payment_id = null;
-        $plan->save();
+        $plan->update(['status' => $status]);
+    }
+
+    private function getNotificationCacheKey(int $planId): string
+    {
+        return "ads:notification:24hr:{$planId}";
     }
 }

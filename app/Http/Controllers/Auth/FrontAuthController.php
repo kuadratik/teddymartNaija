@@ -45,7 +45,7 @@ class FrontAuthController extends Controller
      */
     public function verifyEmailOtp(VerifyOtpRequest $request)
     {
-        $response = $this->authService->verifyOtpAndCreateUser($request->registerAttribute());
+        $response = $this->authService->verifyOtpAndCreateUser($request->registerAttribute(), $request->validated('refferalCode'), $request->validated('refferalType'));
         return $this->success($response);
     }
 
@@ -92,7 +92,7 @@ class FrontAuthController extends Controller
     {
         $request->validate(['password' => 'required']);
         $this->authService->authConfirmation($request->password);
-        
+
         return $this->success();
     }
 
