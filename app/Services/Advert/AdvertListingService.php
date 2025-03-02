@@ -32,7 +32,7 @@ class AdvertListingService
      * Create a new advert listing with promotion plan
      * @return array
      */
-    public function create(array $attributes, string $return_url = null, string $cancel_url = null)
+    public function create(array $attributes, ?string $return_url = null, ?string $cancel_url = null)
     {
 
         return DB::transaction(function () use ($attributes, $return_url, $cancel_url) {
@@ -57,7 +57,7 @@ class AdvertListingService
      * update advert listing with promotion plan
      * @return array
      */
-    public function update(AdvertListing $listing, array $attributes, string $return_url = null, string $cancel_url = null)
+    public function update(AdvertListing $listing, array $attributes, ?string $return_url = null, ?string $cancel_url = null)
     {
         return DB::transaction(function () use ($listing, $attributes, $return_url, $cancel_url) {
             $mediaPaths = $attributes['media'] ?? [];
@@ -93,7 +93,7 @@ class AdvertListingService
     /**
      * Handle the promotion plan assignment and payment if necessary
      */
-    private function handlePromotion(AdvertListing $listing, int $promotePlanId, string $currency, string $return_url = null, string $cancel_url = null)
+    private function handlePromotion(AdvertListing $listing, int $promotePlanId, string $currency, ?string $return_url = null, ?string $cancel_url = null)
     {
         $promotePlan = AdvertPromotePlan::findOrFail($promotePlanId);
 
@@ -107,7 +107,7 @@ class AdvertListingService
     /**
      * Handle paid promotion plans
      */
-    private function handlePaidPromotion(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null)
+    private function handlePaidPromotion(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency, ?string $return_url = null, ?string $cancel_url = null)
     {
         $listing->promotePlans()->attach($promotePlan->id, [
             'status' => OrderStatusEnum::PENDING_PAYMENT,
@@ -122,7 +122,7 @@ class AdvertListingService
     /**
      * Update the promotion plan for an existing listing.
      */
-    private function updatePromotion(AdvertListing $listing, int $promotePlanId, string $currency, string $return_url = null, string $cancel_url = null)
+    private function updatePromotion(AdvertListing $listing, int $promotePlanId, string $currency, ?string $return_url = null, ?string $cancel_url = null)
     {
         $promotePlan = AdvertPromotePlan::findOrFail($promotePlanId);
 
@@ -159,7 +159,7 @@ class AdvertListingService
     /**
      * Creates a payment order link for a given advert listing and promotion plan.
      */
-    private function createPayment(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency, string $return_url = null, string $cancel_url = null)
+    private function createPayment(AdvertListing $listing, AdvertPromotePlan $promotePlan, string $currency, ?string $return_url = null, ?string $cancel_url = null)
     {
         $orderNumber = $listing->promotePlans()
             ->wherePivot('advert_promote_plan_id', $promotePlan->id)
