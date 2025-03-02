@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -68,7 +69,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         static::saving(function ($user) {
             if (empty($user->referral_code)) {
-                $user->referral_code = 'REF' . strtoupper($user->first_name . ($user->id ?? rand(1000, 9999)) . substr(uniqid(), 0, 6));
+                $user->referral_code =  'REF' . $user->id . Str::upper(Str::random(6));
             }
         });
     }
@@ -239,7 +240,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function generateReferralCode()
     {
         if (!$this->referral_code) {
-            $this->referral_code = 'REF' . strtoupper(substr($this->first_name, 0, 3) . $this->id . substr(uniqid(), 0, 6));
+            $this->referral_code = 'REF' . $this->id . Str::upper(Str::random(6));
             $this->save();
         }
 
