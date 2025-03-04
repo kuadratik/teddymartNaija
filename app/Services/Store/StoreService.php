@@ -4,6 +4,8 @@ namespace App\Services\Store;
 
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
+use App\Jobs\RecordCategoryInteractions;
+use App\Models\Listing;
 use App\Models\OrderDetail;
 use App\Models\Store;
 use Illuminate\Http\Request;
@@ -55,6 +57,29 @@ class StoreService
             ->with('ratings');
 
         return $query->paginate();
+    }
+
+
+
+    /**
+     * Get all  listings
+     */
+    public function getAllListings(Request $request)
+    {
+        $currency = $request->header('currency', 'USD');
+        $listings = Listing::query()
+            ->with(['store', 'ratings'])
+            ->byIsDraft(false)
+            ->byListingType($request->listingType)
+            ->when($request->filled('search'), fn($query) => $query->search($request->search))
+            ->when($request->filled('category_ids'), fn($query) => $query->whereIn('category_id', $request->category_ids))
+            ->when($request->filled('availability'), fn($query) => $query->availability($request->availability))
+            ->when($request->filled('country_id'), fn($query) => $query->byCountry($request->country_id))
+            ->byCurrency($currency)
+            ->get();
+
+        RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
+        return $listings;
     }
 
 

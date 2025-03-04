@@ -172,7 +172,8 @@ class Listing extends Model
     /**
      * scope not draft
      */
-    public function scopeByIsDraft($query, $value)  {
+    public function scopeByIsDraft($query, $value)
+    {
         return $query->where('is_draft', $value);
     }
 
@@ -304,6 +305,13 @@ class Listing extends Model
     public function wishlistedByUsers(): MorphToMany
     {
         return $this->morphToMany(User::class, 'wishlistable', 'wishlists')
-        ->withTimestamps();
+            ->withTimestamps();
+    }
+
+
+    public function scopeByCountry(Builder $query, $countryId)
+    {
+        return  $query->whereHas('store', fn($query) =>
+        $query->whereHas('country', fn($query) => $query->where('id', $countryId)));
     }
 }
