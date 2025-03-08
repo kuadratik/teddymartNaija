@@ -17,6 +17,7 @@ use App\Services\PaymentGateways\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AdvertListingService
@@ -179,7 +180,7 @@ class AdvertListingService
             return $res;
         } else {
             $paymentData = [
-                'email' => auth()->user()->email,
+                'email' => Auth::user()->email,
                 'currency_code' => $currency,
                 'total_amount' => $promotePlan->price,
                 'order_number' => $orderNumber,
