@@ -6,6 +6,7 @@ use App\Http\Requests\Listing\AddRatingRequest;
 use App\Http\Requests\Listing\CreateListingRequest;
 use App\Http\Requests\Listing\UpdateListingRequest;
 use App\Jobs\RecordCategoryInteractions;
+use App\Models\Category;
 use App\Models\Listing;
 use App\Models\ListingRating;
 use App\Models\Store;
@@ -150,5 +151,18 @@ class ListingsController extends Controller
     {
         $res = $this->storeService->getAllListings($request);
         return $this->success($res);
+    }
+
+    /**
+     * Get the best deal (lowest price) for each category
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getBestDealsByCategory(Request $request)
+    {
+        $currency = $request->header('currency', "USD");
+        $bestDeals = $this->storeService->getBestDealsByCategory($currency);
+        return $this->success($bestDeals);
     }
 }

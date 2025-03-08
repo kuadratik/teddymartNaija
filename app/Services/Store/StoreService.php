@@ -5,10 +5,12 @@ namespace App\Services\Store;
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
 use App\Jobs\RecordCategoryInteractions;
+use App\Models\Category;
 use App\Models\Listing;
 use App\Models\OrderDetail;
 use App\Models\Store;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class StoreService
@@ -75,13 +77,13 @@ class StoreService
             ->when($request->filled('category_ids'), fn($query) => $query->whereIn('category_id', $request->category_ids))
             ->when($request->filled('availability'), fn($query) => $query->availability($request->availability))
             ->when($request->filled('country_id'), fn($query) => $query->byCountry($request->country_id))
+            ->when($request->filled('priceOrder'), fn($query) => $query->byCountry($request->country_id))
             ->byCurrency($currency)
             ->get();
 
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
         return $listings;
     }
-
 
     /**
      * Retrieves a paginated list of orders for a specific store.
@@ -111,5 +113,36 @@ class StoreService
             ->paginate(20);
 
         return $orders;
+    }
+
+
+    /**
+     * Retrieves the best deal (lowest priced listing) for each category.
+     * Filters active and published listings, optionally filtered by currency.
+     * Returns an array of category listings with the lowest price first.
+     *
+     * @param string|null $currency Optional currency code to filter listings
+     * @return \Illuminate\Support\Collection Collection of category listings with best deals
+     */
+    public function getBestDealsByCategory(?string $currency = null): Collection
+    {
+        $categories = Category::with(['listings' => function ($query) use ($currency) {
+            $query->where('is_available', true)
+                ->where('is_draft', false)
+                ->when($currency, function ($q) use ($currency) {
+                    return $q->where('currency', $currency);
+                })
+                ->orderByRaw('COALESCE(discounted_price, display_price) ASC')
+                ->limit(1);
+        }])->get();
+
+        return $categories->map(function ($category) {
+            if ($category->listings->isNotEmpty()) {
+                return [
+                    'listing' => $category->listings->first()
+                ];
+            }
+            return null;
+        })->filter()->values();
     }
 }
