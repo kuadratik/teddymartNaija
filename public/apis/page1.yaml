@@ -1223,7 +1223,6 @@ paths:
               schema:
                 type: object
 
-
   /front/listings:
     get:
       security:
@@ -1298,6 +1297,36 @@ paths:
             default: 15
           required: false
           description: Number of listings per page.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/listings/best-deals:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get best deals by category
+      description: Retrieves the lowest-priced listing from each active category
+      operationId: GetBestDealsByCategory
+      parameters:
+        - in: header
+          name: interactUid
+          schema:
+            type: string
+            example: "user_123"
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "USD"
+          required: true
       responses:
         default:
           description: "success"
