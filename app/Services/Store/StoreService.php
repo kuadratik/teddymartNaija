@@ -128,6 +128,7 @@ class StoreService
         $categories = Category::with(['listings' => function ($query) use ($currency) {
             $query->where('is_available', true)
                 ->where('is_draft', false)
+                ->where('type', ListingType::PRODUCT->value)
                 ->when($currency, function ($q) use ($currency) {
                     return $q->where('currency', $currency);
                 })
