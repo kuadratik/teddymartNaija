@@ -1334,3 +1334,33 @@ paths:
             application/json:
               schema:
                 type: object
+  /front/listings/today-deals:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get today deals
+      description: Retrieves the deals of the day
+      operationId: GetTodayDealsByCategory
+      parameters:
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "USD"
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            example: 10
+          required: false
+          description: Number of deals to retrieve.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
