@@ -77,6 +77,7 @@ Route::prefix('front')->group(function () {
     Route::prefix('listings')->group(function () {
         Route::get('/', [ListingsController::class, 'getListings']);
         Route::get('best-deals', [ListingsController::class, 'getBestDealsByCategory']);
+        Route::get('today-deals', [ListingsController::class, 'getTodaysDeals']);
     });
 
     Route::get('business-industries', [BusinessListingController::class, 'getIndustries']);

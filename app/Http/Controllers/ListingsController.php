@@ -155,14 +155,21 @@ class ListingsController extends Controller
 
     /**
      * Get the best deal (lowest price) for each category
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function getBestDealsByCategory(Request $request)
     {
         $currency = $request->header('currency', "USD");
         $bestDeals = $this->storeService->getBestDealsByCategory($currency);
         return $this->success($bestDeals);
+    }
+    /**
+     * Get today's deals
+     */
+    public function getTodaysDeals(Request $request)
+    {
+        $currency = $request->header('currency', "USD");
+        $limit = $request->query('limit', 10);
+        $todaysDeals = $this->storeService->getTodaysDeals($currency, $limit);
+        return $this->success($todaysDeals);
     }
 }

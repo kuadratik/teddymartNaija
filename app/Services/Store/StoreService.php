@@ -145,4 +145,42 @@ class StoreService
             return null;
         })->filter()->values();
     }
+
+
+
+    /**
+     * Get today's deals - prioritizing discounted items or random products as fallback
+     *
+     * @param string|null $currency
+     * @param int $limit Number of deals to return
+     * @return Collection
+     */
+    public function getTodaysDeals(?string $currency = null, int $limit = 10): Collection
+    {
+        $baseQuery = Listing::where('is_available', true)
+            ->where('is_draft', false)
+            ->byType(ListingType::PRODUCT->value)
+            ->when($currency, fn($query) => $query->where('currency', $currency));
+
+        $discountedDeals = (clone $baseQuery)
+            ->where('discount', '>', 0)
+            ->whereNotNull('discounted_price')
+            ->inRandomOrder()
+            ->limit($limit)
+            ->get();
+
+        if ($discountedDeals->count() >= $limit) {
+            return $discountedDeals;
+        }
+
+        $remainingItems = $limit - $discountedDeals->count();
+
+        $randomDeals = $baseQuery
+            ->whereNotIn('id', $discountedDeals->pluck('id'))
+            ->inRandomOrder()
+            ->limit($remainingItems)
+            ->get();
+
+        return $discountedDeals->concat($randomDeals);
+    }
 }
