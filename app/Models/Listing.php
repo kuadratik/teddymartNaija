@@ -191,7 +191,7 @@ class Listing extends Model
     /**
      * Scope by popularity (available products or services with highest views_count)
      */
-    public function scopePopular(Builder $query, string $type = null)
+    public function scopePopular(Builder $query, ?string $type = null)
     {
         $query->where('is_available', true);
 
