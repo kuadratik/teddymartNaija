@@ -37,6 +37,20 @@ paths:
             type: string
             example:
           required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  example: 1
+                  required: false
+                variant_id:
+                  type: integer
+                  example: 1
+                  required: false
       responses:
         default:
           description: "success"
