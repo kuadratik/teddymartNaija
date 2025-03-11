@@ -61,8 +61,6 @@ class StoreService
         return $query->paginate();
     }
 
-
-
     /**
      * Get all  listings
      */
@@ -114,7 +112,6 @@ class StoreService
         return $orders;
     }
 
-
     /**
      * Retrieves the best deal (lowest priced listing) for each category.
      * Filters active and published listings, optionally filtered by currency.
@@ -125,16 +122,17 @@ class StoreService
      */
     public function getBestDealsByCategory(?string $currency = null): Collection
     {
-        $categories = Category::with(['listings' => function ($query) use ($currency) {
-            $query->where('is_available', true)
-                ->where('is_draft', false)
-                ->where('type', ListingType::PRODUCT->value)
-                ->when($currency, function ($q) use ($currency) {
-                    return $q->where('currency', $currency);
-                })
-                ->orderByRaw('COALESCE(discounted_price, display_price) ASC')
-                ->limit(1);
-        }])->get();
+        $categories = Category::with([
+            'listings' => function ($query) use ($currency) {
+                $query->availability(true)
+                    ->isDraft(false)
+                    ->byType(ListingType::PRODUCT->value)
+                    ->when($currency, fn($query) => $query->byCurrency($currency))
+                    ->orderByRaw('COALESCE(discounted_price, display_price) ASC')
+                    ->limit(1);
+            },
+            'listings.store'
+        ])->get();
 
         return $categories->map(function ($category) {
             if ($category->listings->isNotEmpty()) {
@@ -146,8 +144,6 @@ class StoreService
         })->filter()->values();
     }
 
-
-
     /**
      * Get today's deals - prioritizing discounted items or random products as fallback
      *
@@ -158,9 +154,10 @@ class StoreService
     public function getTodaysDeals(?string $currency = null, int $limit = 10): Collection
     {
         $baseQuery = Listing::where('is_available', true)
-            ->where('is_draft', false)
+            ->with(['store'])
+            ->isDraft(false)
             ->byType(ListingType::PRODUCT->value)
-            ->when($currency, fn($query) => $query->where('currency', $currency));
+            ->when($currency, fn($query) => $query->byCurrency($currency));
 
         $discountedDeals = (clone $baseQuery)
             ->where('discount', '>', 0)
