@@ -8,6 +8,7 @@ use App\Enums\OrderStatusEnum;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Cart;
+use App\Models\CartListing;
 use App\Models\Listing;
 use App\Models\ListingVariant;
 use App\Models\Order;
@@ -62,7 +63,10 @@ class CartService
     }
 
     /**
-     * Add a product to the cart if it's a valid product type.
+     * Adds a product to the user's cart.
+     *
+     * If the product is already in the cart, the quantity is updated.
+     * Handles both regular and variant products.
      */
     public function addToCart(Request $request, Listing $product): Cart
     {
@@ -70,21 +74,39 @@ class CartService
             return Utils::validateResp(['error' => ['Product not found']]);
         }
 
+        $quantity = $request->input('quantity', 1);
+        $variantId = $request->input('variant_id');
         $cart = $this->getCart($request);
 
-        $cart->products()->syncWithoutDetaching([
-            $product->id => ['quantity' => DB::raw('COALESCE(quantity, 0) + 1')],
-        ]);
+        $existingItemQuery = CartListing::query()
+            ->where('cart_id', $cart->id)
+            ->where('listing_id', $product->id);
+
+        if ($variantId) {
+            $existingItemQuery->where('listing_variant_id', $variantId);
+        } else {
+            $existingItemQuery->whereNull('listing_variant_id');
+        }
+
+        $existingItem = $existingItemQuery->first();
+
+        if ($existingItem) {
+            $existingItemQuery->update([
+                'quantity' => DB::raw("quantity + {$quantity}"),
+                'is_variant' => $variantId ? true : false,
+                'updated_at' => now(),
+            ]);
+        } else {
+            CartListing::create([
+                'cart_id' => $cart->id,
+                'listing_id' => $product->id,
+                'quantity' => $quantity,
+                'is_variant' => $variantId ? true : false,
+                'listing_variant_id' => $variantId,
+            ]);
+        }
 
         return $cart->fresh(['products']);
-    }
-
-    /**
-     * Add a product varient to cart
-     */
-    public function addVarientToCart(Request $request, ListingVariant $varient)
-    {
-        $cart = $this->getCart($request);
     }
 
     /**
