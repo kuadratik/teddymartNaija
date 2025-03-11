@@ -76,6 +76,8 @@ Route::prefix('front')->group(function () {
 
     Route::prefix('listings')->group(function () {
         Route::get('/', [ListingsController::class, 'getListings']);
+        Route::get('best-deals', [ListingsController::class, 'getBestDealsByCategory']);
+        Route::get('today-deals', [ListingsController::class, 'getTodaysDeals']);
     });
 
     Route::get('business-industries', [BusinessListingController::class, 'getIndustries']);
@@ -92,6 +94,10 @@ Route::prefix('front')->group(function () {
         Route::post('gallery', [AdvertListingController::class, 'getAllAdverts']);
         Route::get('{advert}/gallery', [AdvertListingController::class, 'showAdvert']);
         Route::get('store/promote', [AdvertListingController::class, 'getAllPromotedStores']);
+        Route::middleware(['optionalAuth'])->group(function () {
+            Route::post('{advert}/rate', [AdvertListingController::class, 'storeAdvertRating']);
+            Route::get('{advert}/ratings', [AdvertListingController::class, 'getAdvertRatings']);
+        });
     });
 });
 
@@ -184,6 +190,12 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/', [CartController::class, 'getUserWishlist']);
             Route::delete('remove/{product}', [CartController::class, 'removeFromWishlist']);
             Route::post('add-to-cart/{product}', [CartController::class, 'addWishlistToCart']);
+
+            Route::prefix('advert')->group(function () {
+                Route::post('add/{advert}', [AdvertListingController::class, 'addAdvertToWishlist']);
+                Route::get('/', [AdvertListingController::class, 'getAdvertWishlist']);
+                Route::delete('remove/{advert}', [AdvertListingController::class, 'removeAdvertFromWishlist']);
+            });
         });
 
         Route::prefix('business-listings')->group(function () {
@@ -207,6 +219,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('advert')->group(function () {
             Route::post('create', [AdvertListingController::class, 'postAdvert']);
             Route::put('{advert}/update', [AdvertListingController::class, 'updateAdvert']);
+            Route::delete('{advert}/delete', [AdvertListingController::class, 'softDeleteAdvert']);
             Route::get('/', [AdvertListingController::class, 'getUserAdverts']);
         });
     });

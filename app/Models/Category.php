@@ -11,7 +11,7 @@ class Category extends Model
 
     /**
      * The attributes that are mass assignable.
-     * 
+     *
      * @var array<string, string>
      */
     protected $fillable = [
@@ -27,5 +27,10 @@ class Category extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function listings()
+    {
+        return $this->hasMany(Listing::class);
     }
 }

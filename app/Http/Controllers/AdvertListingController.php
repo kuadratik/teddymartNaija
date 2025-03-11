@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\CurrencyType;
+use App\Enums\WishlistType;
 use App\Http\Requests\Advert\PostAdvertRequest;
 use App\Http\Requests\Advert\PostStoreAdvertRequest;
+use App\Http\Requests\Advert\StoreAdvertRatingRequest;
 use App\Http\Requests\Advert\UpdateAdvertRequest;
 use App\Models\AdvertListing;
 use App\Models\User;
@@ -94,7 +96,7 @@ class AdvertListingController extends Controller
         $ads = $this->promoteStoreService->getStoresWithActivePromotions($request);
         return $this->success($ads);
     }
-    
+
     public function getUserPromotedStore(Request $request)
     {
         $ads = $this->promoteStoreService->getUserPromotedStore($request);
@@ -106,13 +108,7 @@ class AdvertListingController extends Controller
      */
     public function showAdvert(AdvertListing $advert)
     {
-        return $this->success($advert->load([
-            'user',
-            'media',
-            'category',
-            'payment',
-            'promotePlans'
-        ]));
+        return $this->success($advert->load(['user', 'media', 'category', 'payment', 'promotePlans', 'wishlistedByUsers']));
     }
 
     /**
@@ -128,5 +124,63 @@ class AdvertListingController extends Controller
     {
         $listing = $this->promoteStoreService->update($request->postAdvertAttributes(), $request->validated('return_url'), $request->validated('cancel_url'));
         return  $this->success($listing);
+    }
+
+
+    /**
+     * Add advert to wishlist
+     */
+    public function addAdvertToWishlist(Request $request, AdvertListing $advert)
+    {
+        $this->advertListingService->addAdvertToWishlist($advert, $request->user());
+        return $this->success('Advert added to wishlist');
+    }
+
+    /**
+     * get advert wishlist
+     */
+    public function getAdvertWishlist(Request $request)
+    {
+        $wishlist = $this->advertListingService->getUserAdvertWishlist($request->user(), $request);
+        return $this->success($wishlist);
+    }
+
+    /**
+     * Remove advert from wishlist
+     */
+    public function removeAdvertFromWishlist(Request $request, AdvertListing $advert)
+    {
+        $this->advertListingService->removeAdvertFromWishlist($advert, $request->user());
+        return $this->success('Advert removed from wishlist');
+    }
+
+    /**
+     * Delete classified ads
+     */
+    public function softDeleteAdvert(Request $request, AdvertListing $advert)
+    {
+        $advert = $request->user()->advertListings()->where('id', $advert->id)->firstOrFail();
+        $advert->delete();
+        return $this->success();
+    }
+
+
+    /**
+     * store advert rating and review
+     */
+    public function storeAdvertRating(StoreAdvertRatingRequest $request, AdvertListing $advert)
+    {
+        $rating = $this->advertListingService->storeAdvertRating($advert, $request->validated(), $request->user());
+        return $this->success($rating, 'Rating and review added successfully');
+    }
+
+
+    /**
+     * Get the user's advert ratings.
+     */
+    public function getAdvertRatings(Request $request, AdvertListing $advert)
+    {
+        $ratings = $this->advertListingService->getAdvertRatings($advert);
+        return $this->success($ratings);
     }
 }

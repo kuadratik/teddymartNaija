@@ -2,7 +2,9 @@
 
 namespace App\Services\Auth;
 
+use App\Enums\ReferralType;
 use App\Models\Otp;
+use App\Models\Referral;
 use App\Models\User;
 use App\Notifications\Auth\PasswordResetSuccessfulNotification;
 use App\Notifications\OnboardingUserNotification;
@@ -36,10 +38,11 @@ class AuthenticationService
     /**
      * Verify OTP and create the user after verification.
      */
-    public function verifyOtpAndCreateUser(array $data)
+    public function verifyOtpAndCreateUser(array $data, ?string $referralCode = null, ?string $referralType = null)
     {
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data, $referralCode, $referralType) {
             $otpRecord = Otp::where('email', $data['email'])->firstOrFail();
+
             $user = User::create($data);
             $user->markEmailAsVerified();
 
@@ -47,9 +50,26 @@ class AuthenticationService
 
             $user->notify(new OnboardingUserNotification());
 
+            if ($referralCode && $referralType) {
+                $referrer = User::where('referral_code', $referralCode)->first();
+
+                if ($referrer) {
+                    $user->referred_by_user_id = $referrer->id;
+                    $user->save();
+
+                    Referral::create([
+                        'referrer_id' => $referrer->id,
+                        'referred_id' => $user->id,
+                        'referral_type' => $referralType,
+                        'status' => 'completed',
+                        'completed_at' => now(),
+                    ]);
+                }
+            }
+
             return [
                 'token' => $user->createToken('authToken')->plainTextToken,
-                'user' => $user->load('store'),
+                'user' => $user->load('store', 'referrals', 'referredBys'),
             ];
         });
     }
@@ -69,6 +89,7 @@ class AuthenticationService
             'user' => $user->load('store'),
         ];
     }
+
     /**
      * Verify gogle token and create or login account
      */

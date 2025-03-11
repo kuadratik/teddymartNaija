@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -171,7 +172,8 @@ class Listing extends Model
     /**
      * scope not draft
      */
-    public function scopeByIsDraft($query, $value)  {
+    public function scopeByIsDraft($query, $value)
+    {
         return $query->where('is_draft', $value);
     }
 
@@ -189,7 +191,7 @@ class Listing extends Model
     /**
      * Scope by popularity (available products or services with highest views_count)
      */
-    public function scopePopular(Builder $query, string $type = null)
+    public function scopePopular(Builder $query, ?string $type = null)
     {
         $query->where('is_available', true);
 
@@ -297,5 +299,19 @@ class Listing extends Model
                 'discount_end_date' => null
             ]);
         }
+    }
+
+
+    public function wishlistedByUsers(): MorphToMany
+    {
+        return $this->morphToMany(User::class, 'wishlistable', 'wishlists')
+            ->withTimestamps();
+    }
+
+
+    public function scopeByCountry(Builder $query, $countryId)
+    {
+        return  $query->whereHas('store', fn($query) =>
+        $query->whereHas('country', fn($query) => $query->where('id', $countryId)));
     }
 }

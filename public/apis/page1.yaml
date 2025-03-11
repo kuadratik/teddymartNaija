@@ -38,12 +38,21 @@ paths:
                 email:
                   type: string
                   example: "kings@eki.market"
+                refferalCode:
+                  type: string
+                  example: "REFTED123456"
+                  nullable: true
+                refferalType:
+                  type: string
+                  example: "vendor"
+                  nullable: true
                 password:
                   type: string
                   example: "12345678"
                 password_confirmation:
                   type: string
                   example: "12345678"
+
       responses:
         default:
           description: "success"
@@ -98,6 +107,14 @@ paths:
                 email:
                   type: string
                   example: "kings@eki.market"
+                refferalCode:
+                  type: string
+                  example: "REFTED123456"
+                  nullable: true
+                refferalType:
+                  type: string
+                  example: "vendor"
+                  nullable: true
                 password:
                   type: string
                   example: "12345678"
@@ -273,31 +290,31 @@ paths:
                 type: object
 
   /front/record-interaction/{category}:
-      get:
-        tags:
-          - Category
-        summary: Record category interaction
-        description: Record category interaction
-        operationId: RecordCategoryInteraction
-        parameters:
-          - name: interactUid
-            in: header
-            required: true
-            schema:
-              type: string
-          - name: category
-            in: path
-            required: true
-            schema:
-              type: string
+    get:
+      tags:
+        - Category
+      summary: Record category interaction
+      description: Record category interaction
+      operationId: RecordCategoryInteraction
+      parameters:
+        - name: interactUid
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
 
-        responses:
-          default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /front/user/profile:
     get:
@@ -608,7 +625,6 @@ paths:
               schema:
                 type: object
 
-
   /front/add-to-clip/{product}:
     post:
       tags:
@@ -864,7 +880,7 @@ paths:
       tags:
         - Clip
       summary: send clip order to vendor
-      description:  send clip order to vendor
+      description: send clip order to vendor
       operationId: SendOrderClip
       security:
         - bearerAuth: []
@@ -882,8 +898,6 @@ paths:
             application/json:
               schema:
                 type: object
-
-
 
   /front/stores/{store}:
     get:
@@ -1043,34 +1057,34 @@ paths:
                 type: object
 
   /front/stores/grouped-alpha-numeric:
-     get:
-        security:
-          - bearerAuth: []
-        tags:
-          - Stores
-        summary: Get Stores In Alpha numeric Order
-        description: 'GetStoresInAlphaNumericOrder'
-        operationId: GetStoresInAlphaNumericOrder
-        parameters:
-          - name: currency
-            in: header
-            required: true
-            schema:
-              type: string
-              example: "USD"
-          - name: store_type
-            in: query
-            required: true
-            schema:
-              type: string
-              example: "product"
-        responses:
-          default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get Stores In Alpha numeric Order
+      description: "GetStoresInAlphaNumericOrder"
+      operationId: GetStoresInAlphaNumericOrder
+      parameters:
+        - name: currency
+          in: header
+          required: true
+          schema:
+            type: string
+            example: "USD"
+        - name: store_type
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "product"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /front/stores/{store}/listings/{listing}:
     get:
@@ -1102,7 +1116,6 @@ paths:
             application/json:
               schema:
                 type: object
-
 
   /front/stores/{store}/add-view:
     post:
@@ -1138,7 +1151,6 @@ paths:
       description: "Add Store Listing View"
       operationId: AddStoreListingView
       parameters:
-
         - in: path
           name: listing
           schema:
@@ -1152,7 +1164,6 @@ paths:
             application/json:
               schema:
                 type: object
-
 
   /front/stores/popular:
     get:
@@ -1218,15 +1229,15 @@ paths:
         - bearerAuth: []
       tags:
         - Stores
-      summary: Get Listing Lists
-      description: "Get Listing Lists filter by currency (USD,NGN,CAD)"
+      summary: Get filtered listings
+      description: Get listings with filters for currency, category, country, and availability
       operationId: GetListings
       parameters:
         - in: header
           name: interactUid
           schema:
             type: string
-            example: ""
+            example: "user_123"
           required: true
         - in: header
           name: currency
@@ -1238,22 +1249,54 @@ paths:
           name: listingType
           schema:
             type: string
+            enum: [product, service]
             example: "product"
-        - in: query
-          name: category
-          schema:
-            type: number
-            example: 11
+          required: true
         - in: query
           name: search
           schema:
             type: string
             example: "amala"
         - in: query
+          name: category_ids
+          description: Array of category IDs
+          schema:
+            type: array
+            items:
+              type: integer
+          style: form
+          explode: true
+          example: [11, 15]
+        - in: query
+          name: country_id
+          schema:
+            type: integer
+            example: 1
+
+        - in: query
           name: availability
           schema:
             type: boolean
             example: true
+        - in: query
+          name: price_min
+          schema:
+            type: number
+            format: float
+            example: 10.00
+        - in: query
+          name: price_max
+          schema:
+            type: number
+            format: float
+            example: 100.00
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+          required: false
+          description: Number of listings per page.
       responses:
         default:
           description: "success"
@@ -1262,3 +1305,62 @@ paths:
               schema:
                 type: object
 
+  /front/listings/best-deals:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get best deals by category
+      description: Retrieves the lowest-priced listing from each active category
+      operationId: GetBestDealsByCategory
+      parameters:
+        - in: header
+          name: interactUid
+          schema:
+            type: string
+            example: "user_123"
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "USD"
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+  /front/listings/today-deals:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get today deals
+      description: Retrieves the deals of the day
+      operationId: GetTodayDealsByCategory
+      parameters:
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "USD"
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            example: 10
+          required: false
+          description: Number of deals to retrieve.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object

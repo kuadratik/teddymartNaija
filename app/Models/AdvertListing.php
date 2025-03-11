@@ -7,11 +7,15 @@ use App\Enums\ListingType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class AdvertListing extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -29,6 +33,7 @@ class AdvertListing extends Model
         'phone_number',
         'promote_plan_id',
         'currency',
+        'is_available',
     ];
 
     protected $casts = [
@@ -36,8 +41,12 @@ class AdvertListing extends Model
         'quantity' => 'integer',
         'type' => ListingType::class,
         'curerency' => CurrencyType::class,
+        'is_available' => 'boolean',
 
     ];
+
+
+
 
     /**
      * Get the category that the advert listing belongs to.
@@ -48,7 +57,6 @@ class AdvertListing extends Model
     {
         return $this->belongsTo(Category::class);
     }
-
 
     /**
      * Get the media associated with the advert listing.
@@ -81,6 +89,7 @@ class AdvertListing extends Model
             ->withPivot(['payment_id', 'status', 'started_at', 'expires_at', 'order_number'])
             ->withTimestamps();
     }
+
     /**
      * Get the payment associated with this advert listing's promote plan.
      *
@@ -99,11 +108,41 @@ class AdvertListing extends Model
     }
 
 
-    public function getActivePromotePlanStatusAttribute()
+    public function wishlistedByUsers(): MorphToMany
     {
-        return $this->promotePlans()
-            ->wherePivot('status', 'active')
-            ->first()
-            ->pivot->status ?? null;
+        return $this->morphToMany(User::class, 'wishlistable', 'wishlists')
+            ->withTimestamps();
     }
+
+    /**
+     * Get the ratings associated with the advert listing.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(AdvertRating::class);
+    }
+
+    /**
+     * Get the average rating of the advert listing.
+     *
+     * @return float
+     */
+    public function getAverageRatingAttribute()
+    {
+        return $this->ratings()->avg('rating');
+    }
+
+    /**
+     * Accessor to determine if the advert is favourited by the authenticated user.
+     *
+     * @return bool
+     */
+    public function getIsFavouritedByUserAttribute()
+    {
+        return $this->isUserFavourite();
+    }
+
+
 }
