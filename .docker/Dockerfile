@@ -66,9 +66,13 @@ RUN git clone https://github.com/seebi/dircolors-solarized
 # Change default FPM Port
 RUN sed -i "s/9000/${PHP_FPM_PORT}/" /usr/local/etc/php-fpm.d/zz-docker.conf
 
-# Change default FPM PM settings
-RUN echo 'pm.max_children = 50' >> /usr/local/etc/php-fpm.d/zz-docker.conf && \
-   echo 'pm.max_requests = 500' >> /usr/local/etc/php-fpm.d/zz-docker.conf
+# Php-FPM overrides 
+RUN echo 'pm.max_children = 150' >> /usr/local/etc/php-fpm.d/zz-docker.conf
+RUN echo 'pm.start_servers = 25' >> /usr/local/etc/php-fpm.d/zz-docker.conf
+RUN echo 'pm.min_spare_servers = 15' >> /usr/local/etc/php-fpm.d/zz-docker.conf
+RUN echo 'pm.max_spare_servers = 25' >> /usr/local/etc/php-fpm.d/zz-docker.conf
+RUN echo 'pm.process_idle_timeout = 10s' >> /usr/local/etc/php-fpm.d/zz-docker.conf
+RUN echo 'pm.max_requests = 1000' >> /usr/local/etc/php-fpm.d/zz-docker.conf
 
 # Expose PHP-fpm and Swoole port
 EXPOSE $PHP_FPM_PORT
