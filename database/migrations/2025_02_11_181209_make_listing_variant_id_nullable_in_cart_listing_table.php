@@ -12,8 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('cart_listing', function (Blueprint $table) {
-            $table->unsignedBigInteger('listing_variant_id')->nullable()->change();
+            $table->foreignId('listing_variant_id')
+                ->nullable()
+                ->after('quantity')
+                ->constrained('listing_variants')
+                ->cascadeOnDelete();
 
+            $table->boolean('is_varient')->default(false)->after('listing_variant_id');
         });
     }
 
@@ -23,7 +28,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('cart_listing', function (Blueprint $table) {
-            $table->unsignedBigInteger('listing_variant_id')->nullable(false)->change();
+            $table->dropColumn(['listing_variant_id', 'is_varient']);
         });
     }
 };
