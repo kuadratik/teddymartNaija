@@ -7,6 +7,7 @@ use App\Enums\WishlistType;
 use App\Http\Requests\Advert\PostAdvertRequest;
 use App\Http\Requests\Advert\PostStoreAdvertRequest;
 use App\Http\Requests\Advert\StoreAdvertRatingRequest;
+use App\Http\Requests\Advert\GetAdvertGalleryRequest;
 use App\Http\Requests\Advert\UpdateAdvertRequest;
 use App\Models\AdvertListing;
 use App\Models\User;
@@ -82,7 +83,7 @@ class AdvertListingController extends Controller
     /**
      * Get all adverts.
      */
-    public function getAllAdverts(Request $request)
+    public function getAllAdverts(GetAdvertGalleryRequest $request)
     {
         $ads = $this->advertListingService->getAllAdverts($request);
         return $this->success($ads);
