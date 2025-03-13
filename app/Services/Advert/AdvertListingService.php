@@ -335,7 +335,7 @@ class AdvertListingService
             ->appends($request->query());
 
         return [
-            'data' => $paginator->items(),
+            'gallery' => $paginator->items(),
             'pagination' => [
                 'current_page' => $paginator->currentPage(),
                 'per_page' => $paginator->perPage(),
