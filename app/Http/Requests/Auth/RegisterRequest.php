@@ -30,8 +30,8 @@ class RegisterRequest extends FormRequest
             'last_name' =>  ['required', 'string'],
             'email' => ['required', 'email:rfc,dns', 'unique:users,email'],
             'password' => ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->letters()->numbers()->symbols()],
-            // 'refferalCode' => ['nullable', 'string', Rule::exists('users', 'referral_code')],
-            // 'referralType' => ['required_with:referralCode', 'string', Rule::enum(ReferralType::class)],
+            'refferalCode' => ['nullable', 'string', Rule::exists('users', 'referral_code')],
+            'referralType' => ['required_with:referralCode', 'string', Rule::enum(ReferralType::class)],
         ];
     }
 }
