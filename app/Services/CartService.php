@@ -41,6 +41,7 @@ class CartService
             'total_quantity' => $cart->products->count(),
             'total_price' => $totalCartPrice,
             'products' => $cart->products->map(function ($product) {
+                $variant = $product->pivot->listing_variant_id ? ListingVariant::find($product->pivot->listing_variant_id) : null;
                 return [
                     'listing_id' => $product->id,
                     'name' => $product->name,
@@ -55,13 +56,18 @@ class CartService
                     'description' => $product->description,
                     'store_name' => $product->store->name,
                     'store_slug' => $product->store->slug,
+                    'variant' => $variant ? [
+                        'id' => $variant->id,
+                        'name' => $variant->name,
+                        'price' => $variant->price,
+                        'display_price' => $variant->display_price,
+                    ] : null,
                 ];
             }),
         ];
 
         return $cartDetails;
     }
-
     /**
      * Adds a product to the user's cart.
      *
