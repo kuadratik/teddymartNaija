@@ -36,6 +36,26 @@ class AuthenticationService
     }
 
     /**
+     * Create user directly without OTP verification.
+     */
+    public function createUser(array $data)
+    {
+        return DB::transaction(function () use ($data) {
+            $userAttributes = collect($data)->merge([
+                'email_verified_at' => now()
+            ]);
+
+            $user = User::create($userAttributes->toArray());
+            $user->notify(new OnboardingUserNotification());
+
+            return [
+                'token' => $user->createToken('authToken')->plainTextToken,
+                'user' => $user->load('store'),
+            ];
+        });
+    }
+
+    /**
      * Verify OTP and create the user after verification.
      */
     public function verifyOtpAndCreateUser(array $data, ?string $referralCode = null, ?string $referralType = null)
