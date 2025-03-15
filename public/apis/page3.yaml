@@ -63,25 +63,28 @@ paths:
     put:
       tags:
         - Cart
-      summary: edit the quantity of a cart
-      description: edit the quantity of a cart
+      summary: Update product quantity in cart
+      description: Modify the quantity of a specific product/variant in the user's cart.Setting quantity to 0 removes the item from the cart.
       operationId: EditCart
       security:
         - bearerAuth: []
       parameters:
         - in: path
           name: product
+          description: Product slug identifier
           schema:
             type: string
             example: "pounded-yam"
           required: true
         - in: header
           name: session-uid
+          description: Session identifier for guest users
           schema:
             type: string
-            example:
+            example: "guest_7s8d9f7g8h9j0k"
           required: true
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -89,8 +92,15 @@ paths:
               properties:
                 quantity:
                   type: integer
+                  minimum: 0
+                  maximum: 999
+                  example: 3
+                  description: New quantity (0 removes item from cart)
+                variant_id:
+                  type: integer
+                  nullable: true
                   example: 1
-                  required: true
+                  description: "Required if product has variants"
       responses:
         default:
           description: "success"
@@ -115,6 +125,13 @@ paths:
             type: string
             example: "pounded-yam"
           required: true
+        - in: query
+          name: variant_id
+          description: Variant ID for products with options
+          schema:
+            type: integer
+            example: 1
+          required: false
         - in: header
           name: session-uid
           schema:
@@ -1299,12 +1316,12 @@ paths:
             default: 15
           description: Number of results per page
       responses:
-          default:
-            description: "success"
-            content:
-              application/json:
-                schema:
-                  type: object
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /front/advert/{advert}/gallery:
     get:

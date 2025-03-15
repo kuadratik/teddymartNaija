@@ -68,6 +68,7 @@ class CartService
 
         return $cartDetails;
     }
+
     /**
      * Adds a product to the user's cart.
      *
@@ -116,23 +117,23 @@ class CartService
     }
 
     /**
-     * Edit the quantity of a specific product in the cart.
+     * Update the quantity of a specific product in the cart.
      */
     public function editCartQuantity(Request $request, Listing $product): Cart
     {
         $cart = $this->getCart($request);
 
-        if ($request->quantity <= 0) {
-            $cart->products()->detach($product->id);
+        $query = CartListing::where('cart_id', $cart->id)
+            ->where('listing_id', $product->id)
+            ->when(
+                $request->filled('variant_id'),
+                fn($q) => $q->where('listing_variant_id', $request->variant_id),
+                fn($q) => $q->whereNull('listing_variant_id')
+            );
 
-            return $cart->fresh(['products']);
-        }
+        $request->quantity <= 0 ? $query->delete() : $query->update(['quantity' => $request->quantity]);
 
-        $cart->products()->syncWithoutDetaching([
-            $product->id => ['quantity' => $request->quantity],
-        ]);
-
-        return $cart->fresh(['products']);
+        return $cart->load(['products']);
     }
 
     /**
@@ -141,14 +142,17 @@ class CartService
     public function removeProductFromCart(Request $request, Listing $product): Cart|array
     {
         $cart = $this->getCart($request);
+        $variantId = $request->input('variant_id');
 
-        abort_if(! $cart->products->contains($product), 404, 'Product not found in the cart');
+        $query = $cart->products()->wherePivot('listing_id', $product->id)
+            ->when($variantId, fn($q) => $q->wherePivot('listing_variant_id', $variantId), fn($q) => $q->wherePivot('listing_variant_id', null));
 
-        $cart->products()->detach($product->id);
+        abort_if(! $query->exists(), 404, 'Product not found in the cart');
+
+        $query->detach();
 
         if ($cart->products()->count() === 0) {
             $this->deleteCartById($cart->id);
-
             return [];
         }
 
@@ -262,9 +266,6 @@ class CartService
             'email' => $request->validated('email'),
         ];
     }
-
-
-
 
     /**
      * Get orders for a specific user, with optional status filtering.
