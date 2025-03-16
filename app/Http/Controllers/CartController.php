@@ -44,7 +44,7 @@ class CartController extends Controller
     }
 
     /**
-     * Edit cart quantiy
+     * Edit cart quantity
      */
     public function editCart(Request $request, Listing $product)
     {
