@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\DomCrawler\Crawler;
+use Illuminate\Support\Facades\Mail;
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,55 +36,14 @@ Route::get('/docs', function () {
 });
 
 
-Route::get('/scrape', function () {
-    $client = new Client([
-        'headers' => [
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        ],
-        'verify' => false, // In case SSL verification causes issues
-    ]);
+Route::get('/test', function () {
+    $message = 'This is a test email sent from the /scrape route.';
 
-    $categories = [
-        'home-appliances', 'kitchen-appliances', 'fashion-and-beauty'
-    ];
+    $sent = Mail::raw($message, function ($mail) {
+        $mail->to('afuwapesunday12@gmail.com')
+            ->subject('Test')
+            ->from('postmaster@kuadratik.com', 'Sender Name');
+    });
 
-    $scrapedData = [];
-
-    foreach ($categories as $category) {
-        $url = "https://jiji.ng/$category";
-
-        try {
-            $response = $client->get($url);
-            $html = $response->getBody()->getContents();
-            $crawler = new Crawler($html);
-
-            $vendors = $crawler->filter('.b-list-advert__item')->each(function ($node) {
-                return [
-                    'name' => $node->filter('.b-advert-title')->count() ? trim($node->filter('.b-advert-title')->text()) : 'N/A',
-                    'phone' => 'Hidden (Requires Login)', // Jiji hides contact details
-                    'email' => 'N/A',
-                    'category' => 'N/A'
-                ];
-            });
-
-            $scrapedData[$category] = $vendors;
-
-            foreach ($vendors as $vendor) {
-                Log::info("Vendor Found: " . json_encode($vendor));
-            }
-
-        } catch (\Exception $e) {
-            Log::error("Failed to scrape $url: " . $e->getMessage());
-            continue;
-        }
-    }
-
-    // Save results in a file
-    file_put_contents(storage_path('logs/jiji_vendors.json'), json_encode($scrapedData, JSON_PRETTY_PRINT));
-
-    return response()->json([
-        'message' => 'Scraping completed successfully!',
-        'data' => $scrapedData
-    ]);
+    return 'Email has been sent';
 });
-
