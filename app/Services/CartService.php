@@ -32,7 +32,10 @@ class CartService
         }]);
 
         $totalCartPrice = $cart->products->sum(function ($product) {
-            return $product->pivot->quantity * $product->display_price ?? $product->price;
+            $variantPrice = $product->pivot->listing_variant_id
+                ? ListingVariant::find($product->pivot->listing_variant_id)->price
+                : null;
+            return $product->pivot->quantity * ($variantPrice ?? $product->display_price ?? $product->price);
         });
 
         $cartDetails = [
