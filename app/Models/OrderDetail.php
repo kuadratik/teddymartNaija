@@ -17,6 +17,8 @@ class OrderDetail extends Model
         'listing_name',
         'listing_price',
         'quantity',
+        'variant_id',
+        'variant_name',
     ];
 
     /**
@@ -45,6 +47,18 @@ class OrderDetail extends Model
     {
         return $this->belongsTo(Listing::class);
     }
+
+
+    /**
+     * Get Listing Variant
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(ListingVariant::class, 'variant_id', 'id');
+    }
+
 
     /**
      * Get user rating for listing detail

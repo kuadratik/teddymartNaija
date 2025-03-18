@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Enums\CurrencyType;
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
 use App\Http\Requests\Cart\StoreOrderRequest;
@@ -186,9 +185,7 @@ class CartService
             ->get()
             ->groupBy('store_id');
 
-        if ($cartItems->isEmpty()) {
-            abort(422, "No items in the cart for currency {$currency}.");
-        }
+        abort_if($cartItems->isEmpty(), 422, "No items in the cart for currency {$currency}.");
 
         $cumulativeTotalAmount = 0;
         $orderNumber = Str::uuid()->toString();
@@ -198,27 +195,19 @@ class CartService
         foreach ($cartItems as $storeId => $items) {
             $store = $items->first()?->store;
 
-            if (!$store || $store->currency !== $currency) {
-                abort(422, "Invalid store or mismatched currency for store ID {$storeId}.");
-            }
+            abort_if(!$store || $store->currency !== $currency, 422, "Invalid store or mismatched currency for store ID {$storeId}.");
 
-            $subtotal = $items->sum(function ($item) {
-                return $item->pivot->quantity * $item->display_price ?? $item->price;
-            });
+            $subtotal = $this->calculateSubtotal($items);
 
             $shippingMethodData = $shippingMethods->get($storeId);
 
-            if (!$shippingMethodData) {
-                abort(422, "Shipping method not provided for store ID {$storeId}.");
-            }
+            abort_if(!$shippingMethodData, 422, "Shipping method not provided for store ID {$storeId}.");
 
             $shippingMethod = StoreShippingMethod::where('id', $shippingMethodData['shipping_method_id'])
                 ->where('store_id', $storeId)
                 ->first();
 
-            if (!$shippingMethod) {
-                abort(422, "Invalid or unsupported shipping method for store ID {$storeId}.");
-            }
+            abort_if(!$shippingMethod, 422, "Invalid or unsupported shipping method for store ID {$storeId}.");
 
             $shippingCost = $shippingMethod->amount ?? 0;
             $totalAmount = $subtotal + $shippingCost;
@@ -246,12 +235,15 @@ class CartService
             ]);
 
             foreach ($items as $item) {
+                $variant = $item->pivot->listing_variant_id ? ListingVariant::find($item->pivot->listing_variant_id) : null;
                 OrderDetail::create([
                     'order_id' => $order->id,
                     'listing_id' => $item->id,
                     'listing_name' => $item->name,
-                    'listing_price' => $item->display_price ?? $item->price,
-                    'quantity' => $item->pivot->quantity
+                    'listing_price' => $this->getItemPrice($item),
+                    'quantity' => $item->pivot->quantity,
+                    'variant_id' => $variant ? $variant->id : null,
+                    'variant_name' => $variant ? $variant->name : null,
                 ]);
             }
         }
@@ -265,6 +257,31 @@ class CartService
             'cancel_url' => $request->validated('cancel_url'),
             'email' => $request->validated('email'),
         ];
+    }
+
+
+    /**
+     * Calculate the subTotal amount for the cart items
+     */
+    private function calculateSubtotal($items)
+    {
+        return $items->sum(function ($item) {
+            $price = $this->getItemPrice($item);
+            return $item->pivot->quantity * $price;
+        });
+    }
+
+    /**
+     * get single cart item price
+     */
+    private function getItemPrice($item)
+    {
+        if ($item->pivot->listing_variant_id) {
+            $variant = ListingVariant::find($item->pivot->listing_variant_id);
+            return $variant->display_price ?? $variant->price;
+        }
+
+        return $item->display_price ?? $item->price;
     }
 
     /**
@@ -365,7 +382,6 @@ class CartService
 
         return $storeShippingDetails;
     }
-
 
     /**
      * Get the user's cart based on the provided request.
