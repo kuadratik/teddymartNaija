@@ -62,6 +62,7 @@ class CartService
                         'price' => $variant->price,
                         'display_price' => $variant->display_price,
                         'image' => $variant->images,
+                        'quantity' => $variant->quantity,
                     ] : null,
                 ];
             }),
