@@ -26,6 +26,7 @@ class CartService
     public function getCartDetails(Request $request)
     {
         $currency = $request->header('currency', 'USD');
+
         $cart = $this->getCart($request)->load(['products' => function ($query) use ($currency) {
             $query->where('currency', $currency);
         }]);
@@ -60,6 +61,7 @@ class CartService
                         'name' => $variant->name,
                         'price' => $variant->price,
                         'display_price' => $variant->display_price,
+                        'image' => $variant->images,
                     ] : null,
                 ];
             }),
