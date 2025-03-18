@@ -149,12 +149,13 @@ class CartService
         $cart = $this->getCart($request);
         $variantId = $request->input('variant_id');
 
-        $query = $cart->products()->wherePivot('listing_id', $product->id)
-            ->when($variantId, fn($q) => $q->wherePivot('listing_variant_id', $variantId), fn($q) => $q->wherePivot('listing_variant_id', null));
+        $query = CartListing::where('cart_id', $cart->id)
+            ->where('listing_id', $product->id)
+            ->when($variantId, fn($q) => $q->where('listing_variant_id', $variantId), fn($q) => $q->whereNull('listing_variant_id'));
 
-        abort_if(! $query->exists(), 404, 'Product not found in the cart');
+        abort_if(!$query->exists(), 404, 'Product or variant not found in the cart');
 
-        $query->detach();
+        $query->delete();
 
         if ($cart->products()->count() === 0) {
             $this->deleteCartById($cart->id);
