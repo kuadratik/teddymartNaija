@@ -243,7 +243,6 @@ class PayPalEventBus implements ShouldQueue
             $orderStatus = $isSuccess ? OrderStatusEnum::NEW : OrderStatusEnum::PENDING;
 
             foreach ($orders as $order) {
-                // Skip orders already in completed payment status
                 if ($isSuccess && $order->payment_status == OrderStatusEnum::COMPLETED_PAYMENT) {
                     Log::warning('Skipping order - Invalid state transition', [
                         'order_id' => $order->id,
@@ -266,12 +265,10 @@ class PayPalEventBus implements ShouldQueue
 
                 $order->save();
 
-                // Process inventory for completed payments
                 if ($orderPaymentStatus === OrderStatusEnum::COMPLETED_PAYMENT) {
                     $this->processOrderDetails($order);
                 }
 
-                // Send notifications
                 if ($isSuccess) {
                     $order->store->user->notify(new VendorNewOrderNotification($order));
                     $order->customer->notify(new OrderSuccessfulNotification($order));
