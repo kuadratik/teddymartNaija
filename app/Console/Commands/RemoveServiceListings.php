@@ -41,7 +41,7 @@ class RemoveServiceListings extends Command
 
             $query->chunk(200, function ($listings) use ($progressBar) {
                 foreach ($listings as $listing) {
-                    $listing->forceDelete();
+                    $listing->delete();
                     $progressBar->advance();
                 }
             });
