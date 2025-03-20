@@ -37,6 +37,20 @@ paths:
             type: string
             example:
           required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  example: 1
+                  required: false
+                variant_id:
+                  type: integer
+                  example: 1
+                  required: false
       responses:
         default:
           description: "success"
@@ -49,25 +63,28 @@ paths:
     put:
       tags:
         - Cart
-      summary: edit the quantity of a cart
-      description: edit the quantity of a cart
+      summary: Update product quantity in cart
+      description: Modify the quantity of a specific product/variant in the user's cart.Setting quantity to 0 removes the item from the cart.
       operationId: EditCart
       security:
         - bearerAuth: []
       parameters:
         - in: path
           name: product
+          description: Product slug identifier
           schema:
             type: string
             example: "pounded-yam"
           required: true
         - in: header
           name: session-uid
+          description: Session identifier for guest users
           schema:
             type: string
-            example:
+            example: "guest_7s8d9f7g8h9j0k"
           required: true
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -75,8 +92,15 @@ paths:
               properties:
                 quantity:
                   type: integer
+                  minimum: 0
+                  maximum: 999
+                  example: 3
+                  description: New quantity (0 removes item from cart)
+                variant_id:
+                  type: integer
+                  nullable: true
                   example: 1
-                  required: true
+                  description: "Required if product has variants"
       responses:
         default:
           description: "success"
@@ -101,6 +125,13 @@ paths:
             type: string
             example: "pounded-yam"
           required: true
+        - in: query
+          name: variant_id
+          description: Variant ID for products with options
+          schema:
+            type: integer
+            example: 1
+          required: false
         - in: header
           name: session-uid
           schema:
@@ -1197,13 +1228,14 @@ paths:
                 type: object
 
   /front/advert/gallery:
-    post:
+    get:
       tags:
         - Advertisement
       summary: Get all advert listings with filters and pagination
       description: |
-        Retrieve all advert listings with optional filtering, sorting, and pagination options.
-        Filters include: status, category_id, type, price range, state, creation date, and search term.
+        Retrieve all advert listings with optional filtering, sorting, and pagination.
+        Filters include status, category IDs, type, price range, country, state, and search term.
+        Results are sorted by promotion price descending by default.
       operationId: GetAllAdverts
       security:
         - bearerAuth: []
@@ -1213,76 +1245,76 @@ paths:
           schema:
             type: string
           required: true
-          description: The unique session identifier for the user.
+          description: The unique session identifier for the user
         - in: header
           name: currency
           schema:
             type: string
             example: USD
           required: true
-          description: Currency code to filter listings by.
+          description: Currency code to filter listings by
+        - in: query
+          name: category_ids
+          schema:
+            type: array
+            items:
+              type: integer
+              example: 1
+          style: form
+          explode: true
+          description: Array of category IDs to filter by
         - in: query
           name: status
           schema:
             type: string
+            enum: [active, inactive]
             example: active
-          required: false
-          description: Filter by promotion status (active,expired).
+          description: Filter by promotion status
         - in: query
           name: type
           schema:
             type: string
-          required: false
-          description: Filter by listing type (product , service).
+            enum: [product, service]
+          description: Filter by listing type
         - in: query
           name: price_min
           schema:
             type: number
             format: float
-          required: false
-          description: Minimum price for listings plan.
+            example: 10.00
+          description: Minimum promotion price filter
         - in: query
           name: price_max
           schema:
             type: number
             format: float
-          required: false
-          description: Maximum price for listings plan.
+            example: 100.00
+          description: Maximum promotion price filter
         - in: query
           name: search
           schema:
             type: string
-          required: false
-          description: Search term to match in title or description.
+          description: Search term to match in title or description
         - in: query
           name: country_id
           schema:
             type: integer
-          required: false
-          description: Filter by country ID.
+            example: 1
+          description: Filter by country ID
         - in: query
           name: state
           schema:
             type: string
-          required: false
-          description: Filter by state.
+            example: California
+          description: Filter by state/province
         - in: query
           name: per_page
           schema:
             type: integer
+            minimum: 1
+            maximum: 100
             default: 15
-          required: false
-          description: Number of listings per page.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                category_id:
-                  type: array
-                  example: [1, 2, 3]
-                  required: false
+          description: Number of results per page
       responses:
         default:
           description: "success"

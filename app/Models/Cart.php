@@ -20,7 +20,8 @@ class Cart extends Model
     public function products()
     {
         return $this->belongsToMany(Listing::class, 'cart_listing')
-            ->withPivot('quantity')
-            ->withTimestamps();
+            ->withPivot('quantity', 'is_variant', 'listing_variant_id')
+            ->withTimestamps()
+            ->with('variants');
     }
 }

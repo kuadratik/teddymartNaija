@@ -6,6 +6,7 @@ use App\Http\Requests\Listing\AddRatingRequest;
 use App\Http\Requests\Listing\CreateListingRequest;
 use App\Http\Requests\Listing\UpdateListingRequest;
 use App\Jobs\RecordCategoryInteractions;
+use App\Models\Category;
 use App\Models\Listing;
 use App\Models\ListingRating;
 use App\Models\Store;
@@ -148,20 +149,27 @@ class ListingsController extends Controller
      */
     public function getListings(Request $request)
     {
-        $currency = $request->header('currency', 'USD');
+        $res = $this->storeService->getAllListings($request);
+        return $this->success($res);
+    }
 
-        $listings = Listing::query()
-            ->byIsDraft(false)
-            ->byListingType($request->listingType)
-            ->when($request->search, fn($query) => $query->search($request->search))
-            ->when($request->category, fn($query) => $query->byCategory($request->category))
-            ->when($request->availability, fn($query) => $query->availability($request->availability))
-            ->byCurrency($currency)
-
-            ->get();
-
-        RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
-
-        return $this->success($listings->load('store', 'ratings'));
+    /**
+     * Get the best deal (lowest price) for each category
+     */
+    public function getBestDealsByCategory(Request $request)
+    {
+        $currency = $request->header('currency', "USD");
+        $bestDeals = $this->storeService->getBestDealsByCategory($currency);
+        return $this->success($bestDeals);
+    }
+    /**
+     * Get today's deals
+     */
+    public function getTodaysDeals(Request $request)
+    {
+        $currency = $request->header('currency', "USD");
+        $limit = $request->query('limit', 10);
+        $todaysDeals = $this->storeService->getTodaysDeals($currency, $limit);
+        return $this->success($todaysDeals);
     }
 }

@@ -232,18 +232,22 @@ class PaystackEventBus implements ShouldQueue
 
                 $this->createPaymentTransaction($payment, $paymentDetails, $payload, $isSuccess, $statusMessage);
 
-                if ($isSuccess) {
-                    $this->processOrderDetails($order);
-
-                    if (isset($order->store->user)) {
-                        $order->store->user->notify(new VendorNewOrderNotification($order));
-                    }
-
+                if (!$isSuccess) {
                     if (isset($order->customer)) {
-                        $order->customer->notify(new OrderSuccessfulNotification($order));
+                        $order->customer->notify(new OrderPaymentFailedNotification($order));
                     }
-                } elseif (isset($order->customer)) {
-                    $order->customer->notify(new OrderPaymentFailedNotification($order));
+
+                    continue;
+                }
+
+                $this->processOrderDetails($order);
+
+                if (isset($order->store->user)) {
+                    $order->store->user->notify(new VendorNewOrderNotification($order));
+                }
+
+                if (isset($order->customer)) {
+                    $order->customer->notify(new OrderSuccessfulNotification($order));
                 }
 
                 Log::info('Order payment processed', [
@@ -327,31 +331,14 @@ class PaystackEventBus implements ShouldQueue
     private function processOrderDetails(Order $order): void
     {
         DB::transaction(function () use ($order) {
-            $order->load(['orderDetails.listing' => function ($query) {
-                $query->lockForUpdate();
-            }]);
+            $order->load([
+                'orderDetails.listing' => fn($query) => $query->lockForUpdate(),
+                'orderDetails.variant'
+            ]);
 
             foreach ($order->orderDetails as $orderDetail) {
                 try {
-                    $listing = $orderDetail->listing;
-
-                    if (!$listing) {
-                        throw new \RuntimeException("Listing not found for order detail {$orderDetail->id}");
-                    }
-
-                    $affectedRows = $listing->newQuery()
-                        ->where('id', $listing->id)
-                        ->where('quantity', '>=', $orderDetail->quantity)
-                        ->decrement('quantity', $orderDetail->quantity);
-
-                    if ($affectedRows === 0) {
-                        throw new \RuntimeException(
-                            "Insufficient quantity for listing {$listing->id}. " .
-                                "Available: {$listing->quantity}, Required: {$orderDetail->quantity}"
-                        );
-                    }
-
-                    $listing->refresh();
+                    $this->updateListingOrVariantQuantity($orderDetail);
                 } catch (\Throwable $e) {
                     Log::error('Order processing failed', [
                         'order_detail_id' => $orderDetail->id,
@@ -362,6 +349,67 @@ class PaystackEventBus implements ShouldQueue
                 }
             }
         }, 5);
+    }
+
+    /**
+     * Update the quantity of a listing or variant
+     */
+    private function updateListingOrVariantQuantity($orderDetail): void
+    {
+        $listing = $orderDetail->listing;
+
+        if (!$listing) {
+            throw new \RuntimeException("Listing not found for order detail {$orderDetail->id}");
+        }
+
+        if ($orderDetail->variant_id) {
+            $this->handleVariantQuantity($orderDetail);
+            return;
+        }
+
+        $this->handleListingQuantity($listing, $orderDetail->quantity);
+    }
+
+    /**
+     * Handle quantity update for a variant
+     */
+    private function handleVariantQuantity($orderDetail): void
+    {
+        $variant = $orderDetail->variant;
+
+        if (!$variant) {
+            throw new \RuntimeException("Variant not found for order detail {$orderDetail->id}");
+        }
+
+        $this->decrementQuantity($variant, $orderDetail->quantity, "variant {$variant->id}");
+        $variant->refresh();
+    }
+
+    /**
+     * Handle quantity update for a listing
+     */
+    private function handleListingQuantity($listing, int $quantity): void
+    {
+        $this->decrementQuantity($listing, $quantity, "listing {$listing->id}");
+        $listing->refresh();
+    }
+
+    /**
+     * Decrement the quantity of a model and ensure sufficient stock
+     */
+    private function decrementQuantity($model, int $quantity, string $identifier): void
+    {
+        $affectedRows = $model->newQuery()
+            ->where('id', $model->id)
+            ->where('quantity', '>=', $quantity)
+            ->decrement('quantity', $quantity);
+
+        if ($affectedRows === 0) {
+            throw new \RuntimeException(
+                "Insufficient quantity for {$identifier}. " .
+                    "Available: {$model->quantity}, Required: {$quantity}"
+            );
+        }
     }
 
     /**

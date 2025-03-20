@@ -17,7 +17,9 @@ use App\Services\PaymentGateways\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Advert\GetAdvertGalleryRequest;
 
 class AdvertListingService
 {
@@ -179,7 +181,7 @@ class AdvertListingService
             return $res;
         } else {
             $paymentData = [
-                'email' => auth()->user()->email,
+                'email' => Auth::user()->email,
                 'currency_code' => $currency,
                 'total_amount' => $promotePlan->price,
                 'order_number' => $orderNumber,
@@ -291,64 +293,49 @@ class AdvertListingService
     /**
      * Retrieve filtered adverts with optimized queries and structure
      */
-    public function getAllAdverts(Request $request)
+    public function getAllAdverts(GetAdvertGalleryRequest $request)
     {
-        $validated = $request->validate([
-            'category_id' => 'nullable|array',
-            'category_id.*' => 'integer|exists:categories,id',
-            'country_id' => 'nullable|integer|exists:countries,id',
-            'state' => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
-        $query = AdvertListing::with(['media', 'category', 'payment', 'promotePlans'])
+        $query = AdvertListing::query()->with(['media', 'category', 'payment', 'promotePlans'])
             ->addSelect([
                 'advert_listings.*',
                 'min_promote_plan_price' => AdvertPromotePlan::selectRaw('MIN(price)')
                     ->join('advert_listing_promote_plans', 'advert_promote_plans.id', '=', 'advert_listing_promote_plans.advert_promote_plan_id')
                     ->whereColumn('advert_listing_promote_plans.advert_listing_id', 'advert_listings.id')
                     ->groupBy('advert_listing_promote_plans.advert_listing_id')
-            ]);
-
-
-        $query->when($request->filled('status'), function ($query) use ($request) {
-            $query->whereExists(function ($subQuery) use ($request) {
-                $subQuery->select(DB::raw(1))
-                    ->from('advert_listing_promote_plans')
-                    ->whereColumn('advert_listing_promote_plans.advert_listing_id', 'advert_listings.id')
-                    ->where('status', $request->status);
-            });
-        });
-
-        $query->when($request->filled('category_id'), function ($query) use ($validated) {
-            $query->whereIn('advert_listings.category_id', $validated['category_id']);
-        });
-
-        $query->when($request->filled('price_min'), function ($query) use ($request) {
-            $query->where('min_promote_plan_price', '>=', $request->price_min);
-        })->when($request->filled('price_max'), function ($query) use ($request) {
-            $query->where('min_promote_plan_price', '<=', $request->price_max);
-        });
-
-        $query->when($request->filled('search'), function ($query) use ($request) {
-            $query->where(function ($q) use ($request) {
-                $search = '%' . addcslashes($request->search, '%_\\') . '%';
-                $q->where('title', 'like', $search)
-                    ->orWhere('description', 'like', $search);
-            });
-        });
-
-        $query->when($request->filled('type'), fn($q) => $q->where('type', $request->type))
+            ])
+            ->when(isset($validated['category_ids']), fn($query) => $query->whereIn('advert_listings.category_id', $validated['category_ids']))
+            ->when(
+                isset($validated['status']),
+                fn($query) => $query->whereExists(
+                    fn($subQuery) => $subQuery
+                        ->select(DB::raw(1))
+                        ->from('advert_listing_promote_plans')
+                        ->whereColumn('advert_listing_promote_plans.advert_listing_id', 'advert_listings.id')
+                        ->where('status', $validated['status'])
+                )
+            )->when(
+                isset($validated['price_min']),
+                fn($query) => $query
+                    ->having('min_promote_plan_price', '>=', $validated['price_min'])
+            )->when(isset($validated['price_max']), fn($query) => $query->having('min_promote_plan_price', '<=', $validated['price_max']))
+            ->when(isset($validated['search']), fn($query) => $query->where(function ($q) use ($validated) {
+                $searchTerm = '%' . addcslashes($validated['search'], '%_\\') . '%';
+                $q->where('title', 'like', $searchTerm)
+                    ->orWhere('description', 'like', $searchTerm);
+            }))->when(isset($validated['type']), fn($q) => $q->where('type', $validated['type']))
             ->when($request->hasHeader('currency'), fn($q) => $q->where('currency', $request->header('currency')))
-            ->when($request->filled('country_id'), fn($q) => $q->where('country_id', $request->country_id))
-            ->when($request->filled('state'), fn($q) => $q->where('state', $request->state));
+            ->when(isset($validated['country_id']), fn($q) => $q->where('country_id', $validated['country_id']))
+            ->when(isset($validated['state']), fn($q) => $q->where('state', $validated['state']));
 
-        $perPage = $request->input('per_page', 15);
+        $perPage = $validated['per_page'] ?? 15;
         $paginator = $query->orderBy('min_promote_plan_price', 'desc')
             ->paginate($perPage)
             ->appends($request->query());
 
         return [
-            'data' => $paginator->items(),
+            'gallery' => $paginator->items(),
             'pagination' => [
                 'current_page' => $paginator->currentPage(),
                 'per_page' => $paginator->perPage(),
@@ -357,7 +344,6 @@ class AdvertListingService
             ]
         ];
     }
-
     /**
      * Adds an advert to the user's wishlist.
      *

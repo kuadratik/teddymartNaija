@@ -1229,15 +1229,15 @@ paths:
         - bearerAuth: []
       tags:
         - Stores
-      summary: Get Listing Lists
-      description: "Get Listing Lists filter by currency (USD,NGN,CAD)"
+      summary: Get filtered listings
+      description: Get listings with filters for currency, category, country, and availability
       operationId: GetListings
       parameters:
         - in: header
           name: interactUid
           schema:
             type: string
-            example: ""
+            example: "user_123"
           required: true
         - in: header
           name: currency
@@ -1249,22 +1249,114 @@ paths:
           name: listingType
           schema:
             type: string
+            enum: [product, service]
             example: "product"
-        - in: query
-          name: category
-          schema:
-            type: number
-            example: 11
+          required: true
         - in: query
           name: search
           schema:
             type: string
             example: "amala"
         - in: query
+          name: category_ids
+          description: Array of category IDs
+          schema:
+            type: array
+            items:
+              type: integer
+          style: form
+          explode: true
+          example: [11, 15]
+        - in: query
+          name: country_id
+          schema:
+            type: integer
+            example: 1
+
+        - in: query
           name: availability
           schema:
             type: boolean
             example: true
+        - in: query
+          name: price_min
+          schema:
+            type: number
+            format: float
+            example: 10.00
+        - in: query
+          name: price_max
+          schema:
+            type: number
+            format: float
+            example: 100.00
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+          required: false
+          description: Number of listings per page.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/listings/best-deals:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get best deals by category
+      description: Retrieves the lowest-priced listing from each active category
+      operationId: GetBestDealsByCategory
+      parameters:
+        - in: header
+          name: interactUid
+          schema:
+            type: string
+            example: "user_123"
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "USD"
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+  /front/listings/today-deals:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Stores
+      summary: Get today deals
+      description: Retrieves the deals of the day
+      operationId: GetTodayDealsByCategory
+      parameters:
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "USD"
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            example: 10
+          required: false
+          description: Number of deals to retrieve.
       responses:
         default:
           description: "success"

@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use App\Enums\CurrencyType;
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Cart;
+use App\Models\CartListing;
 use App\Models\Listing;
 use App\Models\ListingVariant;
 use App\Models\Order;
@@ -26,12 +26,16 @@ class CartService
     public function getCartDetails(Request $request)
     {
         $currency = $request->header('currency', 'USD');
+
         $cart = $this->getCart($request)->load(['products' => function ($query) use ($currency) {
             $query->where('currency', $currency);
         }]);
 
         $totalCartPrice = $cart->products->sum(function ($product) {
-            return $product->pivot->quantity * $product->display_price ?? $product->price;
+            $variantPrice = $product->pivot->listing_variant_id
+                ? ListingVariant::find($product->pivot->listing_variant_id)->display_price
+                : null;
+            return $product->pivot->quantity * ($variantPrice ?? $product->display_price ?? $product->price);
         });
 
         $cartDetails = [
@@ -40,6 +44,7 @@ class CartService
             'total_quantity' => $cart->products->count(),
             'total_price' => $totalCartPrice,
             'products' => $cart->products->map(function ($product) {
+                $variant = $product->pivot->listing_variant_id ? ListingVariant::find($product->pivot->listing_variant_id) : null;
                 return [
                     'listing_id' => $product->id,
                     'name' => $product->name,
@@ -54,6 +59,14 @@ class CartService
                     'description' => $product->description,
                     'store_name' => $product->store->name,
                     'store_slug' => $product->store->slug,
+                    'variant' => $variant ? [
+                        'id' => $variant->id,
+                        'name' => $variant->name,
+                        'price' => $variant->price,
+                        'display_price' => $variant->display_price,
+                        'image' => $variant->images,
+                        'quantity' => $variant->quantity,
+                    ] : null,
                 ];
             }),
         ];
@@ -62,7 +75,10 @@ class CartService
     }
 
     /**
-     * Add a product to the cart if it's a valid product type.
+     * Adds a product to the user's cart.
+     *
+     * If the product is already in the cart, the quantity is updated.
+     * Handles both regular and variant products.
      */
     public function addToCart(Request $request, Listing $product): Cart
     {
@@ -70,41 +86,59 @@ class CartService
             return Utils::validateResp(['error' => ['Product not found']]);
         }
 
+        $quantity = $request->input('quantity', 1);
+        $variantId = $request->input('variant_id');
         $cart = $this->getCart($request);
 
-        $cart->products()->syncWithoutDetaching([
-            $product->id => ['quantity' => DB::raw('COALESCE(quantity, 0) + 1')],
-        ]);
+        $existingItemQuery = CartListing::query()
+            ->where('cart_id', $cart->id)
+            ->where('listing_id', $product->id);
+
+        if ($variantId) {
+            $existingItemQuery->where('listing_variant_id', $variantId);
+        } else {
+            $existingItemQuery->whereNull('listing_variant_id');
+        }
+
+        $existingItem = $existingItemQuery->first();
+
+        if ($existingItem) {
+            $existingItemQuery->update([
+                'quantity' => DB::raw("quantity + {$quantity}"),
+                'is_variant' => $variantId ? true : false,
+                'updated_at' => now(),
+            ]);
+        } else {
+            CartListing::create([
+                'cart_id' => $cart->id,
+                'listing_id' => $product->id,
+                'quantity' => $quantity,
+                'is_variant' => $variantId ? true : false,
+                'listing_variant_id' => $variantId,
+            ]);
+        }
 
         return $cart->fresh(['products']);
     }
 
     /**
-     * Add a product varient to cart
-     */
-    public function addVarientToCart(Request $request, ListingVariant $varient)
-    {
-        $cart = $this->getCart($request);
-    }
-
-    /**
-     * Edit the quantity of a specific product in the cart.
+     * Update the quantity of a specific product in the cart.
      */
     public function editCartQuantity(Request $request, Listing $product): Cart
     {
         $cart = $this->getCart($request);
 
-        if ($request->quantity <= 0) {
-            $cart->products()->detach($product->id);
+        $query = CartListing::where('cart_id', $cart->id)
+            ->where('listing_id', $product->id)
+            ->when(
+                $request->filled('variant_id'),
+                fn($q) => $q->where('listing_variant_id', $request->variant_id),
+                fn($q) => $q->whereNull('listing_variant_id')
+            );
 
-            return $cart->fresh(['products']);
-        }
+        $request->quantity <= 0 ? $query->delete() : $query->update(['quantity' => $request->quantity]);
 
-        $cart->products()->syncWithoutDetaching([
-            $product->id => ['quantity' => $request->quantity],
-        ]);
-
-        return $cart->fresh(['products']);
+        return $cart->load(['products']);
     }
 
     /**
@@ -113,14 +147,18 @@ class CartService
     public function removeProductFromCart(Request $request, Listing $product): Cart|array
     {
         $cart = $this->getCart($request);
+        $variantId = $request->input('variant_id');
 
-        abort_if(! $cart->products->contains($product), 404, 'Product not found in the cart');
+        $query = CartListing::where('cart_id', $cart->id)
+            ->where('listing_id', $product->id)
+            ->when($variantId, fn($q) => $q->where('listing_variant_id', $variantId), fn($q) => $q->whereNull('listing_variant_id'));
 
-        $cart->products()->detach($product->id);
+        abort_if(!$query->exists(), 404, 'Product or variant not found in the cart');
+
+        $query->delete();
 
         if ($cart->products()->count() === 0) {
             $this->deleteCartById($cart->id);
-
             return [];
         }
 
@@ -154,9 +192,7 @@ class CartService
             ->get()
             ->groupBy('store_id');
 
-        if ($cartItems->isEmpty()) {
-            abort(422, "No items in the cart for currency {$currency}.");
-        }
+        abort_if($cartItems->isEmpty(), 422, "No items in the cart for currency {$currency}.");
 
         $cumulativeTotalAmount = 0;
         $orderNumber = Str::uuid()->toString();
@@ -166,27 +202,19 @@ class CartService
         foreach ($cartItems as $storeId => $items) {
             $store = $items->first()?->store;
 
-            if (!$store || $store->currency !== $currency) {
-                abort(422, "Invalid store or mismatched currency for store ID {$storeId}.");
-            }
+            abort_if(!$store || $store->currency !== $currency, 422, "Invalid store or mismatched currency for store ID {$storeId}.");
 
-            $subtotal = $items->sum(function ($item) {
-                return $item->pivot->quantity * $item->display_price ?? $item->price;
-            });
+            $subtotal = $this->calculateSubtotal($items);
 
             $shippingMethodData = $shippingMethods->get($storeId);
 
-            if (!$shippingMethodData) {
-                abort(422, "Shipping method not provided for store ID {$storeId}.");
-            }
+            abort_if(!$shippingMethodData, 422, "Shipping method not provided for store ID {$storeId}.");
 
             $shippingMethod = StoreShippingMethod::where('id', $shippingMethodData['shipping_method_id'])
                 ->where('store_id', $storeId)
                 ->first();
 
-            if (!$shippingMethod) {
-                abort(422, "Invalid or unsupported shipping method for store ID {$storeId}.");
-            }
+            abort_if(!$shippingMethod, 422, "Invalid or unsupported shipping method for store ID {$storeId}.");
 
             $shippingCost = $shippingMethod->amount ?? 0;
             $totalAmount = $subtotal + $shippingCost;
@@ -214,12 +242,15 @@ class CartService
             ]);
 
             foreach ($items as $item) {
+                $variant = $item->pivot->listing_variant_id ? ListingVariant::find($item->pivot->listing_variant_id) : null;
                 OrderDetail::create([
                     'order_id' => $order->id,
                     'listing_id' => $item->id,
                     'listing_name' => $item->name,
-                    'listing_price' => $item->display_price ?? $item->price,
-                    'quantity' => $item->pivot->quantity
+                    'listing_price' => $this->getItemPrice($item),
+                    'quantity' => $item->pivot->quantity,
+                    'variant_id' => $variant ? $variant->id : null,
+                    'variant_name' => $variant ? $variant->name : null,
                 ]);
             }
         }
@@ -236,7 +267,29 @@ class CartService
     }
 
 
+    /**
+     * Calculate the subTotal amount for the cart items
+     */
+    private function calculateSubtotal($items)
+    {
+        return $items->sum(function ($item) {
+            $price = $this->getItemPrice($item);
+            return $item->pivot->quantity * $price;
+        });
+    }
 
+    /**
+     * get single cart item price
+     */
+    private function getItemPrice($item)
+    {
+        if ($item->pivot->listing_variant_id) {
+            $variant = ListingVariant::find($item->pivot->listing_variant_id);
+            return $variant->display_price ?? $variant->price;
+        }
+
+        return $item->display_price ?? $item->price;
+    }
 
     /**
      * Get orders for a specific user, with optional status filtering.
@@ -336,7 +389,6 @@ class CartService
 
         return $storeShippingDetails;
     }
-
 
     /**
      * Get the user's cart based on the provided request.
