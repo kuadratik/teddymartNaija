@@ -96,9 +96,7 @@ class StoreService
         $orders = $store->orders()
             ->where('type', ListingType::PRODUCT->value)
             ->whereNotIn('status', [OrderStatusEnum::PENDING->value, 'incart'])
-            ->when($request->filled('order_status'), function ($query) use ($request) {
-                $query->where('status', $request->order_status);
-            })
+            ->when($request->filled('order_status'), fn($query) => $query->where('status', $request->order_status))
             ->when($request->filled('search'), function ($query) use ($request) {
                 $searchTerm = $request->search;
                 return $query->where(function ($q) use ($searchTerm) {
