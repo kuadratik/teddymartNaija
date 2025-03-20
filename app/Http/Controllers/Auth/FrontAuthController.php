@@ -25,9 +25,9 @@ class FrontAuthController extends Controller
      */
     public function register(RegisterRequest $request)
     {
-        $data = collect($request->validated())->only('first_name', 'last_name', 'email', 'password')->toArray();
-        $response = $this->authService->createUser($data);
-        return $this->success($response);
+        $data = $request->validated();
+        $this->authService->sendOtpForRegistration($data);
+        return $this->success();
     }
 
     /**
