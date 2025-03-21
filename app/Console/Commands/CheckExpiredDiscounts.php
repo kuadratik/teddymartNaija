@@ -12,7 +12,7 @@ class CheckExpiredDiscounts extends Command
      *
      * @var string
      */
-    protected $signature = 'discounts:check-expired';
+    protected $signature = 'discounts:check-expired-listings';
 
     /**
      * The console command description.

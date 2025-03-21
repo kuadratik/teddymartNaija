@@ -7,4 +7,5 @@ Schedule::command(CacheStores::class)->everyThreeMinutes();
 
 Schedule::command('advert:check-expired-adverts')->everyFifteenMinutes();
 Schedule::command('advert:check-expired-promotions')->everyFifteenMinutes();
-Schedule::command('discounts:check-expired')->everyMinute();
+Schedule::command('discounts:check-expired-listings')->everyMinute();
+Schedule::command('discounts:check-expired-variants')->everyMinute();
