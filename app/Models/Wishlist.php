@@ -11,7 +11,7 @@ class Wishlist extends Model
     use HasFactory;
 
     protected $table = 'wishlists';
-    protected $fillable = ['user_id', 'wishlistable_id', 'wishlistable_type'];
+    protected $fillable = ['user_id', 'wishlistable_id', 'wishlistable_type', 'variant_id'];
 
     public function wishlistable()
     {
@@ -27,10 +27,4 @@ class Wishlist extends Model
     {
         return $query->where('wishlistable_type', WishlistType::PRODUCT);
     }
-
-
-
-
-
-
 }
