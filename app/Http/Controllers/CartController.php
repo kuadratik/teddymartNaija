@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
+use App\Http\Requests\Cart\AddListingToWishlistRequest;
 use App\Http\Requests\Cart\AddToCartRequest;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Http\Requests\Cart\StoreShippingAddressRequest;
@@ -188,7 +189,7 @@ class CartController extends Controller
     /**
      * Add product to wishlist from cart
      */
-    public function addToWishlistFromCart(Request $request, Listing $product)
+    public function addToWishlistFromCart(AddListingToWishlistRequest $request, Listing $product)
     {
         $message = $this->cartService->addToWishlistFromCart($request, $product);
 

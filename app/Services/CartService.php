@@ -330,28 +330,31 @@ class CartService
 
         $user = $request->user();
 
-        $wishlistExists = $user->wishlists()->where('listing_id', $product->id)->exists();
+        $wishlistExists = $user->wishlists()->where('wishlistable_id', $product->id)->exists();
         abort_if($wishlistExists, 422, 'The product is already in your wishlist.');
+
+        $variantId = $request->input('variant_id');
 
         $cart = $user->carts()
             ->with('products')
-            ->whereHas('products', function ($query) use ($product) {
-                $query->where('listing_id', $product->id);
+            ->whereHas('products', function ($query) use ($product, $variantId) {
+                $query->where('listing_id', $product->id)
+                    ->when($variantId, fn($q) => $q->where('listing_variant_id', $variantId), fn($q) => $q->whereNull('listing_variant_id'));
             })
             ->first();
 
-        abort_if(! $cart, 404, 'The product is not found in your cart.');
+        abort_if(! $cart, 404, 'The product or variant is not found in your cart.');
 
-        DB::transaction(function () use ($user, $product, $cart) {
-            $cart->products()->detach($product->id);
-            $user->wishlists()->attach($product->id);
+        DB::transaction(function () use ($user, $product, $cart, $variantId) {
+            $cart->products()->detach($product->id, ['listing_variant_id' => $variantId]);
+            $user->wishlists()->attach($product->id, ['variant_id' => $variantId]);
 
             if ($cart->products()->count() === 0) {
                 $cart->delete();
             }
         });
 
-        return 'Product added to wishlist successfully and removed from cart.';
+        return 'Product or variant added to wishlist successfully and removed from cart.';
     }
 
     /**

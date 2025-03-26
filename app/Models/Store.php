@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 
 class Store extends Model
@@ -141,6 +142,15 @@ class Store extends Model
         return $this->belongsTo(StorePromotePlanStore::class, 'id', 'store_id');
     }
 
+
+    /**
+     * store payout details
+     */
+    public function payoutDetails(): HasOne
+    {
+        return $this->hasOne(StorePayoutDetail::class, 'store_id');
+    }
+
     /**
      * Get the store owner
      */
@@ -221,6 +231,4 @@ class Store extends Model
             'listings',
         )->take(10);
     }
-
-
 }
