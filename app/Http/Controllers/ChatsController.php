@@ -14,12 +14,17 @@ use Illuminate\Support\Facades\Notification;
 
 class ChatsController extends Controller
 {
+
+    public function __construct(protected ChatService $chatService)
+    {
+        //
+    }
     /**
      *  Start a  conversation
      */
     public function startConversation(ConversationRequest $request)
     {
-        $newConversation = (new ChatService)->startConversation($request->conversationAttributes());
+        $newConversation = $this->chatService->startConversation($request->conversationAttributes());
 
         return $this->success($newConversation);
     }
@@ -30,7 +35,7 @@ class ChatsController extends Controller
 
     public function getChatMessages(Request $request)
     {
-        $chatMessages = (new ChatService)->chatMessages($request->chat);
+        $chatMessages = $this->chatService->chatMessages($request->chat);
         return $this->success($chatMessages);
     }
 
@@ -39,7 +44,7 @@ class ChatsController extends Controller
      */
     public function getChatDetails(Request $request)
     {
-        $chatDetails = (new ChatService)->chatDetails($request->uid);
+        $chatDetails = $this->chatService->chatDetails($request->uid);
         return $this->success($chatDetails);
     }
 
@@ -48,7 +53,7 @@ class ChatsController extends Controller
      */
     public function getChats(Request $request)
     {
-        $chats = (new ChatService)->chats();
+        $chats = $this->chatService->chats();
         return $this->success($chats);
     }
 
@@ -57,7 +62,7 @@ class ChatsController extends Controller
      */
     public function sendMessage(MessageRequest $request)
     {
-        (new ChatService)->sendMessage($request->validated());
+        $this->chatService->sendMessage($request->validated());
         return $this->success();
     }
 
@@ -66,7 +71,7 @@ class ChatsController extends Controller
      */
     public function updateReadAt(ReadRequest $request)
     {
-        (new ChatService)->updateReadAt($request->chat);
+        $this->chatService->updateReadAt($request->chat);
         return $this->success();
     }
 }
