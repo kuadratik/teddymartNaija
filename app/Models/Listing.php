@@ -249,6 +249,15 @@ class Listing extends Model
         return $query->where('quantity', '>', 0);
     }
 
+    /**
+     * Scope a query to only include listings that are out of stock.
+     *
+     * A listing is considered out of stock if its quantity is less than 2.
+     */
+    public function scopeOutOfStock($query)
+    {
+        return $query->where('quantity', '<', 2);
+    }
 
     /**
      * Update the listing with the given attributes, listing attributes, and variants.
