@@ -39,7 +39,7 @@ class MagicLoginRequest extends FormRequest
     {
         $store = Store::where('slug', $this->store)->firstOrFail();
         $user = User::where('id', $store->user_id)->firstOrFail();
-        $url = config('app.url');
+        $url = env('FRONT_URL');
 
         $token = strtoupper(Str::random());
         $cacheKey = "magic-link-{$token}";
