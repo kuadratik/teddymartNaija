@@ -37,13 +37,13 @@ Route::get('/docs', function () {
 
 
 Route::get('/test', function () {
-    $message = 'This is a test email sent from the /scrape route.';
+    // $message = 'This is a test email sent from the /scrape route.';
 
-    $sent = Mail::raw($message, function ($mail) {
-        $mail->to('afuwapesunday12@gmail.com')
-            ->subject('Test')
-            ->from('postmaster@kuadratik.com', 'Sender Name');
-    });
+    // $sent = Mail::raw($message, function ($mail) {
+    //     $mail->to('afuwapesunday12@gmail.com')
+    //         ->subject('Test')
+    //         ->from('postmaster@kuadratik.com', 'Sender Name');
+    // });
 
-    return 'Email has been sent';
+    // return 'Email has been sent';
 });
