@@ -10,3 +10,4 @@ Schedule::command('advert:check-expired-promotions')->everyFifteenMinutes();
 Schedule::command('discounts:check-expired-listings')->everyMinute();
 Schedule::command('discounts:check-expired-variants')->everyMinute();
 Schedule::command('listings:notify-low-stock')->everyMinute();
+Schedule::command('listings:notify-out-of-stock')->everyMinute();
