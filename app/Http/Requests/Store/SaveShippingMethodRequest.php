@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Store;
 
+use App\Enums\DurationTypeEnum;
 use App\Enums\ShippingMethodEnum;
 use App\Models\StoreShippingMethod;
 use Illuminate\Foundation\Http\FormRequest;
@@ -32,7 +33,9 @@ class SaveShippingMethodRequest extends FormRequest
             'pick_up_time' => [Rule::requiredIf($this->method_type === ShippingMethodEnum::STORE_PICK_UP->value), 'string'],
             'pick_up_location' => [Rule::requiredIf($this->method_type === ShippingMethodEnum::STORE_PICK_UP->value), 'string'],
             'fulfilled_amount' => [Rule::requiredIf($this->method_type === ShippingMethodEnum::VENDOR_FULFILLED_SHIPPING->value), 'string'],
-            'fulfilled_location' => [Rule::requiredIf($this->method_type === ShippingMethodEnum::VENDOR_FULFILLED_SHIPPING->value), 'string']
+            'fulfilled_location' => [Rule::requiredIf($this->method_type === ShippingMethodEnum::VENDOR_FULFILLED_SHIPPING->value), 'string'],
+            'duration_number' => ['nullable', 'integer', 'min:1'],
+            'duration_type' => ['nullable', Rule::enum(DurationTypeEnum::class)],
         ];
     }
 
@@ -44,7 +47,9 @@ class SaveShippingMethodRequest extends FormRequest
             'method_type' => ShippingMethodEnum::STORE_PICK_UP->value,
             'pick_up_time' => $this->pick_up_time,
             'location' => $this->pick_up_location,
-            'is_unique' => true
+            'is_unique' => true,
+            'duration_number' => $this->duration_number,
+            'duration_type' => $this->duration_type,
         ])->toArray();
     }
 
@@ -55,7 +60,9 @@ class SaveShippingMethodRequest extends FormRequest
             'store_id' => $this->store_id,
             'method_type' => ShippingMethodEnum::VENDOR_FULFILLED_SHIPPING->value,
             'amount' => $this->fulfilled_amount,
-            'location' => $this->fulfilled_location
+            'location' => $this->fulfilled_location,
+            'duration_number' => $this->duration_number,
+            'duration_type' => $this->duration_type,
         ])->toArray();
     }
 
