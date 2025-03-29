@@ -84,6 +84,54 @@ paths:
               schema:
                 type: object
 
+  /front/magic-link:
+    post:
+      tags:
+        - Authentication
+      summary: Request a magic link for passwordless login
+      description: Request a magic link for passwordless login
+      operationId: RequestMagicLink
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                store:
+                  type: string
+                  example: "kings-bar"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/magic-login:
+    post:
+      tags:
+        - Authentication
+      summary: Login with magic token
+      description: Authenticates a user using the token sent via magic link
+      operationId: MagicLogin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: "abcdef123456"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/register/verify:
     post:
       tags:
