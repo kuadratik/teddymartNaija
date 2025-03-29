@@ -785,7 +785,6 @@ paths:
       summary: Save User Store Shipping Method
       description: Save User Store Shipping Method
       operationId: SaveUserStoreShippingMethod
-
       requestBody:
         content:
           application/json:
@@ -815,14 +814,27 @@ paths:
                 fulfilled_location:
                   type: string
                   example: "surulere street"
-
+                duration_number:
+                  type: integer
+                  example: 1
+                duration_type:
+                  type: string
+                  enum:
+                    - minutes
+                    - hours
+                    - days
+                    - years
+                    - weeks
+                    - months
+                    - seconds
+                  example: "days"
       responses:
         default:
           description: "success"
           content:
-            application/json:
-              schema:
-                type: object
+          application/json:
+            schema:
+            type: object
 
   /store/shipping/remove-method-type:
     post:
@@ -931,12 +943,11 @@ paths:
 
       responses:
         default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
-
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /store/payout/{userStore}/requestable-payouts:
     get:
@@ -957,11 +968,11 @@ paths:
 
       responses:
         default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /store/payout/{userStore}/processed-payouts:
     get:
@@ -982,12 +993,11 @@ paths:
 
       responses:
         default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
-
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /store/payout/{userStore}/store/{payout}/process-payout:
     patch:
@@ -1014,11 +1024,11 @@ paths:
 
       responses:
         default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /store/payout/save-detail:
     post:
@@ -1084,7 +1094,7 @@ paths:
                   type: string
                   example: "1234567890"
                   required: true
-              
+
       responses:
         default:
           description: "success"
@@ -1112,11 +1122,11 @@ paths:
 
       responses:
         default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /store/payout/{storePayoutDetail}/payout-detail:
     get:
@@ -1137,11 +1147,11 @@ paths:
 
       responses:
         default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /store/payout/update-detail/{storePayoutDetail}:
     patch:
@@ -1216,11 +1226,11 @@ paths:
 
       responses:
         default:
-            description: 'success'
-            content:
-              application/json:
-                schema:
-                  type: object
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /store/payout/delete-detail/{storePayoutDetail}:
     delete:
@@ -1246,5 +1256,3 @@ paths:
             application/json:
               schema:
                 type: object
-
-
