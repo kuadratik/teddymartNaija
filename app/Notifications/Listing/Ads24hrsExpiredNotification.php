@@ -36,7 +36,7 @@ class Ads24hrsExpiredNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $advertTitle = $this->plan->advertListing->title ?? 'your ad';
-        $expiryDate = $this->plan->expires_at->format('F j, Y, g:i A');
+        $expiryDate = now()->parse($this->plan->expires_at)->format('F j, Y, g:i A');
 
         return (new MailMessage)
             ->priority(1)
