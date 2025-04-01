@@ -16,6 +16,7 @@ class SendAbandonedCartEmails extends Command
     {
         $abandonedCarts = Cart::whereNotNull('user_id')
             ->where('updated_at', '<', now()->subDays(2))
+            ->whereHas('products')
             ->get();
 
         foreach ($abandonedCarts as $cart) {
