@@ -393,6 +393,20 @@ class CartService
         return $storeShippingDetails;
     }
 
+
+    /**
+     * customer recieve order
+     */
+    public function recieveOrder(Order $order): void
+    {
+        $order->update(['status' => OrderStatusEnum::COMPLETED->value]);
+        if (
+            $order->wasChanged() &&
+            $order->status === OrderStatusEnum::COMPLETED->value
+        ) {
+            // $order->store->user->notify(new OrderCompletedNotification($order));
+        }
+    }
     /**
      * Get the user's cart based on the provided request.
      */
