@@ -7,8 +7,11 @@ use App\Enums\OrderStatusEnum;
 use App\Jobs\RecordCategoryInteractions;
 use App\Models\Category;
 use App\Models\Listing;
+use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Store;
+use App\Notifications\Order\OrderDeliveredNotification;
+use App\Notifications\Order\OrderShippedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -177,5 +180,26 @@ class StoreService
             ->get();
 
         return $discountedDeals->concat($randomDeals);
+    }
+
+
+    /**
+     * update store order status
+     */
+    public function updateOrderStatus(Order $order, string $status)
+    {
+        DB::transaction(function () use ($order, $status) {
+            $order->update(['status' => $status]);
+            if (
+                $order->wasChanged() &&
+                $order->status === OrderStatusEnum::SHIPPED->value
+            ) {
+                $order->customer->notify(new OrderShippedNotification($order));
+            }
+
+            if ($order->status === OrderStatusEnum::DELIVERED->value) {
+                $order->customer->notify(new OrderDeliveredNotification($order));
+            }
+        });
     }
 }
