@@ -193,7 +193,9 @@ class StoreService
             if (
                 $order->wasChanged() &&
                 $order->status === OrderStatusEnum::SHIPPED->value
+
             ) {
+                $order->update(['shipped_at' => now()]);
                 $order->customer->notify(new OrderShippedNotification($order));
             }
 

@@ -399,10 +399,10 @@ class CartService
      */
     public function recieveOrder(Order $order): void
     {
-        $order->update(['status' => OrderStatusEnum::COMPLETED->value]);
+        $order->update(['status' => OrderStatusEnum::DELIVERED->value]);
         if (
             $order->wasChanged() &&
-            $order->status === OrderStatusEnum::COMPLETED->value
+            $order->status === OrderStatusEnum::DELIVERED->value
         ) {
             // $order->store->user->notify(new OrderCompletedNotification($order));
         }
