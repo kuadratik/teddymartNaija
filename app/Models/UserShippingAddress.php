@@ -36,6 +36,23 @@ class UserShippingAddress extends Model
     }
 
     /**
+     * Get the formatted full address
+     *
+     * @return string
+     */
+    public function getFormattedAddress(): string
+    {
+        return implode(', ', array_filter([
+            $this->address,
+            $this->landmark,
+            $this->city,
+            $this->lga,
+            $this->state,
+            $this->country
+        ]));
+    }
+
+    /**
      * Define a relationship where this user shipping address belongs to a user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
