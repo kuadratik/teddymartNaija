@@ -167,8 +167,8 @@ class CartController extends Controller
      */
     public function recieveOrder(Order $order)
     {
-        $order->update(['status' => OrderStatusEnum::DELIVERED->value]);
-        return $this->success();
+        $this->cartService->recieveOrder($order);
+        return $this->success('Order completed successfully');
     }
     /**
      * Add product to wishlist

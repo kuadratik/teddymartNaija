@@ -37,30 +37,22 @@ class OrderShippedNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $order = $this->order;
-        $respondent = $order->customer()->first_name;
-        $orderNumber = $order->order_number;
-
-        $line = <<<EOT
-        Shopping details:
-        <ul>
-            <li><strong>Shopping Method</strong>: {$order->shippingMethod->method_type}</li>
-            <li><strong>Shopping Address</strong>: {}</li>
-        </ul>
-        EOT;
+        $customerName = $order->customer->first_name;
+        $orderNumber = substr($order->order_number, 0, 8);
+        $shippingMethod = $order->shippingMethod->method_type;
+        $shippingAddress = $order->shippingAddress->getFormattedAddress();
 
         return (new MailMessage)
             ->subject("Hooray!! Your Order Has Been Shipped – {$orderNumber}")
-            ->greeting("Dear {$respondent},")
+            ->greeting("Dear {$customerName},")
             ->line("Great news! Your Order {$orderNumber} is now on its way!")
-            ->line(new HtmlString($line))
-            ->line("If you have any questions or concerns about your shipment or tracking information, please don't")
-            ->line('hesitate to contact our customer support team.')
-            ->line('')
-            ->line('Thank you for choosing myEKI for your online shopping needs.')
-            ->line('')
-            ->line("Best regards,")
-            ->line('The myEKI Team')
-            ->line('vendorsupport@myEKI.market');
+            ->line(new HtmlString("<strong>Shipping Details:</strong>"))
+            ->line(new HtmlString("<ul>"))
+            ->line(new HtmlString("<li>Shipping Method: {$shippingMethod}</li>"))
+            ->line(new HtmlString("<li>Shipping Address: {$shippingAddress}</li>"))
+            ->line(new HtmlString("</ul>"))
+            ->line("")
+            ->line("If you have any questions or concerns about your shipment or tracking information, please don't hesitate to contact our customer support team.");
     }
 
     /**
