@@ -8,6 +8,7 @@ use App\Enums\PaymentStatusEnum;
 use App\Enums\PaymentTransactionTypeEnum;
 use App\Enums\PaymentType;
 use App\Models\AdvertListingPromotePlan;
+use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
@@ -229,6 +230,10 @@ class PaystackEventBus implements ShouldQueue
                 $order->payment_status = $orderPaymentStatus->value;
                 $order->status = $orderStatus->value;
                 $order->save();
+
+                Cart::whereNotNull('user_id')
+                    ->where('user_id', $order->user_id)
+                    ->delete();
 
                 $this->createPaymentTransaction($payment, $paymentDetails, $payload, $isSuccess, $statusMessage);
 

@@ -83,6 +83,8 @@ class Order extends Model
         return $this->belongsTo(Clip::class);
     }
 
+
+
     /**
      * Get the full name of the user.
      *
