@@ -13,3 +13,6 @@ Schedule::command('discounts:check-expired-variants')->everyMinute();
 Schedule::command('listings:notify-low-stock')->everyMinute();
 Schedule::command('listings:notify-out-of-stock')->everyMinute();
 Schedule::command('cart:send-abandoned-emails')->daily();
+Schedule::command('orders:notify-shipped')->everyFourHours();
+Schedule::command('orders:notify-vendors-delivery')->daily();
+Schedule::command('orders:send-vendor-reminders')->twiceDaily(9, 15);
