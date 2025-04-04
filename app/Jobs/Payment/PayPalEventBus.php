@@ -8,6 +8,7 @@ use App\Enums\PaymentStatusEnum;
 use App\Enums\PaymentTransactionTypeEnum;
 use App\Enums\PaymentType;
 use App\Models\AdvertListingPromotePlan;
+use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
@@ -259,11 +260,15 @@ class PayPalEventBus implements ShouldQueue
                 $order->payment_status = $orderPaymentStatus->value;
                 $order->status = $orderStatus->value;
 
+
                 if (!$isSuccess) {
                     $order->failure_reason = $paymentDetails['failure_reason'] ?? 'Unknown error';
                 }
 
                 $order->save();
+                Cart::whereNotNull('user_id')
+                    ->where('user_id', $order->user_id)
+                    ->delete();
 
                 if ($orderPaymentStatus === OrderStatusEnum::COMPLETED_PAYMENT) {
                     $this->processOrderDetails($order);
