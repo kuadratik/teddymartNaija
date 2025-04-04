@@ -6,10 +6,11 @@ use App\Enums\OrderStatusEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HandlesDuration;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, HandlesDuration;
 
     /**
      * The attributes that are mass assignable.
@@ -35,7 +36,8 @@ class Order extends Model
         'payout_status',
         'currency',
         'store_shipping_method_id',
-        'shipping_address_id'
+        'shipping_address_id',
+        'delivered_notification_count',
     ];
 
 
@@ -43,6 +45,9 @@ class Order extends Model
         'total_amount' => 'decimal:2',
         'created_at' => 'datetime:Y-m-d H:i:s',
         'updated_at' => 'datetime:Y-m-d H:i:s',
+        'shipped_at' => 'datetime:Y-m-d H:i:s',
+        'shipped_at' => 'datetime:Y-m-d H:i:s',
+        'delivered_notification_count' => 'integer',
     ];
 
     /**
@@ -143,7 +148,7 @@ class Order extends Model
     {
         return $query->where('orders.payout_status', OrderStatusEnum::PAID)->latest('id');
     }
-    
+
     /**
      * Query scope to get retrieve paid payout
      */
@@ -165,8 +170,27 @@ class Order extends Model
      */
     public function updateOrderStatus($status)
     {
-
         $this->status = $status;
+        if ($status === OrderStatusEnum::SHIPPED->value) {
+            $this->shipped_at = now();
+        }
         $this->save();
+    }
+
+    /**
+     * Check if shipping duration has elapsed
+     */
+    public function isShippingDurationElapsed(): bool
+    {
+        if (!$this->shipped_at || !$this->shippingMethod) {
+            return false;
+        }
+
+        $totalHours = $this->calculateHours(
+            $this->shippingMethod->duration_number,
+            $this->shippingMethod->duration_type
+        );
+
+        return now()->diffInHours($this->shipped_at) >= $totalHours;
     }
 }
