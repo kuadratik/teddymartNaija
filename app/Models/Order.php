@@ -6,10 +6,11 @@ use App\Enums\OrderStatusEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HandlesDuration;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, HandlesDuration;
 
     /**
      * The attributes that are mass assignable.
@@ -173,5 +174,22 @@ class Order extends Model
             $this->shipped_at = now();
         }
         $this->save();
+    }
+
+    /**
+     * Check if shipping duration has elapsed
+     */
+    public function isShippingDurationElapsed(): bool
+    {
+        if (!$this->shipped_at || !$this->shippingMethod) {
+            return false;
+        }
+
+        $totalHours = $this->calculateHours(
+            $this->shippingMethod->duration_number,
+            $this->shippingMethod->duration_type
+        );
+
+        return now()->diffInHours($this->shipped_at) >= $totalHours;
     }
 }

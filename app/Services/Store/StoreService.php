@@ -15,6 +15,7 @@ use App\Notifications\Order\OrderShippedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class StoreService
 {
@@ -189,17 +190,22 @@ class StoreService
     public function updateOrderStatus(Order $order, string $status)
     {
         DB::transaction(function () use ($order, $status) {
-            $order->update(['status' => $status]);
-            if (
-                $order->wasChanged() &&
-                $order->status === OrderStatusEnum::SHIPPED->value
+            if ($status === OrderStatusEnum::DELIVERED->value) {
+                if (!$order->isShippingDurationElapsed()) {
+                    throw ValidationException::withMessages([
+                        'status' => ['Cannot mark as delivered before shipping duration has elapsed.']
+                    ]);
+                }
+            }
 
-            ) {
+            $order->update(['status' => $status]);
+
+            if ($order->wasChanged() && $status === OrderStatusEnum::SHIPPED->value) {
                 $order->update(['shipped_at' => now()]);
                 $order->customer->notify(new OrderShippedNotification($order));
             }
 
-            if ($order->status === OrderStatusEnum::DELIVERED->value) {
+            if ($order->wasChanged() && $status === OrderStatusEnum::DELIVERED->value) {
                 $order->customer->notify(new OrderDeliveredNotification($order));
             }
         });
