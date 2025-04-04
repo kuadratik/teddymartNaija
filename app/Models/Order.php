@@ -37,7 +37,7 @@ class Order extends Model
         'currency',
         'store_shipping_method_id',
         'shipping_address_id',
-        'delivered_notification_count'
+        'delivered_notification_count',
     ];
 
 
@@ -45,6 +45,7 @@ class Order extends Model
         'total_amount' => 'decimal:2',
         'created_at' => 'datetime:Y-m-d H:i:s',
         'updated_at' => 'datetime:Y-m-d H:i:s',
+        'shipped_at' => 'datetime:Y-m-d H:i:s',
         'shipped_at' => 'datetime:Y-m-d H:i:s',
         'delivered_notification_count' => 'integer',
     ];

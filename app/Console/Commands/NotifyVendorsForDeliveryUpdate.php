@@ -14,8 +14,9 @@ class NotifyVendorsForDeliveryUpdate extends Command
 
     public function handle()
     {
-        Order::with(['store', 'shippingMethod'])
+        Order::with(['store', 'store.user', 'shippingMethod'])
             ->where('status', OrderStatusEnum::SHIPPED)
+            ->whereNull('vendor_notified_at')
             ->whereNotNull('shipped_at')
             ->each(function ($order) {
                 if ($order->isShippingDurationElapsed()) {
@@ -29,7 +30,8 @@ class NotifyVendorsForDeliveryUpdate extends Command
                     );
 
                     if ($hoursAfterElapsed >= 48) {
-                        $order->store->notify(new VendorOrderUpdateNotification($order));
+                    $order->store->user->notify(new VendorOrderUpdateNotification($order));
+                    $order->update(['vendor_notified_at' => now()]);
                     }
                 }
             });

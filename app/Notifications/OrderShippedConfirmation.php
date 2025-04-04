@@ -23,7 +23,7 @@ class OrderShippedConfirmation extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Order Shipped - Confirmation of Delivery Needed')
-            ->greeting("Dear {$this->order->customer->first_name},")
+            ->greeting("Dear {$notifiable->first_name},")
             ->line("We hope you're enjoying your recent purchase from myEKI! To ensure a smooth shopping experience, please take a moment to confirm that you've received your order by clicking the \"Received\" button in the myEKI profile section.")
             ->line("Confirming your order helps us improve our service and ensures any necessary support if needed.")
             ->line("If you have any issues with your order, feel free to contact our support team.")
