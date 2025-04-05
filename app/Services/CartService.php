@@ -299,7 +299,7 @@ class CartService
         $user = $request->user();
         $status = $request->query('order_status');
 
-        $orders = Order::with(['orderDetails', 'shippingAddress'])
+        $orders = Order::with(['orderDetails', 'orderDetails.listing', 'orderDetails.variant', 'shippingAddress'])
             ->where('user_id', $user->id)
             ->where('type', ListingType::PRODUCT->value)
             ->when($status, fn($query) => $query->where('status', $status))
