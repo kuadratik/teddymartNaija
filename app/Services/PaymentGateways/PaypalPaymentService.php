@@ -41,7 +41,9 @@ class PaypalPaymentService implements PaymentGatewayInterface
                 0 => [
                     "amount" => [
                         "currency_code" => $data['currency_code'],
-                        "value" => $data['total_amount']
+                        "value" => intval(
+                            round($data['total_amount'])
+                        ),
                     ],
                     "custom_id" => json_encode([
                         'order_number' => $data['order_number'],
@@ -58,10 +60,9 @@ class PaypalPaymentService implements PaymentGatewayInterface
                     return ['url' => $links['href']];
                 }
             }
-        } else {
+        }
             log::error('paypal initialization error', $response);
             abort(500, 'Something went wrong');
-        }
     }
 
     public function verify(array $data): array
