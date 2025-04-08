@@ -175,7 +175,7 @@ class CartController extends Controller
     public function addToWishlist(Request $request, Listing $product)
     {
         $message = $this->cartService->addProductToWishlist($request, $product);
-        return $this->success($message);
+        return $this->success([], $message);
     }
 
 
