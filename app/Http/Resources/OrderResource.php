@@ -41,6 +41,12 @@ class OrderResource extends JsonResource
                         'shipping_address' => $order->shippingAddress instanceof Collection
                             ? ShippingAddressResource::collection($order->shippingAddress)
                             : new ShippingAddressResource($order->shippingAddress),
+                        'store' => [
+                            'id' => $order->store->id,
+                            'name' => $order->store->name,
+                            'slug' => $order->store->slug,
+                            'currency' => $order->store->currency,
+                        ],
                     ];
                 })
             ];
@@ -67,6 +73,12 @@ class OrderResource extends JsonResource
             'shipping_address' => $this->shippingAddress instanceof Collection
                 ? ShippingAddressResource::collection($this->shippingAddress)
                 : new ShippingAddressResource($this->shippingAddress),
+            'store' => [
+                'id' => $this->store->id,
+                'name' => $this->store->name,
+                'slug' => $this->store->slug,
+                'currency' => $this->store->currency,
+            ],
         ];
     }
 }
