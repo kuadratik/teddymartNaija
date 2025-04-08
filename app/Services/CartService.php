@@ -460,4 +460,21 @@ class CartService
     {
         Cart::where('id', $cartId)->delete();
     }
+
+    /**
+     * Add a product to the wishlist.
+     */
+    public function addProductToWishlist(Request $request, Listing $product): string
+    {
+        abort_if($product->type != ListingType::PRODUCT->value, 400, 'The specified listing is not a product.');
+        abort_if(!$product->is_available, 400, 'The product is currently unavailable.');
+
+        if ($request->user()->hasWishlisted($product)) {
+            return 'The product is already in your wishlist.';
+        }
+
+        $request->user()->wishlists()->attach($product->id);
+
+        return 'Product added to wishlist successfully.';
+    }
 }

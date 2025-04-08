@@ -176,7 +176,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->wishlists()
             ->where('wishlistable_id', $model->id)
-            ->where('wishlistable_type',)
+            ->where('wishlistable_type', get_class($model))
             ->exists();
     }
     /**
