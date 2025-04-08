@@ -60,10 +60,9 @@ class PaypalPaymentService implements PaymentGatewayInterface
                     return ['url' => $links['href']];
                 }
             }
-        } else {
+        }
             log::error('paypal initialization error', $response);
             abort(500, 'Something went wrong');
-        }
     }
 
     public function verify(array $data): array
