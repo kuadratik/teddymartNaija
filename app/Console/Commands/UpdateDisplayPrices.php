@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Listing;
+use App\Models\ListingVariant;
 use Illuminate\Console\Command;
 
 class UpdateDisplayPrices extends Command
@@ -35,6 +36,16 @@ class UpdateDisplayPrices extends Command
                 $listing->update([
                     'display_price' => $basePrice * (1 + $companyRate)
                 ]);
+
+                foreach ($listing->variants as $variant) {
+                    $variantBasePrice = $variant->discount > 0
+                        ? $variant->price * (1 - ($variant->discount / 100))
+                        : $variant->price;
+
+                    $variant->update([
+                        'display_price' => $variantBasePrice * (1 + $companyRate)
+                    ]);
+                }
 
                 $updatedCount++;
                 $progress->advance();
