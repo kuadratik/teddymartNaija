@@ -11,10 +11,10 @@ use App\Models\Listing;
 use App\Models\Message;
 use App\Models\ServiceInteraction;
 use App\Models\User;
+use App\Notifications\CustomerInquiryEmailNotification;
 use App\Notifications\CustomerInquiryNotification;
 use App\Notifications\Listing\ListingInquiryNotification;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
 class ChatService
@@ -40,6 +40,7 @@ class ChatService
             $this->handleNotifications($details, $message, $respondent, $user);
 
             DB::commit();
+
             return collect($message)->merge(['respondent' => $respondent]);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -55,7 +56,7 @@ class ChatService
             'user_type' => $this->getUserType($user),
             'converse_type' => 'private',
             'title' => null,
-            'identifier' => $details['identifier']
+            'identifier' => $details['identifier'],
         ]);
     }
 
@@ -73,9 +74,22 @@ class ChatService
                 'user_type' => $this->getUserType($respondent),
                 'user_id' => $respondent->id,
                 'read_at' => now()->subMinutes(1),
-            ]
+            ],
         ];
         ChatUser::upsert($chatUsers, ['chat_id', 'user_id']);
+
+        $existingChat = ChatUser::where('chat_id', $chat->id)
+            ->where('user_id', $respondent->id)
+            ->exists();
+
+        if (! $existingChat) {
+            $this->sendCustomerInquiryEmail($user, $respondent);
+        }
+    }
+
+    private function sendCustomerInquiryEmail($customer, $vendor)
+    {
+        $vendor->notify(new CustomerInquiryEmailNotification($vendor));
     }
 
     private function createMessage($chatId, $user, $content)
@@ -125,6 +139,7 @@ class ChatService
     {
         $messages = Message::where('chat_id', $chatId)->latest('created_at')->cursorPaginate();
         $messages->each(fn($message) => $this->setMessageUser($message));
+
         return $messages;
     }
 
@@ -132,6 +147,7 @@ class ChatService
     {
         $chat = Chat::where('uuid', $uid)->with('participants')->firstOrFail();
         $chat->participants->each(fn($respondent) => $this->setParticipantRelation($respondent));
+
         return $chat;
     }
 
@@ -148,9 +164,10 @@ class ChatService
     public function updateReadAt($chatId)
     {
         $chatUser = ChatUser::where('chat_id', $chatId)->where('user_id', auth()->id())->first();
-        abort_if(!$chatUser->update(['read_at' => now()]), 409, 'Unable to update chat user read time.');
+        abort_if(! $chatUser->update(['read_at' => now()]), 409, 'Unable to update chat user read time.');
 
         $chatUser->unread = $this->unreadQuery($chatUser->chat_id, $chatUser->read_at)->first()?->read ?? 0;
+
         return $chatUser;
     }
 
@@ -166,6 +183,7 @@ class ChatService
         $unreads = $this->getUnReads($chats);
 
         $chats->each(fn($chat) => $this->setChatsState($chat, $respondents, $lastMessages, $unreads));
+
         return $chats->when(request()->name, fn($query) => $query->filter(fn($chat) => $this->doesNameContainSearchParam($chat)))->values();
     }
 
@@ -201,7 +219,7 @@ class ChatService
     {
         return collect($chatIds)->whenNotEmpty(fn($ids) => Message::select('*')
             ->whereIn('chat_id', $ids)
-            ->whereRaw("id = (SELECT MAX(id) FROM messages WHERE chat_id = messages.chat_id)")
+            ->whereRaw('id = (SELECT MAX(id) FROM messages WHERE chat_id = messages.chat_id)')
             ->get());
     }
 
