@@ -313,7 +313,7 @@ class CartService
             ->get()
             ->groupBy('order_number');
 
-        return OrderResource::collection($orders);
+        return $orders->values();
     }
 
     /**
