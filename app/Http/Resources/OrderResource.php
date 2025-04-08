@@ -38,7 +38,9 @@ class OrderResource extends JsonResource
                         'created_at' => $order->created_at->toDateTimeString(),
                         'updated_at' => $order->updated_at->toDateTimeString(),
                         'order_details' => OrderDetailResource::collection($order->orderDetails),
-                        'shipping_address' => ShippingAddressResource::collection($order->shippingAddress),
+                        'shipping_address' => $order->shippingAddress instanceof Collection
+                            ? ShippingAddressResource::collection($order->shippingAddress)
+                            : new ShippingAddressResource($order->shippingAddress),
                     ];
                 })
             ];
@@ -62,7 +64,9 @@ class OrderResource extends JsonResource
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
             'order_details' => OrderDetailResource::collection($this->orderDetails),
-            'shipping_address' => ShippingAddressResource::collection($this->shippingAddress),
+            'shipping_address' => $this->shippingAddress instanceof Collection
+                ? ShippingAddressResource::collection($this->shippingAddress)
+                : new ShippingAddressResource($this->shippingAddress),
         ];
     }
 }
