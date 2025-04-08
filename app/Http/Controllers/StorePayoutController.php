@@ -40,7 +40,7 @@ class StorePayoutController extends Controller
     public function processPayout(Request $request, Store $userStore, Order $order)
     {
         abort_if($userStore->user_id !== $request->user()->id, 403);
-        abort_if($userStore->payoutDetails()->doesntExist(), 422, 'Enter Store Payout Details before processing payout');
+        abort_if($userStore->payoutDetails()->doesntExist(), 422, 'To proceed , please fill your payout information');
         abort_if($order->status !== OrderStatusEnum::COMPLETED->value, 422, 'Order status must be COMPLETED to process payout');
         $order->update(['payout_status' => OrderStatusEnum::PROCESSING->value]);
         return $this->success();

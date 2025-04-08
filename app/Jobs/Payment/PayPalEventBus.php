@@ -77,11 +77,13 @@ class PayPalEventBus implements ShouldQueue
 
         if (empty($orderId)) {
             Log::warning('Order ID is missing or malformed');
+
             return;
         }
 
         if (empty($paymentType)) {
             Log::warning('Payment type is missing or malformed');
+
             return;
         }
 
@@ -113,6 +115,15 @@ class PayPalEventBus implements ShouldQueue
      */
     private function processCompletedPayment(array $payload): void
     {
+        $paymentDetails = $this->extractPaymentDetails($payload);
+
+        if ($paymentDetails['status_message'] === 'PENDING') {
+            Log::info('Payment is pending', ['reference' => $paymentDetails['reference']]);
+            $this->processPaymentEvent($payload, 'PENDING');
+
+            return;
+        }
+
         $this->processPaymentEvent($payload, 'COMPLETED');
     }
 
@@ -139,8 +150,9 @@ class PayPalEventBus implements ShouldQueue
     {
         $advert = AdvertListingPromotePlan::where('order_number', $orderId)->with('advertListing')->first();
 
-        if (!$advert) {
+        if (! $advert) {
             Log::error('No advert listing promotion found', ['order_number' => $orderId]);
+
             return;
         }
 
@@ -149,6 +161,7 @@ class PayPalEventBus implements ShouldQueue
 
             if ($orderStatus === OrderStatusEnum::ACTIVE && $advert->status === OrderStatusEnum::ACTIVE->value && $advert->payment_id === $payment->id) {
                 Log::info('Advert is already active, skipping update.', ['order_number' => $advert->order_number]);
+
                 return;
             }
 
@@ -166,7 +179,7 @@ class PayPalEventBus implements ShouldQueue
 
             $this->createPaymentTransaction($payment, $paymentDetails, $payload, $eventStatus !== 'FAILED', $eventStatus);
 
-            if ($orderStatus === OrderStatusEnum::ACTIVE && isset($advert->advertListing->user)) {
+            if ($orderStatus === OrderStatusEnum::ACTIVE && $eventStatus !== 'PENDING' && isset($advert->advertListing->user)) {
                 $advert->advertListing->user->notify(new AdvertSuccessNotification($advert->advertListing));
             }
         });
@@ -179,8 +192,9 @@ class PayPalEventBus implements ShouldQueue
     {
         $promotion = StorePromotePlanStore::where('order_number', $orderId)->first();
 
-        if (!$promotion) {
+        if (! $promotion) {
             Log::error('No store promotion found', ['order_number' => $orderId]);
+
             return;
         }
 
@@ -191,13 +205,13 @@ class PayPalEventBus implements ShouldQueue
                 'PayPal Payment for promotion'
             );
 
-            // Skip update if already processed
             if (
                 $orderStatus === OrderStatusEnum::ACTIVE &&
                 $promotion->status === OrderStatusEnum::ACTIVE->value &&
                 $promotion->payment_id === $payment->id
             ) {
                 Log::info('Promotion is already active, skipping update.', ['order_number' => $promotion->order_number]);
+
                 return;
             }
 
@@ -213,6 +227,10 @@ class PayPalEventBus implements ShouldQueue
             $promotion->save();
 
             $this->createPaymentTransaction($payment, $paymentDetails, $payload, $eventStatus !== 'FAILED', $eventStatus);
+
+            if ($orderStatus === OrderStatusEnum::ACTIVE && $eventStatus !== 'PENDING') {
+                //
+            }
         });
     }
 
@@ -225,6 +243,7 @@ class PayPalEventBus implements ShouldQueue
 
         if ($orders->isEmpty()) {
             Log::error('No orders found', ['order_number' => $orderId]);
+
             return;
         }
 
@@ -250,18 +269,18 @@ class PayPalEventBus implements ShouldQueue
                         'order_number' => $order->order_number,
                         'current_status' => $order->payment_status,
                     ]);
+
                     continue;
                 }
 
-                if (!$order->payments()->where('payment_id', $payment->id)->exists()) {
+                if (! $order->payments()->where('payment_id', $payment->id)->exists()) {
                     $order->payments()->attach($payment->id);
                 }
 
                 $order->payment_status = $orderPaymentStatus->value;
                 $order->status = $orderStatus->value;
 
-
-                if (!$isSuccess) {
+                if (! $isSuccess) {
                     $order->failure_reason = $paymentDetails['failure_reason'] ?? 'Unknown error';
                 }
 
@@ -274,7 +293,7 @@ class PayPalEventBus implements ShouldQueue
                     $this->processOrderDetails($order);
                 }
 
-                if ($isSuccess) {
+                if ($isSuccess && $eventStatus !== 'PENDING') {
                     $order->store->user->notify(new VendorNewOrderNotification($order));
                     $order->customer->notify(new OrderSuccessfulNotification($order));
                 } elseif (isset($order->customer)) {
@@ -306,7 +325,7 @@ class PayPalEventBus implements ShouldQueue
     /**
      * Create a payment transaction record
      */
-    private function createPaymentTransaction(Payment $payment,  array $paymentDetails, array $payload,   bool $isSuccess, string $statusMessage): void
+    private function createPaymentTransaction(Payment $payment, array $paymentDetails, array $payload, bool $isSuccess, string $statusMessage): void
     {
         PaymentTransaction::create([
             'payment_id' => $payment->id,
@@ -366,8 +385,8 @@ class PayPalEventBus implements ShouldQueue
     {
         DB::transaction(function () use ($order) {
             $order->load([
-                'orderDetails.listing' => fn($query) => $query->lockForUpdate(),
-                'orderDetails.variant'
+                'orderDetails.listing' => fn ($query) => $query->lockForUpdate(),
+                'orderDetails.variant',
             ]);
 
             foreach ($order->orderDetails as $orderDetail) {
@@ -377,7 +396,7 @@ class PayPalEventBus implements ShouldQueue
                     Log::error('Order processing failed', [
                         'order_detail_id' => $orderDetail->id,
                         'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString()
+                        'trace' => $e->getTraceAsString(),
                     ]);
                     throw $e;
                 }
@@ -392,12 +411,13 @@ class PayPalEventBus implements ShouldQueue
     {
         $listing = $orderDetail->listing;
 
-        if (!$listing) {
+        if (! $listing) {
             throw new \RuntimeException("Listing not found for order detail {$orderDetail->id}");
         }
 
         if ($orderDetail->variant_id) {
             $this->handleVariantQuantity($orderDetail);
+
             return;
         }
 
@@ -411,7 +431,7 @@ class PayPalEventBus implements ShouldQueue
     {
         $variant = $orderDetail->variant;
 
-        if (!$variant) {
+        if (! $variant) {
             throw new \RuntimeException("Variant not found for order detail {$orderDetail->id}");
         }
 
@@ -440,7 +460,7 @@ class PayPalEventBus implements ShouldQueue
 
         if ($affectedRows === 0) {
             throw new \RuntimeException(
-                "Insufficient quantity for {$identifier}. " .
+                "Insufficient quantity for {$identifier}. ".
                     "Available: {$model->quantity}, Required: {$quantity}"
             );
         }
