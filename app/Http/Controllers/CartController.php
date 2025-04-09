@@ -174,14 +174,8 @@ class CartController extends Controller
      */
     public function addToWishlist(Request $request, Listing $product)
     {
-        abort_if($product->type != ListingType::PRODUCT->value, 400, 'The specified listing is not a product.');
-        abort_if(!$product->is_available, 400, 'The product is currently unavailable.');
-
-        abort_if($request->user()->hasWishlisted($product), 422, 'The product is already in your wishlist.');
-
-        $request->user()->wishlists()->attach($product->id);
-
-        return $this->success('Product added to wishlist successfully.');
+        $message = $this->cartService->addProductToWishlist($request, $product);
+        return $this->success([], $message);
     }
 
 

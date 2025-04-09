@@ -54,11 +54,7 @@ class LowStockNotification extends Notification implements ShouldQueue
             ->line('')
             ->line('If you have any questions or need support, our support team is always here to help. Let’s keep your business thriving!')
             ->line('')
-            ->line('Thank you for being an essential part of myEKI.')
-            ->line('')
-            ->line('Best regards,')
-            ->line('The myEKI Team')
-            ->line('vendorsupport@myEKI.market');
+            ->line('Thank you for being an essential part of myEKI.');
     }
 
     /**

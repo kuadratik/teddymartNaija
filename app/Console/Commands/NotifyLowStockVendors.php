@@ -42,7 +42,7 @@ class NotifyLowStockVendors extends Command
                 return "{$listing->name}: {$listing->quantity} units remaining";
             })->implode("\n");
 
-            $vendor->notify(new LowStockNotification($vendor->name, $productDetails));
+            $vendor->notify(new LowStockNotification($vendor->first_name, $productDetails));
         }
 
         $this->info('Low stock notifications sent to vendors.');
