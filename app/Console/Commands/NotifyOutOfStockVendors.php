@@ -42,7 +42,7 @@ class NotifyOutOfStockVendors extends Command
                 return "{$listing->name}: {$listing->quantity} units remaining";
             })->implode("\n");
 
-            $vendor->notify(new OutOfStockNotification($vendor->name, $productDetails));
+            $vendor->notify(new OutOfStockNotification($vendor->first_name, $productDetails));
         }
 
         $this->info('Out-of-stock notifications sent to vendors.');
