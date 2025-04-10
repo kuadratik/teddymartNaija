@@ -74,7 +74,7 @@ class VendorNewOrderNotification extends Notification implements ShouldQueue
             ->line('Please find the details of the order below:')
             ->line('**Order ID:** ' . $this->order->uid)
             ->line('**Shipping Fee:** ' . $this->order->shipping_cost)
-            ->line('**Sub Total:** ' . $this->order->subtotal)
+            // ->line('**Sub Total:** ' . $this->order->subtotal)
             ->line('**Total:** ' . $this->order->total_amount)
             ->line('**Shipping Address:** ' . $this->order->shippingAddress->address . ', ' . $this->order->shippingAddress->city . ', ' . $this->order->shippingAddress->state . ', ' . $this->order->shippingAddress->country)
 
