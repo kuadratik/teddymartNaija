@@ -12,6 +12,7 @@ use App\Models\StorePromotePlanStore;
 use App\Services\CartService;
 use Illuminate\Support\Facades\Log;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
+use App\Models\StorePayoutDetail;
 
 class PaypalPaymentService implements PaymentGatewayInterface
 {
@@ -86,6 +87,26 @@ class PaypalPaymentService implements PaymentGatewayInterface
         } catch (\Exception $e) {
             return $this->handleVerificationException($e);
         }
+    }
+
+    public function transfer(Order $order, StorePayoutDetail $payoutDetail): array
+    {
+        return [];
+    }
+
+    public function validateBankDetails(string $accountNumber, string $bankCode): array
+    {
+        return [];
+    }
+
+    public function createTransferRecipient(string $accountName, string $accountNumber, string $bankCode): array
+    {
+        return [];
+    }
+
+    public function acceptedBanks(?string $search = null, ?string $next = null, ?string $prev = null, int $perPage = 100): array
+    {
+        return [];
     }
 
     private function isOrderCompleted(array $order): bool

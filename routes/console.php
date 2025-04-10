@@ -16,3 +16,4 @@ Schedule::command('cart:send-abandoned-emails')->daily();
 Schedule::command('orders:notify-shipped')->everyFourHours();
 Schedule::command('orders:notify-vendors-delivery')->daily();
 Schedule::command('orders:send-vendor-reminders')->twiceDaily(9, 15);
+Schedule::command('orders:process_payouts')->everyThirtyMinutes();

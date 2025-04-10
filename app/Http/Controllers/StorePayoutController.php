@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\OrderStatusEnum;
+use App\Enums\PaymentGatewayEnum;
 use App\Http\Requests\Store\SavePayoutDetailRequest;
 use App\Models\Order;
 use App\Models\Store;
@@ -63,6 +64,9 @@ class StorePayoutController extends Controller
         StorePayoutDetail::create($request->payoutAttributes());
         return $this->success();
     }
+
+
+
 
     /**
      *  Show payout detail
