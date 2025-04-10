@@ -250,6 +250,22 @@ paths:
                   type: boolean
                   example: true
                   required: true
+                first_name:
+                  type: string
+                  example: "Teddy"
+                  required: true
+                last_name:
+                  type: string
+                  example: "Larson"
+                  required: true
+                phone:
+                  type: string
+                  example: "08012345678"
+                  required: true
+                email:
+                  type: string
+                  example: "teddy@gmail.com"
+                  required: true
       responses:
         default:
           description: "success"
@@ -336,6 +352,23 @@ paths:
                   type: string
                   example: "2, Ajegunle street"
                   required: true
+                first_name:
+                  type: string
+                  example: "Teddy"
+                  required: true
+                last_name:
+                  type: string
+                  example: "Larson"
+                  required: true
+                phone:
+                  type: string
+                  example: "08012345678"
+                  required: true
+                email:
+                  type: string
+                  example: "teddy@gmail.com"
+                  required: true
+
       responses:
         default:
           description: "success"

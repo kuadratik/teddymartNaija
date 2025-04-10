@@ -29,6 +29,10 @@ class StoreShippingAddressRequest extends FormRequest
             'country' => ['required', 'string'],
             'address' => ['required', 'string'],
             'saved' => ['nullable', 'boolean'],
+            'first_name' => ['required', 'string'],
+            'last_name' => ['required', 'string'],
+            'phone' => ['required', 'string'],
+            'email' => ['required', 'email'],
         ];
     }
 

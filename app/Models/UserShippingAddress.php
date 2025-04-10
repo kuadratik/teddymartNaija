@@ -19,7 +19,12 @@ class UserShippingAddress extends Model
         'city',
         'landmark',
         'address',
-        'saved'
+        'saved',
+        'first_name',
+        'last_name',
+        'phone',
+        'email',
+
     ];
 
 
