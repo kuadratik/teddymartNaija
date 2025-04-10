@@ -304,7 +304,9 @@ class CartService
             'orderDetails.listing',
             'store',
             'orderDetails.variant',
-            'shippingAddress'
+            'shippingAddress',
+            'shippingMethod'
+
         ])
             ->where('user_id', $user->id)
             ->where('type', ListingType::PRODUCT->value)
