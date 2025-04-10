@@ -184,10 +184,9 @@ class Order extends Model
      */
     public function isShippingDurationElapsed(): bool
     {
-        if (!$this->shipped_at || !$this->shippingMethod) {
+        if (!$this->shipped_at || !$this->shippingMethod || !$this->shippingMethod->duration_number || !$this->shippingMethod->duration_type) {
             return false;
         }
-
         $totalHours = $this->calculateHours(
             $this->shippingMethod->duration_number,
             $this->shippingMethod->duration_type
