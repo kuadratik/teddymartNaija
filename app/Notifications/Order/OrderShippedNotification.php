@@ -42,6 +42,27 @@ class OrderShippedNotification extends Notification implements ShouldQueue
         $shippingMethod = $order->shippingMethod->method_type;
         $shippingAddress = $order->shippingAddress->getFormattedAddress();
 
+        $productRows = '';
+        foreach ($order->orderDetails as $item) {
+            $productRows .= "
+            <tr>
+                <td>{$item->listing_name}</td>
+                <td>{$item->quantity}</td>
+                <td>\${$item->listing_price}</td>
+            </tr>";
+        }
+
+        $productTable = '<table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 600px; margin: auto; margin-top: 20px;">
+            <thead>
+                <tr>
+                    <th style="background-color: #f2f2f2; text-align: left;">Product Name</th>
+                    <th style="background-color: #f2f2f2; text-align: left;">Quantity</th>
+                    <th style="background-color: #f2f2f2; text-align: left;">Price</th>
+                </tr>
+            </thead>
+            <tbody>' . $productRows . '</tbody>
+        </table>';
+
         return (new MailMessage)
             ->subject("Hooray!! Your Order Has Been Shipped – {$orderNumber}")
             ->greeting("Dear {$customerName},")
@@ -51,6 +72,7 @@ class OrderShippedNotification extends Notification implements ShouldQueue
             ->line(new HtmlString("<li>Shipping Method: {$shippingMethod}</li>"))
             ->line(new HtmlString("<li>Shipping Address: {$shippingAddress}</li>"))
             ->line(new HtmlString("</ul>"))
+            ->line(new HtmlString($productTable))
             ->line("")
             ->line("If you have any questions or concerns about your shipment or tracking information, please don't hesitate to contact our customer support team.");
     }
