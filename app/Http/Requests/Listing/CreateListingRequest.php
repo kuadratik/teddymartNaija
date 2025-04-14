@@ -31,7 +31,7 @@ class CreateListingRequest extends FormRequest
             'name' => ['required_if:is_daft,false', 'nullable', 'string'],
             'type' => ['required_if:is_daft,false', 'nullable', 'string', Rule::enum(ListingType::class)],
             'price' => ['required_if:is_daft,false,type,product', 'nullable', 'numeric'],
-            'description' => ['required_if:is_daft,false', 'nullable', 'string', 'max:500'],
+            'description' => ['required_if:is_daft,false', 'nullable', 'string', 'max:1500'],
             'additional_information' => ['nullable', 'string', 'max:1000'],
             'quantity' => ['required_if:is_daft,false', 'nullable', 'integer', new PriceQuantityRule($this->price)],
             'images' => ['required_if:is_daft,false', 'nullable', 'array'],

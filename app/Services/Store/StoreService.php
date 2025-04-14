@@ -8,7 +8,6 @@ use App\Jobs\RecordCategoryInteractions;
 use App\Models\Category;
 use App\Models\Listing;
 use App\Models\Order;
-use App\Models\OrderDetail;
 use App\Models\Store;
 use App\Notifications\Order\OrderDeliveredNotification;
 use App\Notifications\Order\OrderShippedNotification;
@@ -19,22 +18,22 @@ use Illuminate\Validation\ValidationException;
 
 class StoreService
 {
-
     /**
      * Retrieves a paginated list of store listings for a given user store.
      * Applies various filters and sorting options based on the request parameters,
      * including search, availability, draft status, date, and price.
      *
-     * @param \Illuminate\Http\Request $request The HTTP request containing filter and sort parameters.
-     * @param \App\Models\Store $userStore The store model instance representing the user's store.
+     * @param  \Illuminate\Http\Request  $request  The HTTP request containing filter and sort parameters.
+     * @param  \App\Models\Store  $userStore  The store model instance representing the user's store.
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator The paginated list of filtered and sorted listings.
      */
     public function getUserStoreListings(Request $request, Store $userStore)
     {
         $query = $userStore->listings()
             ->when($request->filled('search'), function ($q) use ($request) {
-                $searchTerm = '%' . $request->search . '%';
-                return $q->where(function ($query) use ($searchTerm) {
+            $searchTerm = '%' . $request->search . '%';
+
+            return $q->where(function ($query) use ($searchTerm) {
                     $query->where('name', 'like', $searchTerm)
                         ->orWhere('description', 'like', $searchTerm)
                         ->orWhere('slug', 'like', $searchTerm);
@@ -55,9 +54,9 @@ class StoreService
             })
             ->when($request->filled('sort_price'), function ($q) use ($request) {
                 return match ($request->sort_price) {
-                    'lowest'  => $q->orderBy('display_price', 'asc'),
+                'lowest' => $q->orderBy('display_price', 'asc'),
                     'highest' => $q->orderBy('display_price', 'desc'),
-                    default   => $q
+                default => $q
                 };
             })
             ->with('ratings');
@@ -66,12 +65,13 @@ class StoreService
     }
 
     /**
-     * Get all  listings
+     * Get all listings
      */
     public function getAllListings(Request $request)
     {
         $currency = $request->header('currency', 'USD');
-        $listings = Listing::query()
+
+        $query = Listing::query()
             ->with(['store', 'ratings'])
             ->byIsDraft(false)
             ->byListingType($request->listingType)
@@ -80,11 +80,18 @@ class StoreService
             ->when($request->filled('availability'), fn($query) => $query->availability($request->availability))
             ->when($request->filled('country_id'), fn($query) => $query->byCountry($request->country_id))
             ->byCurrency($currency)
-            ->when($request->filled('limit'), fn($query) => $query->limit($request->query('limit')))
-            ->latest()
-            ->get();
+            ->latest();
+
+        if ($request->filled('limit')) {
+            $query->limit($request->query('limit'));
+        }
+
+        $listings = $request->filled('per_page')
+            ? $query->paginate($request->query('per_page'))
+            : $query->get();
 
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
+
         return $listings;
     }
 
@@ -93,8 +100,8 @@ class StoreService
      * Filters orders by type, status, and optional search criteria.
      * Orders are sorted by creation date in descending order.
      *
-     * @param \Illuminate\Http\Request $request The HTTP request containing filter parameters.
-     * @param \App\Models\Store $store The store model instance for which to retrieve orders.
+     * @param  \Illuminate\Http\Request  $request  The HTTP request containing filter parameters.
+     * @param  \App\Models\Store  $store  The store model instance for which to retrieve orders.
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator The paginated list of filtered orders.
      */
     public function getAllStoreOrders(Request $request, Store $store)
@@ -105,7 +112,8 @@ class StoreService
             ->when($request->filled('order_status'), fn($query) => $query->where('status', $request->order_status))
             ->when($request->filled('search'), function ($query) use ($request) {
                 $searchTerm = $request->search;
-                return $query->where(function ($q) use ($searchTerm) {
+
+            return $query->where(function ($q) use ($searchTerm) {
                     $q->whereAny(['order_number', 'first_name', 'last_name', 'email', 'phone'], 'LIKE', "%{$searchTerm}%");
                 });
             })
@@ -121,7 +129,7 @@ class StoreService
      * Filters active and published listings, optionally filtered by currency.
      * Returns an array of category listings with the lowest price first.
      *
-     * @param string|null $currency Optional currency code to filter listings
+     * @param  string|null  $currency  Optional currency code to filter listings
      * @return \Illuminate\Support\Collection Collection of category listings with best deals
      */
     public function getBestDealsByCategory(?string $currency = null): Collection
@@ -135,15 +143,16 @@ class StoreService
                     ->orderByRaw('COALESCE(discounted_price, display_price) ASC')
                     ->limit(1);
             },
-            'listings.store'
+            'listings.store',
         ])->get();
 
         return $categories->map(function ($category) {
             if ($category->listings->isNotEmpty()) {
                 return [
-                    'listing' => $category->listings->first()
+                    'listing' => $category->listings->first(),
                 ];
             }
+
             return null;
         })->filter()->values();
     }
@@ -151,9 +160,7 @@ class StoreService
     /**
      * Get today's deals - prioritizing discounted items or random products as fallback
      *
-     * @param string|null $currency
-     * @param int $limit Number of deals to return
-     * @return Collection
+     * @param  int  $limit  Number of deals to return
      */
     public function getTodaysDeals(?string $currency = null, int $limit = 10): Collection
     {
@@ -185,7 +192,6 @@ class StoreService
         return $discountedDeals->concat($randomDeals);
     }
 
-
     /**
      * update store order status
      */
@@ -194,9 +200,9 @@ class StoreService
         DB::transaction(function () use ($order, $status) {
             $order = $order->load(['shippingMethod', 'customer']);
             if ($status === OrderStatusEnum::DELIVERED->value) {
-                if (!$order->isShippingDurationElapsed() && $order->shippingMethod && $order->shippingMethod->duration_number && $order->shippingMethod->duration_type) {
+                if (! $order->isShippingDurationElapsed() && $order->shippingMethod && $order->shippingMethod->duration_number && $order->shippingMethod->duration_type) {
                     throw ValidationException::withMessages([
-                        'status' => ['Cannot mark as delivered before shipping duration has elapsed.']
+                        'status' => ['Cannot mark as delivered before shipping duration has elapsed.'],
                     ]);
                 }
             }
