@@ -28,22 +28,18 @@ class NotifyOutOfStockVendors extends Command
      */
     public function handle()
     {
-        $outOfStockListings = Listing::where('quantity', '<', 2)
+        Listing::where('quantity', '<', 2)
             ->where('price', '<', 1000000)
-            ->with('store.user')
-            ->get()
-            ->groupBy('store_id');
-
-        foreach ($outOfStockListings as $storeId => $listings) {
-            $store = Store::find($storeId);
-            $vendor = $store->user;
-
-            $productDetails = $listings->map(function ($listing) {
-                return "{$listing->name}: {$listing->quantity} units remaining";
-            })->implode("\n");
-
-            $vendor->notify(new OutOfStockNotification($vendor->first_name, $productDetails));
-        }
+            ->with('store', 'store.user')
+            ->chunkById(100, function ($listings) {
+                $notifications = $listings->map(function ($listing) {
+                    $store = $listing->store;
+                    $vendor = $store->user;
+                $productDetails = "{$listing->name}: {$listing->quantity} units remaining";
+                $vendor->notify(new OutOfStockNotification($vendor->first_name, $productDetails));
+                });
+                return $notifications;
+            });
 
         $this->info('Out-of-stock notifications sent to vendors.');
     }

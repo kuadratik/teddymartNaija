@@ -3,10 +3,11 @@
 namespace App\Notifications\Listing;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class OutOfStockNotification extends Notification
+class OutOfStockNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -44,14 +45,15 @@ class OutOfStockNotification extends Notification
             ->line('In Stock = Inventory > 5')
             ->line('Low Stock = Inventory < 5')
             ->line('Out of Stock = Inventory < 2')
+            ->line('')
             ->line('Here are the details of the products that are out of stock completely:')
-            ->line($this->productDetails)
+            ->line(new \Illuminate\Support\HtmlString(nl2br($this->productDetails)))
+            ->line('')
             ->line('We recommend that you restock these products as soon as possible to ensure uninterrupted availability for our customers.')
             ->line('You can log in to your vendor account and update the quantity of your products.')
+            ->line('')
             ->line('If you have any questions or need assistance, feel free to contact us.')
-            ->line('Thank you for your prompt attention, and we appreciate your partnership on myEKI!')
-            ->line('Best regards,')
-            ->line('The myEKI Team')
-            ->line('vendorsupport@myEKI.market');
+            ->line('')
+            ->line('Thank you for your prompt attention, and we appreciate your partnership on myEKI!');
     }
 }
