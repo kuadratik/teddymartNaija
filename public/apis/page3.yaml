@@ -1358,6 +1358,13 @@ paths:
             maximum: 100
             default: 15
           description: Number of results per page
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            default: 15
+          description: Number of results
       responses:
         default:
           description: "success"

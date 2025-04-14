@@ -32,6 +32,7 @@ class GetAdvertGalleryRequest extends FormRequest
             'search' => ['nullable', 'string', 'max:255'],
             'type' => ['nullable', 'string'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'limit' => ['nullable', 'integer', 'min:1'],
         ];
     }
 }

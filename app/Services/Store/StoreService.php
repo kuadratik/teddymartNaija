@@ -80,6 +80,7 @@ class StoreService
             ->when($request->filled('availability'), fn($query) => $query->availability($request->availability))
             ->when($request->filled('country_id'), fn($query) => $query->byCountry($request->country_id))
             ->byCurrency($currency)
+            ->when($request->filled('limit'), fn($query) => $query->limit($request->query('limit')))
             ->latest()
             ->get();
 
