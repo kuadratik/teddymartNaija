@@ -35,6 +35,7 @@ class LowStockNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
+            ->priority(1)
             ->subject('⚠️ Low Stock Alert: Restock Now to Avoid Running Out!')
             ->greeting("Dear {$this->vendorName},")
             ->line('We hope this email finds you well. We wanted to bring to your attention that the inventory level for some of your products on our platform is getting low.')
