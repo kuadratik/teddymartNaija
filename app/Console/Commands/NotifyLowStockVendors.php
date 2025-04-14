@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Listing;
-use App\Models\Store;
 use App\Notifications\Listing\LowStockNotification;
+use Illuminate\Console\Command;
 
 class NotifyLowStockVendors extends Command
 {
@@ -28,22 +27,19 @@ class NotifyLowStockVendors extends Command
      */
     public function handle()
     {
-        $lowStockListings = Listing::whereBetween('quantity', [3, 4])
+        Listing::whereBetween('quantity', [3, 4])
             ->where('price', '<', 1000000)
             ->with('store.user')
-            ->get()
-            ->groupBy('store_id');
+            ->chunkById(100, function ($listings) {
+                $notifications = $listings->map(function ($listing) {
+                    $store = $listing->store;
+                    $vendor = $store->user;
+                $productDetails = "{$listing->name}: {$listing->quantity} units remaining";
+                $vendor->notify(new LowStockNotification($vendor->first_name, $productDetails));
+                });
 
-        foreach ($lowStockListings as $storeId => $listings) {
-            $store = Store::find($storeId);
-            $vendor = $store->user;
-
-            $productDetails = $listings->map(function ($listing) {
-                return "{$listing->name}: {$listing->quantity} units remaining";
-            })->implode("\n");
-
-            $vendor->notify(new LowStockNotification($vendor->first_name, $productDetails));
-        }
+                return $notifications;
+            });
 
         $this->info('Low stock notifications sent to vendors.');
     }
