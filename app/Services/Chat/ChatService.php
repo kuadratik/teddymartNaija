@@ -229,7 +229,7 @@ class ChatService
                     ->whereIn('chat_id', $ids)
                     ->groupBy('chat_id'),
                 'latest',
-                fn($join) => $join->on('messages.chat_id', '=', 'latest.chat_id')->on('messages.id', '=', 'latest.max_id')
+                fn($join) => $join->on('messages.chat_id', 'latest.chat_id')->on('messages.id', 'latest.max_id')
             )
             ->get());
     }
