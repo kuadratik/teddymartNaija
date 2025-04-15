@@ -37,17 +37,21 @@ class OrderDeliveredNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $order = $this->order;
-        $customerName = $order->customer->first_name;
-        $orderNumber = substr($order->order_number, 0, 8);
-        $shippingAddress = $order->shippingAddress->getFormattedAddress();
+        $currency = $order->currency ?? 'USD';
+        $customerName = e($order->customer->first_name);
+        $orderNumber = e($order->order_number);
+        $shippingAddress = e($order->shippingAddress?->getFormattedAddress());
 
         $productRows = '';
         foreach ($order->orderDetails as $item) {
+            $productName = e($item->listing_name);
+            $quantity = e($item->quantity);
+            $price = e(number_format($item->listing_price * $item->quantity, 2));
             $productRows .= "
             <tr>
-                <td>{$item->listing_name}</td>
-                <td>{$item->quantity}</td>
-                <td>\${$item->listing_price}</td>
+                <td>{$productName}</td>
+                <td>{$quantity}</td>
+                <td>{$price} {$currency}</td>
             </tr>";
         }
 

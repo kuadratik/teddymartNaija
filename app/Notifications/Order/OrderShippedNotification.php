@@ -41,7 +41,7 @@ class OrderShippedNotification extends Notification implements ShouldQueue
         $order = $this->order;
         $currency = $order->currency ?? 'USD';
         $customerName = e($order->customer->first_name);
-        $orderNumber = e(substr($order->order_number, 0, 8));
+        $orderNumber = e($order->order_number, 0, 8);
         $shippingMethod = e($order->shippingMethod->method_type);
         $shippingAddress = e($order->shippingAddress?->getFormattedAddress());
 
