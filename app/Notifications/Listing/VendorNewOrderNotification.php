@@ -72,13 +72,12 @@ class VendorNewOrderNotification extends Notification implements ShouldQueue
             ->greeting('Dear ' . $notifiable->first_name . ',')
             ->line('We are pleased to inform you that a new order has been placed on myEKI. Congratulations on your sale!')
             ->line('Please find the details of the order below:')
+            ->line(new HtmlString($orderDetailsTable))
+            ->line('')
             ->line('**Order ID:** ' . $this->order->uid)
             ->line('**Shipping Fee:** ' . $this->order->shipping_cost)
-            // ->line('**Sub Total:** ' . $this->order->subtotal)
-            ->line('**Total:** ' . $this->order->total_amount)
+            ->line('**Total:** ' . number_format($this->order->total_amount * $this->order->quantity, 2))
             ->line('**Shipping Address:** ' . $this->order->shippingAddress->address . ', ' . $this->order->shippingAddress->city . ', ' . $this->order->shippingAddress->state . ', ' . $this->order->shippingAddress->country)
-
-            ->line(new HtmlString($orderDetailsTable))
             ->line('Please process the order and update the status of the order as Shipped in the myEKI list of orders, once it has been dispatched.')
             ->line('Thank you for your prompt attention to this order. We appreciate your continued partnership and look forward to working with you on future orders.');
     }

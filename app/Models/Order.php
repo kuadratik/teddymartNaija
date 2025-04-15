@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\HandlesDuration;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Order extends Model
 {
@@ -49,6 +50,19 @@ class Order extends Model
         'shipped_at' => 'datetime:Y-m-d H:i:s',
         'delivered_notification_count' => 'integer',
     ];
+
+
+    /**
+     * Get the formatted order number attribute.
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    public function orderNumber(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => substr($value, 0, 8),
+        );
+    }
 
     /**
      * Get the details for  the order.
