@@ -31,28 +31,35 @@ class OrderShippedNotification extends Notification implements ShouldQueue
         return ['mail'];
     }
 
+
+
     /**
      * Get the mail representation of the notification.
      */
     public function toMail(object $notifiable): MailMessage
     {
         $order = $this->order;
-        $customerName = $order->customer->first_name;
-        $orderNumber = substr($order->order_number, 0, 8);
-        $shippingMethod = $order->shippingMethod->method_type;
-        $shippingAddress = $order->shippingAddress->getFormattedAddress();
+        $currency = $order->currency ?? 'USD';
+        $customerName = e($order->customer->first_name);
+        $orderNumber = e(substr($order->order_number, 0, 8));
+        $shippingMethod = e($order->shippingMethod->method_type);
+        $shippingAddress = e($order->shippingAddress?->getFormattedAddress());
 
         $productRows = '';
         foreach ($order->orderDetails as $item) {
+            $productName = e($item->listing_name);
+            $quantity = e($item->quantity);
+            $price = e(number_format($item->listing_price * $item->quantity, 2));
             $productRows .= "
             <tr>
-                <td>{$item->listing_name}</td>
-                <td>{$item->quantity}</td>
-                <td>\${$item->listing_price}</td>
+                <td>{$productName}</td>
+                <td>{$quantity}</td>
+                <td>{$price} {$currency}</td>
             </tr>";
         }
 
-        $productTable = '<table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 600px; margin: auto; margin-top: 20px;">
+        $productTable = new HtmlString('
+        <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 600px; margin: 20px auto;">
             <thead>
                 <tr>
                     <th style="background-color: #f2f2f2; text-align: left;">Product Name</th>
@@ -61,21 +68,21 @@ class OrderShippedNotification extends Notification implements ShouldQueue
                 </tr>
             </thead>
             <tbody>' . $productRows . '</tbody>
-        </table>';
+        </table>');
 
         return (new MailMessage)
             ->subject("Hooray!! Your Order Has Been Shipped – {$orderNumber}")
             ->greeting("Dear {$customerName},")
-            ->line("Great news! Your Order {$orderNumber} is now on its way!")
-            ->line(new HtmlString("<strong>Shipping Details:</strong>"))
-            ->line(new HtmlString("<ul>"))
-            ->line(new HtmlString("<li>Shipping Method: {$shippingMethod}</li>"))
-            ->line(new HtmlString("<li>Shipping Address: {$shippingAddress}</li>"))
+            ->line("Great news! Your order <strong>{$orderNumber}</strong> is now on its way!")
+            ->line(new HtmlString('<strong>Shipping Details:</strong>'))
+            ->line(new HtmlString("<ul style='margin: 0; padding-left: 20px;'>"))
+            ->line(new HtmlString("<li><strong>Shipping Method:</strong> {$shippingMethod}</li>"))
+            ->line(new HtmlString("<li><strong>Shipping Address:</strong> {$shippingAddress}</li>"))
             ->line(new HtmlString("</ul>"))
-            ->line(new HtmlString($productTable))
-            ->line("")
+            ->line($productTable)
             ->line("If you have any questions or concerns about your shipment or tracking information, please don't hesitate to contact our customer support team.");
     }
+
 
     /**
      * Get the array representation of the notification.
