@@ -29,7 +29,7 @@ class UpdateListingRequest extends FormRequest
             'name' => ['required_if:is_draft,false', 'nullable', 'string'],
             'type' => ['required_if:is_draft,false', 'nullable', 'string', Rule::enum(ListingType::class)],
             'price' => ['required_if:is_draft,false', 'nullable', 'numeric'],
-            'description' => ['required_if:is_draft,false', 'nullable', 'string', 'max:500'],
+            'description' => ['required_if:is_draft,false', 'nullable', 'string', 'max:1500'],
             'quantity' => ['required_if:is_draft,false', 'nullable', 'integer', new PriceQuantityRule($this->price)],
             'additional_information' => ['nullable', 'string', 'max:1000'],
             'images' => ['required_if:is_draft,false', 'nullable', 'array'],

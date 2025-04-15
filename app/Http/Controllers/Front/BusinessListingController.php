@@ -15,16 +15,28 @@ use Illuminate\Support\Facades\Notification;
 
 class BusinessListingController extends Controller
 {
+
     /**
-     * Get the list of business for directory
+     * Get the list of businesses for directory
      */
     public function index(Request $request)
     {
-        $businesses = BusinessListing::search($request->search)
-            ->byIndustry()->byUser()->byLocation()->with(['country', 'industry'])->paginate(16);
+        $query = BusinessListing::search($request->search)
+            ->byIndustry()
+            ->byUser()
+            ->byLocation()
+            ->with(['country', 'industry'])
+            ->when($request->has('limit'), function ($q) use ($request) {
+                $q->limit((int) $request->limit);
+            });
+
+        $businesses = $request->has('per_page')
+            ? $query->paginate((int) $request->per_page)
+            : $query->get();
 
         return $this->success($businesses);
     }
+
 
     /**
      * Get the list of business industries
