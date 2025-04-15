@@ -79,6 +79,19 @@ paths:
             type: string
             example: ""
           required: false
+        - in: query
+          name: per_page
+          schema:
+            type: number
+            example: 16
+          required: false
+        - in: query
+          name: limit
+          schema:
+            type: number
+            example:
+          required: false
+
       responses:
         default:
           description: "success"

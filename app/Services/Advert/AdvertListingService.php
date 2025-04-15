@@ -374,7 +374,7 @@ class AdvertListingService
                 ->orWhere('description', 'like', '%' . $request->input('search') . '%')
         ));
 
-        return $query->get();
+        return $query->latest()->get();
     }
 
     /**

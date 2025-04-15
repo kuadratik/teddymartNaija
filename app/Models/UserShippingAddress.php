@@ -49,9 +49,7 @@ class UserShippingAddress extends Model
     {
         return implode(', ', array_filter([
             $this->address,
-            $this->landmark,
             $this->city,
-            $this->lga,
             $this->state,
             $this->country
         ]));
