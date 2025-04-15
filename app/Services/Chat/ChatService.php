@@ -217,9 +217,20 @@ class ChatService
 
     public function getLastMessages($chatIds)
     {
-        return collect($chatIds)->whenNotEmpty(fn($ids) => Message::select('*')
-            ->whereIn('chat_id', $ids)
-            ->whereRaw('id = (SELECT MAX(id) FROM messages WHERE chat_id = messages.chat_id)')
+        // return collect($chatIds)->whenNotEmpty(fn($ids) => Message::select('*')
+        //     ->whereIn('chat_id', $ids)
+        //     ->whereRaw('id = (SELECT MAX(id) FROM messages WHERE chat_id = messages.chat_id)')
+        //     ->get());
+
+        return collect($chatIds)->whenNotEmpty(fn($ids) => Message::select('messages.*')
+            ->joinSub(
+                DB::table('messages')
+                    ->select('chat_id', DB::raw('MAX(id) as max_id'))
+                    ->whereIn('chat_id', $ids)
+                    ->groupBy('chat_id'),
+                'latest',
+                fn($join) => $join->on('messages.chat_id', '=', 'latest.chat_id')->on('messages.id', '=', 'latest.max_id')
+            )
             ->get());
     }
 
