@@ -202,7 +202,7 @@ class StoreService
             if ($status === OrderStatusEnum::DELIVERED->value) {
                 if (! $order->isShippingDurationElapsed() && $order->shippingMethod && $order->shippingMethod->duration_number && $order->shippingMethod->duration_type) {
                     throw ValidationException::withMessages([
-                        'status' => ['Cannot mark as delivered before shipping duration has elapsed.'],
+                        'status' => ["You can't mark this order as delivered yet. Please wait until your shipping timeline has passed or the customer confirms delivery"],
                     ]);
                 }
             }
