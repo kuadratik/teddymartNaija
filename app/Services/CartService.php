@@ -13,6 +13,7 @@ use App\Models\ListingVariant;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\StoreShippingMethod;
+use App\Notifications\Order\OrderDeliveredNotification;
 use App\Support\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -407,12 +408,13 @@ class CartService
      */
     public function recieveOrder(Order $order): void
     {
+        $order->load('store', 'store.user');
         $order->update(['status' => OrderStatusEnum::DELIVERED->value]);
         if (
             $order->wasChanged() &&
             $order->status === OrderStatusEnum::DELIVERED->value
         ) {
-            // $order->store->user->notify(new OrderCompletedNotification($order));
+            $order->store->user->notify(new OrderDeliveredNotification($order));
         }
     }
     /**
