@@ -40,6 +40,7 @@ class Order extends Model
         'shipping_address_id',
         'delivered_notification_count',
         'shipped_at',
+        'vendor_notified_at'
     ];
 
 
