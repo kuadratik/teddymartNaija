@@ -40,9 +40,14 @@ class NotifyShippedOrders extends Command
                     2 => $totalHours
                 ];
 
-                $hoursElapsed = now()->diffInHours($order->shipped_at);
-                $nextNotification = $order->notification_count + 1;
+            $shippedAt = \Carbon\Carbon::parse($order->shipped_at);
 
+            $hoursElapsed = $shippedAt->lessThanOrEqualTo(now())
+                ? $shippedAt->diffInHours(now())
+                : 0;
+            logger("{$hoursElapsed}");
+                $nextNotification = $order->notification_count + 1;
+            logger("debug", [isset($intervals[$nextNotification]), $hoursElapsed >= $intervals[$nextNotification]]);
                 if (isset($intervals[$nextNotification]) && $hoursElapsed >= $intervals[$nextNotification]) {
                     $order->customer->notify(new OrderShippedConfirmation($order));
                     $order->increment('delivered_notification_count');

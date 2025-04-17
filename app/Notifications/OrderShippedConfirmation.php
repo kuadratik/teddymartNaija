@@ -23,17 +23,20 @@ class OrderShippedConfirmation extends Notification implements ShouldQueue
     public function toMail($notifiable): MailMessage
     {
         $order = $this->order;
+        $currency = $order->currency ?? 'USD';
+
 
         $productRows = '';
         foreach ($order->orderDetails as $item) {
             $productName = e($item->listing_name);
             $quantity = e($item->quantity);
             $price = e(number_format($item->listing_price * $item->quantity, 2));
+
             $productRows .= "
             <tr>
                 <td>{$productName}</td>
                 <td>{$quantity}</td>
-                <td>{$price}</td>
+                <td>{$price} {$currency}</td>
             </tr>";
         }
 

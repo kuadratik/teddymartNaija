@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\Store;
 use App\Notifications\Order\OrderDeliveredNotification;
 use App\Notifications\Order\OrderShippedNotification;
+use App\Notifications\OrderShippedConfirmation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -212,6 +213,7 @@ class StoreService
             if ($order->wasChanged() && $status === OrderStatusEnum::SHIPPED->value) {
                 $order->update(['shipped_at' => now()]);
                 $order->customer->notify(new OrderShippedNotification($order));
+                $order->customer->notify(new OrderShippedConfirmation($order));
             }
 
             if ($order->wasChanged() && $status === OrderStatusEnum::DELIVERED->value) {
