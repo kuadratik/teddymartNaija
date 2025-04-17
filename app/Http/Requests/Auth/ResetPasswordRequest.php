@@ -4,6 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use App\Rules\ValidOtp;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class ResetPasswordRequest extends FormRequest
 {
@@ -24,7 +25,7 @@ class ResetPasswordRequest extends FormRequest
     {
         return [
             'email' => ['required', 'email', 'exists:users,email'],
-            'new_password' => ['required', 'string', 'confirmed'],
+            'new_password' => ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->letters()->numbers()->symbols()],
             'otp' => ['required', 'string', 'min:5', 'max:5', new ValidOtp($this->email)]
         ];
     }
