@@ -44,7 +44,7 @@ class Order extends Model
     ];
 
 
-    protected $cast =  [
+    protected $casts =  [
         'total_amount' => 'decimal:2',
         'created_at' => 'datetime:Y-m-d H:i:s',
         'updated_at' => 'datetime:Y-m-d H:i:s',
@@ -199,14 +199,22 @@ class Order extends Model
      */
     public function isShippingDurationElapsed(): bool
     {
-        if (!$this->shipped_at || !$this->shippingMethod || !$this->shippingMethod->duration_number || !$this->shippingMethod->duration_type) {
+        if (
+            !$this->shipped_at ||
+            !$this->shippingMethod ||
+            !$this->shippingMethod->duration_number ||
+            !$this->shippingMethod->duration_type
+        ) {
             return false;
         }
+
         $totalHours = $this->calculateHours(
             $this->shippingMethod->duration_number,
             $this->shippingMethod->duration_type
         );
 
-        return now()->diffInHours($this->shipped_at) >= $totalHours;
+        $elapsedTime = $this->shipped_at->copy()->addHours($totalHours);
+
+        return now()->greaterThanOrEqualTo($elapsedTime);
     }
 }
