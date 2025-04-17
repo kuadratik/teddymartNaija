@@ -24,6 +24,14 @@ class ChatService
         // ...existing code...
     }
 
+    /**
+     * Initiates or retrieves a chat conversation between users and sends initial message
+     *
+     * @param  array  $details  Contains user_id, message and other conversation details
+     * @return \Illuminate\Support\Collection Message data merged with respondent info
+     *
+     * @throws \Throwable When database transaction fails
+     */
     public function startConversation(array $details)
     {
         $respondent = User::find($details['user_id']);
@@ -48,6 +56,13 @@ class ChatService
         }
     }
 
+    /**
+     * Creates a new chat or retrieves an existing one based on the identifier
+     *
+     * @param  array  $details  Array containing chat details including identifier
+     * @param  mixed  $user  User object for the chat
+     * @return \App\Models\Chat Created or retrieved chat instance
+     */
     private function createOrGetChat(array $details, $user)
     {
         return Chat::firstOrCreate(['identifier' => $details['identifier']], [
@@ -60,8 +75,20 @@ class ChatService
         ]);
     }
 
+    /**
+     * Adds or updates users to a chat conversation and handles email notifications
+     *
+     * @param  Chat  $chat  The chat instance to add users to
+     * @param  User  $user  The initiating user
+     * @param  User  $respondent  The responding user
+     * @return void
+     */
     private function addChatUsers($chat, $user, $respondent)
     {
+        $existingChat = ChatUser::where('chat_id', $chat->id)
+            ->where('user_id', $respondent->id)
+            ->exists();
+
         $chatUsers = [
             [
                 'chat_id' => $chat->id,
@@ -78,20 +105,31 @@ class ChatService
         ];
         ChatUser::upsert($chatUsers, ['chat_id', 'user_id']);
 
-        $existingChat = ChatUser::where('chat_id', $chat->id)
-            ->where('user_id', $respondent->id)
-            ->exists();
-
         if (! $existingChat) {
             $this->sendCustomerInquiryEmail($user, $respondent);
         }
     }
 
+    /**
+     * Sends a customer inquiry email notification to the vendor
+     *
+     * @param  User  $customer  The customer making the inquiry
+     * @param  User  $vendor  The vendor receiving the notification
+     * @return void
+     */
     private function sendCustomerInquiryEmail($customer, $vendor)
     {
         $vendor->notify(new CustomerInquiryEmailNotification($vendor));
     }
 
+    /**
+     * Creates a new message record in the chat
+     *
+     * @param  int  $chatId  The ID of the chat
+     * @param  User  $user  The user sending the message
+     * @param  string  $content  The message content
+     * @return Message The created message model
+     */
     private function createMessage($chatId, $user, $content)
     {
         return Message::create([
@@ -102,6 +140,15 @@ class ChatService
         ]);
     }
 
+    /**
+     * Handles notification dispatch based on conversation route and listing type
+     *
+     * @param  array  $details  Array containing listing/advert IDs
+     * @param  Message  $message  Message instance
+     * @param  User  $respondent  User receiving the notification
+     * @param  User  $user  User initiating the interaction
+     * @return void
+     */
     private function handleNotifications($details, $message, $respondent, $user)
     {
         $advertListing = AdvertListing::find($details['advert_id'] ?? null);
@@ -119,6 +166,14 @@ class ChatService
         }
     }
 
+    /**
+     * Sends a message in a chat and dispatches a notification job
+     *
+     * @param  array  $details  Array containing chat_id and message content
+     * @return void
+     *
+     * @throws \Throwable When message creation or dispatch fails
+     */
     public function sendMessage($details)
     {
         $user = request()->user();
@@ -135,6 +190,12 @@ class ChatService
         }
     }
 
+    /**
+     * Retrieves paginated messages for a specific chat
+     *
+     * @param  int  $chatId  The ID of the chat to get messages for
+     * @return \Illuminate\Pagination\CursorPaginator Collection of messages with user data
+     */
     public function chatMessages($chatId)
     {
         $messages = Message::where('chat_id', $chatId)->latest('created_at')->cursorPaginate();
@@ -143,6 +204,14 @@ class ChatService
         return $messages;
     }
 
+    /**
+     * Retrieves chat details with participants by UUID
+     *
+     * @param  string  $uid  The chat UUID
+     * @return \App\Models\Chat Chat model with loaded participant relations
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
     public function chatDetails($uid)
     {
         $chat = Chat::where('uuid', $uid)->with('participants')->firstOrFail();
@@ -151,6 +220,12 @@ class ChatService
         return $chat;
     }
 
+    /**
+     * Sets the participant relation data for a respondent
+     *
+     * @param  object  $respondent  The respondent object to set relation data for
+     * @return void
+     */
     private function setParticipantRelation($respondent)
     {
         $respondent->relation = [
@@ -161,6 +236,14 @@ class ChatService
         ];
     }
 
+    /**
+     * Updates the read timestamp for a chat user and returns their unread message count
+     *
+     * @param  int  $chatId  The ID of the chat to update
+     * @return \App\Models\ChatUser Updated chat user model with unread count
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+     */
     public function updateReadAt($chatId)
     {
         $chatUser = ChatUser::where('chat_id', $chatId)->where('user_id', auth()->id())->first();
@@ -171,6 +254,14 @@ class ChatService
         return $chatUser;
     }
 
+    /**
+     * Retrieves paginated chat conversations for the authenticated user.
+     *
+     * Fetches chats with read status, last messages, and unread counts.
+     * Includes filtering by participant name if search parameter provided.
+     *
+     * @return \Illuminate\Pagination\CursorPaginator
+     */
     public function chats()
     {
         $chats = Chat::query()->addSelect(['read_at' => ChatUser::subLastRead()])
@@ -187,11 +278,23 @@ class ChatService
         return $chats->when(request()->name, fn($query) => $query->filter(fn($chat) => $this->doesNameContainSearchParam($chat)))->values();
     }
 
+    /**
+     * Retrieves respondent users from private chats excluding the authenticated user
+     *
+     * @param  \Illuminate\Support\Collection  $privateChatIds  Collection of private chat IDs
+     * @return \Illuminate\Database\Eloquent\Collection|null Collection of ChatUser models or null if empty
+     */
     private function getRespondents($privateChatIds)
     {
         return $privateChatIds->whenNotEmpty(fn($ids) => ChatUser::whereIn('chat_id', $ids)->where('user_id', '<>', auth()->id())->get());
     }
 
+    /**
+     * Checks if the chat respondent's name contains the searched parameter
+     *
+     * @param  array  $chat  Chat data containing respondent information
+     * @return bool Whether the respondent's name matches the search parameter
+     */
     private function doesNameContainSearchParam($chat)
     {
         $searchedName = Str::lower(request()->name);
@@ -202,6 +305,15 @@ class ChatService
                 Str::contains(Str::lower($respondent['last_name']), $searchedName));
     }
 
+    /**
+     * Sets chat state by populating respondent details, last message and unread count
+     *
+     * @param  Chat  $chat  Chat model instance to update
+     * @param  Collection  $respondents  Collection of chat respondents
+     * @param  Collection  $lastMessages  Collection of last messages
+     * @param  Collection  $unreads  Collection of unread message counts
+     * @return void
+     */
     public function setChatsState(&$chat, $respondents, $lastMessages, $unreads)
     {
         $match = $respondents->where('chat_id', $chat->id)->first();
@@ -215,6 +327,12 @@ class ChatService
         $chat->unread = $unreads->where('chat_id', $chat->id)->first()?->unread ?? 0;
     }
 
+    /**
+     * Gets unread messages for a collection of chats
+     *
+     * @param  \Illuminate\Support\Collection  $chats  Collection of chat models
+     * @return \Illuminate\Support\Collection|null Collection of unread messages or null if empty
+     */
     public function getLastMessages($chatIds)
     {
         // return collect($chatIds)->whenNotEmpty(fn($ids) => Message::select('*')
@@ -229,17 +347,30 @@ class ChatService
                     ->whereIn('chat_id', $ids)
                     ->groupBy('chat_id'),
                 'latest',
-                fn($join) => $join->on('messages.chat_id', 'latest.chat_id')->on('messages.id', 'latest.max_id')
+            fn($join) => $join->on('messages.chat_id', 'latest.chat_id')->on('messages.id', 'latest.max_id')
             )
             ->get());
     }
 
+    /**
+     * Gets unread messages for a collection of chats
+     *
+     * @param  \Illuminate\Support\Collection  $chats  Collection of chat models
+     * @return \Illuminate\Support\Collection|null Collection of unread messages or null if empty
+     */
     public function getUnReads($chats)
     {
         return $chats->whenNotEmpty(fn($chats) => $chats->map(fn($chat) => $this->unreadQuery($chat->id, $chat->read_at))
             ->reduce(fn($c, $q) => $c ? $c->union($q) : $q, null)?->get());
     }
 
+    /**
+     * Get count of unread messages for a specific chat since last read
+     *
+     * @param  int  $chatId  The ID of the chat to query
+     * @param  string  $readAt  Timestamp of last read
+     * @return \Illuminate\Database\Query\Builder Query builder with unread count
+     */
     public function unreadQuery($chatId, $readAt)
     {
         return Message::selectRaw('COUNT(*) as unread')->addSelect('chat_id')
@@ -249,6 +380,12 @@ class ChatService
             ->groupBy('chat_id');
     }
 
+    /**
+     * Determines the type of user based on the model class
+     *
+     * @param  mixed  $model  The model instance to check
+     * @return string The user type ('user' or 'admin')
+     */
     public function getUserType($model)
     {
         return match (get_class($model)) {
@@ -257,6 +394,12 @@ class ChatService
         };
     }
 
+    /**
+     * Sets the user information for a message object
+     *
+     * @param  Message  $message  Message object to be modified by reference
+     * @return void
+     */
     public function setMessageUser(&$message)
     {
         $message->user = $message->user ? [
