@@ -5,10 +5,12 @@ namespace App\Console\Commands;
 use App\Enums\OrderStatusEnum;
 use App\Models\Order;
 use App\Notifications\VendorOrderUpdateNotification;
+use App\Traits\HandlesDuration;
 use Illuminate\Console\Command;
 
 class NotifyVendorsForDeliveryUpdate extends Command
 {
+    use HandlesDuration;
     protected $signature = 'orders:notify-vendors-delivery';
     protected $description = 'Notify vendors about orders that can be marked as delivered';
 
@@ -20,13 +22,9 @@ class NotifyVendorsForDeliveryUpdate extends Command
             ->whereNotNull('shipped_at')
             ->each(function ($order) {
                 if ($order->isShippingDurationElapsed()) {
+                $hours =  $this->calculateHours($order->shippingMethod->duration_number, $order->shippingMethod->duration_type);
                     $hoursAfterElapsed = now()->diffInHours(
-                        $order->shipped_at->addHours(
-                            $order->calculateHours(
-                                $order->shippingMethod->duration_number,
-                                $order->shippingMethod->duration_type
-                            )
-                        )
+                    now()->parse($order->shipped_at)->addHours($hours)
                     );
 
                     if ($hoursAfterElapsed >= 48) {
