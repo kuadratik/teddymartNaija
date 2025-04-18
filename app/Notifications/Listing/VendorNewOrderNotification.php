@@ -45,6 +45,12 @@ class VendorNewOrderNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
+        $order = $this->order;
+        $currency = $order->currency ?? 'USD';
+        $shippingAddress = e($order->shippingAddress?->getFormattedAddress());
+
+
+
         $orderDetailsTable = '<table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 600px; margin: auto; margin-top: 20px;">
             <thead>
                 <tr>
@@ -55,12 +61,14 @@ class VendorNewOrderNotification extends Notification implements ShouldQueue
             </thead>
             <tbody>';
 
-        foreach ($this->order->orderDetails as $detail) {
+        foreach ($order->orderDetails as $detail) {
+            $price = number_format($detail->listing_price * $detail->quantity, 2);
+
             $orderDetailsTable .= "
             <tr>
                 <td>{$detail->listing_name}</td>
                 <td>{$detail->quantity}</td>
-                <td>{$detail->listing_price}</td>
+                <td>{$price} {$currency}</td>
             </tr>";
         }
 
@@ -68,16 +76,16 @@ class VendorNewOrderNotification extends Notification implements ShouldQueue
         </table>';
 
         return (new MailMessage)
-            ->subject('New Order Placed - [' . $this->order->uid . ']')
+            ->subject('New Order Placed - [' . $this->order->order_number . ']')
             ->greeting('Dear ' . $notifiable->first_name . ',')
             ->line('We are pleased to inform you that a new order has been placed on myEKI. Congratulations on your sale!')
             ->line('Please find the details of the order below:')
+            ->line('**Order ID:** ' . $this->order->order_number)
             ->line(new HtmlString($orderDetailsTable))
             ->line('')
-            ->line('**Order ID:** ' . $this->order->uid)
             ->line('**Shipping Fee:** ' . $this->order->shipping_cost)
-            ->line('**Total:** ' . number_format($this->order->total_amount * $this->order->quantity, 2))
-            ->line('**Shipping Address:** ' . $this->order->shippingAddress->address . ', ' . $this->order->shippingAddress->city . ', ' . $this->order->shippingAddress->state . ', ' . $this->order->shippingAddress->country)
+            ->line('**Total:** ' . $this->order->total_amount)
+            ->line('**Shipping Address:** ' . $shippingAddress)
             ->line('Please process the order and update the status of the order as Shipped in the myEKI list of orders, once it has been dispatched.')
             ->line('Thank you for your prompt attention to this order. We appreciate your continued partnership and look forward to working with you on future orders.');
     }
