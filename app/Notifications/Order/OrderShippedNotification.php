@@ -44,6 +44,8 @@ class OrderShippedNotification extends Notification implements ShouldQueue
         $orderNumber = $order->order_number;
         $shippingMethod = $order->shippingMethod->method_type;
         $shippingAddress = $order->shippingAddress?->getFormattedAddress();
+        $shippingCost = e($order->shipping_cost);
+
 
         $productRows = '';
         foreach ($order->orderDetails as $item) {
@@ -77,6 +79,7 @@ class OrderShippedNotification extends Notification implements ShouldQueue
             ->line(new HtmlString("<ul style='margin: 0; padding-left: 20px;'>"))
             ->line(new HtmlString("<li><strong>Shipping Method:</strong> {$shippingMethod}</li>"))
             ->line(new HtmlString("<li><strong>Shipping Address:</strong> {$shippingAddress}</li>"))
+            ->line(new HtmlString("<li><strong>Shipping Fee:</strong> {$shippingCost}</li>"))
             ->line(new HtmlString("</ul>"))
             ->line(new HtmlString($productTable))
             ->line(' ')
