@@ -9,6 +9,7 @@ use App\Enums\PaymentTransactionTypeEnum;
 use App\Enums\PaymentType;
 use App\Models\AdvertListingPromotePlan;
 use App\Models\Cart;
+use App\Models\Listing;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
@@ -408,7 +409,7 @@ class PaystackEventBus implements ShouldQueue
      * @param mixed $listing The product listing to check
      * @return void
      */
-    private function checkAndNotifyStockLevels($listing): void
+    private function checkAndNotifyStockLevels(Listing $listing): void
     {
         $listing->refresh();
         $quantity = $listing->quantity;
