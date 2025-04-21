@@ -229,7 +229,10 @@ class PaystackEventBus implements ShouldQueue
      */
     private function processOrderPayment(string $orderId, array $paymentDetails, array $payload, PaymentStatusEnum $paymentStatus, OrderStatusEnum $orderPaymentStatus, string $statusMessage): void
     {
-        $orders = Order::where('order_number', $orderId)->with(['orderDetails.listing'])->get();
+        $orders = Order::where('order_number', $orderId)
+            ->notCompleted()
+            ->with(['orderDetails.listing'])
+            ->get();
 
         if ($orders->isEmpty()) {
             Log::error('No orders found', ['order_number' => $orderId]);
@@ -366,10 +369,9 @@ class PaystackEventBus implements ShouldQueue
 
             foreach ($order->orderDetails as $orderDetail) {
                 try {
-                    logger()->debug('sending to notify and reduce qty');
                     $this->updateListingOrVariantQuantity($orderDetail);
                 } catch (\Throwable $e) {
-                    Log::error('Order processing failed', [
+                    logger()->error('Order processing failed', [
                         'order_detail_id' => $orderDetail->id,
                         'error' => $e->getMessage(),
                         'trace' => $e->getTraceAsString(),
@@ -385,7 +387,6 @@ class PaystackEventBus implements ShouldQueue
      */
     private function updateListingOrVariantQuantity($orderDetail): void
     {
-        logger()->debug('notifying');
         $listing = $orderDetail->listing;
 
         if (! $listing) {
@@ -413,7 +414,8 @@ class PaystackEventBus implements ShouldQueue
      */
     private function checkAndNotifyStockLevels(Listing $listing): void
     {
-        $listing->refresh();
+        $listing =  $listing->load('user')->refresh();
+
         $quantity = $listing->quantity;
         $price = $listing->price;
 
@@ -421,20 +423,18 @@ class PaystackEventBus implements ShouldQueue
             return;
         }
 
-        $vendor = optional($listing->store)->user;
+        $vendor = optional($listing->user);
 
         if (! $vendor) {
             logger()->warning("Vendor not found for listing {$listing->id}");
             return;
         }
-        logger()->debug('notify passes');
+
         $productDetails = "{$listing->name}: {$quantity} units remaining";
 
-        if ($quantity < 2) {
-            logger()->debug('log for quantity les than 2');
+        if ($quantity <= 2) {
             $vendor->notify(new OutOfStockNotification($vendor->first_name, $productDetails));
         } elseif ($quantity >= 3 && $quantity <= 4) {
-            logger()->debug('log for quantity greater than 2');
 
             $vendor->notify(new LowStockNotification($vendor->first_name, $productDetails));
         }

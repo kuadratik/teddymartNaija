@@ -44,7 +44,7 @@ class OutOfStockNotification extends Notification implements ShouldQueue
             ->line('At myEKI, stock availability is based on the following business rules:')
             ->line('In Stock = Inventory > 5')
             ->line('Low Stock = Inventory < 5')
-            ->line('Out of Stock = Inventory < 2')
+            ->line('Out of Stock = Inventory <= 2')
             ->line('')
             ->line('Here are the details of the products that are out of stock completely:')
             ->line(new \Illuminate\Support\HtmlString(nl2br($this->productDetails)))

@@ -183,6 +183,14 @@ class Order extends Model
     }
 
     /**
+     *  Query scope to get retrieve orders where payment status is not  completed
+     */
+    public function scopeNotCompleted($query)
+    {
+        return $query->where('payment_status', '!=', OrderStatusEnum::COMPLETED_PAYMENT);
+    }
+
+    /**
      * update order status
      */
     public function updateOrderStatus($status)
