@@ -20,7 +20,7 @@ class NotifyShippedOrders extends Command
         Order::with('shippingMethod')
             ->where('status', OrderStatusEnum::SHIPPED)
             ->whereNotNull('shipped_at')
-            ->where('delivered_notification_count', '<', 2)
+            ->where('delivered_notification_count', '<=', 2)
             ->each(function ($order) {
                 if (
                     is_null($order->shippingMethod) ||
@@ -35,9 +35,8 @@ class NotifyShippedOrders extends Command
                     $order->shippingMethod->duration_type
                 );
 
-                $intervals = [
-                    1 => $totalHours * 0.5,
-                    2 => $totalHours
+            $intervals = [
+                1 => $totalHours
                 ];
 
             $shippedAt = \Carbon\Carbon::parse($order->shipped_at);
@@ -45,9 +44,7 @@ class NotifyShippedOrders extends Command
             $hoursElapsed = $shippedAt->lessThanOrEqualTo(now())
                 ? $shippedAt->diffInHours(now())
                 : 0;
-            logger("{$hoursElapsed}");
-                $nextNotification = $order->notification_count + 1;
-            logger("debug", [isset($intervals[$nextNotification]), $hoursElapsed >= $intervals[$nextNotification]]);
+            $nextNotification = $order->notification_count + 1;
                 if (isset($intervals[$nextNotification]) && $hoursElapsed >= $intervals[$nextNotification]) {
                     $order->customer->notify(new OrderShippedConfirmation($order));
                     $order->increment('delivered_notification_count');
