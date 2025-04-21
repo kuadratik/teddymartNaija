@@ -438,7 +438,7 @@ class PayPalEventBus implements ShouldQueue
      */
     private function checkAndNotifyStockLevels($listing): void
     {
-        $listing->refresh();
+        $listing =  $listing->loade('user')->refresh();
         $quantity = $listing->quantity;
         $price = $listing->price;
 
@@ -446,7 +446,7 @@ class PayPalEventBus implements ShouldQueue
             return;
         }
 
-        $vendor = optional($listing->store)->user;
+        $vendor = optional($listing->user);
 
         if (! $vendor) {
             logger()->warning("Vendor not found for listing {$listing->id}");
@@ -455,7 +455,7 @@ class PayPalEventBus implements ShouldQueue
 
         $productDetails = "{$listing->name}: {$quantity} units remaining";
 
-        if ($quantity < 2) {
+        if ($quantity <= 2) {
             $vendor->notify(new OutOfStockNotification($vendor->first_name, $productDetails));
         } elseif ($quantity >= 3 && $quantity <= 4) {
             $vendor->notify(new LowStockNotification($vendor->first_name, $productDetails));
