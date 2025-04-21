@@ -24,6 +24,7 @@ class OrderShippedConfirmation extends Notification implements ShouldQueue
     {
         $order = $this->order;
         $currency = $order->currency ?? 'USD';
+        $order->increment('delivered_notification_count');
 
 
         $productRows = '';

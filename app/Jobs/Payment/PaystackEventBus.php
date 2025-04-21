@@ -366,6 +366,7 @@ class PaystackEventBus implements ShouldQueue
 
             foreach ($order->orderDetails as $orderDetail) {
                 try {
+                    logger()->debug('sending to notify and reduce qty');
                     $this->updateListingOrVariantQuantity($orderDetail);
                 } catch (\Throwable $e) {
                     Log::error('Order processing failed', [
@@ -384,6 +385,7 @@ class PaystackEventBus implements ShouldQueue
      */
     private function updateListingOrVariantQuantity($orderDetail): void
     {
+        logger()->debug('notifying');
         $listing = $orderDetail->listing;
 
         if (! $listing) {
@@ -425,12 +427,15 @@ class PaystackEventBus implements ShouldQueue
             logger()->warning("Vendor not found for listing {$listing->id}");
             return;
         }
-
+        logger()->debug('notify passes');
         $productDetails = "{$listing->name}: {$quantity} units remaining";
 
         if ($quantity < 2) {
+            logger()->debug('log for quantity les than 2');
             $vendor->notify(new OutOfStockNotification($vendor->first_name, $productDetails));
         } elseif ($quantity >= 3 && $quantity <= 4) {
+            logger()->debug('log for quantity greater than 2');
+
             $vendor->notify(new LowStockNotification($vendor->first_name, $productDetails));
         }
     }
