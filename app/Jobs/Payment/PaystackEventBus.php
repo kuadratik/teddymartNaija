@@ -8,13 +8,17 @@ use App\Enums\PaymentStatusEnum;
 use App\Enums\PaymentTransactionTypeEnum;
 use App\Enums\PaymentType;
 use App\Models\AdvertListingPromotePlan;
+use App\Models\Cart;
+use App\Models\Listing;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
 use App\Models\StorePromotePlanStore;
 use App\Notifications\Listing\AdvertSuccessNotification;
+use App\Notifications\Listing\LowStockNotification;
 use App\Notifications\Listing\OrderPaymentFailedNotification;
 use App\Notifications\Listing\OrderSuccessfulNotification;
+use App\Notifications\Listing\OutOfStockNotification;
 use App\Notifications\Listing\VendorNewOrderNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -61,11 +65,13 @@ class PaystackEventBus implements ShouldQueue
 
         if (empty($orderId)) {
             Log::warning('Order ID is missing or malformed', ['payload' => json_encode($payload)]);
+
             return;
         }
 
         if (empty($paymentType)) {
             Log::warning('Payment type is missing or malformed');
+
             return;
         }
 
@@ -99,6 +105,16 @@ class PaystackEventBus implements ShouldQueue
     private function processSuccessfulCharge(array $payload): void
     {
         Log::info('Paystack processing processSuccessfulCharge');
+
+        $paymentDetails = $this->extractPaymentDetails($payload);
+
+        if ($paymentDetails['status_message'] === 'PENDING') {
+            Log::info('Payment is pending', ['reference' => $paymentDetails['reference']]);
+            $this->processPaymentEvent($payload, false);
+
+            return;
+        }
+
         $this->processPaymentEvent($payload, true);
     }
 
@@ -117,8 +133,9 @@ class PaystackEventBus implements ShouldQueue
     {
         $advert = AdvertListingPromotePlan::where('order_number', $orderId)->with('advertListing')->first();
 
-        if (!$advert) {
+        if (! $advert) {
             Log::error('No advert listing promotion found', ['order_number' => $orderId]);
+
             return;
         }
 
@@ -131,6 +148,7 @@ class PaystackEventBus implements ShouldQueue
 
             if ($orderStatus === OrderStatusEnum::ACTIVE && $advert->status === OrderStatusEnum::ACTIVE->value && $advert->payment_id === $payment->id) {
                 Log::info('Advert is already active, skipping update.', ['order_number' => $advert->order_number]);
+
                 return;
             }
 
@@ -166,8 +184,9 @@ class PaystackEventBus implements ShouldQueue
     {
         $promotion = StorePromotePlanStore::where('order_number', $orderId)->first();
 
-        if (!$promotion) {
+        if (! $promotion) {
             Log::error('No store promotion found', ['order_number' => $orderId]);
+
             return;
         }
 
@@ -180,6 +199,7 @@ class PaystackEventBus implements ShouldQueue
 
             if ($orderStatus === OrderStatusEnum::ACTIVE && $promotion->status === OrderStatusEnum::ACTIVE->value && $promotion->payment_id === $payment->id) {
                 Log::info('Promotion is already active, skipping update.', ['order_number' => $promotion->order_number]);
+
                 return;
             }
 
@@ -209,10 +229,14 @@ class PaystackEventBus implements ShouldQueue
      */
     private function processOrderPayment(string $orderId, array $paymentDetails, array $payload, PaymentStatusEnum $paymentStatus, OrderStatusEnum $orderPaymentStatus, string $statusMessage): void
     {
-        $orders = Order::where('order_number', $orderId)->with(['orderDetails.listing'])->get();
+        $orders = Order::where('order_number', $orderId)
+            ->notCompleted()
+            ->with(['orderDetails.listing'])
+            ->get();
 
         if ($orders->isEmpty()) {
             Log::error('No orders found', ['order_number' => $orderId]);
+
             return;
         }
 
@@ -222,7 +246,7 @@ class PaystackEventBus implements ShouldQueue
             $orderStatus = $isSuccess ? OrderStatusEnum::NEW : OrderStatusEnum::PENDING;
 
             foreach ($orders as $order) {
-                if (!$order->payments()->where('payment_id', $payment->id)->exists()) {
+                if (! $order->payments()->where('payment_id', $payment->id)->exists()) {
                     $order->payments()->attach($payment->id);
                 }
 
@@ -230,9 +254,13 @@ class PaystackEventBus implements ShouldQueue
                 $order->status = $orderStatus->value;
                 $order->save();
 
+                Cart::whereNotNull('user_id')
+                    ->where('user_id', $order->user_id)
+                    ->delete();
+
                 $this->createPaymentTransaction($payment, $paymentDetails, $payload, $isSuccess, $statusMessage);
 
-                if (!$isSuccess) {
+                if (! $isSuccess) {
                     if (isset($order->customer)) {
                         $order->customer->notify(new OrderPaymentFailedNotification($order));
                     }
@@ -242,12 +270,14 @@ class PaystackEventBus implements ShouldQueue
 
                 $this->processOrderDetails($order);
 
-                if (isset($order->store->user)) {
-                    $order->store->user->notify(new VendorNewOrderNotification($order));
-                }
+                if ($statusMessage !== 'PENDING') {
+                    if (isset($order->store->user)) {
+                        $order->store->user->notify(new VendorNewOrderNotification($order));
+                    }
 
-                if (isset($order->customer)) {
-                    $order->customer->notify(new OrderSuccessfulNotification($order));
+                    if (isset($order->customer)) {
+                        $order->customer->notify(new OrderSuccessfulNotification($order));
+                    }
                 }
 
                 Log::info('Order payment processed', [
@@ -322,6 +352,7 @@ class PaystackEventBus implements ShouldQueue
     private function extractPaymentType(array $payload): string
     {
         $type = $payload['data']['metadata']['type'] ?? '';
+
         return $type;
     }
 
@@ -333,17 +364,17 @@ class PaystackEventBus implements ShouldQueue
         DB::transaction(function () use ($order) {
             $order->load([
                 'orderDetails.listing' => fn($query) => $query->lockForUpdate(),
-                'orderDetails.variant'
+                'orderDetails.variant',
             ]);
 
             foreach ($order->orderDetails as $orderDetail) {
                 try {
                     $this->updateListingOrVariantQuantity($orderDetail);
                 } catch (\Throwable $e) {
-                    Log::error('Order processing failed', [
+                    logger()->error('Order processing failed', [
                         'order_detail_id' => $orderDetail->id,
                         'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString()
+                        'trace' => $e->getTraceAsString(),
                     ]);
                     throw $e;
                 }
@@ -358,17 +389,57 @@ class PaystackEventBus implements ShouldQueue
     {
         $listing = $orderDetail->listing;
 
-        if (!$listing) {
+        if (! $listing) {
             throw new \RuntimeException("Listing not found for order detail {$orderDetail->id}");
         }
 
         if ($orderDetail->variant_id) {
             $this->handleVariantQuantity($orderDetail);
+
             return;
         }
 
         $this->handleListingQuantity($listing, $orderDetail->quantity);
+
+        $this->checkAndNotifyStockLevels($listing);
     }
+
+    /**
+     * Monitors and notifies vendors about product stock levels
+     * Sends notifications when stock is out or running low
+     * Skips notifications for high-value items (>=1M)
+     *
+     * @param mixed $listing The product listing to check
+     * @return void
+     */
+    private function checkAndNotifyStockLevels(Listing $listing): void
+    {
+        $listing =  $listing->load('user')->refresh();
+
+        $quantity = $listing->quantity;
+        $price = $listing->price;
+
+        if ($price >= 1000000) {
+            return;
+        }
+
+        $vendor = optional($listing->user);
+
+        if (! $vendor) {
+            logger()->warning("Vendor not found for listing {$listing->id}");
+            return;
+        }
+
+        $productDetails = "{$listing->name}: {$quantity} units remaining";
+
+        if ($quantity <= 2) {
+            $vendor->notify(new OutOfStockNotification($vendor->first_name, $productDetails));
+        } elseif ($quantity >= 3 && $quantity <= 4) {
+
+            $vendor->notify(new LowStockNotification($vendor->first_name, $productDetails));
+        }
+    }
+
 
     /**
      * Handle quantity update for a variant
@@ -377,7 +448,7 @@ class PaystackEventBus implements ShouldQueue
     {
         $variant = $orderDetail->variant;
 
-        if (!$variant) {
+        if (! $variant) {
             throw new \RuntimeException("Variant not found for order detail {$orderDetail->id}");
         }
 

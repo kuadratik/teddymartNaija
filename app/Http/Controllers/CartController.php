@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
+use App\Http\Requests\Cart\AddListingToWishlistRequest;
 use App\Http\Requests\Cart\AddToCartRequest;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Http\Requests\Cart\StoreShippingAddressRequest;
@@ -144,9 +145,10 @@ class CartController extends Controller
     public function getOrderHistory(Request $request)
     {
         $userOrders = Order::where('user_id', $request->user()->id)
-            ->with('store:id,name', 'orderDetails')->latest('id')->get();
+            ->with('store:id,name', 'orderDetails', 'orderDetails.listing', 'orderDetails.variant', 'shippingMethod')
+            ->latest('id')
+            ->get();
         $userOrderHistory = $userOrders->groupBy('order_number');
-
         return $this->success($userOrderHistory);
     }
 
@@ -166,29 +168,23 @@ class CartController extends Controller
      */
     public function recieveOrder(Order $order)
     {
-        $order->update(['status' => OrderStatusEnum::DELIVERED->value]);
-        return $this->success();
+        $this->cartService->recieveOrder($order);
+        return $this->success('Order completed successfully');
     }
     /**
      * Add product to wishlist
      */
     public function addToWishlist(Request $request, Listing $product)
     {
-        abort_if($product->type != ListingType::PRODUCT->value, 400, 'The specified listing is not a product.');
-        abort_if(!$product->is_available, 400, 'The product is currently unavailable.');
-
-        abort_if($request->user()->hasWishlisted($product), 422, 'The product is already in your wishlist.');
-
-        $request->user()->wishlists()->attach($product->id);
-
-        return $this->success('Product added to wishlist successfully.');
+        $message = $this->cartService->addProductToWishlist($request, $product);
+        return $this->success([], $message);
     }
 
 
     /**
      * Add product to wishlist from cart
      */
-    public function addToWishlistFromCart(Request $request, Listing $product)
+    public function addToWishlistFromCart(AddListingToWishlistRequest $request, Listing $product)
     {
         $message = $this->cartService->addToWishlistFromCart($request, $product);
 
@@ -200,7 +196,7 @@ class CartController extends Controller
      */
     public function getUserWishlist(Request $request)
     {
-        $wishlist = $request->user()->wishlists()->where('type', 'product')->get();
+        $wishlist = $request->user()->wishlists()->where('type', 'product')->latest()->get();
 
         return $this->success($wishlist->load('store'));
     }

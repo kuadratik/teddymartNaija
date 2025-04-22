@@ -19,7 +19,12 @@ class UserShippingAddress extends Model
         'city',
         'landmark',
         'address',
-        'saved'
+        'saved',
+        'first_name',
+        'last_name',
+        'phone',
+        'email',
+
     ];
 
 
@@ -33,6 +38,21 @@ class UserShippingAddress extends Model
         return [
             'saved' => 'boolean',
         ];
+    }
+
+    /**
+     * Get the formatted full address
+     *
+     * @return string
+     */
+    public function getFormattedAddress(): string
+    {
+        return implode(', ', array_filter([
+            $this->address,
+            $this->city,
+            $this->state,
+            $this->country
+        ]));
     }
 
     /**

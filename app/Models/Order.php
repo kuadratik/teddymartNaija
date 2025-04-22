@@ -6,10 +6,12 @@ use App\Enums\OrderStatusEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HandlesDuration;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, HandlesDuration;
 
     /**
      * The attributes that are mass assignable.
@@ -35,15 +37,33 @@ class Order extends Model
         'payout_status',
         'currency',
         'store_shipping_method_id',
-        'shipping_address_id'
+        'shipping_address_id',
+        'delivered_notification_count',
+        'shipped_at',
+        'vendor_notified_at'
     ];
 
 
-    protected $cast =  [
+    protected $casts =  [
         'total_amount' => 'decimal:2',
         'created_at' => 'datetime:Y-m-d H:i:s',
         'updated_at' => 'datetime:Y-m-d H:i:s',
+        'shipped_at' => 'datetime:Y-m-d H:i:s',
+        'delivered_notification_count' => 'integer',
     ];
+
+
+    /**
+     * Get the formatted order number attribute.
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    public function orderNumber(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => substr($value, 0, 8),
+        );
+    }
 
     /**
      * Get the details for  the order.
@@ -77,6 +97,8 @@ class Order extends Model
     {
         return $this->belongsTo(Clip::class);
     }
+
+
 
     /**
      * Get the full name of the user.
@@ -143,7 +165,7 @@ class Order extends Model
     {
         return $query->where('orders.payout_status', OrderStatusEnum::PAID)->latest('id');
     }
-    
+
     /**
      * Query scope to get retrieve paid payout
      */
@@ -161,12 +183,46 @@ class Order extends Model
     }
 
     /**
+     *  Query scope to get retrieve orders where payment status is not  completed
+     */
+    public function scopeNotCompleted($query)
+    {
+        return $query->where('payment_status', '!=', OrderStatusEnum::COMPLETED_PAYMENT);
+    }
+
+    /**
      * update order status
      */
     public function updateOrderStatus($status)
     {
-
         $this->status = $status;
+        if ($status === OrderStatusEnum::SHIPPED->value) {
+            $this->shipped_at = now();
+        }
         $this->save();
+    }
+
+    /**
+     * Check if shipping duration has elapsed
+     */
+    public function isShippingDurationElapsed(): bool
+    {
+        if (
+            !$this->shipped_at ||
+            !$this->shippingMethod ||
+            !$this->shippingMethod->duration_number ||
+            !$this->shippingMethod->duration_type
+        ) {
+            return false;
+        }
+
+        $totalHours = $this->calculateHours(
+            $this->shippingMethod->duration_number,
+            $this->shippingMethod->duration_type
+        );
+
+        $elapsedTime = $this->shipped_at->copy()->addHours($totalHours);
+
+        return now()->greaterThanOrEqualTo($elapsedTime);
     }
 }

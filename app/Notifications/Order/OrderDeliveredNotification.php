@@ -7,8 +7,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
-class OrderDeliveredNotification extends Notification
+class OrderDeliveredNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -36,35 +37,45 @@ class OrderDeliveredNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $order = $this->order;
-        $respondent = $order->customer()->first_name;
-        $orderNumber = $order->order_number;
+        $currency = $order->currency ?? 'USD';
+        $customerName = e($order->customer->first_name);
+        $orderNumber = e($order->order_number);
+        $shippingAddress = e($order->shippingAddress?->getFormattedAddress());
 
-        $line = <<<EOT
-        Shopping details:
-        <ul>
-            <li><strong>Order Number</strong>: {$orderNumber}</li>
-            <li><strong>Shipping Date</strong>: {}</li>
-        </ul>
-        EOT;
+        $productRows = '';
+        foreach ($order->orderDetails as $item) {
+            $productName = e($item->listing_name);
+            $quantity = e($item->quantity);
+            $price = e(number_format($item->listing_price * $item->quantity, 2));
+            $productRows .= "
+            <tr>
+                <td>{$productName}</td>
+                <td>{$quantity}</td>
+                <td>{$price} {$currency}</td>
+            </tr>";
+        }
+
+        $productTable = '<table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 600px; margin: auto; margin-top: 20px;">
+            <thead>
+                <tr>
+                    <th style="background-color: #f2f2f2; text-align: left;">Product Name</th>
+                    <th style="background-color: #f2f2f2; text-align: left;">Quantity</th>
+                    <th style="background-color: #f2f2f2; text-align: left;">Price</th>
+                </tr>
+            </thead>
+            <tbody>' . $productRows . '</tbody>
+        </table>';
 
         return (new MailMessage)
-            ->subject("Reminder: Please Update the Status of Order {$orderNumber}")
-            ->greeting("Dear {$respondent},")
-            ->line("We hope this email finds you well. We’re following up regarding Order {$orderNumber}. As per")
-            ->line("our records, the order was shipped on [Shipping Date], but we noticed that the status has not ")
-            ->line('yet been updated in our system.')
-            ->line('')
-            ->line('To ensure our records are up to date and to provide the customer with accurate information, we')
-            ->line('kindly ask that you update the delivery status of this order as soon as possible.')
-            ->line($line)
-            ->line('If the order has already been delivered, please update the status to “Delivered” in the myEKI')
-            ->line("vendor portal. If you require any assistance or have further questions, please don’t hesitate to")
-            ->line('contact us.')
-            ->line('')
-            ->line('Thank you for your prompt attention to this matter, and your continued partnership.')
-            ->line("Best regards,")
-            ->line('The myEKI Team')
-            ->line('vendorsupport@myEKI.market');
+            ->subject("Yayy!! 📦Your Order #{$orderNumber} Has Been Delivered!")
+            ->greeting("Dear {$customerName},")
+            ->line("Great news! Your myEKI order has been successfully delivered to:")
+            ->line("Shipping Address: {$shippingAddress}")
+            ->line(new HtmlString($productTable))
+            ->line("We hope everything arrived in perfect condition and met your expectations. To help us serve you better, please take a moment to rate your order by clicking on the Rate Product button in the myEKI profile section.")
+            ->line("By rating the product, you assist other customers in making informed decisions. If there's anything you'd like to share about your experience—or if you need help with your order—don't hesitate to reach out to us.")
+            ->line("")
+            ->line("Thank you for shopping on myEKI. We look forward to seeing you again soon!");
     }
 
     /**

@@ -327,8 +327,8 @@ class AdvertListingService
             }))->when(isset($validated['type']), fn($q) => $q->where('type', $validated['type']))
             ->when($request->hasHeader('currency'), fn($q) => $q->where('currency', $request->header('currency')))
             ->when(isset($validated['country_id']), fn($q) => $q->where('country_id', $validated['country_id']))
-            ->when(isset($validated['state']), fn($q) => $q->where('state', $validated['state']));
-
+            ->when(isset($validated['state']), fn($q) => $q->where('state', $validated['state']))
+            ->when(isset($validated['limit']), fn($query) => $query->limit($validated['limit']));
         $perPage = $validated['per_page'] ?? 15;
         $paginator = $query->orderBy('min_promote_plan_price', 'desc')
             ->paginate($perPage)
@@ -374,7 +374,7 @@ class AdvertListingService
                 ->orWhere('description', 'like', '%' . $request->input('search') . '%')
         ));
 
-        return $query->get();
+        return $query->latest()->get();
     }
 
     /**

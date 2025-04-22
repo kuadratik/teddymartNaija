@@ -27,7 +27,6 @@ class PaymentController extends Controller
     {
         $paymentData = $this->cartService->getOrderPaymentData($request, $cart);
         $res = $this->paymentService->gateway($request->validated('payment_gateway'))->initialize($paymentData);
-        $cart->delete();
         return $this->success($res);
     }
 
@@ -38,21 +37,5 @@ class PaymentController extends Controller
         $attr = $request->validated();
         $res = $this->paymentService->gateway($gateway->value)->verify($attr);
         return $this->success($res);
-    }
-
-
-    public function paypalSuccess(Request $request)
-    {
-        $token = $request->query('token');
-        $payerId = $request->query('PayerID');
-        Log::info('paypalSuccess', [$token, $payerId]);
-        return view('payment.success', ['message' => 'Payment successful!']);
-    }
-
-
-    public function cancel()
-    {
-
-        return view('payment.cancel', ['message' => 'Payment canceled.']);
     }
 }

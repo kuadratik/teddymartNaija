@@ -13,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
 
@@ -49,21 +49,19 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast to native types.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'offers_product' => 'boolean',
-            'offers_service' => 'boolean',
-            'has_store' => 'boolean',
-            'has_ads' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'offers_product' => 'boolean',
+        'offers_service' => 'boolean',
+        'has_store' => 'boolean',
+        'has_ads' => 'boolean',
+    ];
+
 
 
     protected static function booted()
@@ -176,7 +174,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->wishlists()
             ->where('wishlistable_id', $model->id)
-            ->where('wishlistable_type',)
+            ->where('wishlistable_type', get_class($model))
             ->exists();
     }
     /**

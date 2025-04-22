@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 
 class StoresController extends Controller
 {
-    public function __construct(Request $request, protected StoreService $storeService)
+    public function __construct(protected StoreService $storeService)
     {
         //
     }
@@ -58,9 +58,9 @@ class StoresController extends Controller
 
         $stores = Store::query()
             ->where('type', $request->listingType)
-            ->when($request->sortType === 'alphanumeric', fn ($query) => $query->orderBy('name', 'asc'))
-            ->when($request->search, fn ($query) => $query->search($request->search))
-            ->when($request->category, fn ($query) => $query->byCategory($request->category))
+            ->when($request->sortType === 'alphanumeric', fn($query) => $query->orderBy('name', 'asc'))
+            ->when($request->search, fn($query) => $query->search($request->search))
+            ->when($request->category, fn($query) => $query->byCategory($request->category))
             ->where('currency', $currency)
             ->paginate(20);
 
@@ -237,16 +237,7 @@ class StoresController extends Controller
     {
         abort_if($store->id !== $order->store_id, 403, 'Unauthorized');
         $order->status = $request->validated('status');
-        $order->save();
-
-        if (
-            $order->wasChanged() &&
-            $order->status === OrderStatusEnum::SHIPPED->value
-        ) {
-            // Notification::route('mail', $order->customer()->email)
-            //     ->notify(new OrderShippedNotification($order));
-        }
-
+        $this->storeService->updateOrderStatus($order, $request->validated('status'));
         return $this->success();
     }
 
@@ -257,7 +248,7 @@ class StoresController extends Controller
     public function showStoreOrder(Store $store, Order $order)
     {
         abort_if($store->id !== $order->store_id, 403, 'Unauthorized');
-        $order->load(['orderDetails', 'store', 'customer', 'payments', 'shippingAddress', 'shippingMethod']);
+        $order->load(['orderDetails', 'orderDetails.variant', 'store', 'customer', 'payments', 'shippingAddress', 'shippingMethod']);
         return $this->success($order);
     }
 }

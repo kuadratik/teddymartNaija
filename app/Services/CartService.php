@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
+use App\Http\Requests\Cart\AddToCartRequest;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Cart;
@@ -13,6 +14,7 @@ use App\Models\ListingVariant;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\StoreShippingMethod;
+use App\Notifications\Order\OrderDeliveredNotification;
 use App\Support\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -80,14 +82,14 @@ class CartService
      * If the product is already in the cart, the quantity is updated.
      * Handles both regular and variant products.
      */
-    public function addToCart(Request $request, Listing $product): Cart
+    public function addToCart(AddToCartRequest $request, Listing $product): Cart
     {
         if ($product->type !== ListingType::PRODUCT->value) {
             return Utils::validateResp(['error' => ['Product not found']]);
         }
 
-        $quantity = $request->input('quantity', 1);
-        $variantId = $request->input('variant_id');
+        $quantity = (int) $request->validated('quantity', 1);
+        $variantId = $request->validated('variant_id');
         $cart = $this->getCart($request);
 
         $existingItemQuery = CartListing::query()
@@ -95,12 +97,30 @@ class CartService
             ->where('listing_id', $product->id);
 
         if ($variantId) {
+            $variant = $product->variants()->where('id', $variantId)->first();
+
+            if (!$variant) {
+                return Utils::validateResp(['error' => ['Selected variant does not exist']]);
+            }
+
+            $availableQty = $variant->quantity;
+
             $existingItemQuery->where('listing_variant_id', $variantId);
         } else {
+            $availableQty = $product->quantity;
+
             $existingItemQuery->whereNull('listing_variant_id');
         }
 
         $existingItem = $existingItemQuery->first();
+        $currentQtyInCart = $existingItem?->quantity ?? 0;
+        $intendedTotalQty = $currentQtyInCart + $quantity;
+
+        if ($intendedTotalQty > $availableQty) {
+            return Utils::validateResp([
+                'error' => ["Only $availableQty unit(s) available."]
+            ]);
+        }
 
         if ($existingItem) {
             $existingItemQuery->update([
@@ -120,6 +140,7 @@ class CartService
 
         return $cart->fresh(['products']);
     }
+
 
     /**
      * Update the quantity of a specific product in the cart.
@@ -299,7 +320,15 @@ class CartService
         $user = $request->user();
         $status = $request->query('order_status');
 
-        $orders = Order::with(['orderDetails', 'shippingAddress'])
+        $orders = Order::with([
+            'orderDetails',
+            'orderDetails.listing',
+            'store',
+            'orderDetails.variant',
+            'shippingAddress',
+            'shippingMethod'
+
+        ])
             ->where('user_id', $user->id)
             ->where('type', ListingType::PRODUCT->value)
             ->when($status, fn($query) => $query->where('status', $status))
@@ -307,7 +336,7 @@ class CartService
             ->get()
             ->groupBy('order_number');
 
-        return OrderResource::collection($orders);
+        return $orders->values();
     }
 
     /**
@@ -330,28 +359,31 @@ class CartService
 
         $user = $request->user();
 
-        $wishlistExists = $user->wishlists()->where('listing_id', $product->id)->exists();
+        $wishlistExists = $user->wishlists()->where('wishlistable_id', $product->id)->exists();
         abort_if($wishlistExists, 422, 'The product is already in your wishlist.');
+
+        $variantId = $request->input('variant_id');
 
         $cart = $user->carts()
             ->with('products')
-            ->whereHas('products', function ($query) use ($product) {
-                $query->where('listing_id', $product->id);
+            ->whereHas('products', function ($query) use ($product, $variantId) {
+                $query->where('listing_id', $product->id)
+                    ->when($variantId, fn($q) => $q->where('listing_variant_id', $variantId), fn($q) => $q->whereNull('listing_variant_id'));
             })
             ->first();
 
-        abort_if(! $cart, 404, 'The product is not found in your cart.');
+        abort_if(! $cart, 404, 'The product or variant is not found in your cart.');
 
-        DB::transaction(function () use ($user, $product, $cart) {
-            $cart->products()->detach($product->id);
-            $user->wishlists()->attach($product->id);
+        DB::transaction(function () use ($user, $product, $cart, $variantId) {
+            $cart->products()->detach($product->id, ['listing_variant_id' => $variantId]);
+            $user->wishlists()->attach($product->id, ['variant_id' => $variantId]);
 
             if ($cart->products()->count() === 0) {
                 $cart->delete();
             }
         });
 
-        return 'Product added to wishlist successfully and removed from cart.';
+        return 'Product or variant added to wishlist successfully and removed from cart.';
     }
 
     /**
@@ -390,6 +422,21 @@ class CartService
         return $storeShippingDetails;
     }
 
+
+    /**
+     * customer recieve order
+     */
+    public function recieveOrder(Order $order): void
+    {
+        $order->load('store', 'store.user');
+        $order->update(['status' => OrderStatusEnum::DELIVERED->value]);
+        if (
+            $order->wasChanged() &&
+            $order->status === OrderStatusEnum::DELIVERED->value
+        ) {
+            $order->store->user->notify(new OrderDeliveredNotification($order));
+        }
+    }
     /**
      * Get the user's cart based on the provided request.
      */
@@ -436,5 +483,22 @@ class CartService
     private function deleteCartById(int $cartId): void
     {
         Cart::where('id', $cartId)->delete();
+    }
+
+    /**
+     * Add a product to the wishlist.
+     */
+    public function addProductToWishlist(Request $request, Listing $product): string
+    {
+        abort_if($product->type != ListingType::PRODUCT->value, 400, 'The specified listing is not a product.');
+        abort_if(!$product->is_available, 400, 'The product is currently unavailable.');
+
+        if ($request->user()->hasWishlisted($product)) {
+            return 'The product is already in your wishlist.';
+        }
+
+        $request->user()->wishlists()->attach($product->id);
+
+        return 'Product added to wishlist successfully.';
     }
 }

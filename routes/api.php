@@ -29,6 +29,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('front')->group(function () {
     Route::post('login', [FrontAuthController::class, 'login']);
+
+    Route::post('magic-link', [FrontAuthController::class, 'magicLink']);
+    Route::post('magic-login', [FrontAuthController::class, 'magicLogin']);
+
     Route::post('auth-confirmation', [FrontAuthController::class, 'authConfirmation'])->middleware(['auth:sanctum']);
     Route::post('google-auth', [FrontAuthController::class, 'googleAuth']);
     Route::post('register', [FrontAuthController::class, 'register']);

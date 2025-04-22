@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\ImpersonateRequest;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\MagicLoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResendVerifyOtpRequest;
 use App\Http\Requests\Auth\ResetPasswordOtpRequest;
@@ -94,6 +96,24 @@ class FrontAuthController extends Controller
         $this->authService->authConfirmation($request->password);
 
         return $this->success();
+    }
+
+    /**
+     * Magic login link
+     */
+    public function magicLink(MagicLoginRequest $request)
+    {
+        $link = $request->magicLink();
+        return $this->success($link);
+    }
+
+    /**
+     * Magic login for admin
+     */
+    public function magicLogin(ImpersonateRequest $request)
+    {
+        $response = $request->magicLogin();
+        return $this->success($response);
     }
 
     /**
