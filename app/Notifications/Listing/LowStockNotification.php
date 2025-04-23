@@ -35,6 +35,7 @@ class LowStockNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
+            ->priority(1)
             ->subject('⚠️ Low Stock Alert: Restock Now to Avoid Running Out!')
             ->greeting("Dear {$this->vendorName},")
             ->line('We hope this email finds you well. We wanted to bring to your attention that the inventory level for some of your products on our platform is getting low.')
@@ -42,7 +43,7 @@ class LowStockNotification extends Notification implements ShouldQueue
             ->line('At myEKI, stock availability is based on the following business rules:')
             ->line('In Stock = Inventory > 5')
             ->line('Low Stock = Inventory < 5')
-            ->line('Out of Stock = Inventory < 2')
+            ->line('Out of Stock = Inventory <= 2')
             ->line('')
             ->line('Here are the details of the products nearing a low stock:')
             ->line(new \Illuminate\Support\HtmlString(nl2br($this->productDetails)))

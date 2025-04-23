@@ -31,24 +31,32 @@ class OrderShippedNotification extends Notification implements ShouldQueue
         return ['mail'];
     }
 
+
+
     /**
      * Get the mail representation of the notification.
      */
     public function toMail(object $notifiable): MailMessage
     {
         $order = $this->order;
+        $currency = $order->currency ?? 'USD';
         $customerName = $order->customer->first_name;
-        $orderNumber = substr($order->order_number, 0, 8);
+        $orderNumber = $order->order_number;
         $shippingMethod = $order->shippingMethod->method_type;
-        $shippingAddress = $order->shippingAddress->getFormattedAddress();
+        $shippingAddress = $order->shippingAddress?->getFormattedAddress();
+        $shippingCost = e($order->shipping_cost);
+
 
         $productRows = '';
         foreach ($order->orderDetails as $item) {
+            $productName = $item->listing_name;
+            $quantity = $item->quantity;
+            $price = number_format($item->listing_price * $item->quantity, 2);
             $productRows .= "
             <tr>
-                <td>{$item->listing_name}</td>
-                <td>{$item->quantity}</td>
-                <td>\${$item->listing_price}</td>
+                <td>{$productName}</td>
+                <td>{$quantity}</td>
+                <td>{$price} {$currency}</td>
             </tr>";
         }
 
@@ -66,16 +74,18 @@ class OrderShippedNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject("Hooray!! Your Order Has Been Shipped – {$orderNumber}")
             ->greeting("Dear {$customerName},")
-            ->line("Great news! Your Order {$orderNumber} is now on its way!")
-            ->line(new HtmlString("<strong>Shipping Details:</strong>"))
-            ->line(new HtmlString("<ul>"))
-            ->line(new HtmlString("<li>Shipping Method: {$shippingMethod}</li>"))
-            ->line(new HtmlString("<li>Shipping Address: {$shippingAddress}</li>"))
+            ->line(new HtmlString("Great news! Your order <strong>{$orderNumber}</strong> is now on its way!"))
+            ->line(new HtmlString('<strong>Shipping Details:</strong>'))
+            ->line(new HtmlString("<ul style='margin: 0; padding-left: 20px;'>"))
+            ->line(new HtmlString("<li><strong>Shipping Method:</strong> {$shippingMethod}</li>"))
+            ->line(new HtmlString("<li><strong>Shipping Address:</strong> {$shippingAddress}</li>"))
+            ->line(new HtmlString("<li><strong>Shipping Fee:</strong> {$shippingCost}</li>"))
             ->line(new HtmlString("</ul>"))
             ->line(new HtmlString($productTable))
-            ->line("")
+            ->line(' ')
             ->line("If you have any questions or concerns about your shipment or tracking information, please don't hesitate to contact our customer support team.");
     }
+
 
     /**
      * Get the array representation of the notification.

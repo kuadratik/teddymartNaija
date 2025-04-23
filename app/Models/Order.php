@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\HandlesDuration;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Order extends Model
 {
@@ -39,16 +40,30 @@ class Order extends Model
         'shipping_address_id',
         'delivered_notification_count',
         'shipped_at',
+        'vendor_notified_at'
     ];
 
 
-    protected $cast =  [
+    protected $casts =  [
         'total_amount' => 'decimal:2',
         'created_at' => 'datetime:Y-m-d H:i:s',
         'updated_at' => 'datetime:Y-m-d H:i:s',
         'shipped_at' => 'datetime:Y-m-d H:i:s',
         'delivered_notification_count' => 'integer',
     ];
+
+
+    /**
+     * Get the formatted order number attribute.
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    public function orderNumber(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => substr($value, 0, 8),
+        );
+    }
 
     /**
      * Get the details for  the order.
@@ -168,6 +183,14 @@ class Order extends Model
     }
 
     /**
+     *  Query scope to get retrieve orders where payment status is not  completed
+     */
+    public function scopeNotCompleted($query)
+    {
+        return $query->where('payment_status', '!=', OrderStatusEnum::COMPLETED_PAYMENT);
+    }
+
+    /**
      * update order status
      */
     public function updateOrderStatus($status)
@@ -184,14 +207,22 @@ class Order extends Model
      */
     public function isShippingDurationElapsed(): bool
     {
-        if (!$this->shipped_at || !$this->shippingMethod || !$this->shippingMethod->duration_number || !$this->shippingMethod->duration_type) {
+        if (
+            !$this->shipped_at ||
+            !$this->shippingMethod ||
+            !$this->shippingMethod->duration_number ||
+            !$this->shippingMethod->duration_type
+        ) {
             return false;
         }
+
         $totalHours = $this->calculateHours(
             $this->shippingMethod->duration_number,
             $this->shippingMethod->duration_type
         );
 
-        return now()->diffInHours($this->shipped_at) >= $totalHours;
+        $elapsedTime = $this->shipped_at->copy()->addHours($totalHours);
+
+        return now()->greaterThanOrEqualTo($elapsedTime);
     }
 }

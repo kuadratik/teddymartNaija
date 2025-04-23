@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
+use App\Http\Requests\Cart\AddToCartRequest;
 use App\Http\Requests\Cart\StoreOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Cart;
@@ -13,6 +14,7 @@ use App\Models\ListingVariant;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\StoreShippingMethod;
+use App\Notifications\Order\OrderDeliveredNotification;
 use App\Support\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -80,14 +82,14 @@ class CartService
      * If the product is already in the cart, the quantity is updated.
      * Handles both regular and variant products.
      */
-    public function addToCart(Request $request, Listing $product): Cart
+    public function addToCart(AddToCartRequest $request, Listing $product): Cart
     {
         if ($product->type !== ListingType::PRODUCT->value) {
             return Utils::validateResp(['error' => ['Product not found']]);
         }
 
-        $quantity = $request->input('quantity', 1);
-        $variantId = $request->input('variant_id');
+        $quantity = (int) $request->validated('quantity', 1);
+        $variantId = $request->validated('variant_id');
         $cart = $this->getCart($request);
 
         $existingItemQuery = CartListing::query()
@@ -95,12 +97,30 @@ class CartService
             ->where('listing_id', $product->id);
 
         if ($variantId) {
+            $variant = $product->variants()->where('id', $variantId)->first();
+
+            if (!$variant) {
+                return Utils::validateResp(['error' => ['Selected variant does not exist']]);
+            }
+
+            $availableQty = $variant->quantity;
+
             $existingItemQuery->where('listing_variant_id', $variantId);
         } else {
+            $availableQty = $product->quantity;
+
             $existingItemQuery->whereNull('listing_variant_id');
         }
 
         $existingItem = $existingItemQuery->first();
+        $currentQtyInCart = $existingItem?->quantity ?? 0;
+        $intendedTotalQty = $currentQtyInCart + $quantity;
+
+        if ($intendedTotalQty > $availableQty) {
+            return Utils::validateResp([
+                'error' => ["Only $availableQty unit(s) available."]
+            ]);
+        }
 
         if ($existingItem) {
             $existingItemQuery->update([
@@ -120,6 +140,7 @@ class CartService
 
         return $cart->fresh(['products']);
     }
+
 
     /**
      * Update the quantity of a specific product in the cart.
@@ -407,12 +428,13 @@ class CartService
      */
     public function recieveOrder(Order $order): void
     {
+        $order->load('store', 'store.user');
         $order->update(['status' => OrderStatusEnum::DELIVERED->value]);
         if (
             $order->wasChanged() &&
             $order->status === OrderStatusEnum::DELIVERED->value
         ) {
-            // $order->store->user->notify(new OrderCompletedNotification($order));
+            $order->store->user->notify(new OrderDeliveredNotification($order));
         }
     }
     /**

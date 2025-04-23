@@ -13,27 +13,16 @@ class CustomerInquiryNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    /**
-     * Create a new notification instance.
-     */
     public function __construct(private array $respondent, private AdvertListing $advertListing)
     {
         //
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
         return ['mail'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail(object $notifiable): MailMessage
     {
         $respondentName = $this->respondent['first_name'];
@@ -51,31 +40,17 @@ class CustomerInquiryNotification extends Notification implements ShouldQueue
             ->greeting("Dear {$respondentName}")
             ->line('You have a new message from a customer regarding one of your Ads on myEKI!')
             ->line(new HtmlString($line))
-            ->line('To view and respond to this message, please log in to your myEKI account')
-            ->line('and navigate to your message. Timely responses can improve your')
-            ->line('engagement and lead to successful sales.')
-            ->action('Log in to myEKI', env('FRONT_URL') . '/' . 'login')
+            ->line('To view and respond to this message, please log in to your myEKI account and navigate to your message.')
+            ->line('Timely responses can improve your engagement and lead to successful sales.')
+            ->action('Log in to myEKI', env('FRONT_URL') . '/login')
             ->line('Maximize Your Sales Potential: Prompt communication helps build trust with potential buyers. ')
             ->line('Be sure to check your messages regularly and respond to inquiries as soon as possible.')
-            ->line('')
             ->line("If you have any questions or need support managing your messages. We're always here to assist you!")
-            ->line('')
-            ->line('Thank you for being a valued member of myEKI. We wish you continued success with your business!')
-            ->line('')
-            ->line("Best regards,")
-            ->line('The myEKI Team')
-            ->line('vendorsupport@myEKI.market');
+            ->line('Thank you for being a valued member of myEKI. We wish you continued success with your business!');
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 }

@@ -14,8 +14,10 @@ use App\Models\Payment;
 use App\Models\PaymentTransaction;
 use App\Models\StorePromotePlanStore;
 use App\Notifications\Listing\AdvertSuccessNotification;
+use App\Notifications\Listing\LowStockNotification;
 use App\Notifications\Listing\OrderPaymentFailedNotification;
 use App\Notifications\Listing\OrderSuccessfulNotification;
+use App\Notifications\Listing\OutOfStockNotification;
 use App\Notifications\Listing\VendorNewOrderNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -422,6 +424,42 @@ class PayPalEventBus implements ShouldQueue
         }
 
         $this->handleListingQuantity($listing, $orderDetail->quantity);
+        $this->checkAndNotifyStockLevels($listing);
+    }
+
+
+    /**
+     * Monitors and notifies vendors about product stock levels
+     * Sends notifications when stock is out or running low
+     * Skips notifications for high-value items (>=1M)
+     *
+     * @param mixed $listing The product listing to check
+     * @return void
+     */
+    private function checkAndNotifyStockLevels($listing): void
+    {
+        $listing =  $listing->loade('user')->refresh();
+        $quantity = $listing->quantity;
+        $price = $listing->price;
+
+        if ($price >= 1000000) {
+            return;
+        }
+
+        $vendor = optional($listing->user);
+
+        if (! $vendor) {
+            logger()->warning("Vendor not found for listing {$listing->id}");
+            return;
+        }
+
+        $productDetails = "{$listing->name}: {$quantity} units remaining";
+
+        if ($quantity <= 2) {
+            $vendor->notify(new OutOfStockNotification($vendor->first_name, $productDetails));
+        } elseif ($quantity >= 3 && $quantity <= 4) {
+            $vendor->notify(new LowStockNotification($vendor->first_name, $productDetails));
+        }
     }
 
     /**

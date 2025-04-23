@@ -196,7 +196,7 @@ class CartController extends Controller
      */
     public function getUserWishlist(Request $request)
     {
-        $wishlist = $request->user()->wishlists()->where('type', 'product')->get();
+        $wishlist = $request->user()->wishlists()->where('type', 'product')->latest()->get();
 
         return $this->success($wishlist->load('store'));
     }

@@ -9,13 +9,16 @@ use App\Enums\PaymentTransactionTypeEnum;
 use App\Enums\PaymentType;
 use App\Models\AdvertListingPromotePlan;
 use App\Models\Cart;
+use App\Models\Listing;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentTransaction;
 use App\Models\StorePromotePlanStore;
 use App\Notifications\Listing\AdvertSuccessNotification;
+use App\Notifications\Listing\LowStockNotification;
 use App\Notifications\Listing\OrderPaymentFailedNotification;
 use App\Notifications\Listing\OrderSuccessfulNotification;
+use App\Notifications\Listing\OutOfStockNotification;
 use App\Notifications\Listing\VendorNewOrderNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -226,7 +229,10 @@ class PaystackEventBus implements ShouldQueue
      */
     private function processOrderPayment(string $orderId, array $paymentDetails, array $payload, PaymentStatusEnum $paymentStatus, OrderStatusEnum $orderPaymentStatus, string $statusMessage): void
     {
-        $orders = Order::where('order_number', $orderId)->with(['orderDetails.listing'])->get();
+        $orders = Order::where('order_number', $orderId)
+            ->notCompleted()
+            ->with(['orderDetails.listing'])
+            ->get();
 
         if ($orders->isEmpty()) {
             Log::error('No orders found', ['order_number' => $orderId]);
@@ -365,7 +371,7 @@ class PaystackEventBus implements ShouldQueue
                 try {
                     $this->updateListingOrVariantQuantity($orderDetail);
                 } catch (\Throwable $e) {
-                    Log::error('Order processing failed', [
+                    logger()->error('Order processing failed', [
                         'order_detail_id' => $orderDetail->id,
                         'error' => $e->getMessage(),
                         'trace' => $e->getTraceAsString(),
@@ -394,7 +400,46 @@ class PaystackEventBus implements ShouldQueue
         }
 
         $this->handleListingQuantity($listing, $orderDetail->quantity);
+
+        $this->checkAndNotifyStockLevels($listing);
     }
+
+    /**
+     * Monitors and notifies vendors about product stock levels
+     * Sends notifications when stock is out or running low
+     * Skips notifications for high-value items (>=1M)
+     *
+     * @param mixed $listing The product listing to check
+     * @return void
+     */
+    private function checkAndNotifyStockLevels(Listing $listing): void
+    {
+        $listing =  $listing->load('user')->refresh();
+
+        $quantity = $listing->quantity;
+        $price = $listing->price;
+
+        if ($price >= 1000000) {
+            return;
+        }
+
+        $vendor = optional($listing->user);
+
+        if (! $vendor) {
+            logger()->warning("Vendor not found for listing {$listing->id}");
+            return;
+        }
+
+        $productDetails = "{$listing->name}: {$quantity} units remaining";
+
+        if ($quantity <= 2) {
+            $vendor->notify(new OutOfStockNotification($vendor->first_name, $productDetails));
+        } elseif ($quantity >= 3 && $quantity <= 4) {
+
+            $vendor->notify(new LowStockNotification($vendor->first_name, $productDetails));
+        }
+    }
+
 
     /**
      * Handle quantity update for a variant
