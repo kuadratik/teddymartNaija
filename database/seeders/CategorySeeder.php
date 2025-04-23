@@ -77,7 +77,7 @@ class CategorySeeder extends Seeder
                 'description' => null,
             ],
             [
-                'name' => 'Gourmet Food',
+                'name' => 'Food & Dining',
                 'slug' => Str::slug('Gourmet Food'),
                 'type' => ListingType::PRODUCT,
                 'description' => null,
@@ -144,6 +144,62 @@ class CategorySeeder extends Seeder
                 'type' => ListingType::SERVICE,
                 'description' => null,
             ],
+
+            // new addition
+            [
+                'name' => 'Office & Stationery',
+                'slug' => Str::slug('Office & Stationery'),
+                'type' => ListingType::PRODUCT,
+                'description' => null,
+            ],
+            [
+                'name' => 'Pet Supplies',
+                'slug' => Str::slug('Pet Supplies'),
+                'type' => ListingType::PRODUCT,
+                'description' => null,
+            ],
+            [
+                'name' => 'Art & Crafts',
+                'slug' => Str::slug('Art & Crafts'),
+                'type' => ListingType::PRODUCT,
+                'description' => null,
+            ],
+            [
+                'name' => 'Collectibles',
+                'slug' => Str::slug('Collectibles'),
+                'type' => ListingType::PRODUCT,
+                'description' => null,
+            ],
+            [
+                'name' => 'Travel & Luggage',
+                'slug' => Str::slug('Travel & Luggage'),
+                'type' => ListingType::PRODUCT,
+                'description' => null,
+            ],
+            [
+                'name' => 'Digital Products',
+                'slug' => Str::slug('Digital Products'),
+                'type' => ListingType::PRODUCT,
+                'description' => null,
+            ],
+            [
+                'name' => 'Construction',
+                'slug' => Str::slug('Construction'),
+                'type' => ListingType::PRODUCT,
+                'description' => null,
+            ],
+            [
+                'name' => 'Eco-Friendly',
+                'slug' => Str::slug('Eco-Friendly'),
+                'type' => ListingType::PRODUCT,
+                'description' => null,
+            ],
+            [
+                'name' => 'Tools & Hardware',
+                'slug' => Str::slug('Tools & Hardware'),
+                'type' => ListingType::PRODUCT,
+                'description' => null,
+            ]
         ]);
 
         Category::query()->truncate();
