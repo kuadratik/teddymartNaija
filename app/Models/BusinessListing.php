@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
@@ -13,7 +14,7 @@ class BusinessListing extends Model
 
     /**
      * The attributes that are mass assignable.
-     * 
+     *
      * @var array<string, string>
      */
     protected $fillable = [
@@ -120,5 +121,16 @@ class BusinessListing extends Model
     public function scopeByUser($query)
     {
         return $query->when(request()->filled('user'))->where('user_id', request()->user);
+    }
+
+
+    /**
+     * Get all of the service availabity for the Business Listing
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function serviceAvailabilities(): HasMany
+    {
+        return $this->hasMany(BusinessServiceAvailability::class, 'business_listing_id');
     }
 }

@@ -182,7 +182,7 @@ paths:
       tags:
         - Business Listing
       summary: Create Business listing
-      description: Create Business listing
+      description: Create Business listing with optional service availability
       operationId: CreateBusinessListings
       requestBody:
         content:
@@ -253,6 +253,40 @@ paths:
                 show_website_link:
                   type: boolean
                   example: true
+                services:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      service_name:
+                        type: string
+                        example: "Hair Styling"
+                      availability_type:
+                        type: string
+                        enum: [flex, frame]
+                        example: "flex"
+                      time_slots:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            day_of_week:
+                              type: string
+                              enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
+                              required: false"
+                            start_time:
+                              type: string
+                              format: HH:mm
+                              example: "09:00"
+                            end_time:
+                              type: string
+                              format: HH:mm
+                              example: "17:00"
+                            date:
+                              type: string
+                              format: date
+                              example: "2023-12-31"
+
       responses:
         default:
           description: "success"

@@ -73,10 +73,21 @@ class BusinessListingController extends Controller
     {
         $business = BusinessListing::create($request->businessAttributes());
 
+        foreach ($request->serviceAttributes() as $service) {
+            $serviceAvailability = $business->serviceAvailabilities()->create([
+                'service_name' => $service['service_name'],
+                'availability_type' => $service['availability_type'],
+            ]);
+
+            if (!empty($service['time_slots'])) {
+                $serviceAvailability->timeSlots()->createMany($service['time_slots']);
+            }
+        }
+
         Notification::route('mail', $business['business_email'])
             ->notify(new BizListedNotification($business));
 
-        return $this->success($business);
+        return $this->success($business->load('serviceAvailabilities.timeSlots'));
     }
 
     /**
