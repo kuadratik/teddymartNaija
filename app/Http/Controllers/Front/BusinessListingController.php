@@ -37,7 +37,6 @@ class BusinessListingController extends Controller
         return $this->success($businesses);
     }
 
-
     /**
      * Get the list of business industries
      */
