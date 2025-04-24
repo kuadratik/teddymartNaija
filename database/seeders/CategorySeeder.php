@@ -29,20 +29,14 @@ class CategorySeeder extends Seeder
                 'description' => null,
             ],
             [
-                'name' => 'Beauty & Personal Care',
-                'slug' => Str::slug('Beauty & Personal Care'),
-                'type' => ListingType::PRODUCT,
-                'description' => null,
-            ],
-            [
                 'name' => 'Home & Kitchen',
                 'slug' => Str::slug('Home & Kitchen'),
                 'type' => ListingType::PRODUCT,
                 'description' => null,
             ],
             [
-                'name' => 'Health & Wellness',
-                'slug' => Str::slug('Health & Wellness'),
+                'name' => 'Beauty & Personal Care',
+                'slug' => Str::slug('Beauty & Personal Care'),
                 'type' => ListingType::PRODUCT,
                 'description' => null,
             ],
@@ -65,14 +59,14 @@ class CategorySeeder extends Seeder
                 'description' => null,
             ],
             [
-                'name' => 'Babies & Kids',
-                'slug' => Str::slug('Babies & Kids'),
+                'name' => 'Automotive',
+                'slug' => Str::slug('Automotive'),
                 'type' => ListingType::PRODUCT,
                 'description' => null,
             ],
             [
-                'name' => 'Automotive',
-                'slug' => Str::slug('Automotive'),
+                'name' => 'Health & Wellness',
+                'slug' => Str::slug('Health & Wellness'),
                 'type' => ListingType::PRODUCT,
                 'description' => null,
             ],
@@ -84,10 +78,74 @@ class CategorySeeder extends Seeder
             ],
             [
                 'name' => 'Food & Dining',
-                'slug' => Str::slug('Food & Dining'),
+                'slug' => Str::slug('Gourmet Food'),
                 'type' => ListingType::PRODUCT,
                 'description' => null,
             ],
+
+            // services
+            [
+                'name' => 'Home Services',
+                'slug' => Str::slug('Home Services'),
+                'type' => ListingType::SERVICE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Personal Services',
+                'slug' => Str::slug('Personal Services'),
+                'type' => ListingType::SERVICE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Event Services',
+                'slug' => Str::slug('Event Services'),
+                'type' => ListingType::SERVICE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Professional Services',
+                'slug' => Str::slug('Professional Services'),
+                'type' => ListingType::SERVICE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Health & Wellness Services',
+                'slug' => Str::slug('Health & Wellness Services'),
+                'type' => ListingType::SERVICE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Education Services',
+                'slug' => Str::slug('Education Services'),
+                'type' => ListingType::SERVICE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Logistics Services',
+                'slug' => Str::slug('Logistics Services'),
+                'type' => ListingType::SERVICE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Technology Services',
+                'slug' => Str::slug('Technology Services'),
+                'type' => ListingType::SERVICE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Pet Services',
+                'slug' => Str::slug('Pet Services'),
+                'type' => ListingType::SERVICE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Travel Services',
+                'slug' => Str::slug('Travel Services'),
+                'type' => ListingType::SERVICE,
+                'description' => null,
+            ],
+
+            // new addition
             [
                 'name' => 'Office & Stationery',
                 'slug' => Str::slug('Office & Stationery'),
@@ -141,7 +199,7 @@ class CategorySeeder extends Seeder
                 'slug' => Str::slug('Tools & Hardware'),
                 'type' => ListingType::PRODUCT,
                 'description' => null,
-            ],
+            ]
         ]);
 
         Category::query()->truncate();
