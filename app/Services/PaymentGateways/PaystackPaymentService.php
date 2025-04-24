@@ -9,9 +9,11 @@ use App\Enums\PaymentType;
 use App\Models\AdvertListingPromotePlan;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\StorePayoutDetail;
 use App\Models\StorePromotePlanStore;
 use AWS\CRT\HTTP\Message;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -76,6 +78,100 @@ class PaystackPaymentService implements PaymentGatewayInterface
     public function refund(string $reference, float $amount): array
     {
         return [];
+    }
+
+    /**
+     * Process payout via Paystack.
+     */
+    public function transfer(Order $order, StorePayoutDetail $payoutDetail): array
+    {
+
+        $recipientId = $payoutDetail->paystack_recipient_code;
+        if (!$recipientId) {
+            $recipientResponse = $this->createTransferRecipient(
+                $payoutDetail->account_name,
+                $payoutDetail->account_number,
+                $payoutDetail->bank_code
+            );
+
+            if ($recipientResponse['status'] !== 'success') {
+                Log::error('Failed to create Paystack recipient', [
+                    'order_id' => $order->id,
+                    'response' => $recipientResponse,
+                ]);
+                return [];
+            }
+
+            $recipientId = $recipientResponse['data']['recipient_code'];
+            $payoutDetail->update(['paystack_recipient_code' => $recipientId]);
+        }
+
+        $transferResponse = Http::withToken($this->secretKey)
+            ->post(config('services.paystack.payment_url') . '/transfer', [
+                'source' => 'balance',
+                'amount' => intval(round($order->total_amount * 100)),
+                'currency' => $order->currency,
+                'recipient' => $recipientId,
+                'reason' => "Payout for order {$order->order_number}",
+            ]);
+
+        if (!$transferResponse->successful()) {
+            Log::error('Failed to process Paystack transfer', [
+                'order_id' => $order->id,
+                'response' => $transferResponse->json(),
+            ]);
+        }
+
+        return $transferResponse->json();
+    }
+
+    /**
+     * Validate bank details with Paystack.
+     */
+    public function validateBankDetails(string $accountNumber, string $bankCode): array
+    {
+        $response = Http::withToken($this->secretKey)
+            ->get(config('services.paystack.payment_url') . '/bank/resolve', [
+                'account_number' => $accountNumber,
+                'bank_code' => $bankCode,
+            ]);
+        return $response->json();
+    }
+
+    /**
+     * Create a transfer recipient with Paystack.
+     */
+    public function createTransferRecipient(string $accountName, string $accountNumber, string $bankCode): array
+    {
+        $response = Http::withToken($this->secretKey)
+            ->post(config('services.paystack.payment_url') . '/transferrecipient', [
+                'type' => 'nuban',
+                'name' => $accountName,
+                'account_number' => $accountNumber,
+                'bank_code' => $bankCode,
+                'currency' => 'NGN',
+            ]);
+
+        return $response->json();
+    }
+
+    /**
+     * get accepted banks
+     */
+    public function acceptedBanks(?string $search = null, ?string $next = null, ?string $prev = null, int $perPage = 100): array
+    {
+        $banks =  Http::withToken(config('paystack.secret_key'))
+            ->get(
+                'https://api.paystack.co/bank',
+                [
+                    'perPage' => $perPage,
+                    'next' => $next,
+                    'previous' => $prev,
+                    'country' => 'nigeria',
+                    'use_cursor' => true,
+                ]
+            );
+        return ['banks' => $banks['data'], 'meta' => $banks['meta'] ?? null];
     }
 
     /**
@@ -152,7 +248,6 @@ class PaystackPaymentService implements PaymentGatewayInterface
 
                 $mergedOrderDetails[] = $orderDetails->toArray();
             }
-
         }
         return $mergedOrderDetails;
     }

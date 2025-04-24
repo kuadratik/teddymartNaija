@@ -1256,3 +1256,88 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /store/payout/list-banks:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Get List of Banks
+      description: Retrieve a list of banks supported by the payment gateway.
+      operationId: GetPaymentBanks
+      parameters:
+        - in: query
+          name: payment_gateway
+          schema:
+            type: string
+            example: "paystack"
+          required: false
+          description: The payment gateway to fetch banks from.
+
+        - in: query
+          name: next
+          schema:
+            type: string
+            example: "next_cursor"
+          required: false
+          description: Cursor for pagination (next page).
+        - in: query
+          name: prev
+          schema:
+            type: string
+            example: "prev_cursor"
+          required: false
+          description: Cursor for pagination (previous page).
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            example: 100
+          required: false
+          description: Number of banks to return per page.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+  /store/payout/validate-bank-details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Validate Bank Details
+      description: Validate the provided bank account details.
+      operationId: ValidateBankDetails
+      parameters:
+        - in: query
+          name: payment_gateway
+          schema:
+            type: string
+            example: "paystack"
+          required: false
+          description: The payment gateway to validate the bank details with.
+        - in: query
+          name: account_number
+          schema:
+            type: string
+            example: "1234567890"
+          required: true
+          description: The bank account number to validate.
+        - in: query
+          name: bank_code
+          schema:
+            type: string
+            example: "057"
+          required: true
+          description: The bank code corresponding to the account.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object

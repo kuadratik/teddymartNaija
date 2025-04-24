@@ -136,6 +136,8 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::patch('{userStore}/store/{order}/process-payout', [StorePayoutController::class, 'processPayout']);
                 Route::get('{userStore}/payout-details', [StorePayoutController::class, 'getPayoutDetails']);
                 Route::post('save-detail', [StorePayoutController::class, 'savePayoutDetails']);
+                Route::get('list-banks', [PaymentController::class, 'getPaymentBanks']);
+                Route::get('validate-bank-details', [PaymentController::class, 'validateBankDetails']);
                 Route::patch('{userStore}/store/{storePayoutDetail}/set-default', [StorePayoutController::class, 'setDefaultPayoutDetail']);
                 Route::get('{storePayoutDetail}/payout-detail', [StorePayoutController::class, 'showPayoutDetail']);
                 Route::patch('update-detail/{storePayoutDetail}', [StorePayoutController::class, 'updatePayoutDetail']);

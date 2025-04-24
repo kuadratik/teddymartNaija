@@ -38,4 +38,40 @@ class PaymentController extends Controller
         $res = $this->paymentService->gateway($gateway->value)->verify($attr);
         return $this->success($res);
     }
+
+
+    /**
+     * Get payment acceptable banks
+     */
+    public function getPaymentBanks(Request $request)
+    {
+        $search = $request->query('search');
+        $next = $request->query('next');
+        $prev = $request->query('prev');
+        $perPage = $request->query('per_page', 100);
+
+        $banks = $this->paymentService
+            ->gateway($request->query('payment_gateway', PaymentGatewayEnum::PAYSTACK->value))
+            ->acceptedBanks($search, $next, $prev, $perPage);
+
+        return $this->success($banks);
+    }
+
+
+    /**
+     * Validate bank details
+     */
+    public function validateBankDetails(Request $request)
+    {
+        $request->validate([
+            'account_number' => 'required|string',
+            'bank_code' => 'required|string',
+        ]);
+
+        $res = $this->paymentService
+            ->gateway($request->query('payment_gateway', PaymentGatewayEnum::PAYSTACK->value))
+            ->validateBankDetails($request->account_number, $request->bank_code);
+
+        return $this->success($res['data']);
+    }
 }
