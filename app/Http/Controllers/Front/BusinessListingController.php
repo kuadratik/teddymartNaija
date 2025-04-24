@@ -109,6 +109,21 @@ class BusinessListingController extends Controller
         abort_if($businessListing->user_id != $request->user()->id, 403, 'You are not allowed to perform this action');
 
         $businessListing->update($request->businessAttributes());
-        return $this->success($businessListing);
+
+        if ($request->has('services')) {
+            $businessListing->serviceAvailabilities()->delete();
+            foreach ($request->serviceAttributes() as $service) {
+                $serviceAvailability = $businessListing->serviceAvailabilities()->create([
+                    'service_name' => $service['service_name'],
+                    'availability_type' => $service['availability_type'],
+                ]);
+
+                if (!empty($service['time_slots'])) {
+                    $serviceAvailability->timeSlots()->createMany($service['time_slots']);
+                }
+            }
+        }
+
+        return $this->success($businessListing->load('serviceAvailabilities.timeSlots'));
     }
 }
