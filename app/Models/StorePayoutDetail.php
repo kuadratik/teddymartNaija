@@ -24,7 +24,8 @@ class StorePayoutDetail extends Model
           'transit_number',
           'sort_code',
           'interac_information',
-          'zelle_information'
+        'zelle_information',
+        'paystack_recipient_code'
      ];
 
      public function store()
