@@ -199,6 +199,12 @@ class CategorySeeder extends Seeder
                 'slug' => Str::slug('Tools & Hardware'),
                 'type' => ListingType::PRODUCT,
                 'description' => null,
+            ],
+            [
+                'name' => 'Babies & Kids',
+                'slug' => Str::slug('Babies & Kids'),
+                'type' => ListingType::PRODUCT,
+                'description' => null,
             ]
         ]);
 
