@@ -44,6 +44,14 @@ class CreateAdvertRequest extends FormRequest
             'show_secondary_email' => ['required', 'boolean'],
             'show_secondary_contact' => ['required', 'boolean'],
             'show_website_link' => ['required', 'boolean'],
+            'services' => ['nullable', 'array'],
+            'services.*.service_name' => ['required', 'string'],
+            'services.*.availability_type' => ['required', 'string'],
+            'services.*.time_slots' => ['required', 'array'],
+            'services.*.time_slots.*.day_of_week' => ['nullable', 'string'],
+            'services.*.time_slots.*.start_time' => ['required_with:services.*.time_slots', 'date_format:H:i'],
+            'services.*.time_slots.*.end_time' => ['required_with:services.*.time_slots', 'date_format:H:i', 'after:services.*.time_slots.*.start_time'],
+            'services.*.time_slots.*.date' => ['nullable', 'date_format:Y-m-d'],
         ];
     }
 
@@ -52,7 +60,7 @@ class CreateAdvertRequest extends FormRequest
      */
     public function mediaPath()
     {
-        if(!empty(basename($this->safe()->business_logo_url))) {
+        if (!empty(basename($this->safe()->business_logo_url))) {
             return collect(Utils::moveToPermanentPath([$this->safe()->business_logo_url], 'business/media'))->first();
         }
 
@@ -64,9 +72,43 @@ class CreateAdvertRequest extends FormRequest
      */
     public function businessAttributes()
     {
-        return collect($this->safe()->except('business_logo_url'))->merge([
+        return collect($this->safe()->except('business_logo_url', 'services'))->merge([
             'business_logo_url' => $this->mediaPath(),
             'user_id' => $this->user()->id
         ])->toArray();
+    }
+
+    /**
+     * Prepare service availability records
+     */
+    public function serviceAttributes(): array
+    {
+        if (!$this->has('services')) {
+            return [];
+        }
+
+        return collect($this->safe()->services)->map(function ($service) {
+            return [
+                'service_name' => $service['service_name'],
+                'availability_type' => $service['availability_type'],
+                'time_slots' => $this->prepareTimeSlots($service['time_slots'] ?? [])
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Prepare time slots records
+     */
+    private function prepareTimeSlots(array $timeSlots): array
+    {
+        return collect($timeSlots)->map(function ($slot) {
+            return [
+                'day_of_week' => $slot['day_of_week'] ?? null,
+                'start_time' => $slot['start_time'],
+                'end_time' => $slot['end_time'],
+                'is_active' => true,
+                'date' => $slot['date'] ?? null
+            ];
+        })->toArray();
     }
 }
