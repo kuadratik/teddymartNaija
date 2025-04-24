@@ -51,7 +51,7 @@ class CreateAdvertRequest extends FormRequest
             'services.*.time_slots.*.day_of_week' => ['nullable', 'string'],
             'services.*.time_slots.*.start_time' => ['required_with:services.*.time_slots', 'date_format:H:i'],
             'services.*.time_slots.*.end_time' => ['required_with:services.*.time_slots', 'date_format:H:i', 'after:services.*.time_slots.*.start_time'],
-            'services.*.time_slots.*.date' => ['date_format:Y-m-d', 'nullable'],
+            'services.*.time_slots.*.date' => ['nullable', 'date_format:Y-m-d'],
         ];
     }
 
@@ -103,7 +103,7 @@ class CreateAdvertRequest extends FormRequest
     {
         return collect($timeSlots)->map(function ($slot) {
             return [
-                'day_of_week' => $slot['day_of_week'],
+                'day_of_week' => $slot['day_of_week'] ?? null,
                 'start_time' => $slot['start_time'],
                 'end_time' => $slot['end_time'],
                 'is_active' => true,
