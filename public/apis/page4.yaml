@@ -302,7 +302,7 @@ paths:
       tags:
         - Business Listing
       summary: Update Business Listing
-      description: Update an existing business listing by ID.
+      description: Update an existing business listing by ID with optional service availability
       operationId: UpdateBusinessListing
       parameters:
         - name: id
@@ -402,13 +402,46 @@ paths:
                   type: boolean
                   example: true
                   required: false
+                services:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      service_name:
+                        type: string
+                        example: "Hair Styling"
+                      availability_type:
+                        type: string
+                        enum: [flex, frame]
+                        example: "flex"
+                      time_slots:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            day_of_week:
+                              type: string
+                              enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
+                              required: false
+                            start_time:
+                              type: string
+                              format: HH:mm
+                              example: "09:00"
+                            end_time:
+                              type: string
+                              format: HH:mm
+                              example: "17:00"
+                            date:
+                              type: string
+                              format: date
+                              example: "2023-12-31"
       responses:
         default:
-            description: "success"
-            content:
-              application/json:
-                schema:
-                  type: object
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
 
   /chats:
     get:
