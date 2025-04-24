@@ -44,6 +44,14 @@ class UpdateBusinessListingRequest extends FormRequest
             'show_secondary_email' => ['sometimes', 'boolean'],
             'show_secondary_contact' => ['sometimes', 'boolean'],
             'show_website_link' => ['sometimes', 'boolean'],
+            'services' => ['nullable', 'array'],
+            'services.*.service_name' => ['required', 'string'],
+            'services.*.availability_type' => ['required', 'string'],
+            'services.*.time_slots' => ['required', 'array'],
+            'services.*.time_slots.*.day_of_week' => ['nullable', 'string'],
+            'services.*.time_slots.*.start_time' => ['required_with:services.*.time_slots', 'date_format:H:i'],
+            'services.*.time_slots.*.end_time' => ['required_with:services.*.time_slots', 'date_format:H:i', 'after:services.*.time_slots.*.start_time'],
+            'services.*.time_slots.*.date' => ['nullable', 'date_format:Y-m-d'],
         ];
     }
 
@@ -64,8 +72,42 @@ class UpdateBusinessListingRequest extends FormRequest
      */
     public function businessAttributes()
     {
-        return collect($this->safe()->except('business_logo_url'))
+        return collect($this->safe()->except('business_logo_url', 'services'))
             ->put('business_logo_url', $this->media())
             ->toArray();
+    }
+
+    /**
+     * Prepare service availability records
+     */
+    public function serviceAttributes(): array
+    {
+        if (!$this->has('services')) {
+            return [];
+        }
+
+        return collect($this->safe()->services)->map(function ($service) {
+            return [
+                'service_name' => $service['service_name'],
+                'availability_type' => $service['availability_type'],
+                'time_slots' => $this->prepareTimeSlots($service['time_slots'] ?? [])
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Prepare time slots records
+     */
+    private function prepareTimeSlots(array $timeSlots): array
+    {
+        return collect($timeSlots)->map(function ($slot) {
+            return [
+                'day_of_week' => $slot['day_of_week'] ?? null,
+                'start_time' => $slot['start_time'],
+                'end_time' => $slot['end_time'],
+                'is_active' => true,
+                'date' => $slot['date'] ?? null
+            ];
+        })->toArray();
     }
 }
