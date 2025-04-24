@@ -7,6 +7,8 @@ use App\Models\StorePayoutDetail;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
+use App\Rules\ValidateBankDetailsRule;
+use App\Rules\CreatePaystackRecipientRule;
 
 class SavePayoutDetailRequest extends FormRequest
 {
@@ -32,15 +34,16 @@ class SavePayoutDetailRequest extends FormRequest
             ],
             'detail_type' => ['required', new Enum(PayoutDetailType::class)],
             'account_name' => ['required', 'string'],
-            'account_number' => ['required'],
+            'account_number' => ['required', new ValidateBankDetailsRule($this->input('bank_code'), $this->input('detail_type'))],
             'bank_name' => ['required', 'string'],
-            'bank_code' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
+            'bank_code' => ['nullable', 'string'],
             'iban' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
             'institution_number' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
             'transit_number' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
             'sort_code' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
             'interac_information' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
             'zelle_information' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
+            'paystack_recipient_code' => ['nullable', new CreatePaystackRecipientRule($this->input('detail_type'))],
         ];
     }
 
