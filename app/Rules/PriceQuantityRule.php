@@ -19,7 +19,7 @@ class PriceQuantityRule implements ValidationRule
      *
      * @param float|null $price
      */
-    public function __construct(float $price)
+    public function __construct($price)
     {
         $this->price = $price;
     }
@@ -33,6 +33,9 @@ class PriceQuantityRule implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        if (is_null($this->price)) {
+            $fail('The price is required to validate the quantity.');
+        }
         if ($this->price < 1000000 && $value < 5) {
             $fail('For prices below 1,000,000 the quantity must be at least 5');
         }
