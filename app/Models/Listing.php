@@ -81,21 +81,23 @@ class Listing extends Model
             $model->slug = str("{$model->name}-" . Str::random(6))->slug();
 
             $companyRate = env('COMPANY_RATE', 0.13);
-            $basePrice = $model->discount > 0
-                ? $model->price * (1 - ($model->discount / 100))
+            $discount = $model->discount ?? 0;
+            $basePrice = $discount > 0
+                ? $model->price * (1 - ($discount / 100))
                 : $model->price;
 
-            $model->discounted_price = $model->discount > 0 ? $basePrice : null;
+            $model->discounted_price = $discount > 0 ? $basePrice : null;
             $model->display_price = $basePrice * (1 + $companyRate);
         });
 
         static::updating(function (Listing $model) {
             $companyRate = env('COMPANY_RATE', 0.13);
-            $basePrice = $model->discount > 0
-                ? $model->price * (1 - ($model->discount / 100))
+            $discount = $model->discount ?? 0;
+            $basePrice = $discount > 0
+                ? $model->price * (1 - ($discount / 100))
                 : $model->price;
 
-            $model->discounted_price = $model->discount > 0 ? $basePrice : null;
+            $model->discounted_price = $discount > 0 ? $basePrice : null;
             $model->display_price = $basePrice * (1 + $companyRate);
         });
     }
