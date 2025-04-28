@@ -208,6 +208,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('create', [BusinessListingController::class, 'create']);
             Route::delete('{businessListing}/delete', [BusinessListingController::class, 'delete']);
             Route::put('{businessListing}/update', [BusinessListingController::class, 'update']);
+            Route::post('{businessListing}/book-service', [BusinessListingController::class, 'bookService']);
         });
 
         Route::prefix('user')->group(function () {
