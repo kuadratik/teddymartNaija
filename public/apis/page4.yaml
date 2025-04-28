@@ -443,6 +443,58 @@ paths:
               schema:
                 type: object
 
+  /front/business-listings/{businessListing}/book-service:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Book a service time slot
+      description: Book a service time slot for a business listing
+      operationId: BookService
+      parameters:
+        - in: path
+          name: businessListing
+          schema:
+            type: integer
+            example: 1
+          required: true
+          description: ID of the business listing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                business_service_id:
+                  type: number
+                  example: 1
+                  description: ID of the business service to book
+                service_time_id:
+                  type: number
+                  example: 1
+                  description: ID of the time slot to book
+                cus_phone_number:
+                  type: string
+                  example: "+1234567890"
+                  description: Customer's phone number
+                cus_email:
+                  type: string
+                  example: "customer@example.com"
+                  description: Customer's email address
+                cus_fullname:
+                  type: string
+                  example: "John Doe"
+                  description: Customer's full name
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /chats:
     get:
       security:

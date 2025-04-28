@@ -6,11 +6,15 @@ use App\Actions\Customer\BusinessScrapeAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Advert\CreateAdvertRequest;
 use App\Http\Requests\Advert\UpdateBusinessListingRequest;
+use App\Http\Requests\Booking\BookServiceRequest;
 use App\Models\BusinessListing;
+use App\Models\BusinessServiceTimeSlot;
 use App\Models\Industry;
+use App\Models\UserBookBusinessService;
 use App\Notifications\Listing\BizListedNotification;
 use App\Support\Utils;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 class BusinessListingController extends Controller
@@ -62,8 +66,29 @@ class BusinessListingController extends Controller
      */
     public function show(BusinessListing $businessListing)
     {
-        return $this->success($businessListing->load(['industry', 'country']));
+        return $this->success($businessListing->load([
+            'industry',
+            'country',
+            'serviceAvailabilities',
+            'serviceAvailabilities.timeSlots'
+        ]));
     }
+
+    /**
+     * Book a service time slot for a business listing
+     */
+    public function bookService(BookServiceRequest $request, BusinessListing $businessListing)
+    {
+        return DB::transaction(function () use ($request, $businessListing) {
+            $booking = UserBookBusinessService::create($request->bookingAttributes($businessListing));
+
+            BusinessServiceTimeSlot::where('id', $request->validated('service_time_id'))
+                ->update(['is_active' => false]);
+
+            return $this->success($booking, 'Service time slot booked successfully.');
+        });
+    }
+
 
     /**
      * Create business listings
