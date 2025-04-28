@@ -30,4 +30,15 @@ class BusinessServiceTimeSlot extends Model
     {
         return $this->belongsTo(BusinessServiceAvailability::class, 'business_availability_id');
     }
+
+    /**
+     * Scope to get booked slots.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeBooked($query)
+    {
+        return $query->where('is_active', false);
+    }
 }
