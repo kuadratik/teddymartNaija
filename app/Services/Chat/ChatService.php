@@ -103,6 +103,7 @@ class ChatService
                 'read_at' => now()->subMinutes(1),
             ],
         ];
+
         ChatUser::upsert($chatUsers, ['chat_id', 'user_id']);
 
         if (! $existingChat) {
@@ -119,7 +120,7 @@ class ChatService
      */
     private function sendCustomerInquiryEmail($customer, $vendor)
     {
-        $vendor->notify(new CustomerInquiryEmailNotification($vendor));
+        $customer->notify(new CustomerInquiryEmailNotification($vendor));
     }
 
     /**
@@ -162,6 +163,10 @@ class ChatService
             if ($listing->type === ListingType::SERVICE->value) {
                 ServiceInteraction::firstOrCreate(['listing_id' => $listing->id, 'user_id' => $user->id]);
             }
+            $respondent->notify(new ListingInquiryNotification($respondent->toArray(), $listing));
+        }
+
+        if (request()->convoRoute === 'directory' && $listing) {
             $respondent->notify(new ListingInquiryNotification($respondent->toArray(), $listing));
         }
     }

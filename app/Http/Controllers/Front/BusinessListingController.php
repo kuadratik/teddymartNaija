@@ -11,6 +11,7 @@ use App\Models\BusinessListing;
 use App\Models\BusinessServiceTimeSlot;
 use App\Models\Industry;
 use App\Models\UserBookBusinessService;
+use App\Notifications\Booking\NewBookingNotification;
 use App\Notifications\Listing\BizListedNotification;
 use App\Support\Utils;
 use Illuminate\Http\Request;
@@ -84,6 +85,9 @@ class BusinessListingController extends Controller
 
             BusinessServiceTimeSlot::where('id', $request->validated('service_time_id'))
                 ->update(['is_active' => false]);
+
+            $businessOwner = $businessListing->user;
+            $businessOwner->notify(new NewBookingNotification($booking, $businessListing));
 
             return $this->success($booking, 'Service time slot booked successfully.');
         });

@@ -88,6 +88,16 @@ class BusinessListing extends Model
     }
 
     /**
+     * Get the user that owns the BusinessListing
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
      * Scope search
      */
     public function scopeSearch($query, mixed $search)
