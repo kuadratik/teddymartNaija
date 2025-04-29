@@ -32,12 +32,11 @@ class StoreService
     {
         $query = $userStore->listings()
             ->when($request->filled('search'), function ($q) use ($request) {
-            $searchTerm = '%' . $request->search . '%';
+            $searchTerm = '%' . strtolower($request->query('search')) . '%';
 
-            return $q->where(function ($query) use ($searchTerm) {
-                    $query->where('name', 'like', $searchTerm)
-                        ->orWhere('description', 'like', $searchTerm)
-                        ->orWhere('slug', 'like', $searchTerm);
+            $q->where(function ($query) use ($searchTerm) {
+                $query->whereRaw('LOWER(name) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(slug) LIKE ?', [$searchTerm]);
                 });
             })
             ->when($request->filled('availability'), function ($q) use ($request) {
@@ -62,7 +61,7 @@ class StoreService
             })
             ->with('ratings');
 
-        return $query->paginate();
+        return $query->paginate($request->query('per_page', 15));
     }
 
     /**
