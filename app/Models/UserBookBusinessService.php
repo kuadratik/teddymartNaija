@@ -18,4 +18,25 @@ class UserBookBusinessService extends Model
         'cus_email',
         'cus_fullname',
     ];
+
+
+    /**
+     * Get the business listing that owns the UserBookBusinessService
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function businessListing()
+    {
+        return $this->belongsTo(BusinessListing::class, 'business_listing_id', 'id');
+    }
+
+    /**
+     * Get the business service that owns the UserBookBusinessService
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function businessService()
+    {
+        return $this->belongsTo(BusinessServiceAvailability::class, 'business_service_id', 'id');
+    }
 }
