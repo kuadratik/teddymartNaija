@@ -365,7 +365,6 @@ class PayPalEventBus implements ShouldQueue
     {
         $customId = $payload['resource']['purchase_units'][0]['custom_id'] ?? $payload['resource']['custom_id'] ?? '';
         $customData = json_decode($customId, true);
-
         return $customData['order_number'] ?? '';
     }
 
@@ -438,7 +437,7 @@ class PayPalEventBus implements ShouldQueue
      */
     private function checkAndNotifyStockLevels($listing): void
     {
-        $listing =  $listing->loade('user')->refresh();
+        $listing =  $listing->load('user')->refresh();
         $quantity = $listing->quantity;
         $price = $listing->price;
 
