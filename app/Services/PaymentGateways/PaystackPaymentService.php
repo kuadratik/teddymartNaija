@@ -144,8 +144,8 @@ class PaystackPaymentService implements PaymentGatewayInterface
         if ($orders->isNotEmpty()) {
             foreach ($orders as $order) {
 
-                if ($order->payment_status == OrderStatusEnum::PENDING_PAYMENT->value) {
-                    $order->update(['payment_status' => OrderStatusEnum::PENDING]);
+                if ($order->payment_status == OrderStatusEnum::PENDING_PAYMENT->value && !OrderStatusEnum::COMPLETED_PAYMENT->value) {
+                    $order->update(['payment_status' => $transactionData['status']]);
                 }
 
                 $orderDetails = $order->load(['orderDetails', 'store']);
