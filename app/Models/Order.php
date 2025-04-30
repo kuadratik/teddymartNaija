@@ -54,6 +54,25 @@ class Order extends Model
 
 
     /**
+     * Get the payout amount.
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    public function payoutAmount(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $companyRate = (float) env('COMPANY_RATE', 0.1);
+                if ($companyRate >= 1 || $companyRate < 0) {
+                    return round($this->subtotal);
+                }
+                return round($this->subtotal / (1 + $companyRate));
+            }
+        );
+    }
+
+
+    /**
      * Get the formatted order number attribute.
      *
      * @return \Illuminate\Database\Eloquent\Casts\Attribute
