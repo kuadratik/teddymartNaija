@@ -1341,3 +1341,67 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /store/payout/{userStore}/send-otp:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Send OTP for Payout Details
+      description: Send a one-time password (OTP) to the user's email for payout details verification.
+      operationId: SendPayoutDetailsOtp
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+          description: The slug or identifier of the user store.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
+  /store/payout/{userStore}/verify-otp:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Verify OTP for Payout Details
+      description: Verify the one-time password (OTP) sent to the user's email for payout details verification.
+      operationId: VerifyPayoutDetailsOtp
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+          description: The slug or identifier of the user store.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                otp:
+                  type: string
+                  example: "123456"
+                  description: The OTP sent to the user's email.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
+

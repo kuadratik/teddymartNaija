@@ -142,6 +142,8 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::get('{storePayoutDetail}/payout-detail', [StorePayoutController::class, 'showPayoutDetail']);
                 Route::patch('update-detail/{storePayoutDetail}', [StorePayoutController::class, 'updatePayoutDetail']);
                 Route::delete('delete-detail/{storePayoutDetail}', [StorePayoutController::class, 'deletePayoutDetail']);
+                Route::post('{userStore}/send-otp', [StorePayoutController::class, 'sendPayoutDetailsOtp']);
+                Route::post('{userStore}/verify-otp', [StorePayoutController::class, 'verifyPayoutDetailsOtp']);
             });
         });
 
