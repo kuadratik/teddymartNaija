@@ -59,7 +59,7 @@ class BookServiceRequest extends FormRequest
             logger()->info('User ID:', ['user_id' => $user]);
 
             $existingBooking = UserBookBusinessService::where('user_id', $user->id)
-                ->where('business_service_id', $this->input('business_service_id'))
+                ->where(['business_service_id' => $this->input('business_service_id'), 'service_time_id' => $this->input('service_time_id')])
                 ->exists();
 
             if ($existingBooking) {
