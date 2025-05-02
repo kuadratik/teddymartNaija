@@ -19,9 +19,14 @@ class ListingAttribute extends Model
         'size_chart_image'
     ];
 
+    /**
+     * @todo theres is a bug on the cast it should be casts but i left it cause frontend it will affect them cause they are already decoding the json
+     * The attributes that should be casts
+     */
     protected $cast = [
         'size' => 'array',
         'tags' => 'array',
+        'measurement' => 'array',
     ];
 
     public function listing()
