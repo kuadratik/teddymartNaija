@@ -53,6 +53,10 @@ class Order extends Model
     ];
 
 
+    protected $appends = [
+        'payout_amount',
+    ];
+
     /**
      * Get the payout amount.
      *

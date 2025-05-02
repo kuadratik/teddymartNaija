@@ -206,7 +206,8 @@ class Listing extends Model
     {
         return $query->where(function ($query) use ($search) {
             $query->where('name', 'like', "%{$search}%")
-                ->orWhereHas('store', fn($query) => $query->where('name', 'like', "%{$search}%"));
+                ->orWhereHas('store', fn($q) => $q->where('name', 'like', "%{$search}%"))
+                ->orWhereHas('attributes', fn($q) => $q->where('tags', 'like', "%{$search}%"));
         });
     }
 
