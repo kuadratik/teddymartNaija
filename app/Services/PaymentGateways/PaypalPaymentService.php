@@ -42,9 +42,7 @@ class PaypalPaymentService implements PaymentGatewayInterface
                 0 => [
                     "amount" => [
                         "currency_code" => $data['currency_code'],
-                        "value" => intval(
-                            round($data['total_amount'])
-                        ),
+                        "value" => number_format($data['total_amount'], 2, '.', ''), // Ensure two decimal places
                     ],
                     "custom_id" => json_encode([
                         'order_number' => $data['order_number'],
