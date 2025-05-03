@@ -47,6 +47,7 @@ class PaystackEventBus implements ShouldQueue
                 'charge.success' => $this->processSuccessfulCharge($payload),
                 'charge.failed' => $this->processFailedCharge($payload),
                 'transfer.success' => $this->processTransferSuccess($payload),
+                'transfer.failed' => $this->processTranferFailed($payload),
                 default => Log::warning('Unhandled Paystack event type', ['event_type' => $eventType]),
             };
         } catch (\Exception $e) {
@@ -57,7 +58,6 @@ class PaystackEventBus implements ShouldQueue
             throw $e;
         }
     }
-
 
     /**
      * Process a successful charge
@@ -100,46 +100,107 @@ class PaystackEventBus implements ShouldQueue
         }
 
         DB::transaction(function () use ($transferDetails, $payload) {
+
             Log::info('Transfer successful', ['details' => json_encode($transferDetails)]);
 
-            $payment = Payment::create([
-                'reference' => $transferDetails['reference'] ?? '',
-                'amount' => ($transferDetails['amount'] ?? 0) / 100,
-                'currency' => $transferDetails['currency'] ?? CurrencyCodeEnum::NGN->value,
-                'gateway' => PaymentGatewayEnum::PAYSTACK->value,
-                'status' => $transferDetails['status'] ?? PaymentStatusEnum::SUCCESS->value,
-                'description' => $transferDetails['reason'] ?? 'Payment Transfer',
-                'meta' => json_encode($transferDetails),
-            ]);
+            $order = Order::where('uid', $transferDetails['reference'])->whereNot('payout_status', OrderStatusEnum::COMPLETED->value)->first();
+            if ($order) {
+                $payment = Payment::create([
+                    'reference' => $transferDetails['reference'] ?? '',
+                    'amount' => ($transferDetails['amount'] ?? 0) / 100,
+                    'currency' => $transferDetails['currency'] ?? CurrencyCodeEnum::NGN->value,
+                    'gateway' => PaymentGatewayEnum::PAYSTACK->value,
+                    'status' => $transferDetails['status'] ?? PaymentStatusEnum::SUCCESS->value,
+                    'description' => $transferDetails['reason'] ?? 'Payment Transfer',
+                    'meta' => json_encode($transferDetails),
+                ]);
 
-            PaymentTransaction::create([
-                'payment_id' => $payment->id,
-                'reference' => $transferDetails['id'] ?? '',
-                'type' => PaymentTransactionTypeEnum::TRANSFER,
-                'amount' => ($transferDetails['amount'] ?? 0) / 100,
-                'currency' => $transferDetails['currency'] ?? CurrencyCodeEnum::NGN->value,
-                'is_success' => true,
-                'status_message' => 'Transfer successful',
-                'response_payload' => json_encode($payload),
-            ]);
+                PaymentTransaction::create([
+                    'payment_id' => $payment->id,
+                    'reference' => $transferDetails['id'] ?? '',
+                    'type' => PaymentTransactionTypeEnum::TRANSFER,
+                    'amount' => ($transferDetails['amount'] ?? 0) / 100,
+                    'currency' => $transferDetails['currency'] ?? CurrencyCodeEnum::NGN->value,
+                    'is_success' => true,
+                    'status_message' => 'Transfer successful',
+                    'response_payload' => json_encode($payload),
+                ]);
+                $order->update([
+                    'payout_status' => OrderStatusEnum::COMPLETED->value,
+                ]);
 
-            $order = Order::where("uid", $transferDetails['reference'])->update([
-                'payout_status' => OrderStatusEnum::COMPLETED->value,
-            ]);
+                $order->payout()->update([
+                    'status' => OrderStatusEnum::COMPLETED->value,
+                    'is_approved' => true,
+                    'paid_at' => $transferDetails['updated_at'] ?? now(),
+                ]);
 
-            $order->payout()->update([
-                'status' => OrderStatusEnum::COMPLETED->value,
-                'is_approved' => true,
-                'paid_at' => $transferDetails['updated_at'] ?? now(),
-            ]);
+                $order->store->user->notify(new PayoutCompletedNotification($order->payout->amount, $order->payout->paid_at));
 
-            $order->vendor->notify(new PayoutCompletedNotification($order->payout->amount, $order->payout->paid_at));
+                Log::info('Transfer payment processed', [
+                    'order_id' => $order->id,
+                    'payment_reference' => $transferDetails['reference'] ?? '',
+                    'status' => $transferDetails['status'] ?? 'unknown',
+                ]);
+            }
+        });
+    }
 
-            Log::info('Transfer payment processed', [
-                'order_id' => $order->id,
-                'payment_reference' => $transferDetails['reference'] ?? '',
-                'status' => $transferDetails['status'] ?? 'unknown',
-            ]);
+
+    /**
+     * Handle Transfer Failed event
+     */
+    protected function processTranferFailed(array $payload): void
+    {
+        $transferDetails = $payload['data'] ?? null;
+
+        if (! $transferDetails) {
+            Log::error('Transfer details are missing', ['payload' => json_encode($payload)]);
+
+            return;
+        }
+
+        DB::transaction(function () use ($transferDetails, $payload) {
+            Log::info('Transfer failed', ['details' => json_encode($transferDetails)]);
+
+            $order = Order::where('uid', $transferDetails['reference'])
+                ->whereNot('payout_status', OrderStatusEnum::COMPLETED->value)
+                ->whereNot('payout_status', OrderStatusEnum::FAILED->value)
+                ->first();
+            if ($order) {
+
+                $payment = Payment::create([
+                    'reference' => $transferDetails['reference'] ?? '',
+                    'amount' => ($transferDetails['amount'] ?? 0) / 100,
+                    'currency' => $transferDetails['currency'] ?? CurrencyCodeEnum::NGN->value,
+                    'gateway' => PaymentGatewayEnum::PAYSTACK->value,
+                    'status' => $transferDetails['status'] ?? PaymentStatusEnum::FAILED->value,
+                    'description' => $transferDetails['reason'] ?? 'Payment Transfer Failed',
+                    'meta' => json_encode($transferDetails),
+                ]);
+
+                PaymentTransaction::create([
+                    'payment_id' => $payment->id,
+                    'reference' => $transferDetails['id'] ?? '',
+                    'type' => PaymentTransactionTypeEnum::TRANSFER,
+                    'amount' => ($transferDetails['amount'] ?? 0) / 100,
+                    'currency' => $transferDetails['currency'] ?? CurrencyCodeEnum::NGN->value,
+                    'is_success' => false,
+                    'status_message' => 'Transfer failed',
+                    'response_payload' => json_encode($payload),
+                ]);
+
+                $order->payout()->update([
+                    'status' => OrderStatusEnum::FAILED->value,
+                    'is_approved' => false,
+                ]);
+
+                Log::info('Transfer payment failed', [
+                    'order_id' => $order->id,
+                    'payment_reference' => $transferDetails['reference'] ?? '',
+                    'status' => $transferDetails['status'] ?? 'unknown',
+                ]);
+            }
         });
     }
 
