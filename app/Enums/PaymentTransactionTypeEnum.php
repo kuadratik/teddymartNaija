@@ -10,6 +10,7 @@ enum PaymentTransactionTypeEnum: string
     case REFUND = 'refund';
     case VOID = 'void';
     case VERIFICATION = 'verification';
+    case TRANSFER = 'transfer';
 
     public static function values(): array
     {

@@ -4,22 +4,18 @@ namespace App\Services\PaymentGateways;
 
 use App\Contracts\PaymentGatewayInterface;
 use App\Enums\OrderStatusEnum;
-use App\Enums\PaymentStatusEnum;
 use App\Enums\PaymentType;
 use App\Models\AdvertListingPromotePlan;
 use App\Models\Order;
-use App\Models\OrderDetail;
 use App\Models\StorePayoutDetail;
 use App\Models\StorePromotePlanStore;
-use AWS\CRT\HTTP\Message;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class PaystackPaymentService implements PaymentGatewayInterface
 {
-    public function __construct(private readonly string|null $secretKey)
+    public function __construct(private readonly ?string $secretKey)
     {
         //
     }
@@ -32,12 +28,12 @@ class PaystackPaymentService implements PaymentGatewayInterface
         $response = Http::withToken($this->secretKey)->post(config('services.paystack.payment_url') . '/transaction/initialize', [
             'email' => $data['email'] ?? Auth::user()->email,
             'amount' => $data['total_amount'] * 100,
-            "currency" => $data['currency_code'],
-            "callback_url" => $data['return_url'] ?? route('payment.success'),
+            'currency' => $data['currency_code'],
+            'callback_url' => $data['return_url'] ?? route('payment.success'),
             'metadata' => [
                 'order_number' => $data['order_number'],
                 'type' => $data['type'] ?? PaymentType::CHECKOUT->value,
-                "cancel_url" => $data['cancel_url'] ?? route('payment.cancel'),
+                'cancel_url' => $data['cancel_url'] ?? route('payment.cancel'),
             ],
         ]);
 
@@ -56,10 +52,9 @@ class PaystackPaymentService implements PaymentGatewayInterface
     {
         $token = $data['token'];
 
-
         $response = $this->verifyPaystackTransaction($token);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return $this->handleVerificationFailure($response);
         }
 
@@ -87,18 +82,19 @@ class PaystackPaymentService implements PaymentGatewayInterface
     {
 
         $recipientId = $payoutDetail->paystack_recipient_code;
-        if (!$recipientId) {
+        if (! $recipientId) {
             $recipientResponse = $this->createTransferRecipient(
                 $payoutDetail->account_name,
                 $payoutDetail->account_number,
                 $payoutDetail->bank_code
             );
 
-            if ($recipientResponse['status'] !== 'success') {
+            if (!$recipientResponse['status']) {
                 Log::error('Failed to create Paystack recipient', [
                     'order_id' => $order->id,
                     'response' => $recipientResponse,
                 ]);
+
                 return [];
             }
 
@@ -109,13 +105,14 @@ class PaystackPaymentService implements PaymentGatewayInterface
         $transferResponse = Http::withToken($this->secretKey)
             ->post(config('services.paystack.payment_url') . '/transfer', [
                 'source' => 'balance',
-                'amount' => intval(round($order->total_amount * 100)),
+            'amount' => $order->total_amount * 100,
                 'currency' => $order->currency,
                 'recipient' => $recipientId,
                 'reason' => "Payout for order {$order->order_number}",
+            'reference' => $order->uid,
             ]);
 
-        if (!$transferResponse->successful()) {
+        if (! $transferResponse->successful()) {
             Log::error('Failed to process Paystack transfer', [
                 'order_id' => $order->id,
                 'response' => $transferResponse->json(),
@@ -135,6 +132,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
                 'account_number' => $accountNumber,
                 'bank_code' => $bankCode,
             ]);
+
         return $response->json();
     }
 
@@ -160,7 +158,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
      */
     public function acceptedBanks(?string $search = null, ?string $next = null, ?string $prev = null, int $perPage = 100): array
     {
-        $banks =  Http::withToken(config('paystack.secret_key'))
+        $banks = Http::withToken(config('paystack.secret_key'))
             ->get(
                 'https://api.paystack.co/bank',
                 [
@@ -168,9 +166,10 @@ class PaystackPaymentService implements PaymentGatewayInterface
                     'next' => $next,
                     'previous' => $prev,
                     'country' => 'nigeria',
-                    'use_cursor' => true,
+                'use_cursor' => false,
                 ]
             );
+
         return ['banks' => $banks['data'], 'meta' => $banks['meta'] ?? null];
     }
 
@@ -189,10 +188,11 @@ class PaystackPaymentService implements PaymentGatewayInterface
     private function handleVerificationFailure($response): array
     {
         $responseData = $response->json();
+
         return [
             'status' => 'error',
             'message' => $responseData['message'] ?? 'Failed to verify transaction',
-            'code' => $responseData['code'] ?? null
+            'code' => $responseData['code'] ?? null,
         ];
     }
 
@@ -204,10 +204,9 @@ class PaystackPaymentService implements PaymentGatewayInterface
         return [
             'status' => 'failed',
             'message' => $responseData['message'] ?? 'Transaction verification failed',
-            'code' => $responseData['code'] ?? null
+            'code' => $responseData['code'] ?? null,
         ];
     }
-
 
     /**
      * handles payment transaction is success
@@ -218,7 +217,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
             return [
                 'status' => 'failed',
                 'message' => $transactionData['message'] ?? 'Transaction not successful',
-                'data' => $transactionData
+                'data' => $transactionData,
             ];
         }
 
@@ -240,7 +239,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
         if ($orders->isNotEmpty()) {
             foreach ($orders as $order) {
 
-                if ($order->payment_status == OrderStatusEnum::PENDING_PAYMENT->value && !OrderStatusEnum::COMPLETED_PAYMENT->value) {
+                if ($order->payment_status == OrderStatusEnum::PENDING_PAYMENT->value && ! OrderStatusEnum::COMPLETED_PAYMENT->value) {
                     $order->update(['payment_status' => $transactionData['status']]);
                 }
 
@@ -249,6 +248,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
                 $mergedOrderDetails[] = $orderDetails->toArray();
             }
         }
+
         return $mergedOrderDetails;
     }
 
@@ -259,7 +259,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
     {
         $advert = AdvertListingPromotePlan::where([
             'order_number' => $transactionData['metadata']['order_number'],
-            'status' => OrderStatusEnum::PENDING_PAYMENT
+            'status' => OrderStatusEnum::PENDING_PAYMENT,
         ])->first();
 
         if ($advert) {
@@ -278,7 +278,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
     {
         $promotion = StorePromotePlanStore::where([
             'order_number' => $transactionData['metadata']['order_number'],
-            'status' => OrderStatusEnum::PENDING_PAYMENT
+            'status' => OrderStatusEnum::PENDING_PAYMENT,
         ])->first();
 
         if ($promotion) {
