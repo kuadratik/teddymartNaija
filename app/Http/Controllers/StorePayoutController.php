@@ -2,163 +2,97 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\OrderStatusEnum;
-use App\Enums\PaymentGatewayEnum;
 use App\Http\Requests\Store\SavePayoutDetailRequest;
 use App\Http\Requests\Store\VerifyOtpRequest;
 use App\Models\Order;
 use App\Models\Store;
 use App\Models\StorePayoutDetail;
-use App\Models\Otp;
-use App\Rules\ValidOtp;
+use App\Services\PayoutService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use App\Notifications\SendOtpNotification;
 
 class StorePayoutController extends Controller
 {
-    /**
-     *  Get requestable payout orders
-     */
-    public function getRequestPayoutOrders(Request $request, Store $userStore)
-    {
-        abort_if($userStore->user_id !== $request->user()->id, 403);
-        $deliverdOrders = $userStore->orders()->payoutable()->paginate(20);
+    use AuthorizesRequests;
 
+    public function __construct(protected PayoutService $payoutService) {}
+
+    public function getRequestPayoutOrders(Store $userStore)
+    {
+        $this->authorize('view', $userStore);
+        $deliverdOrders = $this->payoutService->getRequestPayoutOrders($userStore);
         return $this->success($deliverdOrders);
     }
 
-    /**
-     *  Get processed payout orders
-     */
-    public function getProcessedPayouts(Request $request, Store $userStore)
+    public function getProcessedPayouts(Store $userStore)
     {
-        abort_if($userStore->user_id !== $request->user()->id, 403);
-        $orders = $userStore->orders()->paidPayouts()->paginate(20);
-
+        $this->authorize('view', $userStore);
+        $orders = $this->payoutService->getProcessedPayouts($userStore);
         return $this->success($orders);
     }
 
-    /**
-     *  Process payout orders
-     */
     public function processPayout(Request $request, Store $userStore, Order $order)
     {
-        abort_if($userStore->user_id !== $request->user()->id, 403);
-        abort_if($userStore->payoutDetails()->doesntExist(), 422, 'To proceed , please fill your payout information');
-        abort_if($order->status !== OrderStatusEnum::COMPLETED->value, 422, 'Order status must be COMPLETED to process payout');
-        $order->update(['payout_status' => OrderStatusEnum::PROCESSING->value]);
+        $this->authorize('view', $userStore);
+        $this->payoutService->processPayout($userStore, $order);
         return $this->success();
     }
 
-    /**
-     *  Get payout details
-     */
     public function getPayoutDetails(Store $userStore)
     {
-        $payoutDetails = StorePayoutDetail::where('store_id', $userStore->id)->get();
+        $payoutDetails = $this->payoutService->getPayoutDetails($userStore);
+
         return $this->success($payoutDetails);
     }
 
-    /**
-     *  Save payout details
-     */
     public function savePayoutDetails(SavePayoutDetailRequest $request)
     {
-        StorePayoutDetail::create($request->payoutAttributes());
+        $this->payoutService->savePayoutDetails($request->payoutAttributes());
+
         return $this->success();
     }
 
-
-
-
-    /**
-     *  Show payout detail
-     */
-    public function showPayoutDetail(StorePayoutDetail $storePayoutDetail)
+    public function updatePayoutDetail(Request $request, Store $userStore, StorePayoutDetail $storePayoutDetail)
     {
-        return $this->success($storePayoutDetail);
-    }
-
-    /**
-     *  Update payout details
-     */
-    public function updatePayoutDetail(
-        Request $request,
-        Store $userStore,
-        StorePayoutDetail $storePayoutDetail
-    ) {
-
         $validatedData = $request->validate([
             'bank_name' => ['required', 'string'],
             'account_name' => ['required', 'string'],
-            'account_number' => ['required']
+            'account_number' => ['required'],
         ]);
 
-        $storePayoutDetail->update($validatedData);
+        $this->payoutService->updatePayoutDetail($storePayoutDetail, $validatedData);
+
         return $this->success();
     }
 
-    /**
-     *  Set default payout detail
-     */
     public function setDefaultPayoutDetail(Store $userStore, StorePayoutDetail $storePayoutDetail)
     {
-
-        DB::transaction(function () use ($userStore, $storePayoutDetail) {
-
-            StorePayoutDetail::where('store_id', $userStore->id)->update([
-                'is_default' => false
-            ]);
-
-            $storePayoutDetail->update(['is_default' => true]);
-        });
+        $this->payoutService->setDefaultPayoutDetail($userStore, $storePayoutDetail);
 
         return $this->success();
     }
 
-    /**
-     *  Delete payout detail
-     */
     public function deletePayoutDetail(Store $userStore, StorePayoutDetail $storePayoutDetail)
     {
-        $storePayoutDetail->delete();
+        $this->payoutService->deletePayoutDetail($storePayoutDetail);
+
         return $this->success();
     }
 
-
-    /**
-     * Sends OTP to user's email for payout details verification
-     */
     public function sendPayoutDetailsOtp(Request $request, Store $userStore)
     {
-        abort_if($userStore->user_id !== $request->user()->id, 403);
+        $this->authorize('view', $userStore);
 
-        $otp = random_int(100000, 999999);
-        Otp::updateOrCreate(
-            ['email' => $request->user()->email],
-            [
-                'otp' => Hash::make($otp),
-                'expires_at' => now()->addMinutes(5),
-                'is_used' => false,
-            ]
-        );
-
-        $request->user()->notify(new SendOtpNotification($otp));
+        $this->payoutService->sendPayoutDetailsOtp($request->user());
 
         return $this->success([], 'OTP sent successfully.');
     }
 
-    /**
-     * Verify OTP for store payout details
-     */
     public function verifyPayoutDetailsOtp(VerifyOtpRequest $request, Store $userStore)
     {
-        abort_if($userStore->user_id !== $request->user()->id, 403);
+        $this->authorize('view', $userStore);
 
-        $otpRecord = Otp::where('email', $request->user()->email)->first();
-        $otpRecord->update(['is_used' => true]);
+        $this->payoutService->verifyPayoutDetailsOtp($request->user());
 
         return $this->success([], 'OTP verified successfully.');
     }

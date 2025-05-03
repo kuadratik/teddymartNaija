@@ -15,9 +15,8 @@ class PayoutCompletedNotification extends Notification implements ShouldQueue
     protected $paymentAmount;
     protected $paymentDate;
 
-    public function __construct($vendorName, $paymentAmount, $paymentDate)
+    public function __construct($paymentAmount, $paymentDate)
     {
-        $this->vendorName = $vendorName;
         $this->paymentAmount = $paymentAmount;
         $this->paymentDate = $paymentDate;
     }
@@ -31,7 +30,7 @@ class PayoutCompletedNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('💸 Payment Made: Your Payout Request Completed!')
-            ->greeting("Dear {$this->vendorName},")
+            ->greeting("Dear {$notifiable->first_name},")
             ->line('Great news! The payment for your recent payout request has been successfully processed. Here are the details:')
             ->line("**Payment Amount:** {$this->paymentAmount}")
             ->line("**Date Paid:** {$this->paymentDate}")
