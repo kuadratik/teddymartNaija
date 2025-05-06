@@ -1,6 +1,6 @@
 openapi: '3.0.0'
 info:
-  description: myEki apis
+  description: myEKI apis
   version: 1.0.0
   title: myeki
 
@@ -91,6 +91,14 @@ paths:
             type: number
             example:
           required: false
+        - in: query
+          name: random
+          schema:
+            type: boolean
+            example: false
+          required: false
+          description: Get random business listings
+
 
       responses:
         default:

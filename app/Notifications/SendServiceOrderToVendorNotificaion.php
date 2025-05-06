@@ -45,7 +45,7 @@ class SendServiceOrderToVendorNotificaion extends Notification implements Should
             ->action('View Service', env('FRONT_URL') . '/' .  'store/details/'. $this->order->store->slug . '?slug=' . $this->order->orderDetails()->first()->listing->slug)
             ->line('Please reach out to the customer within 24-48 hours to confirm availability and discuss the next steps.')
             ->line('Thank you for using TeddyMart!')
-            ->salutation(new HtmlString('Best Regards,<br>The myEki Team'));
+            ->salutation(new HtmlString('Best Regards,<br>The myEKI Team'));
     }
 
     /**
