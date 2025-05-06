@@ -8,7 +8,7 @@ We're thrilled to have you join **myEKI** and can't wait to showcase your produc
 Whether you're here to promote your brand, support a cause, or simply share your creations — welcome! We are here to guide your product presentation and uploads every step of the way.
 
 Thanks,<br>
-The myEki Team
+The myEKI Team
 
 @component('mail::button', ['url' => url(env('FRONT_URL'))])
 Let's Get Started
@@ -16,7 +16,7 @@ Let's Get Started
 
 
 
-myEki at the touch of a button! Download our app for Google & Mac.
+myEKI at the touch of a button! Download our app for Google & Mac.
 
 <table>
   <tr>

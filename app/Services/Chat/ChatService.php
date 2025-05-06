@@ -167,7 +167,7 @@ class ChatService
         }
 
         if (request()->convoRoute === 'directory' && $listing) {
-            $respondent->notify(new ListingInquiryNotification($respondent->toArray(), $listing));
+            $respondent->notify(new CustomerInquiryEmailNotification($respondent->toArray(), $listing));
         }
     }
 

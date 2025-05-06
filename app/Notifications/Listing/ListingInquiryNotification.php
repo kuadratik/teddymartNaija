@@ -49,19 +49,14 @@ class ListingInquiryNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject('Customer Inquiry: New Message About Your Product/Service on myEKI.')
             ->greeting("Dear {$respondentName},")
-            ->line('We’re pleased to inform you that a customer has sent you a message regarding one of your')
-            ->line('products or services on myEKI.')
+            ->line('We’re pleased to inform you that a customer has sent you a message regarding one of your products or services on myEKI.')
             ->line(new HtmlString($line))
             ->line('Engaging with customers quickly can enhance their experience and increase your chances of making a sale.
              To view and respond to this message:')
             ->action('Check your Inbox', env('FRONT_URL') . '/' . 'messages')
             ->line('For any questions or assistance, please reach out. We are here to help!')
             ->line('')
-            ->line('Thank you for your dedication to providing quality service on myEKI. We look forward to your continued success')
-            ->line('')
-            ->line('Best regards')
-            ->line('The myEKI Team')
-            ->line('vendorsupport@myEKI.market');
+            ->line('Thank you for your dedication to providing quality service on myEKI. We look forward to your continued success');
     }
 
     /**
