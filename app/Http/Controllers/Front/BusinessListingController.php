@@ -31,11 +31,14 @@ class BusinessListingController extends Controller
             ->byUser()
             ->byLocation()
             ->with(['country', 'industry'])
-            ->when($request->has('limit'), function ($q) use ($request) {
+            ->when($request->filled('limit'), function ($q) use ($request) {
                 $q->limit((int) $request->limit);
+            })
+            ->when(filter_var($request->query('random'), FILTER_VALIDATE_BOOLEAN), function ($q) {
+                $q->inRandomOrder();
             });
 
-        $businesses = $request->has('per_page')
+        $businesses = $request->filled('per_page')
             ? $query->paginate((int) $request->per_page)
             : $query->get();
 
