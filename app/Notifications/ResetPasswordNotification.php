@@ -44,7 +44,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
             ->line('This OTP will expire in 5 minutes.')
             ->line('If you did not request this password reset, please ignore this email.')
             ->line('Thank you for using our application!')
-            ->salutation(new HtmlString('Best Regards,<br>The myEki Team'));
+            ->salutation(new HtmlString('Best Regards,<br>The myEKI Team'));
     }
 
     /**

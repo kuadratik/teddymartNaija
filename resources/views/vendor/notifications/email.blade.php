@@ -41,7 +41,7 @@
 @else
 @lang('Regards,')<br>
 {{-- {{ config('app.name') }} --}}
-The myEki Team<br>
+The myEKI Team<br>
 vendorsupport@myeki.market<br>
 @endif
 

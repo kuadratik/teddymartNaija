@@ -39,14 +39,14 @@ class NewBookingNotification extends Notification
     {
         return (new MailMessage)
             ->subject("Great News! You've Got a New Booking! 🎉")
-            ->greeting("Hello {$notifiable->name}")
+            ->greeting("Hello {$notifiable->first_name},")
             ->line("You have a new service booking on myEKI!")
             ->line("Date: {$this->booking->created_at->toDateString()}")
             ->line("Time: {$this->booking->created_at->toTimeString()}")
             ->line("Service Requested: {$this->businessListing->business_name}")
             ->line("Client Name: {$this->booking->cus_fullname}")
             ->line("Client Email: {$this->booking->cus_email}")
-            ->line("Client Phone: {$this->booking->cus_phone_number}")
+            ->line("Client Phone: +{$this->booking->cus_phone_number}")
             ->line("Please review the details and any message received in readiness for your appointment.")
             ->line("We anticipate your client will have a great experience!");
     }
