@@ -144,7 +144,11 @@ class CartController extends Controller
      */
     public function getOrderHistory(Request $request)
     {
+        $currency = $request->header('currency');
         $userOrders = Order::where('user_id', $request->user()->id)
+            ->when($currency, function ($query) use ($currency) {
+                return $query->where('currency', $currency);
+            })
             ->with('store:id,name', 'orderDetails', 'orderDetails.listing', 'orderDetails.variant', 'shippingMethod')
             ->latest('id')
             ->get();
