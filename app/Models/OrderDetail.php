@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\ListingType;
+use Dom\Attr;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,6 +27,7 @@ class OrderDetail extends Model
      * eager load relationships
      */
     protected $with = ['userRating'];
+    protected $appends = ['total_price'];
 
 
     /**
@@ -69,5 +72,16 @@ class OrderDetail extends Model
     {
         return $this->hasMany(ListingRating::class, 'listing_id', 'listing_id')
             ->where('user_id', Auth::id());
+    }
+
+
+    /**
+     * ger the total price of the order detail
+     */
+    public function totalPrice(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value, $attributes) => $attributes['listing_price'] * $attributes['quantity']
+        );
     }
 }

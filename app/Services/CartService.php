@@ -317,6 +317,7 @@ class CartService
      */
     public function getUserOrders(Request $request)
     {
+        $currency = $request->header('currency');
         $user = $request->user();
         $status = $request->query('order_status');
 
@@ -327,10 +328,10 @@ class CartService
             'orderDetails.variant',
             'shippingAddress',
             'shippingMethod'
-
         ])
             ->where('user_id', $user->id)
             ->where('type', ListingType::PRODUCT->value)
+            ->when($currency, fn($query) => $query->where('currency', $currency))
             ->when($status, fn($query) => $query->where('status', $status))
             ->orderBy('created_at', 'desc')
             ->get()

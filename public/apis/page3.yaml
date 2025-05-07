@@ -423,6 +423,12 @@ paths:
             type: string
             example: "incart"
           required: false
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: false
       responses:
         default:
           description: "success"
@@ -845,6 +851,13 @@ paths:
       operationId: GetOrderHistory
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: false
 
       responses:
         default:
