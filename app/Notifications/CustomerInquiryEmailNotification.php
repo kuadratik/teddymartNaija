@@ -42,7 +42,7 @@ class CustomerInquiryEmailNotification extends Notification implements ShouldQue
      */
     public function toMail($notifiable)
     {
-        $vendorName = $this->vendor->first_name . ' ' . $this->vendor->last_name;
+        $vendorName = $this->vendor['first_name'] . ' ' . $this->vendor['last_name'];
 
         return (new MailMessage)
             ->subject('Customer Inquiry: New Message from a Customer on myEKI')
