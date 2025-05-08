@@ -435,7 +435,7 @@ class CartService
             $order->wasChanged() &&
             $order->status === OrderStatusEnum::DELIVERED->value
         ) {
-            $order->store->user->notify(new OrderDeliveredNotification($order));
+            $order->customer->notify(new OrderDeliveredNotification($order));
         }
     }
     /**
