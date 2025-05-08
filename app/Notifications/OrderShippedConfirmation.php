@@ -25,6 +25,7 @@ class OrderShippedConfirmation extends Notification implements ShouldQueue
         $order = $this->order;
         $currency = $order->currency ?? 'USD';
         $order->increment('delivered_notification_count');
+        $shippingCost = $order->shipping_cost;
 
 
         $productRows = '';
@@ -57,6 +58,7 @@ class OrderShippedConfirmation extends Notification implements ShouldQueue
             ->greeting("Dear {$notifiable->first_name},")
             ->line("We hope you're enjoying your recent purchase from myEKI! To ensure a smooth shopping experience, please take a moment to confirm that you've received your order by clicking the \"Received\" button in the myEKI profile section.")
             ->line(new HtmlString($productTable))
+            ->line("**Shipping Fee:** {$shippingCost} {$currency}")
             ->line("Confirming your order helps us improve our service and ensures any necessary support if needed.")
             ->line("If you have any issues with your order, feel free to contact our support team.")
             ->line("Thank you for choosing myEKI!");
