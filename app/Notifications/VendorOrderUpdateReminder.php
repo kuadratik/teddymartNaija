@@ -26,6 +26,7 @@ class VendorOrderUpdateReminder extends Notification implements ShouldQueue
         $order = $this->order;
         $currency = $order->currency ?? 'USD';
         $shippingDate = now()->parse($this->order->shipped_at)->format('Y-m-d');
+        $shippingFee = $order->shipping_cost;
         $orderDetailsTable = '<table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 600px; margin: auto; margin-top: 20px;">
             <thead>
                 <tr>
@@ -59,6 +60,7 @@ class VendorOrderUpdateReminder extends Notification implements ShouldQueue
             ->line('')
             ->line(new HtmlString($orderDetailsTable))
             ->line('')
+            ->line("**Shipping Fee:** {$shippingFee} {$currency}")
             ->line("**Shipping Date:** {$shippingDate}")
             ->line("If the order has already been delivered, please update the status to \"Delivered\" in the myEKI vendor portal. If you require any assistance or have further questions, please don't hesitate to contact us.")
             ->line("Thank you for your prompt attention to this matter, and your continued partnership.");
