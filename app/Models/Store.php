@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 
@@ -146,10 +147,22 @@ class Store extends Model
     /**
      * store payout details
      */
-    public function payoutDetails(): HasOne
+    public function payoutDetails(): HasMany
     {
-        return $this->hasOne(StorePayoutDetail::class, 'store_id');
+        return $this->hasMany(StorePayoutDetail::class, 'store_id');
     }
+
+
+    /**
+     * Get the default payout detail for the store.
+     */
+    public function defaultPayoutDetail()
+    {
+        return $this->hasOne(StorePayoutDetail::class, 'store_id')
+            ->where('is_default', true);
+    }
+
+
 
     /**
      * Get the store owner
