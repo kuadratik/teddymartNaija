@@ -77,6 +77,15 @@ class Order extends Model
         );
     }
 
+    /**
+     * Get the original order number without truncation.
+     *
+     * @return string
+     */
+    public function getOriginalOrderNumber()
+    {
+        return $this->getRawOriginal('order_number');
+    }
 
     /**
      * Get the formatted order number attribute.

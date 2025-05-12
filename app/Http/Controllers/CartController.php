@@ -124,7 +124,7 @@ class CartController extends Controller
      */
     public function showUserOrder(Request $request, Order $order)
     {
-        $data = $this->cartService->showUserOrder($request, $order);
+        $data = $this->cartService->showOrdersByNumber($request, $order);
 
         return $this->success($data);
     }

@@ -351,6 +351,28 @@ class CartService
     }
 
     /**
+     * Show orders by order number
+     */
+    public function showOrdersByNumber(Request $request, Order $order)
+    {
+        $user = $request->user();
+
+        $orders = Order::where('order_number', $order->getOriginalOrderNumber())
+            ->where('user_id', $user->id)
+            ->with(['orderDetails', 'shippingAddress', 'store', 'customer', 'payments'])
+            ->latest()
+            ->get();
+
+
+        if ($orders->isEmpty()) {
+            abort(404, 'No orders found with this order number.');
+        }
+
+        return $orders;
+    }
+
+
+    /**
      * Add product to wishlist from cart
      */
     public function addToWishlistFromCart(Request $request, Listing $product)
