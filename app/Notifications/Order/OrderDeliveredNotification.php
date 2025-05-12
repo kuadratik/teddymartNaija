@@ -41,6 +41,8 @@ class OrderDeliveredNotification extends Notification implements ShouldQueue
         $customerName = e($order->customer->first_name);
         $orderNumber = e($order->order_number);
         $shippingAddress = e($order->shippingAddress?->getFormattedAddress());
+        $shippingCost =  number_format($order->shipping_cost, 2);
+
 
         $productRows = '';
         foreach ($order->orderDetails as $item) {
@@ -71,6 +73,7 @@ class OrderDeliveredNotification extends Notification implements ShouldQueue
             ->greeting("Dear {$customerName},")
             ->line("Great news! Your myEKI order has been successfully delivered to:")
             ->line("Shipping Address: {$shippingAddress}")
+            ->line("Shipping Fee: {$shippingCost} {$currency}")
             ->line(new HtmlString($productTable))
             ->line("We hope everything arrived in perfect condition and met your expectations. To help us serve you better, please take a moment to rate your order by clicking on the Rate Product button in the myEKI profile section.")
             ->line("By rating the product, you assist other customers in making informed decisions. If there's anything you'd like to share about your experience—or if you need help with your order—don't hesitate to reach out to us.")
