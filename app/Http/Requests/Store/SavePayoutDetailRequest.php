@@ -26,6 +26,7 @@ class SavePayoutDetailRequest extends FormRequest
     public function rules(): array
     {
         $internationType = PayoutDetailType::INTERNATION->value;
+        $localType = PayoutDetailType::LOCAL->value;
 
         return [
             'store_id' => [
@@ -36,7 +37,7 @@ class SavePayoutDetailRequest extends FormRequest
             'account_name' => ['required', 'string'],
             'account_number' => ['required', new ValidateBankDetailsRule($this->input('bank_code'), $this->input('detail_type'))],
             'bank_name' => ['required', 'string'],
-            'bank_code' => ['nullable', 'string'],
+            'bank_code' => ['nullable', Rule::requiredIf($this->input('detail_type') === $localType), 'string'],
             'iban' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
             'institution_number' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],
             'transit_number' => ['nullable', "prohibited_unless:detail_type,{$internationType}", 'string'],

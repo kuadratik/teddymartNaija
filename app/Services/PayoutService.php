@@ -31,12 +31,22 @@ class PayoutService
 
     public function processPayout(Store $userStore, Order $order)
     {
+        $userStore->load('defaultPayoutDetail');
         DB::transaction(function () use ($userStore, $order) {
             if ($userStore->payoutDetails()->doesntExist()) {
                 throw ValidationException::withMessages([
                     'payout' => ['To proceed, please fill your payout information']
                 ]);
             }
+
+            if (!$userStore->defaultPayoutDetail) {
+                throw ValidationException::withMessages([
+                    'payout' => ['Default payout information is required.']
+                ]);
+            }
+
+
+
 
             if ($order->status !== OrderStatusEnum::DELIVERED->value) {
                 throw ValidationException::withMessages([
@@ -61,7 +71,10 @@ class PayoutService
             ]);
 
             if ($order->currency == CurrencyCodeEnum::NGN->value) {
-                $this->paymentService->gateway(PaymentGatewayEnum::PAYSTACK->value)->transfer($order, $userStore->payoutDetails);
+                throw_if(!$userStore->defaultPayoutDetail->bank_code, ValidationException::withMessages([
+                    'payout' => ['Payout is already processing']
+                ]), 'bank code is required to process payout delete bank and recreate');
+                $this->paymentService->gateway(PaymentGatewayEnum::PAYSTACK->value)->transfer($order, $userStore->defaultPayoutDetail);
             }
 
             $order->update(['payout_status' => OrderStatusEnum::PROCESSING]);
