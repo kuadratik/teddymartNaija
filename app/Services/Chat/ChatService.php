@@ -88,7 +88,7 @@ class ChatService
         $existingChat = ChatUser::where('chat_id', $chat->id)
             ->where('user_id', $respondent->id)
             ->exists();
-
+        logger("existing chart exist? {$existingChat}");
         $chatUsers = [
             [
                 'chat_id' => $chat->id,
@@ -107,6 +107,7 @@ class ChatService
         ChatUser::upsert($chatUsers, ['chat_id', 'user_id']);
 
         if (! $existingChat) {
+            logger("no existing chart dosnt exist sending mail {$existingChat}");
             $this->sendCustomerInquiryEmail($user, $respondent);
         }
     }
@@ -118,9 +119,9 @@ class ChatService
      * @param  User  $vendor  The vendor receiving the notification
      * @return void
      */
-    private function sendCustomerInquiryEmail($customer, $vendor)
+    private function sendCustomerInquiryEmail($vendor, $customer)
     {
-        $customer->notify(new CustomerInquiryEmailNotification($vendor));
+        $vendor->notify(new CustomerInquiryEmailNotification($customer));
     }
 
     /**
