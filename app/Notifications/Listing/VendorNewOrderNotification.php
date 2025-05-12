@@ -51,6 +51,7 @@ class VendorNewOrderNotification extends Notification implements ShouldQueue
 
 
 
+
         $orderDetailsTable = '<table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 600px; margin: auto; margin-top: 20px;">
             <thead>
                 <tr>
@@ -84,7 +85,7 @@ class VendorNewOrderNotification extends Notification implements ShouldQueue
             ->line(new HtmlString($orderDetailsTable))
             ->line('')
             ->line('**Shipping Fee:** ' . $this->order->shipping_cost . $currency)
-            ->line('**Total:** ' . $this->order->total_amount . $currency)
+            ->line('**Total:** ' . number_format($this->order->total_amount, 2) . ' ' . $currency)
             ->line('**Shipping Address:** ' . $shippingAddress)
             ->line('Please process the order and update the status of the order as Shipped in the myEKI list of orders, once it has been dispatched.')
             ->line('Thank you for your prompt attention to this order. We appreciate your continued partnership and look forward to working with you on future orders.');
