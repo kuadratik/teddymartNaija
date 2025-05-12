@@ -11,16 +11,16 @@ class CustomerInquiryEmailNotification extends Notification implements ShouldQue
 {
     use Queueable;
 
-    private $vendor;
+    private $customer;
 
     /**
      * Create a new notification instance.
      *
      * @param mixed $vendor
      */
-    public function __construct($vendor)
+    public function __construct($customer)
     {
-        $this->vendor = $vendor;
+        $this->customer = $customer;
     }
 
     /**
@@ -42,7 +42,7 @@ class CustomerInquiryEmailNotification extends Notification implements ShouldQue
      */
     public function toMail($notifiable)
     {
-        $vendorName = $this->vendor['first_name'] . ' ' . $this->vendor['last_name'];
+        $vendorName = $notifiable->first_name;
 
         return (new MailMessage)
             ->subject('Customer Inquiry: New Message from a Customer on myEKI')
