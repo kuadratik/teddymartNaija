@@ -187,8 +187,8 @@ class Order extends Model
     public function scopePocketablePayout(Builder $query)
     {
         return $query->whereIn('orders.payout_status', [
-            OrderStatusEnum::NEW->value,
-            OrderStatusEnum::PROCESSING->value
+            OrderStatusEnum::NEW,
+            OrderStatusEnum::PROCESSING
         ])->where('orders.status', OrderStatusEnum::DELIVERED);
     }
 
@@ -197,7 +197,7 @@ class Order extends Model
      */
     public function scopePaidPayouts(Builder $query)
     {
-        return $query->where('orders.payout_status', OrderStatusEnum::PAID)->latest('id');
+        return $query->where('orders.payout_status', OrderStatusEnum::COMPLETED)->latest('id');
     }
 
     /**
@@ -205,7 +205,7 @@ class Order extends Model
      */
     public function scopePaidPayout(Builder $query)
     {
-        return $query->where('orders.payout_status', OrderStatusEnum::PAID);
+        return $query->where('orders.payout_status', OrderStatusEnum::COMPLETED);
     }
 
     /**
