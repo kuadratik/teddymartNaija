@@ -26,7 +26,7 @@ class BusinessListingController extends Controller
      */
     public function index(Request $request)
     {
-        $query = BusinessListing::search($request->search)
+        $query = BusinessListing::with('serviceAvailabilities')->search($request->search)
             ->byIndustry()
             ->byUser()
             ->byLocation()

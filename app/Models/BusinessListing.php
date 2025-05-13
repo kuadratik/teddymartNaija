@@ -106,7 +106,10 @@ class BusinessListing extends Model
             return $query;
         }
 
-        return $query->where('business_listings.business_name', 'LIKE', "%{$search}%");
+        return $query->where('business_listings.business_name', 'LIKE', "%{$search}%")
+            ->orWhereHas('serviceAvailabilities', function ($q) use ($search) {
+                $q->where('service_name', 'LIKE', "%{$search}%");
+            });
     }
 
     /**
