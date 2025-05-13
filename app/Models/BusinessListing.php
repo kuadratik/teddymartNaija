@@ -102,7 +102,11 @@ class BusinessListing extends Model
      */
     public function scopeSearch($query, mixed $search)
     {
-        return $query->when($search)->where('business_listings.business_name', 'LIKE', "%{$search}%");
+        if (empty($search)) {
+            return $query;
+        }
+
+        return $query->where('business_listings.business_name', 'LIKE', "%{$search}%");
     }
 
     /**
