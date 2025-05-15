@@ -132,6 +132,9 @@ class PaystackEventBus implements ShouldQueue
                 $order->payout()->update([
                     'status' => OrderStatusEnum::COMPLETED->value,
                     'is_approved' => true,
+                    'transfer_recipient' => $transferDetails['recipient'],
+                    'transfer_code' => $transferDetails['transfer_code'],
+                    'provider' => 'paystack',
                     'paid_at' => $transferDetails['updated_at'] ?? now(),
                 ]);
 
@@ -193,6 +196,9 @@ class PaystackEventBus implements ShouldQueue
                 $order->payout()->update([
                     'status' => OrderStatusEnum::FAILED->value,
                     'is_approved' => false,
+                    'transfer_recipient' => $transferDetails['recipient'],
+                    'transfer_code' => $transferDetails['transfer_code'],
+                    'provider' => 'paystack',
                 ]);
 
                 Log::info('Transfer payment failed', [
