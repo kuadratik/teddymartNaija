@@ -40,8 +40,8 @@ class ListingsController extends Controller
     public function create(CreateListingRequest $request, Store $userStore)
     {
         abort_if($userStore->user_id !== $this->user->id, 402, "Unauthorized");
-
         return DB::transaction(function () use ($request, $userStore) {
+
             $listing = Listing::create($request->listingAttributes($userStore));
 
             $listing->attributes()->create($request->listingAttributeAttributes());

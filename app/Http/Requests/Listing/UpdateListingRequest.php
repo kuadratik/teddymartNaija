@@ -5,36 +5,52 @@ namespace App\Http\Requests\Listing;
 use App\Enums\ListingType;
 use App\Models\Store;
 use App\Rules\PriceQuantityRule;
+use App\Rules\ValidateDiscountRule;
 use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdateListingRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    protected ?Store $store = null;
+
+    protected function prepareForValidation(): void
+    {
+        $this->store = $this->route('userStore');
+    }
+
+    private function getStore(): ?Store
+    {
+        return $this->store;
+    }
+
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     */
     public function rules(): array
     {
+        $store = $this->getStore();
+        $currency = $store?->currency ?? 'USD';
+
         $rules = [
             'is_draft' => ['required', 'boolean'],
             'name' => ['required_if:is_draft,false', 'string'],
             'type' => ['required_if:is_draft,false', 'string', Rule::enum(ListingType::class)],
             'price' => ['required_if:is_draft,false', 'numeric'],
-            'description' => ['required_if:is_draft,false',  'string', 'max:3000'],
-            'quantity' => ['required_if:is_draft,false',  'integer', new PriceQuantityRule($this->price)],
+            'description' => ['required_if:is_draft,false', 'string', 'max:3000'],
+            'quantity' => ['required_if:is_draft,false', 'integer', new PriceQuantityRule($this->price)],
             'additional_information' => ['nullable', 'string', 'max:2000'],
             'images' => ['required_if:is_draft,false', 'array'],
             'category' => ['required_if:is_draft,false', 'integer', Rule::exists('categories', 'id')->where('type', $this->type)],
-            'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'discount' => [
+                'nullable',
+                'numeric',
+                'min:1',
+                'max:99',
+                new ValidateDiscountRule($this->price, $currency),
+            ],
             'discount_start_date' => ['nullable', 'required_with:discount', 'date'],
             'discount_end_date' => ['nullable', 'required_with:discount', 'date', 'after:discount_start_date'],
             'sku' => ['nullable', 'string', 'max:50'],
@@ -57,8 +73,8 @@ class UpdateListingRequest extends FormRequest
             'variants' => ['nullable', 'array'],
             'variants.*.name' => ['nullable', 'string'],
             'variants.*.quantity' => ['nullable', 'integer', 'min:0'],
-            'variants.*.price' => ['nullable', 'numeric', 'min:0'],
-            'variants.*.discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'variants.*.price' => ['nullable', 'numeric', 'min:1'],
+            'variants.*.discount' => ['nullable', 'numeric', 'min:1', 'max:99'],
             'variants.*.size' => ['nullable', 'string'],
             'variants.*.color' => ['nullable', 'string'],
             'variants.*.measurement' => ['nullable', 'array'],
@@ -71,25 +87,25 @@ class UpdateListingRequest extends FormRequest
         ];
 
         foreach ($this->input('variants', []) as $index => $variant) {
-            $rules["variants.$index.quantity"][] = new PriceQuantityRule($variant['price'] ?? null);
+            $price = $variant['price'] ?? null;
+            $discount = $variant['discount'] ?? null;
+
+            $rules["variants.$index.quantity"][] = new PriceQuantityRule($price);
+
+            if ($discount !== null) {
+                $rules["variants.$index.discount"][] = new ValidateDiscountRule($price, $currency);
+            }
         }
 
         return $rules;
     }
 
-
-    /**
-     * Move images to permanent storage.
-     */
     public function images(array $data)
     {
         if (empty($data)) return [];
         return Utils::moveToPermanentPath($data, 'images');
     }
 
-    /**
-     * Prepare store record to save
-     */
     public function listingAttributes(Store $userStore)
     {
         return collect($this->safe()->except(['images', 'category', 'attributes', 'variants']))
@@ -103,9 +119,6 @@ class UpdateListingRequest extends FormRequest
             ])->toArray();
     }
 
-    /**
-     * Prepare ListingAttributeAttributes for saving.
-     */
     public function listingAttributeAttributes()
     {
         return collect($this->safe()['attributes'] ?? [])->except(['size_chart_image', 'size', 'tags', 'measurement'])->merge([
@@ -116,9 +129,6 @@ class UpdateListingRequest extends FormRequest
         ])->toArray();
     }
 
-    /**
-     * Prepare Variants Attributes for saving.
-     */
     public function variantsAttributes()
     {
         return collect($this->safe()['variants'] ?? [])->map(function ($variant) {
@@ -126,7 +136,6 @@ class UpdateListingRequest extends FormRequest
                 'images' => $this->images($variant['images'] ?? []),
                 'size' => json_encode($variant['size'] ?? []),
                 'measurement' => json_encode($variant['measurement'] ?? [])
-
             ])->toArray();
         })->toArray();
     }
