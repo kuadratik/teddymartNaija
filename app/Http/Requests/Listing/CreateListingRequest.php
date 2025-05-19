@@ -6,6 +6,7 @@ use App\Enums\ListingType;
 use App\Models\Store;
 use App\Rules\PriceQuantityRule;
 use App\Rules\ValidateDiscountRule;
+use App\Rules\ValidatePriceRule;
 use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -33,7 +34,7 @@ class CreateListingRequest extends FormRequest
             'is_draft' => ['required', 'boolean'],
             'name' => ['required_if:is_draft,false', 'string'],
             'type' => ['required_if:is_draft,false', 'string', Rule::enum(ListingType::class)],
-            'price' => ['required_if:is_draft,false', 'numeric', 'min:1'],
+            'price' => ['required_if:is_draft,false', 'numeric', new ValidatePriceRule($currency)],
             'description' => ['required_if:is_draft,false', 'string', 'max:3000'],
             'additional_information' => ['nullable', 'string', 'max:2000'],
             'quantity' => ['required_if:is_draft,false', 'integer', new PriceQuantityRule($this->price)],
@@ -84,9 +85,8 @@ class CreateListingRequest extends FormRequest
         foreach ($this->input('variants', []) as $index => $variant) {
             $price = $variant['price'];
             $discount = $variant['discount'] ?? null;
-
             $rules["variants.$index.quantity"][] = new PriceQuantityRule($price);
-
+            $rules["variants.$index.price"][] = new ValidatePriceRule($currency);
             if ($discount !== null) {
                 $rules["variants.$index.discount"][] = new ValidateDiscountRule($price, $currency);
             }
