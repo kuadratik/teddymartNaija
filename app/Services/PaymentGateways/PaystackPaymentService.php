@@ -25,7 +25,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
      */
     public function initialize(array $data): array
     {
-        $response = Http::withToken($this->secretKey)->post(config('services.paystack.payment_url') . '/transaction/initialize', [
+        $response = Http::withToken($this->secretKey)->post(config('services.paystack.payment_url').'/transaction/initialize', [
             'email' => $data['email'] ?? Auth::user()->email,
             'amount' => $data['total_amount'] * 100,
             'currency' => $data['currency_code'],
@@ -89,7 +89,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
                 $payoutDetail->bank_code
             );
 
-            if (!$recipientResponse['status']) {
+            if (! $recipientResponse['status']) {
                 Log::error('Failed to create Paystack recipient', [
                     'order_id' => $order->id,
                     'response' => $recipientResponse,
@@ -103,13 +103,13 @@ class PaystackPaymentService implements PaymentGatewayInterface
         }
 
         $transferResponse = Http::withToken($this->secretKey)
-            ->post(config('services.paystack.payment_url') . '/transfer', [
+            ->post(config('services.paystack.payment_url').'/transfer', [
                 'source' => 'balance',
-            'amount' => $order->total_amount * 100,
+                'amount' => $order->payoutAmount * 100,
                 'currency' => $order->currency,
                 'recipient' => $recipientId,
                 'reason' => "Payout for order {$order->order_number}",
-            'reference' => $order->uid,
+                'reference' => $order->uid,
             ]);
 
         if (! $transferResponse->successful()) {
@@ -128,7 +128,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
     public function validateBankDetails(string $accountNumber, string $bankCode): array
     {
         $response = Http::withToken($this->secretKey)
-            ->get(config('services.paystack.payment_url') . '/bank/resolve', [
+            ->get(config('services.paystack.payment_url').'/bank/resolve', [
                 'account_number' => $accountNumber,
                 'bank_code' => $bankCode,
             ]);
@@ -142,7 +142,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
     public function createTransferRecipient(string $accountName, string $accountNumber, string $bankCode): array
     {
         $response = Http::withToken($this->secretKey)
-            ->post(config('services.paystack.payment_url') . '/transferrecipient', [
+            ->post(config('services.paystack.payment_url').'/transferrecipient', [
                 'type' => 'nuban',
                 'name' => $accountName,
                 'account_number' => $accountNumber,
@@ -166,7 +166,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
                     'next' => $next,
                     'previous' => $prev,
                     'country' => 'nigeria',
-                'use_cursor' => false,
+                    'use_cursor' => false,
                 ]
             );
 
@@ -179,7 +179,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
     private function verifyPaystackTransaction(string $token)
     {
         return Http::withToken($this->secretKey)
-            ->get(config('services.paystack.payment_url') . '/transaction/verify/' . $token);
+            ->get(config('services.paystack.payment_url').'/transaction/verify/'.$token);
     }
 
     /**

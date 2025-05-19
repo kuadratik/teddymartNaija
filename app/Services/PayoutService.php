@@ -45,9 +45,6 @@ class PayoutService
                 ]);
             }
 
-
-
-
             if ($order->status !== OrderStatusEnum::DELIVERED->value) {
                 throw ValidationException::withMessages([
                     'payout' => ['Order  must be complete to process payout']
