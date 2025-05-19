@@ -137,6 +137,7 @@ class StoreService
         $categories = Category::with([
             'listings' => function ($query) use ($currency) {
                 $query->availability(true)
+                    ->inStock()
                     ->isDraft(false)
                     ->byType(ListingType::PRODUCT->value)
                     ->when($currency, fn($query) => $query->byCurrency($currency))
@@ -166,6 +167,7 @@ class StoreService
     {
         $baseQuery = Listing::where('is_available', true)
             ->with(['store'])
+            ->inStock()
             ->isDraft(false)
             ->byType(ListingType::PRODUCT->value)
             ->when($currency, fn($query) => $query->byCurrency($currency));
