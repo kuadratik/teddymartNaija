@@ -218,7 +218,7 @@ class Utils
             $message .= ' ' . $validator->getTranslator()->get("(and :count more $pluralized)", compact('count'));
         }
 
-        return "Whoops something went wrong, " . preg_replace('/(?<=.)\.(?=.)/', ' ', str($message)->headline()->lower());
+        return "Whoops something went wrong, " . preg_replace('/(?<=.)\.(?=.)/', ' ', str($message)->headline());
     }
 
     /**
