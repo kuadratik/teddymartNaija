@@ -47,6 +47,6 @@ class AbandonedCartNotification extends Notification implements ShouldQueue
             ->greeting('Dear ' . $notifiable->first_name . ',')
             ->line('We couldn’t help but notice that you left something behind. Your cart is still waiting for you, and the items you love are just a click away from being yours.')
             ->line('If you encounter any issues or have any questions about your order, please don\'t hesitate to contact us. We are always here to help.')
-            ->line('Thank you for choosing myEK!. We’re excited to serve you!');
+            ->line('Thank you for choosing myEKI. We’re excited to serve you!');
     }
 }
