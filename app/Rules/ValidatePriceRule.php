@@ -31,7 +31,7 @@ class ValidatePriceRule implements ValidationRule
         $minAllowed = $minimums[$this->currency] ?? null;
 
         if ($minAllowed && $value < $minAllowed) {
-            $fail("The product price must be at least {$minAllowed} {$this->currency}.");
+            $fail("Display price must be greater or equal to {$minAllowed} {$this->currency}/1.");
         }
     }
 }
