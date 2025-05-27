@@ -38,8 +38,8 @@ class ValidateDiscountRule implements ValidationRule
         $minAllowed = $minimums[$this->currency] ?? null;
 
         if ($minAllowed && $finalPrice < $minAllowed) {
-            $fail('You are getting this error, one of these may apply: Please reduce your discount percentage. Your product price can not be less than '
-                . $minAllowed . ' ' . $this->currency . '.');
+            $fail('Discounts are only available for products priced at'
+                . $minAllowed . ' ' . $this->currency . '/1' . ' or more.');
         }
     }
 }
