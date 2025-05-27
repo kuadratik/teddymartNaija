@@ -397,16 +397,9 @@ class CartService
 
         abort_if(! $cart, 404, 'The product or variant is not found in your cart.');
 
-        DB::transaction(function () use ($user, $product, $cart, $variantId) {
-            $cart->products()->detach($product->id, ['listing_variant_id' => $variantId]);
-            $user->wishlists()->attach($product->id, ['variant_id' => $variantId]);
+        $user->wishlists()->attach($product->id, ['variant_id' => $variantId]);
 
-            if ($cart->products()->count() === 0) {
-                $cart->delete();
-            }
-        });
-
-        return 'Product or variant added to wishlist successfully and removed from cart.';
+        return 'Product or variant added to wishlist successfully.';
     }
 
     /**
