@@ -1,6 +1,7 @@
 <?php
 
 use App\Console\Commands\CacheStores;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\Artisan;
 
@@ -16,3 +17,7 @@ Schedule::command('cart:send-abandoned-emails')->daily();
 Schedule::command('orders:notify-shipped')->everyTwoMinutes();
 Schedule::command('orders:notify-vendors-delivery')->daily();
 Schedule::command('orders:send-vendor-reminders')->daily();
+
+if (App::environment('local')) {
+    $schedule->command('telescope:prune --hours=48')->daily();
+}
