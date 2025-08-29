@@ -63,7 +63,8 @@ return [
     ],
 
     'fez_delivery' => [
-        'Authorization' => env('FEZ__DELIVERY_BEARER_TOKEN'),
+        'user_id' => env('FEZ_DELIVERY_USERID'),
+        'password' => env('FEZ_DELIVERY_PASSWORD'),
         'secret-key' => env('FEZ_DELIVERY_SECRET_KEY'),
         'api_url' => env('FEZ_DELIVERY_API_URL', 'https://apisandbox.fezdelivery.co'),
     ],

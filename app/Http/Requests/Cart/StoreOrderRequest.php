@@ -48,7 +48,7 @@ class StoreOrderRequest extends FormRequest
     {
         foreach ($this->store_shipping_methods as $method) {
             $storeId = $method['store_id'];
-            $shippingMethodId = $method['shipping_method_id'];
+            $shippingMethodId = data_get($method, 'shipping_method_id');
             $shippingMethodUseFezDelivery = $method['use_fez_delivery'] ?? false;
 
             if ($shippingMethodUseFezDelivery) {

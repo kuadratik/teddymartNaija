@@ -14,7 +14,9 @@ use App\Models\ListingVariant;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\StoreShippingMethod;
+use App\Models\UserShippingAddress;
 use App\Notifications\Order\OrderDeliveredNotification;
+use App\Services\Logistics\FezDeliveryService;
 use App\Support\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +25,8 @@ use Illuminate\Support\Str;
 
 class CartService
 {
+    public function __construct(protected FezDeliveryService $fezDeliveryService) {}
+
     /**
      * Get detailed cart information including total items and product details
      */
@@ -245,10 +249,20 @@ class CartService
             abort_if(!$shippingMethodData, 422, "Shipping method not provided for store ID {$storeId}.");
 
             $useFezDelivery = $shippingMethodData['use_fez_delivery'] ?? false;
+
             $shippingCost = 0;
+
             $shippingMethodId = null;
+
+            $totalWeight = $items->sum(function ($item) {
+                $variantWeight = $item->pivot->listing_variant_id
+                    ? ListingVariant::find($item->pivot->listing_variant_id)->weight
+                    : null;
+                return $item->pivot->quantity * ($variantWeight ?? $item->weight ?? 0);
+            });
+            $shippingAddress = UserShippingAddress::find($request->validated('shipping_address_id'));
             if ($useFezDelivery) {
-                $shippingCost = $this->calculateFezDeliveryCost($storeId, $items, $currency);
+                $shippingCost = $this->fezDeliveryService->calculateDeliveryCost($shippingAddress->state, $totalWeight);
                 $shippingMethodId = null;
             } else {
 
@@ -258,14 +272,9 @@ class CartService
 
             abort_if(!$shippingMethod, 422, "Invalid or unsupported shipping method for store ID {$storeId}.");
 
-            $totalWeight = $items->sum(function ($item) {
-                $variantWeight = $item->pivot->listing_variant_id
-                    ? ListingVariant::find($item->pivot->listing_variant_id)->weight
-                    : null;
-                return $item->pivot->quantity * ($variantWeight ?? $item->weight ?? 0);
-            });
 
-            $shippingCost = $shippingMethod->amount * $totalWeight  ?? 0;
+
+                $shippingCost = $shippingMethod->amount * $totalWeight  ?? 0;
                 $shippingMethodId = $shippingMethod->id;
             }
 
@@ -547,31 +556,6 @@ class CartService
         $request->user()->wishlists()->attach($product->id);
 
         return 'Product added to wishlist successfully.';
-    }
-
-
-    private function calculateFezDeliveryCost($state, $weight = null)
-    {
-        $payload = ['state' => $state];
-
-        if ($weight !== null) {
-            $payload['weight'] = $weight;
-        }
-
-        $response = Http::timeout(30)
-            ->withHeaders([
-                'secret-key' => config('services.fez_delivery.secret_key')
-            ])
-            ->put(config('services.fez_delivery.api_url') . '/v1/order/cost', $payload);
-
-        if (!$response->successful()) {
-            throw new \Exception('Fez Delivery API returned error: ' . $response->status());
-        }
-
-        $data = $response->json();
-        $cost = $data['cost'] ?? $data['price'] ?? $data['amount'] ?? 0;
-
-        return (float) $cost;
     }
 }
 
