@@ -18,6 +18,7 @@ use App\Notifications\Order\OrderDeliveredNotification;
 use App\Support\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class CartService
@@ -243,7 +244,15 @@ class CartService
 
             abort_if(!$shippingMethodData, 422, "Shipping method not provided for store ID {$storeId}.");
 
-            $shippingMethod = StoreShippingMethod::where('id', $shippingMethodData['shipping_method_id'])
+            $useFezDelivery = $shippingMethodData['use_fez_delivery'] ?? false;
+            $shippingCost = 0;
+            $shippingMethodId = null;
+            if ($useFezDelivery) {
+                $shippingCost = $this->calculateFezDeliveryCost($storeId, $items, $currency);
+                $shippingMethodId = null;
+            } else {
+
+                $shippingMethod = StoreShippingMethod::where('id', $shippingMethodData['shipping_method_id'])
                 ->where('store_id', $storeId)
                 ->first();
 
@@ -257,6 +266,8 @@ class CartService
             });
 
             $shippingCost = $shippingMethod->amount * $totalWeight  ?? 0;
+                $shippingMethodId = $shippingMethod->id;
+            }
 
             $totalAmount = $subtotal + $shippingCost;
 
@@ -279,7 +290,9 @@ class CartService
                 'status' => OrderStatusEnum::PENDING->value,
                 'payment_status' => OrderStatusEnum::PENDING_PAYMENT->value,
                 'store_shipping_method_id' => $shippingMethod->id,
-                'shipping_address_id' => $request->validated('shipping_address_id')
+                'shipping_address_id' => $request->validated('shipping_address_id'),
+                'uses_fez_delivery' => $useFezDelivery,
+
             ]);
 
             foreach ($items as $item) {
@@ -535,4 +548,30 @@ class CartService
 
         return 'Product added to wishlist successfully.';
     }
+
+
+    private function calculateFezDeliveryCost($state, $weight = null)
+    {
+        $payload = ['state' => $state];
+
+        if ($weight !== null) {
+            $payload['weight'] = $weight;
+        }
+
+        $response = Http::timeout(30)
+            ->withHeaders([
+                'secret-key' => config('services.fez_delivery.secret_key')
+            ])
+            ->put(config('services.fez_delivery.api_url') . '/v1/order/cost', $payload);
+
+        if (!$response->successful()) {
+            throw new \Exception('Fez Delivery API returned error: ' . $response->status());
+        }
+
+        $data = $response->json();
+        $cost = $data['cost'] ?? $data['price'] ?? $data['amount'] ?? 0;
+
+        return (float) $cost;
+    }
 }
+

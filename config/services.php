@@ -60,6 +60,12 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URL'),
-    ]
+    ],
+
+    'fez_delivery' => [
+        'Authorization' => env('FEZ__DELIVERY_BEARER_TOKEN'),
+        'secret-key' => env('FEZ_DELIVERY_SECRET_KEY'),
+        'api_url' => env('FEZ_DELIVERY_API_URL', 'https://apisandbox.fezdelivery.co'),
+    ],
 
 ];

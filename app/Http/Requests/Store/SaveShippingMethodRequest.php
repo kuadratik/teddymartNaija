@@ -67,6 +67,7 @@ class SaveShippingMethodRequest extends FormRequest
         ])->toArray();
     }
 
+
     /**
      * Save shipping method
      */

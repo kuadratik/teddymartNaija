@@ -33,8 +33,8 @@ class StoreOrderRequest extends FormRequest
             'shipping_address_id' => ['required', 'integer', 'exists:user_shipping_addresses,id'],
             'store_shipping_methods' => ['required', 'array', 'min:1'],
             'store_shipping_methods.*.store_id' => ['required', 'integer', 'exists:stores,id'],
-            'store_shipping_methods.*.shipping_method_id' => ['required', 'integer','exists:store_shipping_methods,id'],
-            'currency_code' => ['required', 'string', Rule::enum(CurrencyType::class)],
+            'store_shipping_methods.*.shipping_method_id' => ['nullable', 'integer', 'exists:store_shipping_methods,id'],
+            'store_shipping_methods.*.use_fez_delivery' => ['required_if:store_shipping_methods.*.shipping_method_id,null', 'boolean'],
             'payment_gateway' => ['required', 'string', Rule::enum(PaymentGatewayEnum::class)],
             'return_url' => ['required', 'string', 'url'],
             'cancel_url' => ['required', 'string', 'url'],
@@ -49,6 +49,11 @@ class StoreOrderRequest extends FormRequest
         foreach ($this->store_shipping_methods as $method) {
             $storeId = $method['store_id'];
             $shippingMethodId = $method['shipping_method_id'];
+            $shippingMethodUseFezDelivery = $method['use_fez_delivery'] ?? false;
+
+            if ($shippingMethodUseFezDelivery) {
+                continue;
+            }
 
             $isValid = StoreShippingMethod::where('id', $shippingMethodId)
                 ->where('store_id', $storeId)
