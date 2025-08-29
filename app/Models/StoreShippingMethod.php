@@ -22,7 +22,6 @@ class StoreShippingMethod extends Model
         'is_unique',
         'duration_number',
         'duration_type',
-        'price_per_weight',
     ];
 
 
