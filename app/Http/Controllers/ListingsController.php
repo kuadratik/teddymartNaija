@@ -47,6 +47,7 @@ class ListingsController extends Controller
             $listing->attributes()->create($request->listingAttributeAttributes());
 
             $variantsAttributes = $request->variantsAttributes();
+
             if (!empty($variantsAttributes)) {
                 foreach ($variantsAttributes as $variant) {
                     $listing->variants()->create($variant);

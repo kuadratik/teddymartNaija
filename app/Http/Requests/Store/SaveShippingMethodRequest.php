@@ -35,7 +35,9 @@ class SaveShippingMethodRequest extends FormRequest
             'fulfilled_amount' => [Rule::requiredIf($this->method_type === ShippingMethodEnum::VENDOR_FULFILLED_SHIPPING->value), 'string'],
             'fulfilled_location' => [Rule::requiredIf($this->method_type === ShippingMethodEnum::VENDOR_FULFILLED_SHIPPING->value), 'string'],
             'duration_number' => ['nullable', 'integer', 'min:1'],
+            'amount_per_weight' => ['nullable', 'string'],
             'duration_type' => ['nullable', Rule::enum(DurationTypeEnum::class)],
+
         ];
     }
 
@@ -60,6 +62,7 @@ class SaveShippingMethodRequest extends FormRequest
             'store_id' => $this->store_id,
             'method_type' => ShippingMethodEnum::VENDOR_FULFILLED_SHIPPING->value,
             'amount' => $this->fulfilled_amount,
+            'amount_per_weight' => $this->amount_per_weight,
             'location' => $this->fulfilled_location,
             'duration_number' => $this->duration_number,
             'duration_type' => $this->duration_type,

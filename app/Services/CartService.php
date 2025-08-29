@@ -40,11 +40,20 @@ class CartService
             return $product->pivot->quantity * ($variantPrice ?? $product->display_price ?? $product->price);
         });
 
+        $totalWeight = $cart->products->sum(function ($product) {
+            $variantWeight = $product->pivot->listing_variant_id
+                ? ListingVariant::find($product->pivot->listing_variant_id)->weight
+                : null;
+            return $product->pivot->quantity * ($variantWeight ?? $product->weight ?? 0);
+        });
+
         $cartDetails = [
             'cart_id' => $cart->id,
             'total_items' => $cart->products->sum('pivot.quantity'),
             'total_quantity' => $cart->products->count(),
-            'total_price' => $totalCartPrice,
+            'total_price' => $totalCartPrice + $totalWeight,
+            'total_weight' => $totalWeight,
+            'sub_total_price' => $totalCartPrice,
             'products' => $cart->products->map(function ($product) {
                 $variant = $product->pivot->listing_variant_id ? ListingVariant::find($product->pivot->listing_variant_id) : null;
                 return [
@@ -58,6 +67,7 @@ class CartService
                     'total_price' => $product->pivot->quantity * $product->price,
                     'images' => $product->images,
                     'slug' => $product->slug,
+                    'weight' => $product->weight,
                     'description' => $product->description,
                     'store_name' => $product->store->name,
                     'store_slug' => $product->store->slug,
@@ -68,6 +78,7 @@ class CartService
                         'display_price' => $variant->display_price,
                         'image' => $variant->images,
                         'quantity' => $variant->quantity,
+                        'weight' => $variant->weight,
                     ] : null,
                 ];
             }),
@@ -371,7 +382,6 @@ class CartService
         return $orders;
     }
 
-
     /**
      * Add product to wishlist from cart
      */
@@ -437,7 +447,6 @@ class CartService
 
         return $storeShippingDetails;
     }
-
 
     /**
      * customer recieve order

@@ -50,7 +50,7 @@ class CreateListingRequest extends FormRequest
             'discount_start_date' => ['nullable', 'required_with:discount', 'date'],
             'discount_end_date' => ['nullable', 'required_with:discount', 'date', 'after:discount_start_date'],
             'sku' => ['nullable', 'string', 'max:50'],
-
+            'weight' => ['required', 'numeric'],
             'attributes.measurement' => ['nullable', 'array'],
             'attributes.measurement.*' => ['nullable', 'array'],
             'attributes.measurement.*.value' => ['nullable', 'numeric'],
@@ -80,6 +80,8 @@ class CreateListingRequest extends FormRequest
             'variants.*.discount_start_date' => ['nullable', 'required_with:variants.*.discount', 'date'],
             'variants.*.discount_end_date' => ['nullable', 'required_with:variants.*.discount', 'date', 'after:variants.*.discount_start_date'],
             'variants.*.images.*' => ['nullable', 'string'],
+            'variants.*.weight' => ['required', 'numeric'],
+
         ];
 
         foreach ($this->input('variants', []) as $index => $variant) {

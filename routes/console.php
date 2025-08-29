@@ -19,5 +19,5 @@ Schedule::command('orders:notify-vendors-delivery')->daily();
 Schedule::command('orders:send-vendor-reminders')->daily();
 
 if (App::environment(['local', 'staging'])) {
-    $schedule->command('telescope:prune --hours=48')->daily();
+    Schedule::command('telescope:prune --hours=48')->daily();
 }
