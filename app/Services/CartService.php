@@ -51,9 +51,8 @@ class CartService
             'cart_id' => $cart->id,
             'total_items' => $cart->products->sum('pivot.quantity'),
             'total_quantity' => $cart->products->count(),
-            'total_price' => $totalCartPrice + $totalWeight,
+            'total_price' => $totalCartPrice,
             'total_weight' => $totalWeight,
-            'sub_total_price' => $totalCartPrice,
             'products' => $cart->products->map(function ($product) {
                 $variant = $product->pivot->listing_variant_id ? ListingVariant::find($product->pivot->listing_variant_id) : null;
                 return [
@@ -224,9 +223,11 @@ class CartService
             ->get()
             ->groupBy('store_id');
 
+
         abort_if($cartItems->isEmpty(), 422, "No items in the cart for currency {$currency}.");
 
         $cumulativeTotalAmount = 0;
+
         $orderNumber = Str::uuid()->toString();
 
         $shippingMethods = collect($request->validated('store_shipping_methods'))->keyBy('store_id');
@@ -248,7 +249,15 @@ class CartService
 
             abort_if(!$shippingMethod, 422, "Invalid or unsupported shipping method for store ID {$storeId}.");
 
-            $shippingCost = $shippingMethod->amount ?? 0;
+            $totalWeight = $items->sum(function ($item) {
+                $variantWeight = $item->pivot->listing_variant_id
+                    ? ListingVariant::find($item->pivot->listing_variant_id)->weight
+                    : null;
+                return $item->pivot->quantity * ($variantWeight ?? $item->weight ?? 0);
+            });
+
+            $shippingCost = $shippingMethod->amount * $totalWeight  ?? 0;
+
             $totalAmount = $subtotal + $shippingCost;
 
             $cumulativeTotalAmount += $totalAmount;
