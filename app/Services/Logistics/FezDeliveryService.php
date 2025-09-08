@@ -7,12 +7,15 @@ use Illuminate\Support\Facades\Http;
 class FezDeliveryService
 {
     protected string $apiUrl;
-    protected array $headers;
 
     public function __construct()
     {
         $this->apiUrl = config('services.fez_delivery.api_url');
-        $this->headers = [
+    }
+
+    protected function getHeaders(): array
+    {
+        return [
             'Authorization' => cache()->remember(
                 'fez_delivery_auth_token',
                 now()->parse(
@@ -50,7 +53,7 @@ class FezDeliveryService
             $payload['weight'] = $weight;
         }
 
-        $response = Http::withHeaders($this->headers)
+        $response = Http::withHeaders($this->getHeaders())
             ->post("{$this->apiUrl}/v1/order/cost", $payload);
 
         if ($response->failed()) {
