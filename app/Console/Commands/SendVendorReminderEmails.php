@@ -21,11 +21,15 @@ class SendVendorReminderEmails extends Command
             ->get();
 
         $emailsSent = 0;
+        $totalVendors = $vendors->count();
+
+        $this->info("Starting to send emails to {$totalVendors} vendors...");
 
         foreach ($vendors as $vendor) {
             try {
                 $vendor->notify(new VendorReminderNotification());
                 $emailsSent++;
+                $this->info("Progress: {$emailsSent}/{$totalVendors} emails sent");
             } catch (\Exception $e) {
                 $this->error("Failed to send email to {$vendor->email}: {$e->getMessage()}");
             }

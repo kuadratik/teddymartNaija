@@ -36,17 +36,16 @@ class VendorReminderNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Boost Your Store\'s Visibility: Add More Products Today!')
-            ->greeting('Dear ' . $notifiable->name . ',')
+            ->greeting('Dear ' . $notifiable->first_name . ',')
             ->line('Great work on getting started with your myEKI store!')
             ->line('Here\'s a quick tip to help you attract more customers and increase your sales: stores with multiple products tend to perform better. Adding more items not only improves your store\'s visibility on the platform but also gives buyers more options to explore.')
             ->line('To stay ahead:')
             ->line('• Add new and trending products regularly')
             ->line('• Include clear images and detailed descriptions')
             ->line('• Update pricing and availability as needed')
-            ->action('Manage Your Store', config('app.vendor_dashboard_url'))
+            ->action('Manage Your Store', url(env('FRONTEND_URL', 'https://myeki.market') . '/store/dashboard'))
             ->line('If you have any questions or need support, our team is here to help.')
-            ->line('Let\'s grow your store together!')
-            ->salutation('Best regards,\nThe myEKI Team\nvendorsupport@myEKI.market');
+            ->line('Let\'s grow your store together!');
     }
 
     /**
