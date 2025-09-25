@@ -1419,5 +1419,40 @@ paths:
               schema:
                 type: object
 
+  /store/duplicate/{store_id}:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Duplicate Store With Products (No Price)
+      description: >
+        Duplicate a store with all its products and quantities, but set product prices to null.
+      operationId: DuplicateUserStore
+      parameters:
+        - in: path
+          name: store_id
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+          description: The slug of the store to duplicate.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "USD"
+          required: true
+          description: The currency for the duplicated store.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
+
 
 
