@@ -19,7 +19,8 @@ class ListingVariant extends Model
         'measurement',
         'discount_start_date',
         'discount_end_date',
-        'images'
+        'images',
+        'weight'
     ];
 
     protected $casts = [

@@ -17,7 +17,8 @@ Schedule::command('cart:send-abandoned-emails')->daily();
 Schedule::command('orders:notify-shipped')->everyTwoMinutes();
 Schedule::command('orders:notify-vendors-delivery')->daily();
 Schedule::command('orders:send-vendor-reminders')->daily();
+Schedule::command('vendor:send-reminder-emails')->twiceDaily();
 
 if (App::environment(['local', 'staging'])) {
-    $schedule->command('telescope:prune --hours=48')->daily();
+    Schedule::command('telescope:prune --hours=48')->daily();
 }

@@ -42,7 +42,8 @@ class Order extends Model
         'shipping_address_id',
         'delivered_notification_count',
         'shipped_at',
-        'vendor_notified_at'
+        'vendor_notified_at',
+        'uses_fez_delivery'
     ];
 
 
@@ -127,12 +128,11 @@ class Order extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
     public function clip()
     {
         return $this->belongsTo(Clip::class);
     }
-
-
 
     /**
      * Get the full name of the user.

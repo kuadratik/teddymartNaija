@@ -328,6 +328,10 @@ paths:
                   type: number
                   example: 1000
                   description: Required if type is "product."
+                weight:
+                  type: string
+                  example: "500"
+                  description: Weight of the product (e.g., "500g", "1kg").
                 description:
                   type: string
                   maxLength: 500
@@ -431,6 +435,10 @@ paths:
                         type: number
                         minimum: 0
                         example: 1500
+                      weight:
+                        type: string
+                        example: "500"
+                        description: Weight of the product variant (e.g., "500g", "1kg").
                       discount:
                         type: number
                         minimum: 0
@@ -597,6 +605,10 @@ paths:
                   type: string
                   description: Listing price
                   example: "1000"
+                weight:
+                  type: string
+                  description: Weight of the product (e.g., "500g", "1kg").
+                  example: "500"
                 currency:
                   type: string
                   description: Currency for pricing
@@ -709,6 +721,10 @@ paths:
                       size:
                         type: string
                         example: "Large"
+                      weight:
+                        type: string
+                        description: Weight of the product variant (e.g., "500g", "1kg").
+                        example: "500"
                       color:
                         type: string
                         example: "Brown"
@@ -1402,6 +1418,41 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /store/duplicate/{store_id}:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Duplicate Store With Products (No Price)
+      description: >
+        Duplicate a store with all its products and quantities, but set product prices to null.
+      operationId: DuplicateUserStore
+      parameters:
+        - in: path
+          name: store_id
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+          description: The slug of the store to duplicate.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "USD"
+          required: true
+          description: The currency for the duplicated store.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
 
 
 

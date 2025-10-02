@@ -20,10 +20,7 @@ use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    public function __construct(public CartService $cartService)
-    {
-        //
-    }
+    public function __construct(public CartService $cartService) {}
 
     /**
      * Adds a product to the cart.
@@ -85,7 +82,6 @@ class CartController extends Controller
         return $this->success($data->fresh());
     }
 
-
     /**
      * Delete users shipping address
      */
@@ -106,9 +102,6 @@ class CartController extends Controller
         return $this->success($address->fresh());
     }
 
-
-
-
     /**
      * Get user orders
      */
@@ -128,7 +121,6 @@ class CartController extends Controller
 
         return $this->success($data);
     }
-
 
     /**
      * Get shipping methods supported for stores in cart
@@ -184,7 +176,6 @@ class CartController extends Controller
         return $this->success([], $message);
     }
 
-
     /**
      * Add product to wishlist from cart
      */
@@ -204,7 +195,6 @@ class CartController extends Controller
 
         return $this->success($wishlist->load('store'));
     }
-
 
     /**
      * Remove product from wishlist

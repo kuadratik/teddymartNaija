@@ -251,4 +251,13 @@ class StoresController extends Controller
         $order->load(['orderDetails', 'orderDetails.variant', 'store', 'customer', 'payments', 'shippingAddress', 'shippingMethod']);
         return $this->success($order);
     }
+
+    /**
+     * Duplicate a store with all its products and quantities, but set product prices to null.
+     */
+    public function duplicateStore(Request $request, Store $store)
+    {
+        $newStore = $this->storeService->duplicateStoreWithProductsNoPrice($store, $request->header('currency', 'USD'));
+        return $this->success(['store' => $newStore]);
+    }
 }

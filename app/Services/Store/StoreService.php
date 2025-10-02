@@ -222,4 +222,38 @@ class StoreService
             }
         });
     }
+
+    /**
+     * Duplicate a store with all its products and quantities, but set product prices to 0 and set currency.
+     */
+    public function duplicateStoreWithProductsNoPrice(Store $store, string $currency)
+    {
+        $newStore = $store->replicate();
+        $newStore->name = $store->name . ' (Copy)' . uniqid();
+        $newStore->currency = $currency;
+        $newStore->push();
+
+        foreach ($store->listings as $listing) {
+            $newListing = $listing->replicate();
+            $newListing->store_id = $newStore->id;
+            $newListing->currency = $currency;
+            $newListing->price = 0;
+            $newListing->discounted_price = 0;
+            $newListing->display_price = 0;
+            $newListing->push();
+
+            if (method_exists($listing, 'variants')) {
+                foreach ($listing->variants as $variant) {
+                    $newVariant = $variant->replicate();
+                    $newVariant->listing_id = $newListing->id;
+                    $newVariant->price = 0;
+                    $newVariant->discounted_price = 0;
+                    $newVariant->display_price = 0;
+                    $newVariant->push();
+                }
+            }
+        }
+
+        return $newStore->load('listings');
+    }
 }

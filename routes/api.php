@@ -114,6 +114,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('store')->group(function () {
         Route::post('create', [StoresController::class, 'create']);
         Route::middleware('hasStore')->group(function () {
+            Route::post('duplicate/{store}', [StoresController::class, 'duplicateStore']);
             Route::get('user-store', [StoresController::class, 'showUserStore']);
             Route::get('user-store/{userStore}/metrics', [StoresController::class, 'getUserStoreMetrics']);
             Route::get('user-store/{userStore}/overall-metrics', [StoresController::class, 'getStoreOverallMetrics']);

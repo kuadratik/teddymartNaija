@@ -14,14 +14,19 @@ use App\Models\ListingVariant;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\StoreShippingMethod;
+use App\Models\UserShippingAddress;
 use App\Notifications\Order\OrderDeliveredNotification;
+use App\Services\Logistics\FezDeliveryService;
 use App\Support\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class CartService
 {
+    public function __construct(protected FezDeliveryService $fezDeliveryService) {}
+
     /**
      * Get detailed cart information including total items and product details
      */
@@ -40,11 +45,19 @@ class CartService
             return $product->pivot->quantity * ($variantPrice ?? $product->display_price ?? $product->price);
         });
 
+        $totalWeight = $cart->products->sum(function ($product) {
+            $variantWeight = $product->pivot->listing_variant_id
+                ? ListingVariant::find($product->pivot->listing_variant_id)->weight
+                : null;
+            return $product->pivot->quantity * ($variantWeight ?? $product->weight ?? 0);
+        });
+
         $cartDetails = [
             'cart_id' => $cart->id,
             'total_items' => $cart->products->sum('pivot.quantity'),
             'total_quantity' => $cart->products->count(),
             'total_price' => $totalCartPrice,
+            'total_weight' => $totalWeight,
             'products' => $cart->products->map(function ($product) {
                 $variant = $product->pivot->listing_variant_id ? ListingVariant::find($product->pivot->listing_variant_id) : null;
                 return [
@@ -58,6 +71,7 @@ class CartService
                     'total_price' => $product->pivot->quantity * $product->price,
                     'images' => $product->images,
                     'slug' => $product->slug,
+                    'weight' => $product->weight,
                     'description' => $product->description,
                     'store_name' => $product->store->name,
                     'store_slug' => $product->store->slug,
@@ -68,6 +82,7 @@ class CartService
                         'display_price' => $variant->display_price,
                         'image' => $variant->images,
                         'quantity' => $variant->quantity,
+                        'weight' => $variant->weight,
                     ] : null,
                 ];
             }),
@@ -213,9 +228,11 @@ class CartService
             ->get()
             ->groupBy('store_id');
 
+
         abort_if($cartItems->isEmpty(), 422, "No items in the cart for currency {$currency}.");
 
         $cumulativeTotalAmount = 0;
+
         $orderNumber = Str::uuid()->toString();
 
         $shippingMethods = collect($request->validated('store_shipping_methods'))->keyBy('store_id');
@@ -231,13 +248,36 @@ class CartService
 
             abort_if(!$shippingMethodData, 422, "Shipping method not provided for store ID {$storeId}.");
 
-            $shippingMethod = StoreShippingMethod::where('id', $shippingMethodData['shipping_method_id'])
+            $useFezDelivery = $shippingMethodData['use_fez_delivery'] ?? false;
+
+            $shippingCost = 0;
+
+            $shippingMethodId = null;
+
+            $totalWeight = $items->sum(function ($item) {
+                $variantWeight = $item->pivot->listing_variant_id
+                    ? ListingVariant::find($item->pivot->listing_variant_id)->weight
+                    : null;
+                return $item->pivot->quantity * ($variantWeight ?? $item->weight ?? 0);
+            });
+            $shippingAddress = UserShippingAddress::find($request->validated('shipping_address_id'));
+            if ($useFezDelivery) {
+                $shippingCost = $this->fezDeliveryService->calculateDeliveryCost($shippingAddress->state, $totalWeight);
+                $shippingMethodId = null;
+            } else {
+
+                $shippingMethod = StoreShippingMethod::where('id', $shippingMethodData['shipping_method_id'])
                 ->where('store_id', $storeId)
                 ->first();
 
             abort_if(!$shippingMethod, 422, "Invalid or unsupported shipping method for store ID {$storeId}.");
 
-            $shippingCost = $shippingMethod->amount ?? 0;
+
+
+                $shippingCost = $shippingMethod->amount * $totalWeight  ?? 0;
+                $shippingMethodId = $shippingMethod->id;
+            }
+
             $totalAmount = $subtotal + $shippingCost;
 
             $cumulativeTotalAmount += $totalAmount;
@@ -259,7 +299,9 @@ class CartService
                 'status' => OrderStatusEnum::PENDING->value,
                 'payment_status' => OrderStatusEnum::PENDING_PAYMENT->value,
                 'store_shipping_method_id' => $shippingMethod->id,
-                'shipping_address_id' => $request->validated('shipping_address_id')
+                'shipping_address_id' => $request->validated('shipping_address_id'),
+                'uses_fez_delivery' => $useFezDelivery,
+
             ]);
 
             foreach ($items as $item) {
@@ -371,7 +413,6 @@ class CartService
         return $orders;
     }
 
-
     /**
      * Add product to wishlist from cart
      */
@@ -437,7 +478,6 @@ class CartService
 
         return $storeShippingDetails;
     }
-
 
     /**
      * customer recieve order
@@ -518,3 +558,4 @@ class CartService
         return 'Product added to wishlist successfully.';
     }
 }
+

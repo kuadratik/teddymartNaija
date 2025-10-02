@@ -17,16 +17,12 @@ use App\Models\StorePayoutDetail;
 class PaypalPaymentService implements PaymentGatewayInterface
 {
 
-    protected $provider;
     protected $accessToken;
-    protected $cartService;
 
-    public function __construct()
+    public function __construct(protected CartService $cartService, protected PayPalClient $provider)
     {
-        $this->provider = new PayPalClient;
         $this->provider->setApiCredentials(config('paypal'));
         $this->accessToken =  $this->provider->getAccessToken();
-        $this->cartService = new CartService;
     }
 
     public function initialize(array $data): array

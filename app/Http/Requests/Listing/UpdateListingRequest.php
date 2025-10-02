@@ -55,6 +55,7 @@ class UpdateListingRequest extends FormRequest
             'discount_start_date' => ['nullable', 'required_with:discount', 'date'],
             'discount_end_date' => ['nullable', 'required_with:discount', 'date', 'after:discount_start_date'],
             'sku' => ['nullable', 'string', 'max:50'],
+            'weight' => ['nullable', 'numeric'],
 
             'attributes.measurement' => ['nullable', 'array'],
             'attributes.measurement.*' => ['nullable', 'array'],
@@ -75,6 +76,7 @@ class UpdateListingRequest extends FormRequest
             'variants.*.name' => ['nullable', 'string'],
             'variants.*.quantity' => ['nullable', 'integer', 'min:0'],
             'variants.*.price' => ['nullable', 'numeric', 'min:1'],
+            'variants.*.weight' => ['nullable', 'numeric'],
             'variants.*.discount' => ['nullable', 'numeric', 'min:1', 'max:99'],
             'variants.*.size' => ['nullable', 'string'],
             'variants.*.color' => ['nullable', 'string'],

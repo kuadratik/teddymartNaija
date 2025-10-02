@@ -36,6 +36,7 @@ class SaveShippingMethodRequest extends FormRequest
             'fulfilled_location' => [Rule::requiredIf($this->method_type === ShippingMethodEnum::VENDOR_FULFILLED_SHIPPING->value), 'string'],
             'duration_number' => ['nullable', 'integer', 'min:1'],
             'duration_type' => ['nullable', Rule::enum(DurationTypeEnum::class)],
+
         ];
     }
 
@@ -65,6 +66,7 @@ class SaveShippingMethodRequest extends FormRequest
             'duration_type' => $this->duration_type,
         ])->toArray();
     }
+
 
     /**
      * Save shipping method
