@@ -111,14 +111,13 @@ class StoreService
             ->whereNotIn('status', [OrderStatusEnum::PENDING->value, 'incart'])
             ->when($request->filled('order_status'), fn($query) => $query->where('status', $request->order_status))
             ->when($request->filled('search'), function ($query) use ($request) {
-                $searchTerm = $request->search;
-
+            $searchTerm = $request->search;
             return $query->where(function ($q) use ($searchTerm) {
                     $q->whereAny(['order_number', 'first_name', 'last_name', 'email', 'phone'], 'LIKE', "%{$searchTerm}%");
                 });
             })
             ->latest()
-            ->with(['orderDetails', 'customer', 'shippingMethod', 'orderDetails.listing.weight'])
+            ->with(['orderDetails.listing:id,name,price,weight', 'customer', 'shippingMethod'])
             ->paginate(20);
 
         return $orders;

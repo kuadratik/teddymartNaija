@@ -243,7 +243,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
                     $order->update(['payment_status' => $transactionData['status']]);
                 }
 
-                $orderDetails = $order->load(['orderDetails', 'store']);
+                $orderDetails = $order->load(['orderDetails.listing:id,name,price,weight', 'store']);
 
                 $mergedOrderDetails[] = $orderDetails->toArray();
             }

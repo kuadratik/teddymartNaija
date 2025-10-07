@@ -401,7 +401,13 @@ class CartService
 
         $orders = Order::where('order_number', $order->getOriginalOrderNumber())
             ->where('user_id', $user->id)
-            ->with(['orderDetails', 'shippingAddress', 'store', 'customer', 'payments'])
+            ->with([
+                'orderDetails.listing:id,name,price,weight',
+                'shippingAddress',
+                'store',
+                'customer',
+                'payments'
+            ])
             ->latest()
             ->get();
 
