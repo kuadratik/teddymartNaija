@@ -248,7 +248,7 @@ class StoresController extends Controller
     public function showStoreOrder(Store $store, Order $order)
     {
         abort_if($store->id !== $order->store_id, 403, 'Unauthorized');
-        $order->load(['orderDetails', 'orderDetails.variant', 'store', 'customer', 'payments', 'shippingAddress', 'shippingMethod']);
+        $order->load(['orderDetails.listing:id,name,price,weight', 'orderDetails.variant', 'store', 'customer', 'payments', 'shippingAddress', 'shippingMethod']);
         return $this->success($order);
     }
 
