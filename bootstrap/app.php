@@ -24,6 +24,7 @@ use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -32,6 +33,9 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__ . '/../routes/api.php',
         channels: __DIR__ . '/../routes/channels.php',
         commands: __DIR__ . '/../routes/console.php',
+        then: function () {
+            Route::middleware('api')->prefix('api')->group(base_path('routes/admin.php'));
+        },
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
@@ -43,7 +47,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'hasStore' => CheckIfUserHasStore::class,
             'optionalAuth' => OptionalSanctum::class,
             'verifyWebhookSignature' => VerifyWebhookSignature::class,
-            'stopper' => BlockConcurrency::class
+            'stopper' => BlockConcurrency::class,
+            'admin' => \App\Http\Middleware\AdminMiddleware::class
         ]);
         $middleware->validateCsrfTokens(except: [
             'https://9f6d9d9fe38133.lhr.life/api/webhook/paypal'

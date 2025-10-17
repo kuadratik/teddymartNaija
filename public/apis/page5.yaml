@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+  title: TeddyMart Admin API
+  version: 1.0.0
+  description: Admin authentication endpoints for TeddyMart backend
+
+servers:
+  - url: http://localhost:8000/api
+    description: Local development server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /admin/login:
+    post:
+      tags:
+        - Admin Authentication
+      summary: Admin login
+      description: Authenticate admin user and receive access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: admin@myeki.market
+                password:
+                  type: string
+                  format: password
+                  example: password123
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+  /admin/logout:
+    post:
+      tags:
+        - Admin Authentication
+      summary: Admin logout
+      description: Logout admin user and revoke access token
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
