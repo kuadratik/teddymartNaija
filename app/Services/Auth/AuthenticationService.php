@@ -3,6 +3,7 @@
 namespace App\Services\Auth;
 
 use App\Enums\ReferralType;
+use App\Models\Admin;
 use App\Models\Otp;
 use App\Models\Referral;
 use App\Models\User;
@@ -178,11 +179,29 @@ class AuthenticationService
     }
 
     /**
-     * logout user
+     * Admin login
      */
-    public function logout(): bool
+    public function adminLogin(string $email, string $password): array
     {
-        request()->user()->currentAccessToken()->delete();
+        $admin = Admin::where('email', $email)->first();
+
+        if (!$admin || !Hash::check($password, $admin->password)) {
+            return Utils::validateResp(['email' => ['The provided credentials are invalid.']]);
+        }
+
+        return [
+            'token' => $admin->createToken('adminAuthToken')->plainTextToken,
+            'admin' => $admin,
+        ];
+    }
+
+    /**
+     * logout user or admin
+     */
+    public function logout($user = null): bool
+    {
+        $authenticatable = $user ?: request()->user();
+        $authenticatable->currentAccessToken()->delete();
         return true;
     }
 }
