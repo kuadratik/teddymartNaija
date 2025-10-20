@@ -33,7 +33,8 @@ class StoreBrandRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'brand_category_id' => 'required|exists:brand_categories,id',
+            'category_ids' => 'required|array|min:1',
+            'category_ids.*' => 'exists:brand_categories,id',
             'description' => 'nullable|string',
             'logo_url' => 'nullable|string',
             'source_url' => 'nullable|url',
@@ -49,7 +50,8 @@ class StoreBrandRequest extends FormRequest
     {
         return [
             'name.required' => 'Brand name is required.',
-            'brand_category_id.exists' => 'Invalid brand category selected.',
+            'category_ids.required' => 'At least one category is required.',
+            'category_ids.*.exists' => 'Invalid brand category selected.',
         ];
     }
 
@@ -74,7 +76,7 @@ class StoreBrandRequest extends FormRequest
     {
         return [
             'name' => $this->validated('name'),
-            'brand_category_id' => $this->validated('brand_category_id'),
+            'category_ids' => $this->validated('category_ids'),
             'description' => $this->validated('description'),
             'logo_url' => $this->logoPath(),
             'source_url' => $this->validated('source_url'),
