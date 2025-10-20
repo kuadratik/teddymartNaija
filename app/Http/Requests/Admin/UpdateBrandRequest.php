@@ -32,7 +32,8 @@ class UpdateBrandRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|required|string|max:255',
-            'brand_category_id' => 'sometimes|required|exists:brand_categories,id',
+            'category_ids' => 'sometimes|required|array|min:1',
+            'category_ids.*' => 'exists:brand_categories,id',
             'description' => 'nullable|string',
             'logo_url' => 'nullable|string',
             'source_url' => 'nullable|url',
@@ -62,7 +63,7 @@ class UpdateBrandRequest extends FormRequest
     {
         $attributes = collect($this->validated())->only([
             'name',
-            'brand_category_id',
+            'category_ids',
             'description',
             'source_url',
             'target_url',

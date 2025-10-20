@@ -129,14 +129,16 @@ paths:
               type: object
               required:
                 - name
-                - brand_category_id
+                - category_ids
               properties:
                 name:
                   type: string
                   example: Nike
-                brand_category_id:
-                  type: integer
-                  example: 1
+                category_ids:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 2, 3]
                 description:
                   type: string
                   example: Sportswear brand
@@ -248,9 +250,11 @@ paths:
                 name:
                   type: string
                   example: Adidas
-                brand_category_id:
-                  type: integer
-                  example: 2
+                category_ids:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 2]
                 description:
                   type: string
                   example: Updated sportswear brand

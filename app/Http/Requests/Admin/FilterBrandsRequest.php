@@ -24,7 +24,7 @@ class FilterBrandsRequest extends FormRequest
             'category_id' => 'nullable|integer|exists:brand_categories,id',
             'is_active' => 'nullable',
             'per_page' => 'nullable|integer|min:1|max:100',
-            'include_archived' => 'nullable|boolean',
+            'include_archived' => 'nullable',
         ];
     }
 

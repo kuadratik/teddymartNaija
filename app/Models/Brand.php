@@ -11,7 +11,6 @@ class Brand extends Model
 
     protected $fillable = [
         'name',
-        'brand_category_id',
         'description',
         'logo_url',
         'source_url',
@@ -26,11 +25,11 @@ class Brand extends Model
     ];
 
     /**
-     * Relationship: Brand belongs to a category
+     * Relationship: Brand belongs to many categories
      */
-    public function category()
+    public function categories()
     {
-        return $this->belongsTo(BrandCategory::class, 'brand_category_id');
+        return $this->belongsToMany(BrandCategory::class, 'brand_category_pivot');
     }
 
     /**
