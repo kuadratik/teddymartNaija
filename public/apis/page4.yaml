@@ -16,6 +16,83 @@ components:
     bearerFormat: JWT
 
 paths:
+  /front/brands:
+    get:
+      tags:
+        - Brands
+      summary: Get active brands
+      description: Get list of active brands with search and filter capabilities
+      operationId: GetBrands
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "nike"
+          required: false
+          description: Search in brand name and description
+        - in: query
+          name: category_id
+          schema:
+            type: integer
+            example: 1
+          required: false
+          description: Filter by brand category ID
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            example: 15
+          required: false
+          description: Number of results per page
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/brands/{id}:
+    get:
+      tags:
+        - Brands
+      summary: Get single active brand
+      description: Get details of a single active brand by ID
+      operationId: GetBrand
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 1
+          required: true
+          description: Brand ID
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Brand not found or inactive"
+
+  /front/brand-categories:
+    get:
+      tags:
+        - Brands
+      summary: Get active brand categories
+      description: Get list of all active brand categories
+      operationId: GetBrandCategories
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /front/business-industries:
     get:
       security:

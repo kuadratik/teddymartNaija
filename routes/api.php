@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdvertListingController;
 use App\Http\Controllers\Auth\FrontAuthController;
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatsController;
 use App\Http\Controllers\Front\BusinessListingController;
@@ -27,9 +28,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+
 Route::prefix('front')->group(function () {
     Route::post('login', [FrontAuthController::class, 'login']);
-
+    Route::get('brands', [BrandController::class, 'index']);
+    Route::get('brands/{brand}', [BrandController::class, 'show']);
+    Route::get('brand-categories', [BrandController::class, 'categories']);
     Route::post('magic-link', [FrontAuthController::class, 'magicLink']);
     Route::post('magic-login', [FrontAuthController::class, 'magicLogin']);
 
