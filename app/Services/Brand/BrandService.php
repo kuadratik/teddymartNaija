@@ -83,9 +83,15 @@ class BrandService
         return (bool) $brand->delete();
     }
 
-    public function getBrandById(int $id)
+    public function getBrandById(int $id, bool $activeOnly = false)
     {
-        return Brand::with('categories')->findOrFail($id);
+        $query = Brand::with('categories');
+        
+        if ($activeOnly) {
+            $query->where('is_active', true)->where('is_archived', false);
+        }
+        
+        return $query->findOrFail($id);
     }
 
     /**
@@ -105,6 +111,28 @@ class BrandService
     public function getAllCategories()
     {
         return BrandCategory::where('is_active', true)->latest('updated_at')->get();
+    }
+
+    /**
+     * Get active brands for public API
+     */
+    public function getActiveBrands()
+    {
+        return Brand::with('categories')
+            ->where('is_active', true)
+            ->where('is_archived', false)
+            ->latest('updated_at')
+            ->get();
+    }
+
+    /**
+     * Get active categories for public API
+     */
+    public function getActiveBrandCategories()
+    {
+        return BrandCategory::where('is_active', true)
+            ->latest('updated_at')
+            ->get();
     }
 
     public function archiveBrand(int $id): Brand
