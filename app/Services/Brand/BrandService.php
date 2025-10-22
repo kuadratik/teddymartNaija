@@ -38,9 +38,9 @@ class BrandService
                         ->orWhere('description', 'like', '%' . $filters['search'] . '%');
                 });
             })
-            ->when(!empty($filters['category_id']), function ($query) use ($filters) {
+            ->when(!empty($filters['category_ids']), function ($query) use ($filters) {
             $query->whereHas('categories', function ($q) use ($filters) {
-                $q->where('brand_categories.id', $filters['category_id']);
+                $q->whereIn('brand_categories.id', $filters['category_ids']);
             });
             })
             ->when(array_key_exists('is_active', $filters), function ($query) use ($filters) {
@@ -86,11 +86,11 @@ class BrandService
     public function getBrandById(int $id, bool $activeOnly = false)
     {
         $query = Brand::with('categories');
-        
+
         if ($activeOnly) {
             $query->where('is_active', true)->where('is_archived', false);
         }
-        
+
         return $query->findOrFail($id);
     }
 

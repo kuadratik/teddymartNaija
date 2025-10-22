@@ -72,13 +72,15 @@ paths:
           schema:
             type: string
             example: "Nike"
-        - name: category_id
-          in: query
-          description: Filter by brand category ID
+        - in: query
+          name: category_ids[]
+          description: Filter by brand category IDs (use multiple values like ?category_ids[]=1&category_ids[]=2)
           required: false
           schema:
-            type: integer
-            example: 3
+            type: array
+            items:
+              type: integer
+            example: [1, 2, 3]
         - name: is_active
           in: query
           description: Filter by active status (true or false)
