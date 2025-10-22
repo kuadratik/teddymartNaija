@@ -32,12 +32,16 @@ paths:
           required: false
           description: Search in brand name and description
         - in: query
-          name: category_id
-          schema:
-            type: integer
-            example: 1
+          name: category_ids[]
+          description: Filter by brand category IDs (use multiple values like ?category_ids[]=1&category_ids[]=2)
           required: false
-          description: Filter by brand category ID
+          schema:
+            type: array
+            items:
+              type: integer
+            example: [1, 2, 3]
+
+
         - in: query
           name: per_page
           schema:
