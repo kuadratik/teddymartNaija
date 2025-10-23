@@ -43,7 +43,7 @@ class VendorReminderNotification extends Notification
             ->line('• Add new and trending products regularly')
             ->line('• Include clear images and detailed descriptions')
             ->line('• Update pricing and availability as needed')
-            ->action('Manage Your Store', url(env('FRONTEND_URL', 'https://myeki.market') . '/store/dashboard'))
+            ->action('Manage Your Store', url(env('FRONTEND_URL', 'https://myeki.market') . '/vendor/dashboard'))
             ->line('If you have any questions or need support, our team is here to help.')
             ->line('Let\'s grow your store together!');
     }
