@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\FilterBrandsRequest;
+use App\Http\Requests\Admin\SlugRecommendationRequest;
 use App\Http\Requests\Admin\StoreBrandRequest;
 use App\Http\Requests\Admin\UpdateBrandRequest;
 use App\Models\Brand;
-use Illuminate\Http\Request;
 use App\Services\Brand\BrandService;
 
 class BrandController extends Controller
@@ -63,5 +63,12 @@ class BrandController extends Controller
     {
         $deleted = $this->brandService->deleteBrand($brand->id);
         return $this->success(message: 'Brand deleted successfully');
+    }
+
+    public function slugRecommendation(SlugRecommendationRequest $request)
+    {
+        $slug = $this->brandService->generateSlug($request->validated('name'));
+
+        return $this->success(['slug' => $slug]);
     }
 }

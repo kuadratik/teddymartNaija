@@ -275,6 +275,30 @@ paths:
         default:
           description: success
 
+  /admin/brands/slug-recommendation:
+    post:
+      tags:
+        - Brands
+      summary: Generate slug recommendation
+      description: Generate a URL-friendly slug from brand name
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  example: "Nike Air Max"
+      responses:
+        default:
+          description: success
+
   /admin/brands/categories/all:
     get:
       tags:
