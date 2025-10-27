@@ -57,6 +57,7 @@ class StoresController extends Controller
         $currency = $request->header('currency', 'USD');
 
         $stores = Store::query()
+            ->where('active', true)
             ->where('type', $request->listingType)
             ->when($request->sortType === 'alphanumeric', fn($query) => $query->orderBy('name', 'asc'))
             ->when($request->search, fn($query) => $query->search($request->search))
@@ -77,6 +78,7 @@ class StoresController extends Controller
         $currency = $request->header('currency', 'USD');
 
         $stores = Store::query()
+            ->where('active', true)
             ->recommended()
             ->where('currency', $currency)
             ->inRandomOrder()
@@ -93,6 +95,7 @@ class StoresController extends Controller
         $country = $request->header('country', 'United States');
 
         $stores = Store::query()
+            ->where('active', true)
             ->popularRecommended()
             ->whereHas('country', function ($query) use ($country) {
                 $query->where('name', $country);
@@ -111,6 +114,7 @@ class StoresController extends Controller
         $country = $request->header('country', 'United States');
 
         $store = Store::query()
+            ->where('active', true)
             ->popular()
             ->whereHas('country', function ($query) use ($country) {
                 $query->where('name', $country);

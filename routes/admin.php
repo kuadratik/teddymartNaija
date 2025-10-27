@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\AdminStoreController;
 use App\Http\Controllers\Admin\BrandCategoriesController;
 use App\Http\Controllers\Admin\BrandController;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,9 @@ Route::prefix('admin')->group(function () {
 
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::post('logout', [AdminAuthController::class, 'logout']);
+        
+        Route::patch('stores/{store}/deactivate', [AdminStoreController::class, 'deactivate']);
+        Route::patch('stores/{store}/activate', [AdminStoreController::class, 'activate']);
 
         Route::prefix('brands')->group(function () {
             Route::get('/', [BrandController::class, 'index']);

@@ -136,6 +136,7 @@ class ListingsController extends Controller
         $currency = $request->header('currency', 'USD');
 
         $listing = Listing::query()
+            ->whereHas('store', fn($query) => $query->where('active', true))
             ->popular($request->query('listingType'))
             ->byCurrency($currency)
             ->with('store')

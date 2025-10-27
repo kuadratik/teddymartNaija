@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: TeddyMart Admin API
   version: 1.0.0
-  description: Admin authentication and brand management endpoints for TeddyMart backend
+  description: Admin authentication, brand management, and store management endpoints for TeddyMart backend
 
 servers:
   - url: http://localhost:8000/api
@@ -72,15 +72,13 @@ paths:
           schema:
             type: string
             example: "Nike"
-        - in: query
-          name: category_ids[]
-          description: Filter by brand category IDs (use multiple values like ?category_ids[]=1&category_ids[]=2)
+        - name: category_id
+          in: query
+          description: Filter by brand category ID
           required: false
           schema:
-            type: array
-            items:
-              type: integer
-            example: [1, 2, 3]
+            type: integer
+            example: 3
         - name: is_active
           in: query
           description: Filter by active status (true or false)
@@ -112,10 +110,6 @@ paths:
       responses:
         default:
           description: success
-          content:
-            application/json:
-              schema:
-                type: object
     post:
       tags:
         - Brands
@@ -159,56 +153,6 @@ paths:
       responses:
         default:
           description: success
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /admin/brands/{brand}/archive:
-    patch:
-      tags:
-        - Brands
-      summary: Archive a brand
-      description: Archive a brand by setting `is_archived` to true
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: brand
-          in: path
-          required: true
-          schema:
-            type: integer
-          example: 5
-      responses:
-        default:
-          description: success
-          content:
-            application/json:
-              schema:
-                type: object
-
-  /admin/brands/{brand}/unarchive:
-    patch:
-      tags:
-        - Brands
-      summary: Unarchive a brand
-      description: Restore a previously archived brand by setting `is_archived` to false
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: brand
-          in: path
-          required: true
-          schema:
-            type: integer
-          example: 5
-      responses:
-        default:
-          description: success
-          content:
-            application/json:
-              schema:
-                type: object
 
   /admin/brands/{brand}:
     get:
@@ -293,6 +237,44 @@ paths:
         default:
           description: success
 
+  /admin/brands/{brand}/archive:
+    patch:
+      tags:
+        - Brands
+      summary: Archive a brand
+      description: Archive a brand by setting `is_archived` to true
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: brand
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 5
+      responses:
+        default:
+          description: success
+
+  /admin/brands/{brand}/unarchive:
+    patch:
+      tags:
+        - Brands
+      summary: Unarchive a brand
+      description: Restore a previously archived brand by setting `is_archived` to false
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: brand
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 5
+      responses:
+        default:
+          description: success
+
   /admin/brands/categories/all:
     get:
       tags:
@@ -303,11 +285,8 @@ paths:
         - bearerAuth: []
       responses:
         default:
-          description: "success"
-          content:
-            application/json:
-              schema:
-                type: object
+          description: success
+
   /admin/brands/categories:
     post:
       tags:
@@ -330,8 +309,42 @@ paths:
                   example: Sportswear
       responses:
         default:
-          description: "success"
-          content:
-            application/json:
-              schema:
-                type: object
+          description: success
+
+  /admin/stores/{store}/deactivate:
+    patch:
+      tags:
+        - Store Management
+      summary: Deactivate store
+      description: Deactivate a store by setting active to false
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store
+          in: path
+          required: true
+          schema:
+            type: string
+          example: nike-store
+      responses:
+        default:
+          description: success
+
+  /admin/stores/{store}/activate:
+    patch:
+      tags:
+        - Store Management
+      summary: Activate store
+      description: Activate a store by setting active to true
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: store
+          in: path
+          required: true
+          schema:
+            type: string
+          example: nike-store
+      responses:
+        default:
+          description: success

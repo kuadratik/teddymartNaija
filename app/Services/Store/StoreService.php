@@ -73,6 +73,7 @@ class StoreService
 
         $query = Listing::query()
             ->with(['store', 'ratings'])
+            ->whereHas('store', fn($query) => $query->where('active', true))
             ->byIsDraft(false)
             ->byListingType($request->listingType)
             ->when($request->filled('search'), fn($query) => $query->search($request->search))
@@ -135,7 +136,8 @@ class StoreService
     {
         $categories = Category::with([
             'listings' => function ($query) use ($currency) {
-                $query->availability(true)
+                $query->whereHas('store', fn($query) => $query->where('active', true))
+                    ->availability(true)
                     ->inStock()
                     ->isDraft(false)
                     ->byType(ListingType::PRODUCT->value)
@@ -166,6 +168,7 @@ class StoreService
     {
         $baseQuery = Listing::where('is_available', true)
             ->with(['store'])
+            ->whereHas('store', fn($query) => $query->where('active', true))
             ->inStock()
             ->isDraft(false)
             ->byType(ListingType::PRODUCT->value)
