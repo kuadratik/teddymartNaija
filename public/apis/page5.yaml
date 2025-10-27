@@ -324,8 +324,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-          example: 5
+            type: string
+          example: nike-store
       responses:
         default:
           description: success
@@ -343,8 +343,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-          example: 5
+            type: string
+          example: nike-store
       responses:
         default:
           description: success
