@@ -4,6 +4,9 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Support\Utils;
+use App\Models\Brand;
+use Illuminate\Validation\Rule;
+use App\Rules\ValidSlugInUrl;
 
 class StoreBrandRequest extends FormRequest
 {
@@ -37,7 +40,12 @@ class StoreBrandRequest extends FormRequest
             'category_ids.*' => 'exists:brand_categories,id',
             'description' => 'nullable|string',
             'logo_url' => 'nullable|string',
-            'source_url' => 'nullable|url',
+            'source_url' => [
+                'nullable',
+                'url',
+                'unique:brands,source_url',
+                new ValidSlugInUrl()
+            ],
             'target_url' => 'nullable|url',
             'is_active' => 'boolean',
         ];
@@ -52,6 +60,7 @@ class StoreBrandRequest extends FormRequest
             'name.required' => 'Brand name is required.',
             'category_ids.required' => 'At least one category is required.',
             'category_ids.*.exists' => 'Invalid brand category selected.',
+            'source_url.unique' => 'Slug already exists',
         ];
     }
 

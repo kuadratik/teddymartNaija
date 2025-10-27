@@ -148,4 +148,18 @@ class BrandService
         $brand->update(['is_archived' => false]);
         return $brand;
     }
+
+    public function generateSlug(string $name): string
+    {
+        $baseSlug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name), '-'));
+        $slug = $baseSlug;
+        $counter = 1;
+
+        while (Brand::where('source_url', 'like', '%/' . $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
+    }
 }
