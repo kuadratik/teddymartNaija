@@ -118,11 +118,17 @@ class BrandService
         return end($segments) ?: null;
     }
 
-    public function getBrandHistory(?string $search = null, ?int $brandId = null)
+    public function getBrandHistory(?string $search = null, ?int $brandId = null, ?string $startDate = null, ?string $endDate = null)
     {
         return BrandHistory::query()
             ->when($brandId, function ($query) use ($brandId) {
                 $query->where('brand_id', $brandId);
+            })
+            ->when($startDate, function ($query) use ($startDate) {
+                $query->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                $query->whereDate('created_at', '<=', $endDate);
             })
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
@@ -253,5 +259,12 @@ class BrandService
         }
 
         return null;
+    }
+
+    public function updateHistoryNote(int $historyId, string $note)
+    {
+        $history = BrandHistory::findOrFail($historyId);
+        $history->update(['note' => $note]);
+        return $history;
     }
 }
