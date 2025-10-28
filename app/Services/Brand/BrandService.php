@@ -118,9 +118,12 @@ class BrandService
         return end($segments) ?: null;
     }
 
-    public function getBrandHistory(?string $search = null)
+    public function getBrandHistory(?string $search = null, ?int $brandId = null)
     {
         return BrandHistory::query()
+            ->when($brandId, function ($query) use ($brandId) {
+                $query->where('brand_id', $brandId);
+            })
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('brand_name', 'like', "%{$search}%")
