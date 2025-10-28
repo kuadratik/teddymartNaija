@@ -76,8 +76,21 @@ class BrandController extends Controller
 
     public function history(Request $request)
     {
-        $history = $this->brandService->getBrandHistory($request->search, $request->brand_id);
+        $history = $this->brandService->getBrandHistory(
+            $request->search,
+            $request->brand_id,
+            $request->start_date,
+            $request->end_date
+        );
         return $this->success($history);
+    }
+
+    public function updateHistoryNote(Request $request, int $historyId)
+    {
+        $request->validate(['note' => 'required|string']);
+        
+        $history = $this->brandService->updateHistoryNote($historyId, $request->note);
+        return $this->success($history, 'Note updated successfully');
     }
 
 

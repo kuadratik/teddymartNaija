@@ -358,6 +358,22 @@ paths:
           schema:
             type: integer
             example: 1
+        - name: start_date
+          in: query
+          description: Filter history from this date (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-01-01"
+        - name: end_date
+          in: query
+          description: Filter history up to this date (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-12-31"
         - name: page
           in: query
           description: Page number for pagination
@@ -365,6 +381,37 @@ paths:
           schema:
             type: integer
             example: 1
+      responses:
+        default:
+          description: success
+
+  /admin/brands/history/{historyId}/note:
+    patch:
+      tags:
+        - Brand History
+      summary: Update brand history note
+      description: Update the note field for a specific brand history record
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: historyId
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 10
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - note
+              properties:
+                note:
+                  type: string
+                  example: "Updated brand URL due to rebranding"
       responses:
         default:
           description: success
