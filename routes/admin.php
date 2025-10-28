@@ -18,6 +18,7 @@ Route::prefix('admin')->group(function () {
         Route::prefix('brands')->group(function () {
             Route::get('/', [BrandController::class, 'index']);
             Route::post('/', [BrandController::class, 'store']);
+            Route::get('/history', [BrandController::class, 'history']);
             Route::post('/slug-recommendation', [BrandController::class, 'slugRecommendation']);
             Route::get('/{brand}', [BrandController::class, 'show']);
             Route::put('/{brand}', [BrandController::class, 'update']);

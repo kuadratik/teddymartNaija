@@ -4,6 +4,7 @@ namespace App\Services\Brand;
 
 use App\Models\Brand;
 use App\Models\BrandCategory;
+use App\Models\BrandHistory;
 use Illuminate\Support\Facades\DB;
 
 class BrandService
@@ -58,11 +59,27 @@ class BrandService
     {
         return DB::transaction(function () use ($id, $data) {
             $brand = Brand::findOrFail($id);
+            $originalBrand = $brand->getOriginal();
 
             $categoryIds = $data['category_ids'] ?? null;
             unset($data['category_ids']);
 
             $brand->update($data);
+
+            if ($this->hasSignificantChanges($originalBrand, $brand->toArray())) {
+                BrandHistory::create([
+                    'brand_id' => $brand->id,
+                    'admin_id' => auth()->user()->id ?? null,
+                    'brand_name' => $brand->name,
+                    'admin_name' => auth()->user()->first_name ?? 'System',
+                    'old_slug' => $this->extractSlugFromUrl($originalBrand['source_url']),
+                    'old_target_url' => $originalBrand['target_url'],
+                    'old_source_url' => $originalBrand['source_url'],
+                    'new_slug' => $this->extractSlugFromUrl($brand->source_url),
+                    'new_target_url' => $brand->target_url,
+                    'new_source_url' => $brand->source_url,
+                ]);
+            }
 
             if ($categoryIds) {
                 $brand->categories()->sync($categoryIds);
@@ -70,6 +87,54 @@ class BrandService
 
             return $brand->fresh('categories');
         });
+    }
+
+    private function hasSignificantChanges(array $original, array $updated): bool
+    {
+        $trackableFields = ['name', 'target_url', 'source_url'];
+
+        foreach ($trackableFields as $field) {
+            if (($original[$field] ?? null) !== ($updated[$field] ?? null)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function extractSlugFromUrl(?string $url): ?string
+    {
+        if (!$url) {
+            return null;
+        }
+
+        $path = parse_url($url, PHP_URL_PATH);
+
+        if (!$path) {
+            return null;
+        }
+
+        $segments = explode('/', trim($path, '/'));
+        return end($segments) ?: null;
+    }
+
+    public function getBrandHistory(?string $search = null)
+    {
+        return BrandHistory::query()
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('brand_name', 'like', "%{$search}%")
+                        ->orWhere('admin_name', 'like', "%{$search}%")
+                        ->orWhere('old_slug', 'like', "%{$search}%")
+                        ->orWhere('old_target_url', 'like', "%{$search}%")
+                        ->orWhere('old_source_url', 'like', "%{$search}%")
+                        ->orWhere('new_slug', 'like', "%{$search}%")
+                        ->orWhere('new_target_url', 'like', "%{$search}%")
+                        ->orWhere('new_source_url', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(20);
     }
 
     public function deleteBrand(int $id): bool
@@ -161,5 +226,29 @@ class BrandService
         }
 
         return $slug;
+    }
+
+    public function findTargetBySlug(string $slug): ?string
+    {
+        $brand = Brand::where('source_url', 'like', '%/' . $slug)
+            ->orWhere('source_url', $slug)
+            ->where('is_active', true)
+            ->where('is_archived', false)
+            ->first();
+
+        if ($brand?->target_url) {
+            return $brand->target_url;
+        }
+
+        // Check brand history for old slug match
+        $history = BrandHistory::where('old_slug', $slug)
+            ->latest()
+            ->first();
+
+        if ($history?->new_target_url) {
+            return $history->new_target_url;
+        }
+
+        return null;
     }
 }

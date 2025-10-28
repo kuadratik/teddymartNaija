@@ -35,6 +35,7 @@ Route::prefix('front')->group(function () {
     Route::get('brands', [BrandController::class, 'index']);
     Route::get('brands/{brand}', [BrandController::class, 'show']);
     Route::get('brand-categories', [BrandController::class, 'categories']);
+    Route::get('brand/{slug}', [BrandController::class, 'redirect']);
     Route::post('magic-link', [FrontAuthController::class, 'magicLink']);
     Route::post('magic-login', [FrontAuthController::class, 'magicLogin']);
 

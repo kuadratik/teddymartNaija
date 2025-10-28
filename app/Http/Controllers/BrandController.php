@@ -39,4 +39,11 @@ class BrandController extends Controller
 
         return $this->success($categories);
     }
+
+    public function redirect(string $slug)
+    {
+        $targetUrl = $this->brandService->findTargetBySlug($slug);
+
+        return $this->success($targetUrl);
+    }
 }
