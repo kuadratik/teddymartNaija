@@ -335,6 +335,33 @@ paths:
         default:
           description: success
 
+  /admin/brands/history:
+    get:
+      tags:
+        - Brand History
+      summary: Get brand change history
+      description: Retrieve brand modification history with optional search
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Search across brand name, admin name, slugs, and URLs
+          required: false
+          schema:
+            type: string
+            example: "nike"
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            example: 1
+      responses:
+        default:
+          description: success
+
   /admin/stores/{store}/deactivate:
     patch:
       tags:

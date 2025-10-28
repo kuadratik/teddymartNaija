@@ -1,4 +1,4 @@
-openapi: '3.0.0'
+openapi: "3.0.0"
 info:
   description: myEKI apis
   version: 1.0.0
@@ -40,7 +40,6 @@ paths:
             items:
               type: integer
             example: [1, 2, 3]
-
 
         - in: query
           name: per_page
@@ -96,6 +95,35 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /front/brand/{slug}:
+    get:
+      tags:
+        - Brands
+      summary: Brand redirect
+      description: Redirect to brand target URL based on source URL slug
+      operationId: BrandRedirect
+      parameters:
+        - in: path
+          name: slug
+          schema:
+            type: string
+            example: "nike-store"
+          required: true
+          description: Brand slug from source URL
+      responses:
+        302:
+          description: "Redirect to brand target URL"
+        404:
+          description: "Brand not found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Brand not found"
 
   /front/business-industries:
     get:
@@ -180,7 +208,6 @@ paths:
           required: false
           description: Get random business listings
 
-
       responses:
         default:
           description: "success"
@@ -206,7 +233,7 @@ paths:
               properties:
                 url:
                   type: number
-                  example: 'https://vusithembekwayo.com'
+                  example: "https://vusithembekwayo.com"
       responses:
         default:
           description: "success"
@@ -255,7 +282,7 @@ paths:
           required: true
           schema:
             type: string
-            example: ''
+            example: ""
       responses:
         default:
           description: "success"
@@ -314,7 +341,7 @@ paths:
                   example: "www.google.com"
                 color:
                   type: string
-                  example: 'Green'
+                  example: "Green"
                 owner_name:
                   type: string
                   example: "Ojuyobo Titus"
@@ -361,7 +388,16 @@ paths:
                           properties:
                             day_of_week:
                               type: string
-                              enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
+                              enum:
+                                [
+                                  MONDAY,
+                                  TUESDAY,
+                                  WEDNESDAY,
+                                  THURSDAY,
+                                  FRIDAY,
+                                  SATURDAY,
+                                  SUNDAY,
+                                ]
                               required: false"
                             start_time:
                               type: string
@@ -510,7 +546,16 @@ paths:
                           properties:
                             day_of_week:
                               type: string
-                              enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
+                              enum:
+                                [
+                                  MONDAY,
+                                  TUESDAY,
+                                  WEDNESDAY,
+                                  THURSDAY,
+                                  FRIDAY,
+                                  SATURDAY,
+                                  SUNDAY,
+                                ]
                               required: false
                             start_time:
                               type: string
@@ -750,7 +795,6 @@ paths:
       description: Get chat messages
       operationId: GetChatMessages
       parameters:
-
         - in: path
           name: chat
           schema:
@@ -764,4 +808,3 @@ paths:
             application/json:
               schema:
                 type: object
-

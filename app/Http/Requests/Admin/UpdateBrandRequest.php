@@ -4,6 +4,8 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Support\Utils;
+use Illuminate\Validation\Rule;
+use App\Rules\ValidSlugInUrl;
 
 class UpdateBrandRequest extends FormRequest
 {
@@ -30,15 +32,35 @@ class UpdateBrandRequest extends FormRequest
      */
     public function rules(): array
     {
+        $brandId = $this->route('brand')->id ?? null;
+        
         return [
             'name' => 'sometimes|required|string|max:255',
             'category_ids' => 'sometimes|required|array|min:1',
             'category_ids.*' => 'exists:brand_categories,id',
             'description' => 'nullable|string',
             'logo_url' => 'nullable|string',
-            'source_url' => 'nullable|url',
+            'source_url' => [
+                'nullable',
+                'url',
+                Rule::unique('brands', 'source_url')->ignore($brandId),
+                new ValidSlugInUrl()
+            ],
             'target_url' => 'nullable|url',
             'is_active' => 'boolean',
+        ];
+    }
+
+    /**
+     * Customize error messages.
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Brand name is required.',
+            'category_ids.required' => 'At least one category is required.',
+            'category_ids.*.exists' => 'Invalid brand category selected.',
+            'source_url.unique' => 'Slug already exists',
         ];
     }
 

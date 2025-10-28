@@ -8,7 +8,9 @@ use App\Http\Requests\Admin\SlugRecommendationRequest;
 use App\Http\Requests\Admin\StoreBrandRequest;
 use App\Http\Requests\Admin\UpdateBrandRequest;
 use App\Models\Brand;
+use App\Models\BrandHistory;
 use App\Services\Brand\BrandService;
+use Illuminate\Http\Request;
 
 class BrandController extends Controller
 {
@@ -71,4 +73,12 @@ class BrandController extends Controller
 
         return $this->success(['slug' => $slug]);
     }
+
+    public function history(Request $request)
+    {
+        $history = $this->brandService->getBrandHistory($request->search);
+        return $this->success($history);
+    }
+
+
 }
