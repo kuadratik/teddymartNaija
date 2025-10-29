@@ -212,14 +212,14 @@ class BrandService
     public function archiveBrand(int $id): Brand
     {
         $brand = Brand::findOrFail($id);
-        $brand->update(['is_archived' => true]);
+        $brand->update(['is_archived' => true, 'is_active' => false]);
         return $brand;
     }
 
     public function unarchiveBrand(int $id): Brand
     {
         $brand = Brand::findOrFail($id);
-        $brand->update(['is_archived' => false]);
+        $brand->update(['is_archived' => false, 'is_active' => true]);
         return $brand;
     }
 
