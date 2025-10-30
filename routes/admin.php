@@ -32,6 +32,7 @@ Route::prefix('admin')->group(function () {
             });
 
             Route::get('history/all', [BrandController::class, 'history']);
+            Route::patch('history/{brandHistory}/note', [BrandController::class, 'updateHistoryNote']);
 
             Route::prefix('history-notes')->group(function () {
                 Route::get('/all', [BrandHistoryNoteController::class, 'list']);

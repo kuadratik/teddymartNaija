@@ -85,11 +85,11 @@ class BrandController extends Controller
         return $this->success($history);
     }
 
-    public function updateHistoryNote(Request $request, int $historyId)
+    public function updateHistoryNote(Request $request, BrandHistory $brandHistory)
     {
         $request->validate(['note' => 'required|string']);
 
-        $history = $this->brandService->updateHistoryNote($historyId, $request->note);
+        $history = $this->brandService->updateHistoryNote($brandHistory->id, $request->note);
         return $this->success($history, 'Note updated successfully');
     }
 
