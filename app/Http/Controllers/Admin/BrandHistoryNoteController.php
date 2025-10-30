@@ -58,7 +58,7 @@ class BrandHistoryNoteController extends Controller
      */
     public function list()
     {
-        $notes = HistoryNote::orderBy('created_at', 'desc')->pluck('note');
+        $notes = HistoryNote::orderBy('created_at', 'desc')->get();
 
         return $this->success($notes);
     }

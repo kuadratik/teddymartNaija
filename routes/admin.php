@@ -31,6 +31,8 @@ Route::prefix('admin')->group(function () {
                 Route::post('/', [BrandCategoriesController::class, 'store']);
             });
 
+            Route::get('history/all', [BrandController::class, 'history']);
+
             Route::prefix('history-notes')->group(function () {
                 Route::get('/all', [BrandHistoryNoteController::class, 'list']);
                 Route::post('/', [BrandHistoryNoteController::class, 'create']);

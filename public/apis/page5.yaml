@@ -335,7 +335,7 @@ paths:
         default:
           description: success
 
-  /admin/brands/history:
+  /admin/brands/history/all:
     get:
       tags:
         - Brand History
