@@ -224,18 +224,31 @@ class BrandService
     }
 
     public function generateSlug(string $name): string
-    {
-        $baseSlug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name), '-'));
-        $slug = $baseSlug;
-        $counter = 1;
+{
+    // Convert to lowercase, replace non-alphanumeric characters with hyphens, trim hyphens
+    $baseSlug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name), '-'));
 
-        while (Brand::where('source_url', 'like', '%/' . $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
-            $counter++;
-        }
-
-        return $slug;
+    // Enforce min length of 3
+    if (strlen($baseSlug) < 3) {
+        $baseSlug = str_pad($baseSlug, 3, 'x'); // fill with 'x' if too short
     }
+
+    // Enforce max length of 15
+    $baseSlug = substr($baseSlug, 0, 15);
+
+    $slug = $baseSlug;
+    $counter = 1;
+
+    // Ensure uniqueness
+    while (Brand::where('source_url', 'like', '%/' . $slug)->exists()) {
+        $suffix = '-' . $counter;
+        // Ensure slug + suffix does not exceed max length
+        $slug = substr($baseSlug, 0, 15 - strlen($suffix)) . $suffix;
+        $counter++;
+    }
+
+    return $slug;
+}
 
     public function findTargetBySlug(string $slug): ?string
     {
