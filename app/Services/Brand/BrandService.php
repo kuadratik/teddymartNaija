@@ -184,7 +184,7 @@ class BrandService
      */
     public function getAllCategories()
     {
-        return BrandCategory::where('is_active', true)->latest('updated_at')->get();
+        return BrandCategory::where('is_active', true)->get();
     }
 
     /**
@@ -205,7 +205,6 @@ class BrandService
     public function getActiveBrandCategories()
     {
         return BrandCategory::where('is_active', true)
-            ->latest('updated_at')
             ->get();
     }
 
