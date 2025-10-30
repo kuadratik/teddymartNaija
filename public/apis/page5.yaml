@@ -453,3 +453,118 @@ paths:
       responses:
         default:
           description: success
+
+  /admin/brands/history-notes/all:
+    get:
+      tags:
+        - Brand History Notes
+      summary: List all history notes
+      description: Retrieve all brand history notes
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: string
+                    example: ["Note 1", "Note 2"]
+
+  /admin/brands/history-notes:
+
+    post:
+      tags:
+        - Brand History Notes
+      summary: Create history note
+      description: Create a new brand history note
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - note
+              properties:
+                note:
+                  type: string
+                  example: "Brand updated with new logo"
+      responses:
+        200:
+          description: Success
+
+  /admin/brands/history-notes/{id}:
+    get:
+      tags:
+        - Brand History Notes
+      summary: Get history note
+      description: Retrieve a single history note by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        200:
+          description: Success
+    put:
+      tags:
+        - Brand History Notes
+      summary: Update history note
+      description: Update an existing history note
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - note
+              properties:
+                note:
+                  type: string
+                  example: "Updated note content"
+      responses:
+        200:
+          description: Success
+    delete:
+      tags:
+        - Brand History Notes
+      summary: Delete history note
+      description: Remove a history note by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        200:
+          description: Success
