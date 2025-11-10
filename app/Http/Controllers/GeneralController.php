@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\RecordUserInteractionAction;
+use App\Enums\ListingType;
 use App\Http\Requests\ContactUsRequest;
 use Illuminate\Http\Request;
 use App\Support\Utils;
@@ -63,9 +64,8 @@ class GeneralController extends Controller
 
         $categories = Cache::remember('categories_' . $type, now()->addMinutes(60), function () use ($type) {
             return Category::query()
-                ->when($type, function ($query) use ($type) {
-                    $query->where('type', $type);
-                })
+                ->when($type)->where('type', $type)
+                ->when(is_null($type))->whereIn('type', [ListingType::SERVICE, ListingType::PRODUCT])
                 ->get();
         });
 

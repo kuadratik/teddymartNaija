@@ -22,10 +22,12 @@ class Store extends Model
      * @var array<string, string>
      */
     protected $fillable = [
+        'id',
         'user_id',
         'name',
         'slug',
         'type',
+        'payment_status',
         'contact_number',
         'whatsapp_number',
         'profile_picture_path',
@@ -39,7 +41,9 @@ class Store extends Model
         'country_id',
         'views_count',
         'currency',
-        'active'
+        'active',
+        'step',
+        'order_number'
     ];
 
     /**
@@ -84,6 +88,14 @@ class Store extends Model
     }
 
     /**
+     * Get the store categories
+     */
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'store_categories');
+    }
+
+    /**
      * get store products listing
      */
     public function products()
@@ -108,12 +120,12 @@ class Store extends Model
     }
 
 
-     /**
+    /**
      * Get the store orders
      */
     public function orders()
     {
-        return $this->hasMany(Order::class,'store_id');
+        return $this->hasMany(Order::class, 'store_id');
     }
 
     /**
@@ -137,7 +149,7 @@ class Store extends Model
     /**
      * The promotion plans associated with the store.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function promotedStores()
     {
@@ -178,7 +190,7 @@ class Store extends Model
      */
     public function scopeByListingType(Builder $query, $listingType)
     {
-        $query->whereHas('listings', fn ($query) => $query->where('type', $listingType));
+        $query->whereHas('listings', fn($query) => $query->where('type', $listingType));
     }
 
     /**
@@ -188,7 +200,7 @@ class Store extends Model
     {
         $query->whereLike('name', "%$search%")->orWhereHas(
             'listings',
-            fn ($query) => $query->whereLike('name', "%$search%")
+            fn($query) => $query->whereLike('name', "%$search%")
         );
     }
 
@@ -205,7 +217,7 @@ class Store extends Model
      */
     public function scopeByCategory(Builder $query, $category)
     {
-        $query->whereHas('listings', fn ($query) => $query->where('category_id', $category));
+        $query->whereHas('listings', fn($query) => $query->where('category_id', $category));
     }
 
     /**
@@ -216,7 +228,7 @@ class Store extends Model
         $mostUsedCategories = app(FetchUserMostInteractedCategoriesAction::class)->fetch();
         $query->whereHas(
             'listings',
-            fn ($query) => $query->whereIntegerInRaw('category_id', $mostUsedCategories)
+            fn($query) => $query->whereIntegerInRaw('category_id', $mostUsedCategories)
                 ->orderByRaw("FIELD(category_id, " . implode(',', $mostUsedCategories) . ") DESC")
         );
     }
@@ -230,7 +242,7 @@ class Store extends Model
         if (!empty($mostUsedCategories)) {
             $query->whereHas(
                 'listings',
-                fn ($query) => $query->whereIntegerInRaw('category_id', $mostUsedCategories)
+                fn($query) => $query->whereIntegerInRaw('category_id', $mostUsedCategories)
                     ->orderByRaw("FIELD(category_id, " . implode(',', $mostUsedCategories) . ") DESC")
             );
         }
