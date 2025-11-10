@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->string('payment_status')->default('unpaid')->after('type')->index();
             $table->integer('step')->default(1)->index();
             $table->string('order_number')->nullable()->index();
+            $table->decimal('fee_amount')->default(0);
         });
     }
 
@@ -25,7 +26,7 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('stores', function (Blueprint $table) {
-            $table->dropColumn(['payment_status', 'step', 'order_number']);
+            $table->dropColumn(['payment_status', 'step', 'order_number', 'fee_amount']);
         });
     }
 };

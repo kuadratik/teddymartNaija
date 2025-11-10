@@ -32,6 +32,10 @@ class CreateStoreAction
         $step = strval($request->route()->parameter('step'));
         $storeId = data_get($validated, 'id');
         $user = $request->user();
+        $currency = $country?->currency_code ?? CurrencyType::USD;
+
+        $gateway = in_array($currency, CurrencyType::foreignCurrency())
+            ? PaymentGatewayEnum::STRIPE->value : PaymentGatewayEnum::PAYSTACK->value;
 
         $payload = collect($validated)
             ->except([
@@ -49,9 +53,10 @@ class CreateStoreAction
                 'banner_path' => data_get($validated, 'banner_path') ? Utils::moveToPermanentPath([$validated['banner_path']], 'images')[0] : null,
                 'profile_picture_path' => data_get($validated, 'profile_picture_path') ? Utils::moveToPermanentPath([$validated['profile_picture_path']], 'images')[0] : null,
                 'country_id' => $validated['country'],
-                'currency' => $country?->currency_code ?? CurrencyType::USD,
+                'currency' => $currency,
                 'order_number' => $step == '3' ? Str::uuid()->toString() : null,
-                'step' => $step
+                'step' => $step,
+                'fee_amount' => $gateway == PaymentGatewayEnum::STRIPE->value ? 5 : 5000
             ])->toArray();
 
         try {
@@ -70,7 +75,7 @@ class CreateStoreAction
 
             return [
                 'store' => $store->load('categories'),
-                'payment' => $step == '3' ? $this->createPayment($store, $validated) : null
+                'payment' => $step == '3' ? $this->createPayment($store, $validated, $gateway) : null
             ];
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -82,11 +87,8 @@ class CreateStoreAction
      * Creates a payment order link for a given advert listing and promotion plan.
      *
      */
-    private function createPayment(Store $store, $payload)
+    private function createPayment(Store $store, $payload, $gateway)
     {
-        $gateway = in_array($store->currency, CurrencyType::foreignCurrency())
-            ? PaymentGatewayEnum::STRIPE->value : PaymentGatewayEnum::PAYSTACK->value;
-
         $paymentData = [
             'currency_code' => $store->currency,
             'total_amount' => $gateway == PaymentGatewayEnum::STRIPE->value ? 5 : 5000,

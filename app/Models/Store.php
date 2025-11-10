@@ -43,7 +43,8 @@ class Store extends Model
         'currency',
         'active',
         'step',
-        'order_number'
+        'order_number',
+        'fee_amount'
     ];
 
     /**
