@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Enums\CurrencyType;
+use App\Enums\GeneralEnum;
 use App\Enums\PaymentGatewayEnum;
 use App\Enums\PaymentType;
 use App\Models\Country;
@@ -28,7 +29,7 @@ class CreateStoreAction
     public function execute($validated)
     {
         $request = request();
-        $country = Country::find($validated['country']);
+        $country = Country::find($validated['country_id']);
         $step = strval($request->route()->parameter('step'));
         $storeId = data_get($validated, 'id');
         $user = $request->user();
@@ -52,9 +53,8 @@ class CreateStoreAction
             ->merge([
                 'banner_path' => data_get($validated, 'banner_path') ? Utils::moveToPermanentPath([$validated['banner_path']], 'images')[0] : null,
                 'profile_picture_path' => data_get($validated, 'profile_picture_path') ? Utils::moveToPermanentPath([$validated['profile_picture_path']], 'images')[0] : null,
-                'country_id' => $validated['country'],
+                'country_id' => $validated['country_id'],
                 'currency' => $currency,
-                'order_number' => $step == '3' ? Str::uuid()->toString() : null,
                 'step' => $step,
                 'fee_amount' => $gateway == PaymentGatewayEnum::STRIPE->value ? 5 : 5000
             ])->toArray();
@@ -69,13 +69,19 @@ class CreateStoreAction
                 'has_store' => true,
             ]);
 
-            $store->fill($payload)->save(['force' => true]);
+            $store->fill([
+                ...$payload,
+                'order_number' => $store->order_number ?? Str::uuid()->toString()
+            ])->save(['force' => true]);
+
             $store->categories()->sync($validated['categories']);
             DB::commit();
 
+            $store->refresh();
+
             return [
                 'store' => $store->load('categories'),
-                'payment' => $step == '3' ? $this->createPayment($store, $validated, $gateway) : null
+                'payment' => $step == '3' && $store->payment_status == GeneralEnum::UNPAID->value ? $this->createPayment($store, $validated, $gateway) : null
             ];
         } catch (\Throwable $th) {
             DB::rollBack();
