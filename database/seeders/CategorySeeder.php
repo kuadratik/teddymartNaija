@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\GeneralEnum;
 use App\Enums\ListingType;
 use App\Models\Category;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -15,7 +16,7 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        $cats = collect([
+        $categories = collect([
             [
                 'name' => 'Electronics',
                 'slug' => Str::slug('Electronics'),
@@ -205,13 +206,195 @@ class CategorySeeder extends Seeder
                 'slug' => Str::slug('Babies & Kids'),
                 'type' => ListingType::PRODUCT,
                 'description' => null,
+            ],
+
+            // store categories
+            [
+                'name' => 'Fashion & Apparel',
+                'slug' => Str::slug('Fashion & Apparel stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Beauty & Personal Care',
+                'slug' => Str::slug('Beauty & Personal Care stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Health & Wellness',
+                'slug' => Str::slug('Health & Wellness stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Home & Living',
+                'slug' => Str::slug('Home & Living stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Food & Grocery',
+                'slug' => Str::slug('Food & Grocery stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Electronics & Gadgets',
+                'slug' => Str::slug('Electronics & Gadgets stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Cloud, AI & Technology',
+                'slug' => Str::slug('Cloud, AI & Technology stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Digital Creators & Media',
+                'slug' => Str::slug('Digital Creators & Media stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Education & Skill Development',
+                'slug' => Str::slug('Education & Skill Development stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Travel & Experiences',
+                'slug' => Str::slug('Travel & Experiences stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Automotive & Mobility',
+                'slug' => Str::slug('Automotive & Mobility stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Luxury & Lifestyle',
+                'slug' => Str::slug('Luxury & Lifestyle stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Eco & Sustainable Living',
+                'slug' => Str::slug('Eco & Sustainable Living stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Finance & Investments',
+                'slug' => Str::slug('Finance & Investments stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Business & B2B Solutions',
+                'slug' => Str::slug('Business & B2B Solutions stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Professional Services',
+                'slug' => Str::slug('Professional Services stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Entertainment & Streaming',
+                'slug' => Str::slug('Entertainment & Streaming stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Gaming & Virtual Worlds',
+                'slug' => Str::slug('Gaming & Virtual Worlds stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Baby, Kids & Family',
+                'slug' => Str::slug('Baby, Kids & Family stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Pets & Animals',
+                'slug' => Str::slug('Pets & Animals stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Science & Innovation',
+                'slug' => Str::slug('Science & Innovation stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Faith, Culture & Community',
+                'slug' => Str::slug('Faith, Culture & Community stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Social Impact & Nonprofits',
+                'slug' => Str::slug('Social Impact & Nonprofits stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Local & Classifieds',
+                'slug' => Str::slug('Local & Classifieds stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Subscription & Membership Brands',
+                'slug' => Str::slug('Subscription & Membership Brands stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Smart Home & IoT',
+                'slug' => Str::slug('Smart Home & IoT stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Metaverse & Web3 Brands',
+                'slug' => Str::slug('Metaverse & Web3 Brands stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Remote Work & Productivity Tools',
+                'slug' => Str::slug('Remote Work & Productivity Tools stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'AR/VR & Immersive Tech',
+                'slug' => Str::slug('AR/VR & Immersive Tech stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
+            ],
+            [
+                'name' => 'Digital Identity & Security',
+                'slug' => Str::slug('Digital Identity & Security stores'),
+                'type' => GeneralEnum::STORE,
+                'description' => null,
             ]
         ]);
 
         Category::query()->truncate();
 
-        $cats->each(function ($cat) {
-            Category::create($cat);
+        $categories->each(function ($category) {
+            Category::create($category);
         });
     }
 }

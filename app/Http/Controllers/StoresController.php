@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CreateStoreAction;
 use App\Actions\FetchStoresAlphaNumericallyAction;
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
@@ -11,6 +12,7 @@ use App\Http\Requests\Store\UpdateStoreRequest;
 use App\Jobs\RecordCategoryInteractions;
 use App\Models\Order;
 use App\Models\Store;
+use App\Models\StoreCategory;
 use App\Services\Auth\UserService;
 use App\Services\Store\MetricService;
 use App\Services\Store\StoreService;
@@ -148,9 +150,9 @@ class StoresController extends Controller
                 $query->where('name', "like", "%{$search}%");
             }
         )->with(
-            'user:id,first_name,last_name,email',
-            'listing:id,name'
-        )->paginate(20);
+                'user:id,first_name,last_name,email',
+                'listing:id,name'
+            )->paginate(20);
 
         return $this->success($storeRatings);
     }
@@ -168,22 +170,10 @@ class StoresController extends Controller
     /**
      * Creates a store based on the provided request.
      */
-    public function create(CreateStoreRequest $request)
+    public function create(CreateStoreRequest $request, CreateStoreAction $createStoreAction)
     {
-        $user = $request->user();
-
-        $store = DB::transaction(function () use ($request, $user) {
-            $store = Store::create($request->storeAttributes());
-            $user->update([
-                'offers_service' => $request->offers_service,
-                'offers_product' => $request->offers_product,
-                'has_store' => true,
-            ]);
-
-            return $store;
-        });
-
-        return $this->success(['store' => $store]);
+        $store = $createStoreAction->execute($request->validated());
+        return $this->success($store);
     }
 
     /**
@@ -206,10 +196,12 @@ class StoresController extends Controller
      */
     public function showStoreListing(Store $store, Request $request)
     {
-        $storeListing = $store->load(['listings' => function ($query) use ($request) {
-            $query->where('type', $request->listingType)
-                ->with('ratings');
-        }]);
+        $storeListing = $store->load([
+            'listings' => function ($query) use ($request) {
+                $query->where('type', $request->listingType)
+                    ->with('ratings');
+            }
+        ]);
 
         return $this->success($storeListing);
     }

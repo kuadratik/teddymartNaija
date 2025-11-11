@@ -45,7 +45,7 @@ class Utils
     public static function uploadOrFail(UploadedFile $file, $path = 'images')
     {
         $fileName = self::fileNamer($file);
-        $uploaded = $file->storePubliclyAs($path, $fileName, 'spaces');
+        $uploaded = $file->storePubliclyAs($path, $fileName, config('filesystems.default'));
 
         if (!$uploaded) {
             abort(500, 'Unable to upload file to storage provider.');
@@ -62,7 +62,7 @@ class Utils
     public static function upload(UploadedFile $file, $path = 'images')
     {
         $fileName = self::fileNamer($file);
-        return $file->storePubliclyAs($path, $fileName, 'spaces');
+        return $file->storePubliclyAs($path, $fileName, config('filesystems.default'));
     }
 
     /**
@@ -109,11 +109,11 @@ class Utils
             $permanentPath = "{$permanentDirectory}/{$fileName}";
 
 
-            if (Storage::disk('spaces')->exists('teddymart/' . $permanentPath)) {
+            if (Storage::disk(config('filesystems.default'))->exists('teddymart/' . $permanentPath)) {
                 $permanentPaths[] = 'teddymart/' . $permanentPath;
                 continue;
             }
-            $move = Storage::disk('spaces')->move('teddymart/' . $tempPath, 'teddymart/' . $permanentPath);
+            $move = Storage::disk(config('filesystems.default'))->move('teddymart/' . $tempPath, 'teddymart/' . $permanentPath);
 
             if (!$move) {
                 abort(500, 'Unable to move file to permanent directory.');
@@ -136,8 +136,8 @@ class Utils
         foreach ($filePaths as $filePath) {
             $fullPath = 'teddymart/' . $permanentDirectory . '/' . $filePath;
 
-            if (!empty(basename($fullPath)) && Storage::disk('spaces')->exists($fullPath)) {
-                Storage::disk('spaces')->delete($fullPath);
+            if (!empty(basename($fullPath)) && Storage::disk(config('filesystems.default'))->exists($fullPath)) {
+                Storage::disk(config('filesystems.default'))->delete($fullPath);
             }
         }
     }
@@ -148,8 +148,8 @@ class Utils
     public static function deleteSpaceFiles(array $filePaths)
     {
         foreach ($filePaths as $filePath) {
-            if (!empty(basename($filePath)) && Storage::disk('spaces')->exists($filePath)) {
-                Storage::disk('spaces')->delete($filePath);
+            if (!empty(basename($filePath)) && Storage::disk(config('filesystems.default'))->exists($filePath)) {
+                Storage::disk(config('filesystems.default'))->delete($filePath);
             }
         }
     }
@@ -163,8 +163,8 @@ class Utils
     public static function deleteTemporaryFiles(array $tempPaths)
     {
         foreach ($tempPaths as $tempPath) {
-            if (Storage::disk('spaces')->exists($tempPath)) {
-                Storage::disk('spaces')->delete($tempPath);
+            if (Storage::disk(config('filesystems.default'))->exists($tempPath)) {
+                Storage::disk(config('filesystems.default'))->delete($tempPath);
             } else {
                 abort(500, 'path' . $tempPath . ' not found');
             }

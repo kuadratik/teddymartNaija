@@ -14,7 +14,7 @@ class PaymentServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        $this->app->singleton('payment.gateways', function ($app) {
+        $this->app->bind('payment.gateways', function ($app) {
             return [
                 PaymentGatewayEnum::STRIPE->value => new StripePaymentService(config('services.stripe.secret_key')),
                 PaymentGatewayEnum::PAYSTACK->value => new PaystackPaymentService(config('services.paystack.secret_key')),
@@ -22,7 +22,7 @@ class PaymentServiceProvider extends ServiceProvider
             ];
         });
 
-        $this->app->singleton(PaymentService::class, function ($app) {
+        $this->app->bind(PaymentService::class, function ($app) {
             return new PaymentService($app->make('payment.gateways'));
         });
     }

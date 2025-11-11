@@ -3,10 +3,12 @@
 namespace App\Services\PaymentGateways;
 
 use App\Contracts\PaymentGatewayInterface;
+use App\Enums\GeneralEnum;
 use App\Enums\OrderStatusEnum;
 use App\Enums\PaymentType;
 use App\Models\AdvertListingPromotePlan;
 use App\Models\Order;
+use App\Models\Store;
 use App\Models\StorePayoutDetail;
 use App\Models\StorePromotePlanStore;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +27,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
      */
     public function initialize(array $data): array
     {
-        $response = Http::withToken($this->secretKey)->post(config('services.paystack.payment_url').'/transaction/initialize', [
+        $response = Http::withToken($this->secretKey)->post(config('services.paystack.payment_url') . '/transaction/initialize', [
             'email' => $data['email'] ?? Auth::user()->email,
             'amount' => $data['total_amount'] * 100,
             "currency" => $data['currency_code'],
@@ -54,7 +56,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
 
         $response = $this->verifyPaystackTransaction($token);
 
-        if (! $response->successful()) {
+        if (!$response->successful()) {
             return $this->handleVerificationFailure($response);
         }
 
@@ -82,14 +84,14 @@ class PaystackPaymentService implements PaymentGatewayInterface
     {
 
         $recipientId = $payoutDetail->paystack_recipient_code;
-        if (! $recipientId) {
+        if (!$recipientId) {
             $recipientResponse = $this->createTransferRecipient(
                 $payoutDetail->account_name,
                 $payoutDetail->account_number,
                 $payoutDetail->bank_code
             );
 
-            if (! $recipientResponse['status']) {
+            if (!$recipientResponse['status']) {
                 Log::error('Failed to create Paystack recipient', [
                     'order_id' => $order->id,
                     'response' => $recipientResponse,
@@ -103,7 +105,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
         }
 
         $transferResponse = Http::withToken($this->secretKey)
-            ->post(config('services.paystack.payment_url').'/transfer', [
+            ->post(config('services.paystack.payment_url') . '/transfer', [
                 'source' => 'balance',
                 'amount' => $order->payoutAmount * 100,
                 'currency' => $order->currency,
@@ -112,7 +114,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
                 'reference' => $order->uid,
             ]);
 
-        if (! $transferResponse->successful()) {
+        if (!$transferResponse->successful()) {
             Log::error('Failed to process Paystack transfer', [
                 'order_id' => $order->id,
                 'response' => $transferResponse->json(),
@@ -128,7 +130,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
     public function validateBankDetails(string $accountNumber, string $bankCode): array
     {
         $response = Http::withToken($this->secretKey)
-            ->get(config('services.paystack.payment_url').'/bank/resolve', [
+            ->get(config('services.paystack.payment_url') . '/bank/resolve', [
                 'account_number' => $accountNumber,
                 'bank_code' => $bankCode,
             ]);
@@ -142,7 +144,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
     public function createTransferRecipient(string $accountName, string $accountNumber, string $bankCode): array
     {
         $response = Http::withToken($this->secretKey)
-            ->post(config('services.paystack.payment_url').'/transferrecipient', [
+            ->post(config('services.paystack.payment_url') . '/transferrecipient', [
                 'type' => 'nuban',
                 'name' => $accountName,
                 'account_number' => $accountNumber,
@@ -179,7 +181,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
     private function verifyPaystackTransaction(string $token)
     {
         return Http::withToken($this->secretKey)
-            ->get(config('services.paystack.payment_url').'/transaction/verify/'.$token);
+            ->get(config('services.paystack.payment_url') . '/transaction/verify/' . $token);
     }
 
     /**
@@ -225,8 +227,25 @@ class PaystackPaymentService implements PaymentGatewayInterface
             PaymentType::CHECKOUT->value => $this->handleCheckoutPayment($transactionData),
             PaymentType::ADVERT->value => $this->handleAdvertPayment($transactionData),
             PaymentType::PROMOTION->value => $this->handlePromotionPayment($transactionData),
+            PaymentType::VENDOR->value => $this->handleVendorPayment($transactionData),
             default => [$transactionData]
         };
+    }
+
+    /**
+     * Handle the vendor payment
+     */
+    private function handleVendorPayment(array $transactionData): array
+    {
+        $store = Store::where('order_number', $transactionData['metadata']['order_number'])->first();
+
+        if ($store->payment_status == GeneralEnum::UNPAID->value) {
+            $store->update([
+                'payment_status' => $transactionData['status'] === 'success' ? GeneralEnum::PAID->value : GeneralEnum::FAILED->value
+            ]);
+        }
+
+        return $transactionData;
     }
 
     /**
@@ -239,7 +258,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
         if ($orders->isNotEmpty()) {
             foreach ($orders as $order) {
 
-                if ($order->payment_status == OrderStatusEnum::PENDING_PAYMENT->value && ! OrderStatusEnum::COMPLETED_PAYMENT->value) {
+                if ($order->payment_status == OrderStatusEnum::PENDING_PAYMENT->value && !OrderStatusEnum::COMPLETED_PAYMENT->value) {
                     $order->update(['payment_status' => $transactionData['status']]);
                 }
 

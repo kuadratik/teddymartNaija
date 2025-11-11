@@ -16,4 +16,15 @@ enum CurrencyType: string
     {
         return array_column(self::cases(), 'value');
     }
+
+    public static function foreignCurrency()
+    {
+        return [
+            self::AUD->value,
+            self::CAD->value,
+            self::USD->value,
+            self::GBP->value,
+            self::EUR->value,
+        ];
+    }
 }
