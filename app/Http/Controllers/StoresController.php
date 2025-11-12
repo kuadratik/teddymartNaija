@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\CreateStoreAction;
 use App\Actions\FetchStoresAlphaNumericallyAction;
+use App\Enums\GeneralEnum;
 use App\Enums\ListingType;
 use App\Enums\OrderStatusEnum;
 use App\Http\Requests\Cart\UpdateOrderRequest;
@@ -65,6 +66,7 @@ class StoresController extends Controller
             ->when($request->search, fn($query) => $query->search($request->search))
             ->when($request->category, fn($query) => $query->byCategory($request->category))
             ->where('currency', $currency)
+            ->where('payment_status', GeneralEnum::PAID)
             ->paginate(20);
 
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
