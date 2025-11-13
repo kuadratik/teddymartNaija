@@ -214,7 +214,9 @@ class StoresController extends Controller
      */
     public function update(UpdateStoreRequest $request, Store $userStore)
     {
+        $validated = $request->validated();
         $userStore->update($request->storeAttributes());
+        $userStore->categories()->sync($validated['categories']);
 
         return $this->success();
     }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Store;
 
+use App\Enums\GeneralEnum;
 use App\Enums\StoreType;
+use App\Models\Category;
 use App\Rules\UniqueStoreName;
 use App\Support\Utils;
 use Illuminate\Foundation\Http\FormRequest;
@@ -27,6 +29,16 @@ class UpdateStoreRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string' , new UniqueStoreName()],
+            'categories' => [
+                'required',
+                'array',
+                'min:1',
+                function ($attr, $val, $fail) {
+                    if (count($val) != Category::where('type', GeneralEnum::STORE)->whereIn('id', $val)->count()) {
+                        return $fail('One or more of the selected categories is invalid');
+                    }
+                }
+            ],
             'contact_number' => ['required', 'string'],
             'whatsapp_number' => ['required', 'string'],
             'profile_picture_path' => ['required', 'string'],
@@ -37,7 +49,7 @@ class UpdateStoreRequest extends FormRequest
             'state' => ['required', 'string'],
             'city' => ['required', 'string'],
             'postal_code' => ['nullable', 'string'],
-            'country' => ['nullable', 'integer' , 'exists:countries,id'],
+            'country_id' => ['nullable', 'integer' , 'exists:countries,id'],
             'type' => ['required', Rule::enum(StoreType::class), 'string']
 
         ];
@@ -48,13 +60,13 @@ class UpdateStoreRequest extends FormRequest
      */
     public function storeAttributes()
     {
-        return collect($this->safe()->except(['profile_picture_path', 'banner_path' , 'country']))
+        return collect($this->safe()->except(['profile_picture_path', 'banner_path', 'categories', 'country_id']))
             ->merge([
                 'banner_path' => Utils::moveToPermanentPath([$this->safe()->banner_path], 'images')[0]
                     ?? $this->userStore->banner_path,
                 'profile_picture_path' => Utils::moveToPermanentPath([$this->safe()->profile_picture_path], 'images')[0]
                     ?? $this->userStore->profile_picture_path,
-                'country_id' => $this->safe()->country
+                'country_id' => $this->safe()->country_id
             ])->toArray();
     }
 }

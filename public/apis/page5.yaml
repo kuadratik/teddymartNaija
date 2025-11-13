@@ -5,7 +5,7 @@ info:
   description: Admin authentication, brand management, and store management endpoints for TeddyMart backend
 
 servers:
-  - url: http://localhost:8000/api
+  - url: /api
     description: Local development server
 
 components:
@@ -568,3 +568,151 @@ paths:
       responses:
         200:
           description: Success
+
+  /admin/navigations:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Navigation
+      summary: Get all navigation
+      description: Get all navigation
+      operationId: getallnavs
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/navigations/create:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Navigation
+      summary: create navigation
+      description: create navigation
+      operationId: createnavigation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Good nav"
+                link:
+                  type: string
+                  example: "https:myeki.market"
+                active: 
+                  type: boolean
+                  example: true
+                coming_soon:
+                  type: boolean
+                  example: true
+                icon:
+                  type: string
+                  example: "svg string"
+                ordering: 
+                  type: string
+                  example: "1A"
+                subnav: 
+                  type: array
+                  example: [{
+                    "name": "goood nav",
+                    "link": "https:myeki.market",
+                    "active": true,
+                    "coming_soon": true,
+                    "icon": "svg string",
+                  }]
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/navigations/{navigationId}/update:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Navigation
+      summary: update navigation
+      description: update navigation
+      operationId: updatenavigation
+      parameters:
+        - in: path
+          name: navigationId
+          schema:
+            type: number
+            example: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Good nav"
+                link:
+                  type: string
+                  example: "https:myeki.market"
+                active: 
+                  type: boolean
+                  example: true
+                coming_soon:
+                  type: boolean
+                  example: true
+                icon:
+                  type: string
+                  example: "svg string"
+                ordering: 
+                  type: string
+                  example: "1A"
+                subnav: 
+                  type: array
+                  example: [{
+                    "name": "goood nav",
+                    "link": "https:myeki.market",
+                    "active": true,
+                    "coming_soon": true,
+                    "icon": "svg string",
+                  }]
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/navigations/{navigationId}/delete:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Navigation
+      summary: delete navigation
+      description: delete navigation
+      operationId: deletenavigation
+      parameters:
+        - in: path
+          name: navigationId
+          schema:
+            type: number
+            example: 1
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
