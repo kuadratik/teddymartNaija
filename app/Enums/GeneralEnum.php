@@ -8,4 +8,6 @@ enum GeneralEnum: string
    case PAID = 'paid';
    case UNPAID = 'unpaid';
    case FAILED = 'failed';
+
+   // roles enum
 }

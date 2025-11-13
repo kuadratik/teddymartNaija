@@ -222,6 +222,18 @@ class Store extends Model
     }
 
     /**
+     * Scope by category
+     */
+    public function scopeForCategoryIn(Builder $query, array $categories)
+    {
+        return $query->whereExists(function ($query) use ($categories) {
+            $query->selectRaw('1')->from('store_categories')
+                ->whereColumn('store_categories.store_id', 'stores.id')
+                ->whereIn('store_categories.category_id', $categories);
+        });
+    }
+
+    /**
      * Scope by recommended
      */
     public function scopeRecommended(Builder $query)
