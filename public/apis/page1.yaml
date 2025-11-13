@@ -1022,21 +1022,24 @@ paths:
             type: string
             example: "product"
         - in: query
-          name: category
+          name: category[]
           schema:
-            type: number
-            example: 11
+            type: array
+            items:
+              type: number
+            example: [50,51]
+          style: form
+          explode: true
         - in: query
           name: search
           schema:
             type: string
-            example: "amala"
+            example: ""
         - in: query
           name: sortType
           schema:
             type: string
             example: "alphanumeric"
-
       responses:
         default:
           description: "success"

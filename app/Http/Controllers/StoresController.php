@@ -58,14 +58,16 @@ class StoresController extends Controller
     public function getStores(Request $request)
     {
         $currency = $request->header('currency', 'USD');
+        $categories = (array) $request->input('category');
 
         $stores = Store::query()
             ->where('active', true)
-            ->where('type', $request->listingType)
+            ->when($request->listingType)->where('type', $request->listingType)
             ->when($request->sortType === 'alphanumeric', fn($query) => $query->orderBy('name', 'asc'))
             ->when($request->search, fn($query) => $query->search($request->search))
-            ->when($request->category, fn($query) => $query->byCategory($request->category))
+            ->when($request->category)->forCategoryIn($categories)
             ->where('currency', $currency)
+            ->whereHas('listings')
             ->where('payment_status', GeneralEnum::PAID)
             ->paginate(20);
 
@@ -214,7 +216,9 @@ class StoresController extends Controller
      */
     public function update(UpdateStoreRequest $request, Store $userStore)
     {
+        $validated = $request->validated();
         $userStore->update($request->storeAttributes());
+        $userStore->categories()->sync($validated['categories']);
 
         return $this->success();
     }

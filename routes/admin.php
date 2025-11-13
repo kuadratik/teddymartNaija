@@ -16,6 +16,13 @@ Route::prefix('admin')->group(function () {
         Route::patch('stores/{store}/deactivate', [AdminStoreController::class, 'deactivate']);
         Route::patch('stores/{store}/activate', [AdminStoreController::class, 'activate']);
 
+        Route::prefix('navigations')->group(function () {
+            Route::get('/', [AdminStoreController::class, 'navigations']);
+            Route::post('create', [AdminStoreController::class, 'createMenu']);
+            Route::put('{navigation}/update', [AdminStoreController::class, 'updateMenu']);
+            Route::delete('{navigation}/delete', [AdminStoreController::class, 'deleteMenu']);
+        });
+
         Route::prefix('brands')->group(function () {
             Route::get('/', [BrandController::class, 'index']);
             Route::post('/', [BrandController::class, 'store']);

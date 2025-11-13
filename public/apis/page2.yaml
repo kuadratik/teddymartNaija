@@ -351,6 +351,9 @@ paths:
                 name:
                   type: string
                   example: "Amala Sky"
+                categories: 
+                  type: array.
+                  example: [50, 51]
                 contact_number:
                   type: string
                   example: "1234567898"
@@ -381,9 +384,11 @@ paths:
                 postal_code:
                   type: string
                   example: "100001"
-                country:
+                country_id:
                   type: integer
                   example: 38
+                type: 
+                example: "product"
       responses:
         default:
           description: "success"
