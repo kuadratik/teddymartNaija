@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ListingType;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -68,7 +69,7 @@ class User extends Authenticatable
     {
         static::saving(function ($user) {
             if (empty($user->referral_code)) {
-                $user->referral_code =  'REF' . $user->id . Str::upper(Str::random(6));
+                $user->referral_code = 'REF' . $user->id . Str::upper(Str::random(6));
             }
         });
     }
@@ -244,5 +245,35 @@ class User extends Authenticatable
         }
 
         return $this->referral_code;
+    }
+
+    public function scopeAdminVendorSearch(Builder $query, $search)
+    {
+        $query->whereHas(
+            'store',
+            fn($q) => $q->where('name', 'LIKE', "%{$search}%")
+                ->orWhere('action_note', 'LIKE', "%{$search}%")
+        );
+    }
+
+    public function scopeAdminVendors(Builder $query)
+    {
+        $request = request();
+
+        return $query->where('has_store', true)
+            ->when($request->search)->adminVendorSearch($request->search)
+            ->when($request->isBool('active'))->whereHas('store', fn($q) => $q->where('active', $request->boolean('active')))
+            ->when($request->filled('payment_status'))->whereHas('store', fn($q) => $q->where('payment_status', $request->input('payment_status')))
+            ->when($request->filled('gateway'))->whereHas('store', fn($q) => $q->where('fee_gateway', $request->input('gateway')))
+            ->with([
+                'store' => function ($qr) use ($request) {
+                    $qr->when($request->isBool('active'))->where('active', $request->boolean('active'))
+                        ->when($request->filled('payment_status'))->where('payment_status', $request->input('payment_status'))
+                        ->when($request->filled('gateway'))->where('fee_gateway', $request->input('gateway'))
+                        ->when($request->filled('search'))->where(fn($q) => $q->where('name', 'LIKE', "%{$request->search}%")
+                            ->orWhere('action_note', 'LIKE', "%{$request->search}%"));
+                },
+                'store.feeHistories'
+            ]);
     }
 }

@@ -67,9 +67,7 @@ class StripePaymentService implements PaymentGatewayInterface
         $paymentIntent = PaymentIntent::retrieve($session->payment_intent)->toArray();
         $paymentIntent['metadata'] = $metadata;
 
-        $status = $paymentIntent['status'] === 'succeeded' ? GeneralEnum::PAID->value : GeneralEnum::FAILED->value;
-
-        if ($status == GeneralEnum::FAILED->value) {
+        if ($paymentIntent['status'] !== 'succeeded') {
             return $this->handleFailedTransaction($paymentIntent);
         }
 
@@ -90,17 +88,17 @@ class StripePaymentService implements PaymentGatewayInterface
         ];
     }
 
-
     /**
      * handles payment transaction is failed
      */
-    private function handleFailedTransaction(array $responseData): array
+    private function handleFailedTransaction(array $transactionData): array
     {
-        return [
-            'status' => 'failed',
-            'message' => $responseData['message'] ?? 'Transaction verification failed',
-            'code' => $responseData['code'] ?? null,
-        ];
+        $type = $transactionData['metadata']['type'];
+
+        return match ($type) {
+            PaymentType::VENDOR->value => $this->handleVendorPayment($transactionData),
+            default => $this->handleUnknownType($transactionData)
+        };
     }
 
 
@@ -133,13 +131,18 @@ class StripePaymentService implements PaymentGatewayInterface
     {
         $store = Store::where('order_number', $transactionData['metadata']['order_number'])->first();
 
-        if ($store->payment_status == GeneralEnum::UNPAID->value) {
+        if ($store->payment_status !== GeneralEnum::SUCCESS->value) {
             $store->update([
-                'payment_status' => $transactionData['status'] === 'succeeded' ? GeneralEnum::PAID->value : GeneralEnum::FAILED->value
+                'fee_paid_at' => $transactionData['status'] === 'succeeded' ? now() : null,
+                'payment_status' => $transactionData['status'] === 'succeeded' ? GeneralEnum::SUCCESS->value : GeneralEnum::FAILED->value
+            ]);
+
+            $store->feeHistory()->update([
+                'status' => $transactionData['status'] === 'succeeded' ? GeneralEnum::SUCCESS : GeneralEnum::FAILED
             ]);
         }
 
-        return $transactionData;
+        return [$transactionData];
     }
 
     /**

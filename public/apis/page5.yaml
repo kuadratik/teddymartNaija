@@ -454,6 +454,39 @@ paths:
         default:
           description: success
 
+  /admin/stores:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Store Management
+      summary: Get all stores
+      description: Get all stores
+      operationId: getAllStoresByVendors
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: 
+        - in: query
+          name: active
+          schema:
+            type: boolean
+            example: 
+        - in: query
+          name: payment_status
+          schema:
+            type: string
+            example: 
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /admin/brands/history-notes/all:
     get:
       tags:
@@ -709,6 +742,70 @@ paths:
             type: number
             example: 1
           required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/profile-update:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: update profile
+      description: update profile
+      operationId: updateprofile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: "Sunny"
+                last_name:
+                  type: string
+                  example: "sunny"
+                email: 
+                  type: string
+                  example: 'logic@myeki.market'
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/password-update:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: update password
+      description: update password
+      operationId: upatePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_password:
+                  type: string
+                  example: "password123"
+                password:
+                  type: string
+                  example: "password234"
+                password_confirmation: 
+                  type: boolean
+                  example: 'password234'
       responses:
         default:
           description: "success"

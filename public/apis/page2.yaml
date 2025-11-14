@@ -126,12 +126,6 @@ paths:
                 whatsapp_number:
                   type: string
                   example: "1234567890"
-                profile_picture_path:
-                  type: string
-                  example: ""
-                banner_path:
-                  type: string
-                  example: ""
                 description:
                   type: string
                   example: "The best amala in ibadan"
@@ -189,54 +183,12 @@ paths:
                 id: 
                   type: number
                   example: 5
-                name:
-                  type: string
-                  example: "Amala Sky"
-                categories:
-                  type: array
-                  example: [50, 52]
-                contact_number:
-                  type: string
-                  example: "1234567898"
-                whatsapp_number:
-                  type: string
-                  example: "1234567890"
                 profile_picture_path:
                   type: string
                   example: ""
                 banner_path:
                   type: string
                   example: ""
-                description:
-                  type: string
-                  example: "The best amala in ibadan"
-                address1:
-                  type: string
-                  example: "oluyole ibadan"
-                address2:
-                  type: string
-                  example: "Good arena , eleyele ibadan"
-                state:
-                  type: string
-                  example: "oyo"
-                city:
-                  type: string
-                  example: "ibadan"
-                postal_code:
-                  type: string
-                  example: "100001"
-                country_id:
-                  type: integer
-                  example: 38
-                offers_service:
-                  type: string
-                  example: false
-                offers_product:
-                  type: string
-                  example: true
-                type: 
-                  type: string
-                  example: 'product'
       responses:
         default:
           description: "success"
@@ -264,54 +216,6 @@ paths:
                 id: 
                   type: number
                   example: 5
-                name:
-                  type: string
-                  example: "Amala Sky"
-                categories:
-                  type: array
-                  example: [50, 52]
-                contact_number:
-                  type: string
-                  example: "1234567898"
-                whatsapp_number:
-                  type: string
-                  example: "1234567890"
-                profile_picture_path:
-                  type: string
-                  example: ""
-                banner_path:
-                  type: string
-                  example: ""
-                description:
-                  type: string
-                  example: "The best amala in ibadan"
-                address1:
-                  type: string
-                  example: "oluyole ibadan"
-                address2:
-                  type: string
-                  example: "Good arena , eleyele ibadan"
-                state:
-                  type: string
-                  example: "oyo"
-                city:
-                  type: string
-                  example: "ibadan"
-                postal_code:
-                  type: string
-                  example: "100001"
-                country_id:
-                  type: integer
-                  example: 38
-                offers_service:
-                  type: string
-                  example: false
-                offers_product:
-                  type: string
-                  example: true
-                type: 
-                  type: string
-                  example: 'product'
                 return_url:
                   type: string
                   example: "https://myeki.market"

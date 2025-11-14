@@ -44,7 +44,11 @@ class Store extends Model
         'active',
         'step',
         'order_number',
-        'fee_amount'
+        'fee_amount',
+        'action_note',
+        'fee_gateway',
+        'fee_paid_at',
+        'store_fee_history_id'
     ];
 
     /**
@@ -70,6 +74,22 @@ class Store extends Model
         static::saving(function (Store $model) {
             $model->slug = str($model->name)->slug();
         });
+    }
+
+    /**
+     * Get the fee history
+     */
+    public function feeHistory()
+    {
+        return $this->belongsTo(StoreFeeHistory::class, 'store_fee_history_id');
+    }
+
+    /**
+     * Get all the fee history
+     */
+    public function feeHistories()
+    {
+        return $this->hasMany(StoreFeeHistory::class, 'store_id');
     }
 
     /**
