@@ -68,7 +68,7 @@ class StoresController extends Controller
             ->when($request->category)->forCategoryIn($categories)
             ->where('currency', $currency)
             ->whereHas('listings')
-            ->where('payment_status', GeneralEnum::PAID)
+            ->where('payment_status', GeneralEnum::SUCCESS)
             ->paginate(20);
 
         RecordCategoryInteractions::dispatch($request->search, $request->header('interactUid'));
@@ -176,8 +176,13 @@ class StoresController extends Controller
      */
     public function create(CreateStoreRequest $request, CreateStoreAction $createStoreAction)
     {
-        $store = $createStoreAction->execute($request->validated());
-        return $this->success($store);
+        $response = $createStoreAction->execute(
+            $request->validated(),
+            $request->route('step'),
+            $request->user()
+        );
+
+        return $this->success($response);
     }
 
     /**
@@ -190,6 +195,7 @@ class StoresController extends Controller
             ->when($request->hasHeader('currency'), function ($query) use ($request) {
                 $query->where('currency', $request->header('currency'));
             })
+            ->with('categories')
             ->get();
 
         return $this->success($store);

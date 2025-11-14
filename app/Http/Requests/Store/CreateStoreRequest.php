@@ -73,13 +73,10 @@ class CreateStoreRequest extends FormRequest
             '1' => $stepOneRules,
             '2' => [
                 'id' => ['required', 'numeric', fn($attr, $val, $fail) => $this->storeExists($attr, $val, $fail)],
-                ...$stepOneRules,
                 ...$stepTwoRules
             ],
             '3' => [
                 'id' => ['required', 'numeric', fn($attr, $val, $fail) => $this->storeExists($attr, $val, $fail)],
-                ...$stepOneRules,
-                ...$stepTwoRules,
                 'return_url' => ['required', 'string', 'url'],
                 'cancel_url' => ['required', 'string', 'url'],
             ]
@@ -94,7 +91,7 @@ class CreateStoreRequest extends FormRequest
             return $fail('The selected store is invalid');
         }
 
-        if ($store->payment_status == GeneralEnum::PAID->value) {
+        if ($store->payment_status == GeneralEnum::SUCCESS->value) {
             return $fail('The selected Store already has payment');
         }
     }

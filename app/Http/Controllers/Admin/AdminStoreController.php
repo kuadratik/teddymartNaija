@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CreateNavigationRequest;
 use App\Models\Navigation;
 use App\Models\Store;
+use App\Models\User;
+use Illuminate\Http\Request;
 
 class AdminStoreController extends Controller
 {
@@ -45,5 +47,11 @@ class AdminStoreController extends Controller
     {
         $navigation->delete();
         return $this->success();
+    }
+
+    public function vendors(Request $request)
+    {
+        $vendors = User::adminVendors()->paginate();
+        return $this->success($vendors);
     }
 }

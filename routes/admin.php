@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminStoreController;
 use App\Http\Controllers\Admin\BrandCategoriesController;
 use App\Http\Controllers\Admin\BrandController;
@@ -8,13 +8,16 @@ use App\Http\Controllers\Admin\BrandHistoryNoteController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->group(function () {
-    Route::post('login', [AdminAuthController::class, 'login']);
+    Route::post('login', [AdminController::class, 'login']);
 
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-        Route::post('logout', [AdminAuthController::class, 'logout']);
+        Route::post('logout', [AdminController::class, 'logout']);
+        Route::post('profile-update', [AdminController::class, 'updateProfile']);
+        Route::post('password-update', [AdminController::class, 'updatePassword']);
 
         Route::patch('stores/{store}/deactivate', [AdminStoreController::class, 'deactivate']);
         Route::patch('stores/{store}/activate', [AdminStoreController::class, 'activate']);
+        Route::get('stores', [AdminStoreController::class, 'vendors']);
 
         Route::prefix('navigations')->group(function () {
             Route::get('/', [AdminStoreController::class, 'navigations']);

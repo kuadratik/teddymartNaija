@@ -239,13 +239,18 @@ class PaystackPaymentService implements PaymentGatewayInterface
     {
         $store = Store::where('order_number', $transactionData['metadata']['order_number'])->first();
 
-        if ($store->payment_status == GeneralEnum::UNPAID->value) {
+        if ($store->payment_status !== GeneralEnum::SUCCESS->value) {
             $store->update([
-                'payment_status' => $transactionData['status'] === 'success' ? GeneralEnum::PAID->value : GeneralEnum::FAILED->value
+                'fee_paid_at' => $transactionData['status'] === 'success' ? now() : null,
+                'payment_status' => $transactionData['status'] === 'success' ? GeneralEnum::SUCCESS->value : GeneralEnum::FAILED->value
+            ]);
+
+            $store->feeHistory()->update([
+                'status' => $transactionData['status'] === 'success' ? GeneralEnum::SUCCESS : GeneralEnum::FAILED
             ]);
         }
 
-        return $transactionData;
+        return [$transactionData];
     }
 
     /**
