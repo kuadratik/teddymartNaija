@@ -8,6 +8,7 @@ enum GeneralEnum: string
    case FAILED = 'failed';
    case PENDING = 'pending';
    case SUCCESS = 'success';
+   case UNPAID = 'unpaid';
 
    // roles enum
 }

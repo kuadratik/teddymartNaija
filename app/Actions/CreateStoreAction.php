@@ -179,6 +179,7 @@ class CreateStoreAction
         } else {
             $data['user_id'] = $userId;
             $data['order_number'] = Str::uuid()->toString();
+            $data['active'] = false;
             $store = Store::create($data);
         }
 
