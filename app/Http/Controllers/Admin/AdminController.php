@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AdminLoginRequest;
 use App\Http\Requests\Admin\UpdatePasswordRequest;
 use App\Http\Requests\Admin\UpdateProfileRequest;
+use App\Models\Admin;
 use App\Services\Auth\AuthenticationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -41,5 +42,14 @@ class AdminController extends Controller
         ]);
 
         return $this->success();
+    }
+
+    /**
+     * Get the list of all admins
+     */
+    public function staff(Request $request)
+    {
+        $response = Admin::search($request->search)->paginate();
+        return $this->success($response);
     }
 }

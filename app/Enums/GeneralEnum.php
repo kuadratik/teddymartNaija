@@ -11,4 +11,11 @@ enum GeneralEnum: string
    case UNPAID = 'unpaid';
 
    // roles enum
+
+   public static function permissions()
+   {
+      return [
+         
+      ];
+   }
 }

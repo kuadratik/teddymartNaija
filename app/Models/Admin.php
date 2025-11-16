@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
@@ -27,5 +28,19 @@ class Admin extends Authenticatable
 
     protected $casts = [
         'password' => 'hashed',
+        'permissions' => 'array'
     ];
+
+    /**
+     * Query scope to search admin
+     */
+    public function scopeSearch(Builder $query, $search)
+    {
+        return $query->when($search)->where(
+            fn($q) => $q->where('first_name', 'like', $search)
+                ->orWhere('last_name', 'like', $search)
+                ->orWhere('email', 'like', $search)
+                ->orWhere('role', 'like', $search)
+        );
+    }
 }
