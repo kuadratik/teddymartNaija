@@ -813,3 +813,20 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /admin/permissions:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: Get all permisisons
+      description: Get all permisisons
+      operationId: permisisons
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
