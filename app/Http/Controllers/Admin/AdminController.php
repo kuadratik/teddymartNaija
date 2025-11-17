@@ -7,13 +7,17 @@ use App\Http\Requests\Admin\AdminLoginRequest;
 use App\Http\Requests\Admin\UpdatePasswordRequest;
 use App\Http\Requests\Admin\UpdateProfileRequest;
 use App\Models\Admin;
+use App\Models\Permission;
 use App\Services\Auth\AuthenticationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    public function __construct(protected AuthenticationService $authService) {}
+    public function __construct(protected AuthenticationService $authService)
+    {
+        //
+    }
 
     public function login(AdminLoginRequest $request)
     {
@@ -51,5 +55,14 @@ class AdminController extends Controller
     {
         $response = Admin::search($request->search)->paginate();
         return $this->success($response);
+    }
+
+    /**
+     * Return the list of permissions
+     */
+    public function permissions(Request $request)
+    {
+        $permissions = Permission::all();
+        return $this->success($permissions);
     }
 }

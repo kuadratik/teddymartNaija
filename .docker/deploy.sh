@@ -32,5 +32,6 @@ docker exec ${APP_NAME} php artisan queue:restart
 
 # Migrate database
 docker exec ${APP_NAME} php artisan migrate --force
+docker exec ${APP_NAME} php artisan db:seed --class=PermissionSeeder --force
 
 echo "Deployed"
