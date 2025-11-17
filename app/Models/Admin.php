@@ -18,7 +18,8 @@ class Admin extends Authenticatable
         'email',
         'password',
         'role',
-        'permissions'
+        'permissions',
+        'active'
     ];
 
     protected $hidden = [
@@ -28,7 +29,8 @@ class Admin extends Authenticatable
 
     protected $casts = [
         'password' => 'hashed',
-        'permissions' => 'array'
+        'permissions' => 'array',
+        'active' => 'boolean'
     ];
 
     /**
@@ -42,5 +44,22 @@ class Admin extends Authenticatable
                 ->orWhere('email', 'like', $search)
                 ->orWhere('role', 'like', $search)
         );
+    }
+
+    /**
+     * Query scope to scope by role
+     */
+    public function scopeByRole(Builder $query, $role)
+    {
+        return $query->when($role)->where('admins.role', $role);
+    }
+
+    /**
+     * Qeurry scope to get active admins
+     */
+    public function scopeByActive(Builder $query, $active)
+    {
+        logger('inside scope');
+        return $query->where('admins.active', $active);
     }
 }

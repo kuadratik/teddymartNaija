@@ -9,8 +9,8 @@ enum GeneralEnum: string
    case PENDING = 'pending';
    case SUCCESS = 'success';
    case UNPAID = 'unpaid';
-
-   // roles enum
+   case ADMIN = 'admin';
+   case PRODUCT_MANAGER = 'product_manager';
 
    public static function permissions()
    {

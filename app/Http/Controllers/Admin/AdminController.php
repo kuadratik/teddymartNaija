@@ -53,7 +53,10 @@ class AdminController extends Controller
      */
     public function staff(Request $request)
     {
-        $response = Admin::search($request->search)->paginate();
+        $response = Admin::search($request->search)
+            ->when($request->isBool('active'))->byActive($request->boolean('active'))
+            ->when($request->filled('role'))->byRole($request->role)
+            ->paginate();
         return $this->success($response);
     }
 
