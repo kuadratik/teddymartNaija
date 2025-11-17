@@ -847,6 +847,47 @@ paths:
               schema:
                 type: object
 
+  /admin/staff/create:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: Create new Staff
+      description: Create new Staff
+      operationId: createnewstaff
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: "james"
+                last_name:
+                  type: string
+                  example: "james"
+                email:
+                  type: string
+                  example: "afuwapesunday12@gmail.com"
+                role:
+                  type: string
+                  example: "product_manager"
+                password:
+                  type: string
+                  example: "password234"
+                permissions: 
+                  type: array
+                  example: ["manage-brands"]
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /admin/permissions:
     get:
       security:

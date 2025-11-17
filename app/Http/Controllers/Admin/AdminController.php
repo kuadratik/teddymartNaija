@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AdminLoginRequest;
+use App\Http\Requests\Admin\CreateStaffRequest;
 use App\Http\Requests\Admin\UpdatePasswordRequest;
 use App\Http\Requests\Admin\UpdateProfileRequest;
 use App\Models\Admin;
 use App\Models\Permission;
+use App\Notifications\Admin\StaffCreatedNotification;
 use App\Services\Auth\AuthenticationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -67,5 +69,17 @@ class AdminController extends Controller
     {
         $permissions = Permission::all();
         return $this->success($permissions);
+    }
+
+    /**
+     * Create new staff user
+     */
+    public function createStaff(CreateStaffRequest $request)
+    {
+        $admin = Admin::create($request->validated());
+        rescue(
+            fn() => $admin->notify(new StaffCreatedNotification($request->password, $request->user()->first_name))
+        );
+        return $this->success($admin);
     }
 }
