@@ -133,6 +133,7 @@ class StripePaymentService implements PaymentGatewayInterface
 
         if ($store->payment_status !== GeneralEnum::SUCCESS->value) {
             $store->update([
+                'active' => true,
                 'fee_paid_at' => $transactionData['status'] === 'succeeded' ? now() : null,
                 'payment_status' => $transactionData['status'] === 'succeeded' ? GeneralEnum::SUCCESS->value : GeneralEnum::FAILED->value
             ]);

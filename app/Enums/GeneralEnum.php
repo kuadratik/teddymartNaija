@@ -8,6 +8,14 @@ enum GeneralEnum: string
    case FAILED = 'failed';
    case PENDING = 'pending';
    case SUCCESS = 'success';
+   case UNPAID = 'unpaid';
+   case ADMIN = 'admin';
+   case PRODUCT_MANAGER = 'product_manager';
 
-   // roles enum
+   public static function permissions()
+   {
+      return [
+         
+      ];
+   }
 }

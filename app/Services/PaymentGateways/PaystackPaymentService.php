@@ -241,6 +241,7 @@ class PaystackPaymentService implements PaymentGatewayInterface
 
         if ($store->payment_status !== GeneralEnum::SUCCESS->value) {
             $store->update([
+                'active' => true,
                 'fee_paid_at' => $transactionData['status'] === 'success' ? now() : null,
                 'payment_status' => $transactionData['status'] === 'success' ? GeneralEnum::SUCCESS->value : GeneralEnum::FAILED->value
             ]);
