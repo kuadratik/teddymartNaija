@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\GeneralEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,6 +24,7 @@ class CreateNavigationRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'type' => ['required', Rule::in([GeneralEnum::BOTTOM, GeneralEnum::TOP])],
             'name' => ['required', 'string'],
             'link' => ['required', 'string'],
             'active' => ['required', 'boolean'],

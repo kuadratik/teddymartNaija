@@ -19,6 +19,7 @@ class Navigation extends Model
         'icon',
         'subnav',
         'ordering',
+        'type'
     ];
 
     /**
@@ -31,4 +32,12 @@ class Navigation extends Model
         'coming_soon' => 'boolean',
         'subnav' => 'array'
     ];
+
+    /**
+     * Query scope to filter by type
+     */
+    public function scopeByType($query, $type)
+    {
+        return $query->where('navigations.type', $type);
+    }
 }
