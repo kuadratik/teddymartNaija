@@ -611,6 +611,12 @@ paths:
       summary: Get all navigation
       description: Get all navigation
       operationId: getallnavs
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+            example: "bottom"
       responses:
         default:
           description: "success"
@@ -634,6 +640,9 @@ paths:
             schema:
               type: object
               properties:
+                type:
+                  type: string
+                  example: "bottom|top"
                 name:
                   type: string
                   example: "Good nav"
@@ -691,6 +700,9 @@ paths:
             schema:
               type: object
               properties:
+                type:
+                  type: string
+                  example: "bottom|top"
                 name:
                   type: string
                   example: "Good nav"
