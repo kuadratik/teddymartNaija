@@ -196,6 +196,7 @@ class StoresController extends Controller
                 $query->where('currency', $request->header('currency'));
             })
             ->with('categories')
+            ->withCount('listings')
             ->get();
 
         return $this->success($store);
