@@ -859,6 +859,29 @@ paths:
               schema:
                 type: object
 
+  /admin/staff/{admin}/details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: Get all staff
+      description: Get all staff
+      operationId: getsinglestaffinformation
+      parameters:
+        - in: path
+          name: admin
+          schema:
+            type: string
+            example: 
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /admin/staff/{admin}/update:
     post:
       security:
