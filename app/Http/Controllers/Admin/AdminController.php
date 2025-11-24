@@ -99,4 +99,12 @@ class AdminController extends Controller
         );
         return $this->success($admin);
     }
+
+    /**
+     * Get staff user details
+     */
+    public function staffDetails(Request $request, Admin $admin)
+    {
+        return $this->success($admin);
+    }
 }

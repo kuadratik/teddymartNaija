@@ -15,6 +15,7 @@ Route::prefix('admin')->group(function () {
         Route::post('profile-update', [AdminController::class, 'updateProfile']);
         Route::post('password-update', [AdminController::class, 'updatePassword']);
         Route::get('staff', [AdminController::class, 'staff']);
+        Route::get('staff/{admin}/details', [AdminController::class, 'staffDetails']);
         Route::post('staff/create', [AdminController::class, 'createStaff']);
         Route::post('staff/{admin}/update', [AdminController::class, 'updateStaff']);
         Route::get('permissions', [AdminController::class, 'permissions']);
