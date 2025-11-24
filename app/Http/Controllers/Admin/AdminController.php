@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\GeneralEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AdminLoginRequest;
 use App\Http\Requests\Admin\CreateStaffRequest;
@@ -93,7 +94,7 @@ class AdminController extends Controller
     {
         abort_if($admin->id == $request->user()->id, Response::HTTP_FORBIDDEN, 'You cannot update your own staff account.');
         $admin->update($request->validated());
-        
+
         rescue(
             fn() => $request->filled('password') && $admin->notify(new StaffUpdatedNotification($request->password, $request->user()->first_name))
         );
@@ -106,5 +107,17 @@ class AdminController extends Controller
     public function staffDetails(Request $request, Admin $admin)
     {
         return $this->success($admin);
+    }
+
+    /**
+     * Delete staff user
+     */
+    public function deleteStaff(Request $request, Admin $admin)
+    {
+        abort_if($admin->id == $request->user()->id, Response::HTTP_FORBIDDEN, 'You cannot delete your own staff account.');
+        abort_if($admin->role == GeneralEnum::ADMIN->value, Response::HTTP_FORBIDDEN, 'You cannot delete an admin account.');
+
+        $admin->delete();
+        return $this->success();
     }
 }

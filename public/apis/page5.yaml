@@ -883,7 +883,7 @@ paths:
                 type: object
 
   /admin/staff/{admin}/update:
-    post:
+    put:
       security:
         - bearerAuth: []
       tags:
@@ -921,6 +921,29 @@ paths:
                 permissions: 
                   type: array
                   example: ["manage-brands"]
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/staff/{admin}/delete:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: delete staff information
+      description: delete staff information
+      operationId: softdeletestaffinformation
+      parameters:
+        - in: path
+          name: admin
+          schema:
+            type: string
+            example: 
       responses:
         default:
           description: "success"
