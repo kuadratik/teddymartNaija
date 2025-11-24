@@ -16,6 +16,7 @@ Route::prefix('admin')->group(function () {
         Route::post('password-update', [AdminController::class, 'updatePassword']);
         Route::get('staff', [AdminController::class, 'staff']);
         Route::post('staff/create', [AdminController::class, 'createStaff']);
+        Route::post('staff/{admin}/update', [AdminController::class, 'updateStaff']);
         Route::get('permissions', [AdminController::class, 'permissions']);
 
         Route::patch('stores/{store}/deactivate', [AdminStoreController::class, 'deactivate']);

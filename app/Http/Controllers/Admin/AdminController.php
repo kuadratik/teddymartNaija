@@ -7,12 +7,15 @@ use App\Http\Requests\Admin\AdminLoginRequest;
 use App\Http\Requests\Admin\CreateStaffRequest;
 use App\Http\Requests\Admin\UpdatePasswordRequest;
 use App\Http\Requests\Admin\UpdateProfileRequest;
+use App\Http\Requests\Admin\UpdateStaffRequest;
 use App\Models\Admin;
 use App\Models\Permission;
 use App\Notifications\Admin\StaffCreatedNotification;
+use App\Notifications\Admin\StaffUpdatedNotification;
 use App\Services\Auth\AuthenticationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Response;
 
 class AdminController extends Controller
 {
@@ -79,6 +82,20 @@ class AdminController extends Controller
         $admin = Admin::create($request->validated());
         rescue(
             fn() => $admin->notify(new StaffCreatedNotification($request->password, $request->user()->first_name))
+        );
+        return $this->success($admin);
+    }
+
+    /**
+     * Update staff user information
+     */
+    public function updateStaff(UpdateStaffRequest $request, Admin $admin)
+    {
+        abort_if($admin->id == $request->user()->id, Response::HTTP_FORBIDDEN, 'You cannot update your own staff account.');
+        $admin->update($request->validated());
+        
+        rescue(
+            fn() => $request->filled('password') && $admin->notify(new StaffUpdatedNotification($request->password, $request->user()->first_name))
         );
         return $this->success($admin);
     }
