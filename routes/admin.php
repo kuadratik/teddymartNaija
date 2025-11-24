@@ -17,7 +17,8 @@ Route::prefix('admin')->group(function () {
         Route::get('staff', [AdminController::class, 'staff']);
         Route::get('staff/{admin}/details', [AdminController::class, 'staffDetails']);
         Route::post('staff/create', [AdminController::class, 'createStaff']);
-        Route::post('staff/{admin}/update', [AdminController::class, 'updateStaff']);
+        Route::put('staff/{admin}/update', [AdminController::class, 'updateStaff']);
+        Route::delete('staff/{admin}/delete', [AdminController::class, 'deleteStaff']);
         Route::get('permissions', [AdminController::class, 'permissions']);
 
         Route::patch('stores/{store}/deactivate', [AdminStoreController::class, 'deactivate']);

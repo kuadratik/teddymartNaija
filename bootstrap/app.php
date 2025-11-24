@@ -57,8 +57,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (Throwable $exception, Request $request) {
             if ($request->is('api/*') || $request->wantsJson()) {
-                if ($exception instanceof ModelNotFoundException) {
-                    $model = str(class_basename($exception->getModel()))->headline()->lower();
+                if (
+                    $exception->getPrevious() instanceof ModelNotFoundException ||
+                    $exception instanceof ModelNotFoundException
+                ) {
+                    $model = str(class_basename($exception->getPrevious()->getModel() ?? 'record'))
+                        ->headline()->lower();
+
                     return Utils::failure("The requested resource {$model} information was not found", 404);
                 }
 
