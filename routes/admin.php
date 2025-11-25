@@ -12,6 +12,7 @@ Route::prefix('admin')->group(function () {
 
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::post('logout', [AdminController::class, 'logout']);
+        Route::get('profile', [AdminController::class, 'profile']);
         Route::post('profile-update', [AdminController::class, 'updateProfile']);
         Route::post('password-update', [AdminController::class, 'updatePassword']);
         Route::get('staff', [AdminController::class, 'staff']);

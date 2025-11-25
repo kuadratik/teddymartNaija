@@ -929,6 +929,23 @@ paths:
               schema:
                 type: object
 
+  /admin/profile:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: Get admin profile
+      description: Get admin profile
+      operationId: getadminprofile
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
   /admin/staff/{admin}/delete:
     delete:
       security:

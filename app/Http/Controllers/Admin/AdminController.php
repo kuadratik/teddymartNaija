@@ -39,6 +39,11 @@ class AdminController extends Controller
         return $this->success(['message' => 'Logged out successfully']);
     }
 
+    public function profile(Request $request)
+    {
+        return $this->success($request->user());
+    }
+
     public function updateProfile(UpdateProfileRequest $request)
     {
         $request->user()->update($request->validated());
