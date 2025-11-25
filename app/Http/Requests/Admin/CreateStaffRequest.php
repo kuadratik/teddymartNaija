@@ -28,7 +28,7 @@ class CreateStaffRequest extends FormRequest
             'last_name' => ['required', 'string', 'max:250'],
             'email' => ['required', 'email', 'max:250', 'unique:admins,email'],
             'password' => ['required', 'string', 'max:50'],
-            'role' => ['required', Rule::in([GeneralEnum::PRODUCT_MANAGER])],
+            'role' => ['required', Rule::in([GeneralEnum::ADMIN, GeneralEnum::PRODUCT_MANAGER])],
             'permissions' => ['required', 'array', 'min:1'],
             'permissions.*' => ['required', 'string', 'exists:permissions,key']
         ];

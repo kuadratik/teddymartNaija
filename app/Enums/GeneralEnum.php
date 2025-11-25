@@ -11,6 +11,7 @@ enum GeneralEnum: string
    case UNPAID = 'unpaid';
    case ADMIN = 'admin';
    case PRODUCT_MANAGER = 'product_manager';
+   case SUPER_ADMIN = 'super_admin';
    case BOTTOM = 'bottom';
    case TOP = 'top'; 
 
