@@ -15,7 +15,7 @@ class AdminSeeder extends Seeder
             'last_name' => 'Admin',
             'email' => 'admin@myeki.market',
             'password' => 'password123',
-            'role' => GeneralEnum::ADMIN,
+            'role' => GeneralEnum::SUPER_ADMIN,
         ]);
     }
 }
