@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class Store extends Model
 {
@@ -72,7 +73,7 @@ class Store extends Model
     protected static function booted()
     {
         static::saving(function (Store $model) {
-            $model->slug = str($model->name)->slug();
+            $model->slug = str($model->name)->slug() . '-' . Str::random(4);
         });
     }
 
