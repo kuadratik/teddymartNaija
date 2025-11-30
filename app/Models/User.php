@@ -253,6 +253,7 @@ class User extends Authenticatable
             'store',
             fn($q) => $q->where('name', 'LIKE', "%{$search}%")
                 ->orWhere('action_note', 'LIKE', "%{$search}%")
+                ->orWhere("description", "LIKE", "%{$search}%")
         );
     }
 

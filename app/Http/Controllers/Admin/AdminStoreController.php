@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Admin\StoreActivationAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CreateNavigationRequest;
+use App\Http\Requests\Admin\StoreActivationRequest;
 use App\Models\Navigation;
 use App\Models\Store;
 use App\Models\User;
@@ -18,11 +20,10 @@ class AdminStoreController extends Controller
         return $this->success(['message' => 'Store deactivated successfully']);
     }
 
-    public function activate(Store $store)
+    public function activation(StoreActivationRequest $request, StoreActivationAction $action)
     {
-        $store->update(['active' => true]);
-
-        return $this->success(['message' => 'Store activated successfully']);
+        $action->handle($request->validated());
+        return $this->success();
     }
 
     public function navigations(Request $request)

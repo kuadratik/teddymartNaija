@@ -23,7 +23,7 @@ Route::prefix('admin')->group(function () {
         Route::get('permissions', [AdminController::class, 'permissions']);
 
         Route::patch('stores/{store}/deactivate', [AdminStoreController::class, 'deactivate']);
-        Route::patch('stores/{store}/activate', [AdminStoreController::class, 'activate']);
+        Route::patch('stores/activation', [AdminStoreController::class, 'activation']);
         Route::get('stores', [AdminStoreController::class, 'vendors']);
 
         Route::prefix('navigations')->group(function () {

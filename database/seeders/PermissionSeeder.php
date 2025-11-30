@@ -26,6 +26,10 @@ class PermissionSeeder extends Seeder
                 'name' => 'Manage users',
                 'key' => 'manage-users'
             ],
+            [
+                'name'=> 'Manage vendors store',
+                'key'=> 'manage-vendors-store',
+            ]
         ];
 
         Permission::truncate();
