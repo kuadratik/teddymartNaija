@@ -416,26 +416,26 @@ paths:
         default:
           description: success
 
-  /admin/stores/{store}/deactivate:
-    patch:
-      tags:
-        - Store Management
-      summary: Deactivate store
-      description: Deactivate a store by setting active to false
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: store
-          in: path
-          required: true
-          schema:
-            type: string
-          example: nike-store
-      responses:
-        default:
-          description: success
+  # /admin/stores/{store}/deactivate:
+  #   patch:
+  #     tags:
+  #       - Store Management
+  #     summary: Deactivate store
+  #     description: Deactivate a store by setting active to false
+  #     security:
+  #       - bearerAuth: []
+  #     parameters:
+  #       - name: store
+  #         in: path
+  #         required: true
+  #         schema:
+  #           type: string
+  #         example: nike-store
+  #     responses:
+  #       default:
+  #         description: success
 
-  /admin/stores/{store}/activate:
+  /admin/stores/activation:
     patch:
       tags:
         - Store Management
@@ -443,13 +443,31 @@ paths:
       description: Activate a store by setting active to true
       security:
         - bearerAuth: []
-      parameters:
-        - name: store
-          in: path
-          required: true
-          schema:
-            type: string
-          example: nike-store
+      operationId: storesActivation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - note
+              properties:
+                all_stores:
+                  type: boolean
+                  example: false
+                active: 
+                 type: boolean
+                 example: true
+                payment_status: 
+                  type: string;
+                  example: 'success'
+                note:
+                  type: string
+                  example: "Updated note content"
+                stores: 
+                  type: array
+                  example: [1]
       responses:
         default:
           description: success
