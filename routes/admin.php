@@ -27,7 +27,7 @@ Route::prefix('admin')->group(function () {
         Route::get('stores', [AdminStoreController::class, 'vendors']);
 
         Route::prefix('navigations')->group(function () {
-            Route::get('/', [AdminStoreController::class, 'navigations']);
+            Route::get('/', [AdminStoreController::class, 'navigations'])->withoutMiddleware(['auth:sanctum', 'admin']);
             Route::post('create', [AdminStoreController::class, 'createMenu']);
             Route::put('{navigation}/update', [AdminStoreController::class, 'updateMenu']);
             Route::delete('{navigation}/delete', [AdminStoreController::class, 'deleteMenu']);
