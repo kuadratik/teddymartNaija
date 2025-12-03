@@ -35,10 +35,7 @@ class CreateNavigationRequest extends FormRequest
             'subnav.*.link' => ['required', 'string'],
             'subnav.*.coming_soon' => ['required', 'boolean'],
             'subnav.*.icon' => ['nullable', 'string'],
-            'ordering' => [
-                'required',
-                Rule::unique('navigations', 'ordering')->when($this->route('navigation'), fn($r) => $r->ignore($this->navigation->id)),
-            ],
+            'ordering' => ['required'],
         ];
     }
 }

@@ -41,10 +41,10 @@ class Admin extends Authenticatable
     public function scopeSearch(Builder $query, $search)
     {
         return $query->when($search)->where(
-            fn($q) => $q->where('first_name', 'like', $search)
-                ->orWhere('last_name', 'like', $search)
-                ->orWhere('email', 'like', $search)
-                ->orWhere('role', 'like', $search)
+            fn($q) => $q->where('first_name', 'like', "%{$search}%")
+                ->orWhere('last_name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere('role', 'like', "%{$search}%")
         );
     }
 
