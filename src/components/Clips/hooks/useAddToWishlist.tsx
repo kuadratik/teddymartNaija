@@ -1,0 +1,62 @@
+import CustomToast from '@/components/SharedUI/Toast/CustomToast'
+import {showPlannerToast} from '@/components/SharedUI/Toast/plannerToast'
+import {useAddToWishlistCartMutation} from '@/services/auth/clips'
+
+const useAddToWishlistQuery = () => {
+  const [addToWishlistCart, {isLoading, error, isError}] = useAddToWishlistCartMutation()
+
+  const handleAddToWishListCart = async (
+    productSlug: string,
+    body: {
+      variant_id?: number
+    }
+  ) => {
+    const wishlistBody = {
+      ...body
+    }
+    if (body.variant_id !== undefined) {
+      wishlistBody.variant_id = body.variant_id
+    }
+    try {
+      await addToWishlistCart({productSlug: productSlug, body: wishlistBody})
+        .unwrap()
+        .then(() => {
+          showPlannerToast({
+            options: {
+              customToast: (
+                <CustomToast
+                  altText={''}
+                  title={'Item added to wishlist!'}
+                  textColor="#FFF"
+                  message="You have successfully added this item to your wishlist."
+                  backgroundColor="#000"
+                />
+              )
+            },
+            message: 'message'
+          })
+        })
+        .catch((err: any) => {
+          showPlannerToast({
+            options: {
+              customToast: (
+                <CustomToast
+                  altText={''}
+                  title={<>{err?.data?.message || 'Error clipping item to cart!'}</>}
+                  textColor="#FFF"
+                  message={err?.data?.message}
+                  backgroundColor="#000"
+                />
+              )
+            },
+            message: 'message'
+          })
+        })
+    } catch (err: any) {
+      console.log(err)
+    }
+  }
+  return {isLoading, handleAddToWishListCart, error, isError}
+}
+
+export default useAddToWishlistQuery

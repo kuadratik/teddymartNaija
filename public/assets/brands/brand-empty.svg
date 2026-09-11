@@ -1,0 +1,34 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <!-- Circular background -->
+  <circle cx="100" cy="100" r="95" stroke="currentColor" stroke-width="2" opacity="0.1"/>
+  
+  <!-- Store icon outline -->
+  <g transform="translate(100, 100)">
+    <!-- Store building -->
+    <rect x="-40" y="-20" width="80" height="60" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Door -->
+    <rect x="-15" y="20" width="30" height="40" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Door handle -->
+    <circle cx="10" cy="40" r="2" fill="currentColor"/>
+    
+    <!-- Window left -->
+    <rect x="-35" y="0" width="20" height="16" stroke="currentColor" stroke-width="1.5" fill="none"/>
+    
+    <!-- Window right -->
+    <rect x="15" y="0" width="20" height="16" stroke="currentColor" stroke-width="1.5" fill="none"/>
+    
+    <!-- Roof left -->
+    <path d="M -40 -20 L -50 -35 L 0 -35 Z" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Roof right -->
+    <path d="M 40 -20 L 50 -35 L 0 -35 Z" stroke="currentColor" stroke-width="2" fill="none"/>
+    
+    <!-- Flag pole -->
+    <line x1="0" y1="-35" x2="0" y2="-55" stroke="currentColor" stroke-width="1.5"/>
+    
+    <!-- Flag -->
+    <rect x="0" y="-55" width="25" height="15" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  </g>
+</svg>
