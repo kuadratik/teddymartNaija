@@ -5,7 +5,7 @@ const landingFeatureList = [
     id: 1,
     title: 'vendor hub',
     description:
-      'Showcase your products and services to a diverse local and global audience. Expand your reach, boost visibility, and grow your business with myEKI.',
+      'Showcase your products and services to a diverse local and global audience. Expand your reach, boost visibility, and grow your business with AfricanDiasporaMart.',
     icon: 'ic:outline-hub',
     bg: '#EDEDED'
   },
@@ -21,7 +21,7 @@ const landingFeatureList = [
     id: 3,
     title: 'Ads Space',
     description:
-      'Post items or services effortlessly with myEKI Ads—no storefront needed. Reach potential buyers directly through our flexible classified ad space.',
+      'Post items or services effortlessly with AfricanDiasporaMart Ads—no storefront needed. Reach potential buyers directly through our flexible classified ad space.',
     icon: 'icons8:advertising',
     bg: '#EDEDED'
   },

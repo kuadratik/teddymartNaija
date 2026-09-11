@@ -71,14 +71,14 @@ class OrderDeliveredNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject("Yayy!! 📦Your Order #{$orderNumber} Has Been Delivered!")
             ->greeting("Dear {$customerName},")
-            ->line("Great news! Your myEKI order has been successfully delivered to:")
+            ->line("Great news! Your AfricanDiasporaMart order has been successfully delivered to:")
             ->line("Shipping Address: {$shippingAddress}")
             ->line("Shipping Fee: {$shippingCost} {$currency}")
             ->line(new HtmlString($productTable))
-            ->line("We hope everything arrived in perfect condition and met your expectations. To help us serve you better, please take a moment to rate your order by clicking on the Rate Product button in the myEKI profile section.")
+            ->line("We hope everything arrived in perfect condition and met your expectations. To help us serve you better, please take a moment to rate your order by clicking on the Rate Product button in the AfricanDiasporaMart profile section.")
             ->line("By rating the product, you assist other customers in making informed decisions. If there's anything you'd like to share about your experience—or if you need help with your order—don't hesitate to reach out to us.")
             ->line("")
-            ->line("Thank you for shopping on myEKI. We look forward to seeing you again soon!");
+            ->line("Thank you for shopping on AfricanDiasporaMart. We look forward to seeing you again soon!");
     }
 
     /**

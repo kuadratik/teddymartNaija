@@ -47,8 +47,8 @@ const index = () => {
   return (
     <>
       <SEOHead
-        title="Super Admin Dashboard | myEKI"
-        description="Manage and monitor all brands, users, and activities on myEKI platform"
+        title="Super Admin Dashboard | AfricanDiasporaMart"
+        description="Manage and monitor all brands, users, and activities on AfricanDiasporaMart platform"
       />
       <SuperAdminLayout>
         <div className="grid grid-cols-2 items-center gap-4 lg:mb-8">

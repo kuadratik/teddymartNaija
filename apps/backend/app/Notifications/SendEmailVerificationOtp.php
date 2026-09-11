@@ -42,7 +42,7 @@ class SendEmailVerificationOtp extends Notification implements ShouldQueue
             ->line('This OTP will expire in 5 minutes.')
             ->line('If you did not request this OTP, please ignore this email.')
             ->line('Thank you for using our application!')
-            ->salutation(new HtmlString('Best Regards,<br>The myEKI Team'));
+            ->salutation(new HtmlString('Best Regards,<br>The AfricanDiasporaMart Team'));
     }
 
     /**

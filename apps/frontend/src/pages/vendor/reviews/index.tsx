@@ -138,8 +138,8 @@ const Reviews = () => {
   return (
     <>
       <SEOHead
-        title={`myEKI | Customer Reviews `}
-        description="myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. "
+        title={`AfricanDiasporaMart | Customer Reviews `}
+        description="AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. "
       />
       <VendorLayout>
         <div className="mx-auto w-full max-w-7xl">

@@ -7,8 +7,8 @@ const PrivacyPolicy = () => {
   return (
     <>
       <SEOHead
-        title={`myEKI | Privacy Policy`}
-        description="myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs. Join myEKI today and start selling for free! Find products and services near you!!"
+        title={`AfricanDiasporaMart | Privacy Policy`}
+        description="AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!"
       />
 
       <BaseLayout>
@@ -189,7 +189,7 @@ export async function getStaticProps() {
     '@graph': [
       {
         '@type': 'WebSite',
-        name: 'myEKI',
+        name: 'AfricanDiasporaMart',
         url: 'https://myeki.market',
         potentialAction: {
           '@type': 'SearchAction',
@@ -199,13 +199,13 @@ export async function getStaticProps() {
       },
       {
         '@type': 'Organization',
-        name: 'myEKI',
+        name: 'AfricanDiasporaMart',
         url: 'https://myeki.market',
         logo: 'https://myeki.market/assets/WhiteLogo.svg' // Replace with your actual logo URL
       },
       {
         '@type': 'LegalService', // Use LegalService for Privacy Policy
-        name: 'myEKI Privacy Policy', // More specific name
+        name: 'AfricanDiasporaMart Privacy Policy', // More specific name
         description: 'Kuadratik Inc. values your privacy...', // Your description
         url: 'https://myeki.market/privacy-policy', // Correct URL
         provider: {

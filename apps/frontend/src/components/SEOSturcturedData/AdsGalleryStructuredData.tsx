@@ -12,12 +12,12 @@ export const AdsGalleryStructuredData = ({ads, categories, totalAds}: IAdsGaller
     '@graph': [
       {
         '@type': 'WebPage',
-        name: 'myEKI | Ads Gallery',
+        name: 'AfricanDiasporaMart | Ads Gallery',
         description:
-          'myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community.',
+          'AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community.',
         isPartOf: {
           '@type': 'WebSite',
-          name: 'myEKI'
+          name: 'AfricanDiasporaMart'
         },
         breadcrumb: {
           '@type': 'BreadcrumbList',
@@ -86,7 +86,7 @@ export const AdsGalleryStructuredData = ({ads, categories, totalAds}: IAdsGaller
             name: 'Is it free to post ads?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Yes, posting classified ads on myEKI is completely free.'
+              text: 'Yes, posting classified ads on AfricanDiasporaMart is completely free.'
             }
           }
         ]

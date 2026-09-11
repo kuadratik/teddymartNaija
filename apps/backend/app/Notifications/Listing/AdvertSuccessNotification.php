@@ -48,15 +48,15 @@ class AdvertSuccessNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->priority(1)
             ->subject('Ads success')
-            ->greeting('Yay! Your Ad Has Been Successfully Posted on myEKI!')
+            ->greeting('Yay! Your Ad Has Been Successfully Posted on AfricanDiasporaMart!')
             ->line("Dear {$notifiable->first_name}")
-            ->line('Congratulations! Your Ad has been successfully posted on myEKI.')
+            ->line('Congratulations! Your Ad has been successfully posted on AfricanDiasporaMart.')
             ->line('We’re excited to help you reach a wider audience and showcase your products or services. Your ad is now live, and potential buyers can view and engage with your listing.')
             ->line(new HtmlString($line))
             ->line('If you’ve opted for a free Ad, keep in mind that there are ways to generate more buzz and maximize visibility. To attract even more potential customers, consider upgrading your ad to a paid option. Paid Ads come with enhanced features, such as priority placement and wider audience reach.')
             ->line('You can log in to your account at any time to upgrade your Ad Plan for better exposure.')
             ->line('If you need any assistance or have questions about your ad, please reach out. We’re here to help!')
-            ->line('Thank you for choosing myEKI. We wish you great success with your listing!');
+            ->line('Thank you for choosing AfricanDiasporaMart. We wish you great success with your listing!');
     }
 
     /**

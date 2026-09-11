@@ -36,17 +36,17 @@ class CustomerInquiryNotification extends Notification implements ShouldQueue
         EOT;
 
         return (new MailMessage)
-            ->subject('New Message Alert: Customer Inquiry About Your Ad on myEKI')
+            ->subject('New Message Alert: Customer Inquiry About Your Ad on AfricanDiasporaMart')
             ->greeting("Dear {$respondentName}")
-            ->line('You have a new message from a customer regarding one of your Ads on myEKI!')
+            ->line('You have a new message from a customer regarding one of your Ads on AfricanDiasporaMart!')
             ->line(new HtmlString($line))
-            ->line('To view and respond to this message, please log in to your myEKI account and navigate to your message.')
+            ->line('To view and respond to this message, please log in to your AfricanDiasporaMart account and navigate to your message.')
             ->line('Timely responses can improve your engagement and lead to successful sales.')
-            ->action('Log in to myEKI', env('FRONT_URL') . '/login')
+            ->action('Log in to AfricanDiasporaMart', env('FRONT_URL') . '/login')
             ->line('Maximize Your Sales Potential: Prompt communication helps build trust with potential buyers. ')
             ->line('Be sure to check your messages regularly and respond to inquiries as soon as possible.')
             ->line("If you have any questions or need support managing your messages. We're always here to assist you!")
-            ->line('Thank you for being a valued member of myEKI. We wish you continued success with your business!');
+            ->line('Thank you for being a valued member of AfricanDiasporaMart. We wish you continued success with your business!');
     }
 
     public function toArray(object $notifiable): array

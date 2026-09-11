@@ -26,9 +26,9 @@ const LogoHeader = (props: LogoHeaderProps) => {
       >
         <div className="flex cursor-pointer gap-1">
           <VendorLogo />
-          <p className="text-[19px] font-bold">myEKI</p>
+          <p className="text-[19px] font-bold">AfricanDiasporaMart</p>
         </div>
-        {/* <p className="text-center text-[8px] font-normal text-[#9796A1]">{text ?? 'A myEKI Brand'}</p> */}
+        {/* <p className="text-center text-[8px] font-normal text-[#9796A1]">{text ?? 'A AfricanDiasporaMart Brand'}</p> */}
       </div>
     </div>
   )

@@ -11,8 +11,8 @@ const TermsofUse = () => {
   return (
     <>
       <SEOHead
-        title={`myEKI | Terms of Service`}
-        description="myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs. Join myEKI today and start selling for free! Find products and services near you!!"
+        title={`AfricanDiasporaMart | Terms of Service`}
+        description="AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!"
       />
 
       <BaseLayout>
@@ -254,7 +254,7 @@ export async function getStaticProps() {
     '@graph': [
       {
         '@type': 'WebSite',
-        name: 'myEKI',
+        name: 'AfricanDiasporaMart',
         url: 'https://myeki.market',
         potentialAction: {
           '@type': 'SearchAction',
@@ -264,7 +264,7 @@ export async function getStaticProps() {
       },
       {
         '@type': 'Organization',
-        name: 'myEKI',
+        name: 'AfricanDiasporaMart',
         url: 'https://myeki.market',
         logo: 'https://myeki.market/assets/WhiteLogo.svg' // Replace with your actual logo URL
       },

@@ -589,7 +589,7 @@ const PostAdPage = () => {
               </TextComponent>
               <Icon icon={'icon-park-outline:success'} className="text-[79px]" />
               <TextComponent as="span" className="text-center text-[13px] font-medium leading-[27px]">
-                Check out myEKI&apos;s Ads Gallery {processingPayment ? 'after successful payment' : ''}
+                Check out AfricanDiasporaMart&apos;s Ads Gallery {processingPayment ? 'after successful payment' : ''}
               </TextComponent>
               <CustomButton
                 onClick={() => {

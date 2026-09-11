@@ -29,8 +29,8 @@ const HomePage = () => {
   return (
     <div>
       <SEOHead
-        title={`myEKI | Mall`}
-        description="myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs. Join myEKI today and start selling for free! Find products and services near you!!"
+        title={`AfricanDiasporaMart | Mall`}
+        description="AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!"
       />
       <MallPageStructuredData />
       <main className="">
@@ -77,10 +77,10 @@ export const getStaticProps: GetStaticProps = async (context: any) => {
       '@graph': [
         {
           '@type': 'WebSite',
-          name: 'myEKI Mall',
+          name: 'AfricanDiasporaMart Mall',
           url: 'https://myeki.market',
           description:
-            'myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community.', // Your description
+            'AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community.', // Your description
           potentialAction: {
             '@type': 'SearchAction',
             target: 'https://myeki.market/search?id={search_term_string}', // Corrected target
@@ -89,10 +89,10 @@ export const getStaticProps: GetStaticProps = async (context: any) => {
         },
         {
           '@type': 'Organization',
-          name: 'myEKI',
+          name: 'AfricanDiasporaMart',
           url: 'https://myeki.market',
           logo: 'https://myeki.market/assets/WhiteLogo.svg', // Your logo URL
-          description: 'myEKI is a local marketplace...', // Your description
+          description: 'AfricanDiasporaMart is a local marketplace...', // Your description
           sameAs: [
             'https://www.facebook.com/myekimarket', // Your social media URLs
             'https://www.instagram.com/myekimarket/'
@@ -100,11 +100,11 @@ export const getStaticProps: GetStaticProps = async (context: any) => {
         },
         {
           '@type': 'WebPage',
-          name: 'myEKI | Mall',
-          description: 'myEKI is a local marketplace...', // Your description
+          name: 'AfricanDiasporaMart | Mall',
+          description: 'AfricanDiasporaMart is a local marketplace...', // Your description
           isPartOf: {
             '@type': 'WebSite',
-            name: 'myEKI Mall'
+            name: 'AfricanDiasporaMart Mall'
           },
           breadcrumb: {
             '@type': 'BreadcrumbList',

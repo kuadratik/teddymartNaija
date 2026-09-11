@@ -41,7 +41,7 @@
 @else
 @lang('Regards,')<br>
 {{-- {{ config('app.name') }} --}}
-The myEKI Team<br>
+The AfricanDiasporaMart Team<br>
 vendorsupport@myeki.market<br>
 @endif
 

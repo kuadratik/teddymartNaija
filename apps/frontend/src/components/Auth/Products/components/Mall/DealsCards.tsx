@@ -57,9 +57,9 @@ const DealsCards = ({item, selectedIndex, setSelectedIndex, isBestDeals}: IProps
     const adUrl = baseUrl + `/store/details/${store_slug_name}?slug=${store_slug}` // or your specific URL for the advertisement
     const body = encodeURIComponent(
       `Hello!\n\n` +
-        `I found this product on myEKI and thought you might be interested:\n` +
+        `I found this product on AfricanDiasporaMart and thought you might be interested:\n` +
         `${item?.name}: ${adUrl}\n\n` +
-        `Join myEKI Community\n` +
+        `Join AfricanDiasporaMart Community\n` +
         `Facebook: https://www.facebook.com/myekimarket\n` +
         `Instagram: https://www.instagram.com/myekimarket/\n` +
         `Website: https://myeki.market`

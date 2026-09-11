@@ -79,7 +79,7 @@ class VendorNewOrderNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject('New Order Placed - [' . $this->order->order_number . ']')
             ->greeting('Dear ' . $notifiable->first_name . ',')
-            ->line('We are pleased to inform you that a new order has been placed on myEKI. Congratulations on your sale!')
+            ->line('We are pleased to inform you that a new order has been placed on AfricanDiasporaMart. Congratulations on your sale!')
             ->line('Please find the details of the order below:')
             ->line('**Order ID:** ' . $this->order->order_number)
             ->line(new HtmlString($orderDetailsTable))
@@ -87,7 +87,7 @@ class VendorNewOrderNotification extends Notification implements ShouldQueue
             ->line('**Shipping Fee:** ' . $this->order->shipping_cost . $currency)
             ->line('**Total:** ' . number_format($this->order->total_amount, 2) . ' ' . $currency)
             ->line('**Shipping Address:** ' . $shippingAddress)
-            ->line('Please process the order and update the status of the order as Shipped in the myEKI list of orders, once it has been dispatched.')
+            ->line('Please process the order and update the status of the order as Shipped in the AfricanDiasporaMart list of orders, once it has been dispatched.')
             ->line('Thank you for your prompt attention to this order. We appreciate your continued partnership and look forward to working with you on future orders.');
     }
 

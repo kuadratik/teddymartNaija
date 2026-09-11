@@ -38,8 +38,8 @@ const VendorStorePage = ({data}: IProps) => {
   return (
     <>
       <SEOHead
-        title={`myEKI | ${capitalizeOnlyFirstLetter(data?.data?.name)}` || 'myEKI | Store'}
-        description="myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs. Join myEKI today and start selling for free! Find products and services near you!!"
+        title={`AfricanDiasporaMart | ${capitalizeOnlyFirstLetter(data?.data?.name)}` || 'AfricanDiasporaMart | Store'}
+        description="AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!"
       />
 
       <div className="flex w-full flex-col">
@@ -154,7 +154,7 @@ export const getServerSideProps = wrapper.getServerSideProps(store => async cont
 
     // Extract SEO-related information from data
     const seoData = {
-      title: `myEKI | ${data?.data?.name}`, // Use product name in title
+      title: `AfricanDiasporaMart | ${data?.data?.name}`, // Use product name in title
       description: `Explore ${data?.data?.name} store and its products ` || 'Product description not available', // Fallback if description is missing
       image: `${process.env.imageBaseUrl}/${data.data.banner_path}`, // Use the first product image
       slug: data?.data?.name

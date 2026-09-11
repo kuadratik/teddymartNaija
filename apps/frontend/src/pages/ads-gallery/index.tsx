@@ -159,8 +159,8 @@ const AdsGallery = () => {
   return (
     <>
       <SEOHead
-        title={`myEKI | Ads Gallery`}
-        description="myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs. Join myEKI today and start selling for free! Find products and services near you!!"
+        title={`AfricanDiasporaMart | Ads Gallery`}
+        description="AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!"
       />
       <main className="">
         {' '}
@@ -373,13 +373,13 @@ export async function getStaticProps() {
     '@graph': [
       {
         '@type': 'WebPage',
-        name: 'myEKI | Ads Gallery',
+        name: 'AfricanDiasporaMart | Ads Gallery',
         description:
-          'myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community.',
+          'AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community.',
         isPartOf: {
           '@type': 'WebSite',
           '@id': 'https://myeki.market',
-          name: 'myEKI'
+          name: 'AfricanDiasporaMart'
         },
         breadcrumb: {
           '@type': 'BreadcrumbList',
@@ -424,7 +424,7 @@ export async function getStaticProps() {
             name: 'Is it free to post ads?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Yes, posting classified ads on myEKI is completely free.'
+              text: 'Yes, posting classified ads on AfricanDiasporaMart is completely free.'
             }
           }
         ]

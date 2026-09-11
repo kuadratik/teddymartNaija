@@ -47,7 +47,7 @@ const ProductDetailsPage = ({data, seoData}: any) => {
   return (
     <>
       <SEOHead
-        title={seoData?.title ? `${seoData?.title}` : `myEKI | ${capitalizeFirstLetter(type)} Info`}
+        title={seoData?.title ? `${seoData?.title}` : `AfricanDiasporaMart | ${capitalizeFirstLetter(type)} Info`}
         description={seoData.description}
         url={`${process.env.baseRouteProductionLink}${router?.asPath || ''}`}
       />
@@ -112,7 +112,7 @@ export const getServerSideProps = async (context: any) => {
 
     // Extract SEO-related information from data
     const seoData = {
-      title: `myEKI | ${data.data.name}`, // Use product name in title
+      title: `AfricanDiasporaMart | ${data.data.name}`, // Use product name in title
       description: cleanDescription, // Use cleaned description for SEO
       image: `${process.env.imageBaseUrl}/${data.data.images[0]}`, // Use the first product image
       slug: data.data.slug

@@ -105,8 +105,8 @@ const AdsGalleryIdPage = ({data: adsInfo, seoData}: any) => {
   return (
     <div>
       <SEOHead
-        title={`myEKI | ${adsDataVal?.title}`}
-        description="myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs. Join myEKI today and start selling for free! Find products and services near you!!"
+        title={`AfricanDiasporaMart | ${adsDataVal?.title}`}
+        description="AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!"
       />
 
       <div className="mt-[20px] w-full max-w-7xl lg:mx-auto">
@@ -335,7 +335,7 @@ export const getServerSideProps = async (context: any) => {
     data.data.description = cleanDescription
     // Add null checks and provide fallback values
     const seoData = {
-      title: `myEKI | ${data?.data?.title || 'Ads Title'}`,
+      title: `AfricanDiasporaMart | ${data?.data?.title || 'Ads Title'}`,
       description: cleanDescription || 'Ads description not available',
       // Check if images array exists and has items
       image:

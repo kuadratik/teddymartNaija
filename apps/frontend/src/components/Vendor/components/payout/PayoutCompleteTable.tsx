@@ -126,7 +126,7 @@ const PayoutCompleteTable = () => {
         title: (
           <Tooltip
             placement="top"
-            title="Payouts are calculated based on your product price (after any discounts), not the myEKI display price."
+            title="Payouts are calculated based on your product price (after any discounts), not the AfricanDiasporaMart display price."
           >
             <span className="flex cursor-pointer items-center gap-1 text-black">
               Price{' '}
@@ -265,7 +265,7 @@ const PayoutCompleteTable = () => {
                 name={'password'}
                 value={values.password}
                 errorMessage={touched.password && errors.password ? errors.password : ''}
-                title={'myEKI Account Password*'}
+                title={'AfricanDiasporaMart Account Password*'}
                 labelClassName="text-xm font-semibold text-black"
                 iconName={!showConfirm ? 'heroicons:eye-slash' : 'heroicons:eye'}
                 placeholder="***********"

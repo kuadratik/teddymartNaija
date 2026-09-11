@@ -148,7 +148,7 @@ const PostAdForm = ({
       layout="vertical"
     >
       <TextComponent as="h1" className="text-[24px] font-bold leading-[31px] text-[#141414]">
-        Post your Ad on myEKI! It is Quick and Easy.
+        Post your Ad on AfricanDiasporaMart! It is Quick and Easy.
       </TextComponent>
 
       <div className="flex w-full flex-col gap-[34px]">

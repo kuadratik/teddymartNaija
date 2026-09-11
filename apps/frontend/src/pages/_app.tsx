@@ -103,16 +103,16 @@ const App = ({Component, pageProps}: AppPropsWithLayout) => {
       <Script src="https://accounts.google.com/gsi/client" strategy="beforeInteractive" async />
       <Script src="https://cdn.headwayapp.co/widget.js" strategy="beforeInteractive" />
       <SEOHead
-        title={pageProps.seoData?.title || 'myEKI'}
+        title={pageProps.seoData?.title || 'AfricanDiasporaMart'}
         structuredData={structuredData}
         description={
           pageProps.seoData?.description ||
-          'myEKI is a local and global e-commerce marketplace designed to connect small, medium and large businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without any extra costs. Join myEKI today and start selling for free! Find products and services near you!!'
+          'AfricanDiasporaMart is a local and global e-commerce marketplace designed to connect small, medium and large businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without any extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!'
         }
         hasAdSenseScript={hasAdSenseScript}
         image={pageProps.seoData?.image || '/assets/myEKIHome.png'}
         key={pageProps.seoData?.slug || ''}
-        storeTitle={pageProps.seoData?.title || 'myEKI - Marketplace'}
+        storeTitle={pageProps.seoData?.title || 'AfricanDiasporaMart - Marketplace'}
         url={`${process.env.baseRouteProductionLink}${router?.asPath || ''}`}
       />
       <GoogleOAuthProvider clientId={process.env.googleClientID!!}>

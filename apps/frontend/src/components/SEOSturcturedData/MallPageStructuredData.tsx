@@ -4,14 +4,14 @@ export const MallPageStructuredData = () => {
     '@graph': [
       {
         '@type': 'WebSite',
-        name: 'myEKI Mall',
+        name: 'AfricanDiasporaMart Mall',
         url: 'https://myeki.market',
         description:
-          'myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community.',
+          'AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community.',
         isPartOf: {
           '@type': 'WebSite',
           '@id': 'https://myeki.market',
-          name: 'myEKI'
+          name: 'AfricanDiasporaMart'
         },
         potentialAction: {
           '@type': 'SearchAction',
@@ -24,11 +24,11 @@ export const MallPageStructuredData = () => {
       },
       {
         '@type': 'Organization',
-        name: 'myEKI',
+        name: 'AfricanDiasporaMart',
         url: 'https://myeki.market',
         logo: 'https://myeki.market/assets/WhiteLogo.svg', // Replace with actual logo URL
         description:
-          'myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community.',
+          'AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community.',
         sameAs: [
           'https://www.facebook.com/myekimarket', // Replace with actual social media URLs
           'https://www.instagram.com/myekimarket/'
@@ -36,12 +36,12 @@ export const MallPageStructuredData = () => {
       },
       {
         '@type': 'WebPage',
-        name: 'myEKI | Mall',
+        name: 'AfricanDiasporaMart | Mall',
         description:
-          'myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs. Join myEKI today and start selling for free! Find products and services near you!!',
+          'AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!',
         isPartOf: {
           '@type': 'WebSite',
-          name: 'myEKI Mall'
+          name: 'AfricanDiasporaMart Mall'
         },
         breadcrumb: {
           '@type': 'BreadcrumbList',
@@ -56,7 +56,7 @@ export const MallPageStructuredData = () => {
         },
         mainEntity: {
           '@type': 'Store',
-          name: 'myEKI Mall',
+          name: 'AfricanDiasporaMart Mall',
           description: 'Online marketplace for local businesses and vendors'
         },
         offers: {

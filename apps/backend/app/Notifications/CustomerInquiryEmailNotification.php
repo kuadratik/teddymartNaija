@@ -45,12 +45,12 @@ class CustomerInquiryEmailNotification extends Notification implements ShouldQue
         $vendorName = $notifiable->first_name;
 
         return (new MailMessage)
-            ->subject('Customer Inquiry: New Message from a Customer on myEKI')
+            ->subject('Customer Inquiry: New Message from a Customer on AfricanDiasporaMart')
             ->line("Dear {$vendorName},")
-            ->line("You’ve received a new message from a customer on myEKI! Engaging with customers quickly can enhance their experience and increase your chances of making a sale.")
+            ->line("You’ve received a new message from a customer on AfricanDiasporaMart! Engaging with customers quickly can enhance their experience and increase your chances of making a sale.")
             ->line("To view and respond to this message:")
             ->action('Check your Inbox', env('FRONT_URL') . '/' . 'messages')
             ->line("For any questions or assistance, please reach out. We are here to help!")
-            ->line("Thank you for choosing myEKI!");
+            ->line("Thank you for choosing AfricanDiasporaMart!");
     }
 }

@@ -39,7 +39,7 @@ class OrderSuccessfulNotification extends Notification implements ShouldQueue
             ->priority(1)
             ->subject("🎉 Hooray! Your Order #{$this->order->order_number} is Successful!")
             ->greeting("Dear {$notifiable->first_name},")
-            ->line("Thank you for shopping with us on myEKI! We're thrilled to let you know that your order has been successfully placed and payment has been processed.")
+            ->line("Thank you for shopping with us on AfricanDiasporaMart! We're thrilled to let you know that your order has been successfully placed and payment has been processed.")
             ->line("**Order Summary:**")
             ->line("**Order Number:** {$this->order->order_number}")
             ->line("**Order Date:** {$this->order->created_at->format('d M Y')}")
@@ -48,9 +48,9 @@ class OrderSuccessfulNotification extends Notification implements ShouldQueue
             ->line("**Order Total:** " . number_format($this->order->total_amount, 2) . " {$this->order->currency}")
             ->line("**Shipping Address:**")
             ->line($this->order->shippingAddress->getFormattedAddress())
-            ->line("Your order is now being prepared. In the meantime, feel free to log into your myEKI account, navigate to the profile section, and check your order status anytime.")
+            ->line("Your order is now being prepared. In the meantime, feel free to log into your AfricanDiasporaMart account, navigate to the profile section, and check your order status anytime.")
             ->line("If you have any questions or concerns, our support team is always here to help.")
-            ->line("Thank you for choosing myEKI!");
+            ->line("Thank you for choosing AfricanDiasporaMart!");
     }
 
     /**

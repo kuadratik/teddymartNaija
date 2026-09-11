@@ -706,7 +706,7 @@ const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose, onSubmit
 
           {/* Source URL */}
           <div className="mb-4">
-            <label className="mb-2 block text-[14px] font-medium text-gray-900">myEKI url*</label>
+            <label className="mb-2 block text-[14px] font-medium text-gray-900">AfricanDiasporaMart url*</label>
             <div className="flex flex-col-reverse items-center justify-between gap-2 md:flex-row md:gap-0">
               <div className="relative w-full md:w-[49%]">
                 <input
@@ -974,7 +974,7 @@ const AddBrandModal: React.FC<AddBrandModalProps> = ({ isOpen, onClose, onSubmit
                 className="mr-3 h-5 w-5 cursor-pointer rounded border-gray-300 text-black focus:ring-0 focus:ring-offset-0"
               />
               <TextComponent as="span" className="text-[14px] font-normal text-gray-900">
-                Make active on myEKI
+                Make active on AfricanDiasporaMart
               </TextComponent>
             </label>
           </div>

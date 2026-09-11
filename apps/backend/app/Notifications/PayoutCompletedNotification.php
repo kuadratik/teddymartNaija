@@ -36,6 +36,6 @@ class PayoutCompletedNotification extends Notification implements ShouldQueue
             ->line("**Date Paid:** {$this->paymentDate}")
             ->line('The funds should now be reflected in your bank account. Please allow up to 7 -14 business days, depending on your bank.')
             ->line('If you have any questions about this payment or need assistance, our vendor support team is here to help.')
-            ->line('Thank you for being an essential part of the myEKI family. We are excited to support your continued success!');
+            ->line('Thank you for being an essential part of the AfricanDiasporaMart family. We are excited to support your continued success!');
     }
 }

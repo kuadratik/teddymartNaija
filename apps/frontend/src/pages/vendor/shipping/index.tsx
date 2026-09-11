@@ -388,8 +388,8 @@ const Shipping = () => {
   return (
     <>
       <SEOHead
-        title={`myEKI | Vendor Shipping `}
-        description="myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. "
+        title={`AfricanDiasporaMart | Vendor Shipping `}
+        description="AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. "
       />
       <VendorLayout>
         <div className="max-w-8xl mx-auto w-full md:px-10">

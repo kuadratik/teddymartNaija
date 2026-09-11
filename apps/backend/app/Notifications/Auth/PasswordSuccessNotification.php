@@ -37,9 +37,9 @@ class PasswordSuccessNotification extends Notification
         return (new MailMessage)
             ->subject('Password Reset Successfully!')
             ->greeting("Dear {$notifiable->first_name}")
-            ->line('This is to confirm that your myEKI account password has been successfully reset.')
+            ->line('This is to confirm that your AfricanDiasporaMart account password has been successfully reset.')
             ->line('If you did not reset your password, please contact our customer support team immediately to ensure your account security.')
-            ->line('Thank you for using myEKI. We are always here to assist you with any questions or concerns.');
+            ->line('Thank you for using AfricanDiasporaMart. We are always here to assist you with any questions or concerns.');
     }
 
     /**

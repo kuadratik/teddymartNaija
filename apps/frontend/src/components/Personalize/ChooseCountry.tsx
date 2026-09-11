@@ -37,7 +37,7 @@ const ChooseCountry = ({setModalOpen, setWhatTodoModal, handleModalClose}: IProp
         <div className="flex w-full items-center justify-between gap-2">
           <div className="w-[10%]"></div>
 
-          <h2 className="w-[80%] text-center text-lg font-bold">Welcome to myEKI</h2>
+          <h2 className="w-[80%] text-center text-lg font-bold">Welcome to AfricanDiasporaMart</h2>
           <Icon
             onClick={() => {
               setModalOpen(false)

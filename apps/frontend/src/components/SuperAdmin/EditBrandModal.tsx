@@ -639,7 +639,7 @@ const EditBrandModal: React.FC<EditBrandModalProps> = ({ isOpen, onClose, onSubm
 
           {/* Source URL */}
           <div className="mb-4">
-            <label className="mb-2 block text-[14px] font-medium text-gray-900">myEKI url*</label>
+            <label className="mb-2 block text-[14px] font-medium text-gray-900">AfricanDiasporaMart url*</label>
             <div className="flex flex-col-reverse items-center justify-between gap-2 md:flex-row md:gap-0">
               <div className="relative w-full md:w-[49%]">
                 <input

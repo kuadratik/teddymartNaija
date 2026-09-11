@@ -4,13 +4,13 @@ export const ContactPageStructuredData = () => {
     '@context': 'https://schema.org',
     '@type': 'ContactPage',
     name: 'Contact Us',
-    description: 'Get in touch with myEKI Market',
+    description: 'Get in touch with AfricanDiasporaMart Market',
     mainEntity: {
       '@type': 'Organization',
-      name: 'myEKI Market',
+      name: 'AfricanDiasporaMart Market',
       isPartOf: {
         '@type': 'WebSite',
-        name: 'myEKI'
+        name: 'AfricanDiasporaMart'
       },
       contactPoint: {
         '@type': 'ContactPoint',
@@ -31,11 +31,11 @@ export const ContactPageStructuredData = () => {
 //   const schema = {
 //     '@context': 'https://schema.org',
 //     '@type': 'AboutPage',
-//     name: 'About myEKI Market',
-//     description: 'Learn more about myEKI Market and our mission',
+//     name: 'About AfricanDiasporaMart Market',
+//     description: 'Learn more about AfricanDiasporaMart Market and our mission',
 //     mainEntity: {
 //       '@type': 'Organization',
-//       name: 'myEKI Market',
+//       name: 'AfricanDiasporaMart Market',
 //       description: 'Your company description here',
 //       foundingDate: '2023', // Replace with actual founding date
 //       sameAs: [
@@ -87,7 +87,7 @@ export const PrivacyPageStructuredData = () => {
     name: 'Privacy Policy',
     isPartOf: {
       '@type': 'WebSite',
-      name: 'myEKI'
+      name: 'AfricanDiasporaMart'
     },
     description:
       'Kuadratik Inc. ("we," "our," "us") values your privacy and is committed to protecting your personal information. This Privacy Policy outlines the types of data we collect from users of the myeki.market platform (the "Service"), how we use and protect that data, and your rights regarding your personal information...',
@@ -107,7 +107,7 @@ export const TermsPageStructuredData = () => {
     isPartOf: {
       '@type': 'WebSite',
       '@id': 'https://myeki.market',
-      name: 'myEKI'
+      name: 'AfricanDiasporaMart'
     },
     description:
       'These Terms of Service ("Terms") govern your use of the myeki.market platform ("Service"), operated by Kuadratik Inc. ("we," "our," "us"). By accessing or using our Services, you agree to comply with these Terms. If you do not agree, you may not use our Services...',

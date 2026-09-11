@@ -1,14 +1,14 @@
 @component('mail::message')
-# Welcome to myEKI!
+# Welcome to AfricanDiasporaMart!
 
 Hi {{ $notifiable->first_name }},
 
-We're thrilled to have you join **myEKI** and can't wait to showcase your products and services to customers. You are already on your way to creating stunning visual products that will captivate them.
+We're thrilled to have you join **AfricanDiasporaMart** and can't wait to showcase your products and services to customers. You are already on your way to creating stunning visual products that will captivate them.
 
 Whether you're here to promote your brand, support a cause, or simply share your creations — welcome! We are here to guide your product presentation and uploads every step of the way.
 
 Thanks,<br>
-The myEKI Team
+The AfricanDiasporaMart Team
 
 @component('mail::button', ['url' => url(env('FRONT_URL'))])
 Let's Get Started
@@ -16,7 +16,7 @@ Let's Get Started
 
 
 
-myEKI at the touch of a button! Download our app for Google & Mac.
+AfricanDiasporaMart at the touch of a button! Download our app for Google & Mac.
 
 <table>
   <tr>

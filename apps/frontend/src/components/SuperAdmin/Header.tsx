@@ -147,7 +147,7 @@ const SuperAdminHeader: React.FC<SuperAdminHeaderProps> = ({activeTab = 'brands'
           >
             <VendorLogo />
             <div className="flex flex-col">
-              <p className="text-[19px] font-bold leading-tight">myEKI</p>
+              <p className="text-[19px] font-bold leading-tight">AfricanDiasporaMart</p>
               <p className="text-[10px] font-normal text-gray-500">Admin</p>
             </div>
           </div>
@@ -227,7 +227,7 @@ const SuperAdminHeader: React.FC<SuperAdminHeaderProps> = ({activeTab = 'brands'
               <VendorLogo />
               <div className="flex flex-col">
                 <p id="mobile-menu-title" className="text-sm font-semibold">
-                  myEKI
+                  AfricanDiasporaMart
                 </p>
                 <p className="text-xs text-gray-500">Admin</p>
               </div>

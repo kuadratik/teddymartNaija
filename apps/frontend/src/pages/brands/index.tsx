@@ -58,8 +58,8 @@ const BrandsPage = () => {
   return (
     <>
       <SEOHead
-        title="myEKI | Brands"
-        description="Discover top brands on myEKI, a local marketplace connecting small businesses and vendors with customers in their community."
+        title="AfricanDiasporaMart | Brands"
+        description="Discover top brands on AfricanDiasporaMart, a local marketplace connecting small businesses and vendors with customers in their community."
       />
 
       <BaseLayout className="px-0">
