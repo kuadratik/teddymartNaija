@@ -1,26 +1,27 @@
-name: Production deployment
+name: Backend develop deployment
 
 on:
   push:
-    branches: [production]
+    branches: [develop]
+    paths: ['apps/backend/**']
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
+          script_stop: true
           script: |
-            cd /var/www/frontend/production
+            cd /var/www/backend/develop
             git stash
             git stash clear
-            git pull origin production
+            git pull origin develop
+            cd apps/backend
             chmod +x .docker/deploy.sh
-            sh .docker/deploy.sh martfront-prod 4020
+            sh .docker/deploy.sh teddymart-dev

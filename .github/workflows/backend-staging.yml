@@ -1,0 +1,27 @@
+name: Backend staging deployment
+
+on:
+  push:
+    branches: [staging]
+    paths: ['apps/backend/**']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            cd /var/www/backend/staging
+            git stash
+            git stash clear
+            git pull origin staging
+            cd apps/backend
+            chmod +x .docker/deploy.sh
+            sh .docker/deploy.sh teddymart-staging

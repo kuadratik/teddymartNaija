@@ -1,0 +1,810 @@
+openapi: "3.0.0"
+info:
+  description: myEKI apis
+  version: 1.0.0
+  title: myeki
+
+servers:
+  - url: /api
+    description: v1 baseUrl
+
+components:
+  securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+
+paths:
+  /front/brands:
+    get:
+      tags:
+        - Brands
+      summary: Get active brands
+      description: Get list of active brands with search and filter capabilities
+      operationId: GetBrands
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "nike"
+          required: false
+          description: Search in brand name and description
+        - in: query
+          name: category_ids[]
+          description: Filter by brand category IDs (use multiple values like ?category_ids[]=1&category_ids[]=2)
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+            example: [1, 2, 3]
+
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            example: 15
+          required: false
+          description: Number of results per page
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/brands/{id}:
+    get:
+      tags:
+        - Brands
+      summary: Get single active brand
+      description: Get details of a single active brand by ID
+      operationId: GetBrand
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 1
+          required: true
+          description: Brand ID
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: "Brand not found or inactive"
+
+  /front/brand-categories:
+    get:
+      tags:
+        - Brands
+      summary: Get active brand categories
+      description: Get list of all active brand categories
+      operationId: GetBrandCategories
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/brand/{slug}:
+    get:
+      tags:
+        - Brands
+      summary: Brand redirect
+      description: Redirect to brand target URL based on source URL slug
+      operationId: BrandRedirect
+      parameters:
+        - in: path
+          name: slug
+          schema:
+            type: string
+            example: "nike-store"
+          required: true
+          description: Brand slug from source URL
+      responses:
+        302:
+          description: "Redirect to brand target URL"
+        404:
+          description: "Brand not found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Brand not found"
+
+  /front/business-industries:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Get the list of business industries
+      description: Get the list of business industries
+      operationId: GetBusinessindustries
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/business-listings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Get the list of business listings
+      description: Get the list of business listings
+      operationId: GetBusinessListing
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: ""
+          required: false
+        - in: query
+          name: industry
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: number
+              description: Filter by industry
+              example: 1
+            required: false
+        - in: query
+          name: user
+          schema:
+            type: number
+            example: ""
+          required: false
+        - in: query
+          name: country
+          schema:
+            type: number
+            example: ""
+          required: false
+        - in: query
+          name: state
+          schema:
+            type: string
+            example: ""
+          required: false
+        - in: query
+          name: per_page
+          schema:
+            type: number
+            example: 16
+          required: false
+        - in: query
+          name: limit
+          schema:
+            type: number
+            example:
+          required: false
+        - in: query
+          name: random
+          schema:
+            type: boolean
+            example: false
+          required: false
+          description: Get random business listings
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/business-listings/scrape-site:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Scrable business site for meta information
+      description: Scrable business site for meta information
+      operationId: BusinessListingScrapeSite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: number
+                  example: "https://vusithembekwayo.com"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/business-listings/{businessListing}/delete:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Delete business listings
+      description: Delete business listings
+      operationId: deleteBusinessListing
+      parameters:
+        - in: path
+          name: businessListing
+          schema:
+            type: string
+            example: ""
+          required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/business-listings/{slug}/details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Get Business Listing
+      description: Get an existing business listing by ID.
+      operationId: GetBusinessListingDetails
+      parameters:
+        - name: slug
+          in: path
+          description: listing slug
+          required: true
+          schema:
+            type: string
+            example: ""
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/business-listings/create:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Create Business listing
+      description: Create Business listing with optional service availability
+      operationId: CreateBusinessListings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                industry_id:
+                  type: number
+                  example: 1
+                business_name:
+                  type: string
+                  example: "Logic importer & exporter"
+                business_description:
+                  type: string
+                  example: "Ikeja"
+                business_email:
+                  type: string
+                  example: "ojuyobo@gmail.com"
+                secondary_business_email:
+                  type: string
+                  example: "ojuyobo2@gmail.com"
+                business_address:
+                  type: string
+                  example: "Kings boulevard"
+                country_id:
+                  type: number
+                  example: 1
+                state:
+                  type: string
+                  example: "Fisherman court"
+                business_contact_number:
+                  type: string
+                  example: "+1 (4585) 4521 454"
+                secondary_contact_number:
+                  type: string
+                  example: "+1 (4585) 4521 454"
+                website_link:
+                  type: string
+                  example: "www.google.com"
+                color:
+                  type: string
+                  example: "Green"
+                owner_name:
+                  type: string
+                  example: "Ojuyobo Titus"
+                owner_role:
+                  type: string
+                  example: "CEO, Director"
+                business_logo_url:
+                  type: string
+                  example: ""
+                show_business_description:
+                  type: boolean
+                  example: true
+                show_business_email:
+                  type: boolean
+                  example: true
+                show_business_address:
+                  type: boolean
+                  example: true
+                show_secondary_email:
+                  type: boolean
+                  example: true
+                show_secondary_contact:
+                  type: boolean
+                  example: true
+                show_website_link:
+                  type: boolean
+                  example: true
+                services:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      service_name:
+                        type: string
+                        example: "Hair Styling"
+                      availability_type:
+                        type: string
+                        enum: [flex, frame]
+                        example: "flex"
+                      time_slots:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            day_of_week:
+                              type: string
+                              enum:
+                                [
+                                  MONDAY,
+                                  TUESDAY,
+                                  WEDNESDAY,
+                                  THURSDAY,
+                                  FRIDAY,
+                                  SATURDAY,
+                                  SUNDAY,
+                                ]
+                              required: false"
+                            start_time:
+                              type: string
+                              format: HH:mm
+                              example: "09:00"
+                            end_time:
+                              type: string
+                              format: HH:mm
+                              example: "17:00"
+                            date:
+                              type: string
+                              format: date
+                              example: "2023-12-31"
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/business-listings/{id}/update:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Update Business Listing
+      description: Update an existing business listing by ID with optional service availability
+      operationId: UpdateBusinessListing
+      parameters:
+        - name: id
+          in: path
+          description: ID of the business listing to update
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                business_name:
+                  type: string
+                  example: "Updated Business Name"
+                  required: false
+                business_description:
+                  type: string
+                  example: "Updated description"
+                  required: false
+                business_email:
+                  type: string
+                  example: "updated@gmail.com"
+                  required: false
+                secondary_business_email:
+                  type: string
+                  example: "secondary@gmail.com"
+                  required: false
+                business_address:
+                  type: string
+                  example: "Updated Address"
+                  required: false
+                country_id:
+                  type: integer
+                  example: 1
+                  required: false
+                state:
+                  type: string
+                  example: "Updated State"
+                  required: false
+                business_contact_number:
+                  type: string
+                  example: "1234567890"
+                  required: false
+                secondary_contact_number:
+                  type: string
+                  example: "0987654321"
+                  required: false
+                website_link:
+                  type: string
+                  example: "https://updatedwebsite.com"
+                  required: false
+                color:
+                  type: string
+                  example: "#FFFFFF"
+                  required: false
+                owner_role:
+                  type: string
+                  example: "CEO"
+                  required: false
+                owner_name:
+                  type: string
+                  example: "John Doe"
+                  required: false
+                business_logo_url:
+                  type: string
+                  example: "path/to/updated/logo.png"
+                  required: false
+                industry_id:
+                  type: integer
+                  example: 1
+                  required: false
+                show_business_description:
+                  type: boolean
+                  example: true
+                  required: false
+                show_business_email:
+                  type: boolean
+                  example: false
+                  required: false
+                show_business_address:
+                  type: boolean
+                  example: true
+                  required: false
+                show_secondary_email:
+                  type: boolean
+                  example: false
+                  required: false
+                show_secondary_contact:
+                  type: boolean
+                  example: false
+                  required: false
+                show_website_link:
+                  type: boolean
+                  example: true
+                  required: false
+                services:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      service_name:
+                        type: string
+                        example: "Hair Styling"
+                      availability_type:
+                        type: string
+                        enum: [flex, frame]
+                        example: "flex"
+                      time_slots:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            day_of_week:
+                              type: string
+                              enum:
+                                [
+                                  MONDAY,
+                                  TUESDAY,
+                                  WEDNESDAY,
+                                  THURSDAY,
+                                  FRIDAY,
+                                  SATURDAY,
+                                  SUNDAY,
+                                ]
+                              required: false
+                            start_time:
+                              type: string
+                              format: HH:mm
+                              example: "09:00"
+                            end_time:
+                              type: string
+                              format: HH:mm
+                              example: "17:00"
+                            date:
+                              type: string
+                              format: date
+                              example: "2023-12-31"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/business-listings/{businessListing}/book-service:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Business Listing
+      summary: Book a service time slot
+      description: Book a service time slot for a business listing
+      operationId: BookService
+      parameters:
+        - in: path
+          name: businessListing
+          schema:
+            type: integer
+            example: 1
+          required: true
+          description: ID of the business listing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                business_service_id:
+                  type: number
+                  example: 1
+                  description: ID of the business service to book
+                service_time_id:
+                  type: number
+                  example: 1
+                  description: ID of the time slot to book
+                cus_phone_number:
+                  type: string
+                  example: "+1234567890"
+                  description: Customer's phone number
+                cus_email:
+                  type: string
+                  example: "customer@example.com"
+                  description: Customer's email address
+                cus_fullname:
+                  type: string
+                  example: "John Doe"
+                  description: Customer's full name
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /chats:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Get authenticated user conversations
+      description: GetAuthenticatedUserConversations
+      operationId: GetAuthenticatedUserConversations
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+            example: ""
+          required: false
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /chats/{uid}/details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Get Chat Details
+      description: Get Chat Details
+      operationId: GetChatDetails
+      parameters:
+        - in: path
+          name: uid
+          schema:
+            type: string
+            example: 032cd4c0-fb21-4579-9e10-6b23690cd249
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /chats/start-conversation:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Start Conversation
+      description: Start Conversation
+      operationId: StartConversation
+      parameters:
+        - in: query
+          name: convoRoute
+          schema:
+            type: string
+            example: ""
+          required: false
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: number
+                  example: 1001
+                  required: true
+                message:
+                  type: string
+                  example: "Ojuyobo Titus"
+                  required: true
+                advert_id:
+                  type: string
+                  example: 1
+                listing_id:
+                  type: string
+                  example: 1
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /chats/send-message:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Send Message
+      description: Send Message
+      operationId: SendMessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                chat_id:
+                  type: number
+                  example: 1
+                  required: true
+                message:
+                  type: string
+                  example: "Ojuyobo Titus"
+                  required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /chats/{chat}/read:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Update chat read time
+      description: Update chat read time
+      operationId: readReceipt
+      parameters:
+        - in: path
+          name: chat
+          schema:
+            type: number
+            example:
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /chats/{chat}/messages:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Messaging
+      summary: Get chat messages
+      description: Get chat messages
+      operationId: GetChatMessages
+      parameters:
+        - in: path
+          name: chat
+          schema:
+            type: number
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object

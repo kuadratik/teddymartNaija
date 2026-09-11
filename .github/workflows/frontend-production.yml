@@ -1,0 +1,29 @@
+name: Frontend production deployment
+
+on:
+  push:
+    branches: [production]
+    paths: ['apps/frontend/**']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/frontend/production
+            git stash
+            git stash clear
+            git pull origin production
+            cd apps/frontend
+            chmod +x .docker/deploy.sh
+            sh .docker/deploy.sh martfront-prod 4020

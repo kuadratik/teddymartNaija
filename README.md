@@ -1,185 +1,57 @@
-# TeddyMart Frontend
+# TeddyMart (Myeki) Monorepo
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.2.4-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.4-38B2AC)](https://tailwindcss.com/)
-[![Ant Design](https://img.shields.io/badge/Ant_Design-5.18.3-1890FF)](https://ant.design/)
+Combined codebase for the TeddyMart / Myeki marketplace, formerly split across
+two repositories:
 
-A modern e-commerce marketplace frontend built with Next.js, featuring vendor stores, customer shopping, messaging, and advertisement management.
+- [`apps/frontend`](apps/frontend) — Next.js 15 / React / TypeScript storefront (formerly `teddymartNaija`)
+- [`apps/backend`](apps/backend) — Laravel 11 / PHP 8.2 API (formerly `teddymart-backend`)
 
-## 🚀 Features
+Each app keeps its own `README.md`, `.env.example`, `.docker/` deploy tooling
+and dependency lockfile — see [`apps/frontend/README.md`](apps/frontend/README.md)
+and [`apps/backend/README.md`](apps/backend/README.md) for app-specific setup.
 
-- **Vendor Management**: Create and manage online stores with product listings
-- **Customer Shopping**: Browse products, categories, and make purchases
-- **Real-time Messaging**: Integrated chat system for vendor-customer communication
-- **Advertisement Gallery**: Promote products and stores with banner ads
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
-- **Authentication**: Secure login/signup with Google OAuth integration
-- **Payment Integration**: Currency handling and transaction management
-- **SEO Optimized**: Server-side rendering and sitemap generation
-- **PWA Ready**: Progressive Web App capabilities
+## Why one repo
 
-## 🛠️ Tech Stack
+Both apps ship together (the frontend talks directly to this backend's API,
+Reverb websockets, and Sanctum auth) and were already versioned in lockstep
+across matching `develop` / `staging` / `production` branches. Keeping them
+in one repo makes cross-cutting changes (e.g. an API contract change plus its
+frontend consumer) a single PR instead of two coordinated ones.
 
-### Frontend Framework
+## CI/CD
 
-- **Next.js 15** - React framework with SSR/SSG
-- **React 18** - UI library
-- **TypeScript** - Type-safe JavaScript
+Deploys stay independent per app. Each workflow in
+[`.github/workflows/`](.github/workflows) is scoped with a `paths:` filter so
+a change under `apps/backend/**` only redeploys the backend container, and a
+change under `apps/frontend/**` only redeploys the frontend container:
 
-### UI & Styling
+| Workflow | Branch | Deploys |
+| --- | --- | --- |
+| `frontend-production.yml` | `production` | `apps/frontend` → `martfront-prod` |
+| `backend-production.yml` | `production` | `apps/backend` → `teddymart-prod` |
+| `backend-staging.yml` | `staging` | `apps/backend` → `teddymart-staging` |
+| `backend-develop.yml` | `develop` | `apps/backend` → `teddymart-dev` |
 
-- **Tailwind CSS** - Utility-first CSS framework
-- **Ant Design** - Component library
-- **Framer Motion** - Animation library
-- **Swiper** - Carousel/slider components
+> **Server-side note:** each deploy script `cd`s into its app directory
+> (`apps/frontend` or `apps/backend`) before running `.docker/deploy.sh`, so
+> the existing `docker-compose.yml` files work unchanged as long as the
+> running containers' bind mounts point at the app subdirectory
+> (e.g. `.../production/apps/backend:/var/www`), not the repo root. Confirm
+> this when first deploying from the merged repo — the container volume
+> mounts need to be recreated once, since `.:/var/www` in `apps/backend`'s
+> compose file resolves relative to that file's own directory.
 
-### State Management
+## History
 
-- **Redux Toolkit** - State management
-- **React Redux** - Redux bindings for React
+Both apps' full git history was preserved: `apps/backend` was merged in via
+`git subtree`, so every original backend commit object, author, and message
+still exists in this repository and shows up in a plain `git log` (or
+`git log --graph --all`) alongside the frontend's history.
 
-### Forms & Validation
-
-- **Formik** - Form handling
-- **Yup** - Schema validation
-
-### Real-time Features
-
-- **Pusher.js** - Real-time messaging
-- **Laravel Echo** - WebSocket integration
-
-### Utilities
-
-- **Axios** - HTTP client
-- **JWT Decode** - Token handling
-- **React Toastify** - Notifications
-- **React Share** - Social sharing
-- **React to Print** - Document printing
-- **HTML2Canvas & jsPDF** - PDF generation
-
-## 📋 Prerequisites
-
-Before running this project, make sure you have the following installed:
-
-- **Node.js** (version 18 or higher)
-- **npm**, **yarn**, or **pnpm**
-- **Git**
-
-## 🚀 Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/kuadratik/teddymart-frontend.git
-   cd teddymart-frontend
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
-
-3. **Set up environment variables**
-
-   ```bash
-   cp .env.example .env.local
-   ```
-
-   Configure the following variables in `.env.local`:
-
-   - API endpoints
-   - Authentication keys
-   - Pusher credentials
-   - Google OAuth settings
-
-4. **Run the development server**
-
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   ```
-
-5. **Open your browser**
-   Navigate to [http://localhost:3030](http://localhost:3030) to see the application.
-
-## 📜 Available Scripts
-
-- `npm run dev` - Start the development server on port 3030
-- `npm run build` - Build the application for production
-- `npm run start` - Start the production server
-- `npm run lint` - Run ESLint for code quality checks
-- `npm run postbuild` - Generate sitemap after build (via next-sitemap)
-
-## 🏗️ Project Structure
-
-```
-teddymart-frontend/
-├── components/          # Reusable UI components
-│   ├── Auth/           # Authentication components
-│   ├── Business/       # Business/vendor components
-│   ├── Customer/       # Customer-facing components
-│   ├── Layout/         # Layout components
-│   ├── Messages/       # Chat/messaging components
-│   ├── Store/          # Store management components
-│   └── ...
-├── pages/              # Next.js pages (App Router)
-│   ├── api/            # API routes
-│   ├── auth/           # Authentication pages
-│   ├── store/          # Store pages
-│   ├── messages/       # Messaging pages
-│   └── ...
-├── public/             # Static assets
-│   ├── assets/         # Images, icons, banners
-│   └── ...
-├── redux/              # Redux store configuration
-├── services/           # API services and utilities
-├── styles/             # Global styles and Tailwind config
-├── types/              # TypeScript type definitions
-├── utils/              # Utility functions
-└── hooks/              # Custom React hooks
-```
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Guidelines
-
-- Follow the existing code style and conventions
-- Write meaningful commit messages
-- Add tests for new features
-- Update documentation as needed
-- Ensure all linting checks pass
-
-## 📄 License
-
-This project is private and proprietary. All rights reserved.
-
-## 📞 Support
-
-For support or questions, please contact the development team or create an issue in the repository.
-
-## 🔗 Links
-
-- [Live Demo](https://myeki.market/)
-- [API Documentation](https://staging-api.myeki.market/docs)
-- [Design System](https://figma.com)
-
----
-
-Built with ❤️ using Next.js and modern web technologies.
+One caveat: because the prefix was introduced at the single merge commit
+rather than rewritten into every historical commit, a path-scoped
+`git log -- apps/backend/<file>` will only show that merge commit, not the
+pre-merge history for that file. To see a file's full history from before
+the merge, look at the merge commit's second parent instead, e.g.
+`git log <merge-commit>^2 -- <file>` (using the file's original,
+un-prefixed path).
