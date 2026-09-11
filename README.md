@@ -44,5 +44,14 @@ change under `apps/frontend/**` only redeploys the frontend container:
 ## History
 
 Both apps' full git history was preserved: `apps/backend` was merged in via
-`git subtree`, so `git log -- apps/backend` still shows every original
-backend commit and author.
+`git subtree`, so every original backend commit object, author, and message
+still exists in this repository and shows up in a plain `git log` (or
+`git log --graph --all`) alongside the frontend's history.
+
+One caveat: because the prefix was introduced at the single merge commit
+rather than rewritten into every historical commit, a path-scoped
+`git log -- apps/backend/<file>` will only show that merge commit, not the
+pre-merge history for that file. To see a file's full history from before
+the merge, look at the merge commit's second parent instead, e.g.
+`git log <merge-commit>^2 -- <file>` (using the file's original,
+un-prefixed path).
