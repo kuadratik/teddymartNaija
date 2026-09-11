@@ -1,13 +1,10 @@
 import {useGetUserAdsGalleryQuery} from '@/services/Adsgallery'
-import {useBusinessListingsQuery} from '@/services/myBussiness'
 import React, {useState} from 'react'
 import PlannerModal from '../SharedUI/ModalComponent'
 import ChooseCountry from './ChooseCountry'
 import ListAdsModal from './ListAdsModal'
-import ListBusinessModal from './ListBusinessModal'
 import SellProductModal from './SellProductModal'
 import WhatToDoInEki from './WhatToDoInEki'
-import { useActiveUserQuery } from '@/services/general/general'
 
 interface IProps {
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -25,7 +22,6 @@ const PersonalizeModals = ({
 }: IProps) => {
   const [whatTodoModal, setWhatTodoModal] = useState(false)
   const [sellProductModal, setSellProductModal] = useState(false)
-  const [listBusinessModal, setListBusinessModal] = useState(false)
   const [lisAdsModal, setLisAdsModal] = useState(false)
   const {
     data: adsInfo,
@@ -38,14 +34,6 @@ const PersonalizeModals = ({
       page: 1,
       per_page: 4
     }
-  })
-  const {data: activeUserData, isLoading: activeUserisLoading} = useActiveUserQuery()
-  const {data: businessData, isLoading} = useBusinessListingsQuery({
-    search: '',
-    industry: undefined,
-    page: 1,
-    limit: 3,
-    user: activeUserData?.data?.id as any
   })
   const data = adsInfo?.data?.data || []
   return (
@@ -109,7 +97,6 @@ const PersonalizeModals = ({
             whatTodoModal={whatTodoModal}
             setModalOpen={setModalOpen}
             setLisAdsModal={setLisAdsModal}
-            setListBusinessModal={setListBusinessModal}
             setSellProductModal={setSellProductModal}
           />
         </div>
@@ -141,39 +128,6 @@ const PersonalizeModals = ({
             setModalOpen={setModalOpen}
             setLisAdsModal={setLisAdsModal}
             sellProductModal={sellProductModal}
-            setListBusinessModal={setListBusinessModal}
-            setSellProductModal={setSellProductModal}
-          />
-        </div>
-      </PlannerModal>
-      <PlannerModal
-        onCloseModal={() => setListBusinessModal(false)}
-        setModalOpen={setListBusinessModal}
-        modalOpen={listBusinessModal}
-        width={500}
-        wrapClassName="bg-black/70"
-        modalStyles={{
-          body: {
-            backgroundColor: 'white',
-            padding: 0,
-            overflow: 'auto'
-          },
-          content: {
-            backgroundColor: 'white',
-            padding: 0,
-            overflow: 'auto'
-          }
-        }}
-        className="rounded-lg bg-white shadow-f2"
-      >
-        <div className="">
-          <ListBusinessModal
-            data={businessData?.data}
-            setWhatTodoModal={setWhatTodoModal}
-            whatTodoModal={whatTodoModal}
-            setModalOpen={setModalOpen}
-            setLisAdsModal={setLisAdsModal}
-            setListBusinessModal={setListBusinessModal}
             setSellProductModal={setSellProductModal}
           />
         </div>
@@ -205,7 +159,6 @@ const PersonalizeModals = ({
             whatTodoModal={whatTodoModal}
             setModalOpen={setModalOpen}
             setLisAdsModal={setLisAdsModal}
-            setListBusinessModal={setListBusinessModal}
             setSellProductModal={setSellProductModal}
           />
         </div>

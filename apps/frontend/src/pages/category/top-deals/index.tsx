@@ -2,7 +2,6 @@
 
 import Category from '@/components/Auth/Products/components/Category'
 import NewNavigation from '@/components/Auth/Products/components/NewNavigation'
-import TeddyAdvert from '@/components/Auth/Products/components/TeddyAdvert'
 import BaseLayout from '@/components/Layout/BaseLayout'
 import CustomerLayout from '@/components/Layout/Customerlayout'
 import RecommendedStores from '@/components/Search/RecommendedStores'
@@ -55,8 +54,8 @@ const TopDeals = () => {
       <Category open={open} setOpen={setOpen} />
       <NewNavigation />
       <SEOHead
-        title={`myEKI | Top Deals`}
-        description="myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs. Join myEKI today and start selling for free! Find products and services near you!!"
+        title={`AfricanDiasporaMart | Top Deals`}
+        description="AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!"
       />
 
       <BaseLayout>
@@ -105,9 +104,6 @@ const TopDeals = () => {
           </div>
         </div>
       </BaseLayout>
-      <div className="mt-10 max-w-[1024px] lg:mx-auto lg:px-0">
-        <TeddyAdvert />
-      </div>
     </React.Fragment>
   )
 }

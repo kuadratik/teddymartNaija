@@ -127,13 +127,6 @@ const NewNavigation = () => {
     }
   ]
 
-  // const secondNavItems: string[] = ['Get Listed', 'Mek Directory']
-
-  const secondNavItems: {name: string; path: string}[] = [
-    {name: 'Get Listed', path: '/get-list'},
-    {name: 'MEK Directory', path: '/mek-directory'}
-  ]
-
   const [comingSoon, showComingSoon] = React.useState(false)
   const [dropDown, setDropDown] = React.useState(false)
   const [expandedMobileNav, setExpandedMobileNav] = React.useState<string | null>(null)
@@ -143,15 +136,11 @@ const NewNavigation = () => {
     setSelectedNavigationItem(
       router.pathname === '/mek/onboarding'
         ? 'Find a Vendor'
-        : router.pathname === '/get-list'
-          ? 'Get Listed'
-          : router.pathname === '/mek-directory'
-            ? 'MEK Directory'
-            : router.pathname === '/find-vendor'
-              ? 'Find a Vendor'
-              : router.pathname === '/mek/onboarding'
-                ? 'Become a MEK Vendor'
-                : 'Find a Vendor'
+        : router.pathname === '/find-vendor'
+          ? 'Find a Vendor'
+          : router.pathname === '/mek/onboarding'
+            ? 'Become a MEK Vendor'
+            : 'Find a Vendor'
     )
   }, [router.pathname])
 

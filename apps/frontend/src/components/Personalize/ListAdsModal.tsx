@@ -3,7 +3,6 @@ import {useRouter} from 'next/router'
 
 interface IProps {
   setSellProductModal: React.Dispatch<React.SetStateAction<boolean>>
-  setListBusinessModal: React.Dispatch<React.SetStateAction<boolean>>
   setLisAdsModal: React.Dispatch<React.SetStateAction<boolean>>
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   whatTodoModal: boolean
@@ -16,7 +15,6 @@ const ListAdsModal = ({
   setWhatTodoModal,
   whatTodoModal,
   setSellProductModal,
-  setListBusinessModal,
   setLisAdsModal,
   data
 }: IProps) => {
@@ -26,7 +24,6 @@ const ListAdsModal = ({
     setModalOpen(false)
     setWhatTodoModal(false)
     setSellProductModal(false)
-    setListBusinessModal(false)
     setLisAdsModal(false)
   }
   const storeOptions = [

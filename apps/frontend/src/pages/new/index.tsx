@@ -1,6 +1,5 @@
 import {ISelectedCategory} from '@/components/Auth/Products/components/AllCategory'
 import Category from '@/components/Auth/Products/components/Category'
-import TeddyAdvert from '@/components/Auth/Products/components/TeddyAdvert'
 import BaseLayout from '@/components/Layout/BaseLayout'
 import CustomerLayout from '@/components/Layout/Customerlayout'
 import RecommendedStores from '@/components/Search/RecommendedStores'
@@ -184,8 +183,8 @@ const NewPage = () => {
   return (
     <>
       <SEOHead
-        title={`myEKI | New Products`}
-        description="Discover the newest products on myEKI, a local marketplace connecting small businesses and vendors with customers in their community. Find the latest offerings and services near you!"
+        title={`AfricanDiasporaMart | New Products`}
+        description="Discover the newest products on AfricanDiasporaMart, a local marketplace connecting small businesses and vendors with customers in their community. Find the latest offerings and services near you!"
       />
 
       <div className="mx-auto w-full max-w-screen-xl lg:px-5 xl:px-0 2xl:max-w-screen-2xl">
@@ -324,9 +323,6 @@ const NewPage = () => {
           </div>
         </div>
       </BaseLayout>
-      <div className="mt-10 lg:mx-auto lg:px-0">
-        <TeddyAdvert />
-      </div>
     </>
   )
 }

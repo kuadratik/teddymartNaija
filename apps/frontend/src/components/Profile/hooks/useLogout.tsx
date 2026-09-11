@@ -13,7 +13,6 @@ const useLogout = () => {
   const {pathname} = router
   console.log('🚀 ~ useLogout ~ pathname:', pathname)
   const isRedirectToLogin =
-    pathname === '/get-list' ||
     pathname === '/post-ad' ||
     pathname === '/mek/onboarding' ||
     pathname === '/mek/verify' ||

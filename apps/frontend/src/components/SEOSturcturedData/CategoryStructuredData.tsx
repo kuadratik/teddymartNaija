@@ -16,7 +16,7 @@ export const CategoryStructuredData = ({category, product}: IProps) => {
         isPartOf: {
           '@type': 'WebSite',
           '@id': 'https://myeki.market',
-          name: 'myEKI'
+          name: 'AfricanDiasporaMart'
         },
         breadcrumb: {
           '@type': 'BreadcrumbList',
@@ -60,16 +60,6 @@ export const CategoryStructuredData = ({category, product}: IProps) => {
                 // }
               }
             })) || []
-        }
-      },
-      {
-        '@type': 'WebPage',
-        name: 'MEK Directory | myEKI',
-        description: 'Find products and services near you!! Get Listed on myEKI and start selling for free!',
-        isPartOf: {
-          '@type': 'WebSite',
-          '@id': 'https://myeki.market',
-          name: 'myEKI'
         }
       }
     ]

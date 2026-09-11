@@ -5,7 +5,6 @@ use App\Http\Controllers\Auth\FrontAuthController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatsController;
-use App\Http\Controllers\Front\BusinessListingController;
 use App\Http\Controllers\ListingsController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\PaymentController;
@@ -88,14 +87,6 @@ Route::prefix('front')->group(function () {
         Route::get('/', [ListingsController::class, 'getListings']);
         Route::get('best-deals', [ListingsController::class, 'getBestDealsByCategory']);
         Route::get('today-deals', [ListingsController::class, 'getTodaysDeals']);
-    });
-
-    Route::get('business-industries', [BusinessListingController::class, 'getIndustries']);
-
-    Route::prefix('business-listings')->group(function () {
-        Route::get('/', [BusinessListingController::class, 'index']);
-        Route::get('/{businessListing:business_slug}/details', [BusinessListingController::class, 'show']);
-        Route::post('scrape-site', [BusinessListingController::class, 'scrapeBusinessInfo']);
     });
 
     Route::prefix('advert')->group(function () {
@@ -211,13 +202,6 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::get('/', [AdvertListingController::class, 'getAdvertWishlist']);
                 Route::delete('remove/{advert}', [AdvertListingController::class, 'removeAdvertFromWishlist']);
             });
-        });
-
-        Route::prefix('business-listings')->group(function () {
-            Route::post('create', [BusinessListingController::class, 'create']);
-            Route::delete('{businessListing}/delete', [BusinessListingController::class, 'delete']);
-            Route::put('{businessListing}/update', [BusinessListingController::class, 'update']);
-            Route::post('{businessListing}/book-service', [BusinessListingController::class, 'bookService']);
         });
 
         Route::prefix('user')->group(function () {

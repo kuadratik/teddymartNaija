@@ -204,36 +204,6 @@ const CustomerProfile = () => {
             />
           </div>
           <div className="w-full flex-col gap-4 md:flex-row">
-            <div
-              onClick={() => {
-                handleCopy(
-                  `${baseUrl}/auth/sign-up?redirect=%2Fget-list&referral_code=${isAuthenticatedUser?.referral_code}&referralType=business_owner`,
-                  {
-                    successTitle: 'Directory referral link copied successfully!'
-                  }
-                )
-              }}
-              className="relative w-full cursor-pointer"
-            >
-              <Icon
-                icon="solar:copy-bold-duotone"
-                width="24"
-                height="24"
-                className="absolute right-3 top-[38px] z-20"
-              />
-              <TextInput
-                errorMessage={''}
-                placeholder=""
-                title="Directory Referral Link"
-                value={`${baseUrl}/auth/sign-up?redirect=%2Fget-list&referral_code=${isAuthenticatedUser?.referral_code}&referralType=business_owner`}
-                disabled={true}
-                onChange={() => {}}
-                labelClassName="!text-black"
-                name={''}
-                type={'text'}
-                className={`border-[1px] ${errors.first_name ? 'border-red-600' : 'border-gray-200'} cursor-pointer bg-[#F5F5F5] pr-10`}
-              />
-            </div>
             {/* fix this */}
             <div
               onClick={() => {

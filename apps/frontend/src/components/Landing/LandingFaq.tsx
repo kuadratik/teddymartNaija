@@ -7,19 +7,19 @@ const LandingFaq = () => {
 
   const faqItems = [
     {
-      question: 'What is myEKI, and how does it work?',
+      question: 'What is AfricanDiasporaMart, and how does it work?',
       answer:
-        'myEKI is an all-in-one marketplace that connects vendors, riders, shippers, and businesses with customers locally and globally. From selling products to offering services, delivering goods, and promoting businesses, myEKI provides tools and opportunities to grow and connect with your audience.'
+        'AfricanDiasporaMart is an all-in-one marketplace that connects vendors, riders, shippers, and businesses with customers locally and globally. From selling products to offering services, delivering goods, and promoting businesses, AfricanDiasporaMart provides tools and opportunities to grow and connect with your audience.'
     },
     {
-      question: 'Who can use myEKI?',
+      question: 'Who can use AfricanDiasporaMart?',
       answer:
         'Browse our extensive marketplace, search for products or services, and place your order directly. Choose local delivery or international shipping for convenience.'
     },
     {
-      question: 'Are the products on myEKI authentic?',
+      question: 'Are the products on AfricanDiasporaMart authentic?',
       answer:
-        'Yes! myEKI partners with trusted vendors to ensure you receive high-quality, authentic African products and services.'
+        'Yes! AfricanDiasporaMart partners with trusted vendors to ensure you receive high-quality, authentic African products and services.'
     },
     {
       question: 'Can I contact vendors directly?',
@@ -27,59 +27,49 @@ const LandingFaq = () => {
         'Absolutely! You can chat with vendors to ask questions, get more details about products or services, and finalize your purchases confidently.'
     },
     {
-      question: 'How do I become a vendor on myEKI?',
+      question: 'How do I become a vendor on AfricanDiasporaMart?',
       answer:
-        'Signing up is easy! Create an account on myEKI.market, set up your store, and start listing your products or services to connect with customers locally and globally.'
+        'Signing up is easy! Create an account on myeki.market, set up your store, and start listing your products or services to connect with customers locally and globally.'
     },
     {
-      question: 'What tools does myEKI provide for vendors?',
+      question: 'What tools does AfricanDiasporaMart provide for vendors?',
       answer:
-        'myEKI offers tools for product management, order tracking, marketing, and analytics to help grow your business and reach more customers.'
+        'AfricanDiasporaMart offers tools for product management, order tracking, marketing, and analytics to help grow your business and reach more customers.'
     },
     {
       question: 'Can I sell both products and services?',
       answer:
-        'Yes, myEKI supports vendors selling physical products, digital goods, and services, making it a versatile platform for all businesses.'
+        'Yes, AfricanDiasporaMart supports vendors selling physical products, digital goods, and services, making it a versatile platform for all businesses.'
     },
     {
-      question: 'How do I become a shipper with myEKI?',
+      question: 'How do I become a shipper with AfricanDiasporaMart?',
       answer:
         'Create a shipper account on our platform, set up your logistics details, and start receiving shipping requests from vendors who need local or international delivery services.'
     },
     {
-      question: 'What are the benefits of being a myEKI shipper?',
+      question: 'What are the benefits of being an AfricanDiasporaMart shipper?',
       answer:
         'As a shipper, you gain access to a growing customer base, tools to streamline logistics, and the ability to expand your business both locally and internationally.'
     },
     {
-      question: 'How can I join myEKI as a rider?',
+      question: 'How can I join AfricanDiasporaMart as a rider?',
       answer:
-        'Simply sign up on myEKI.market, complete your rider profile, and start earning by delivering goods for vendors within your city or town.'
+        'Simply sign up on myeki.market, complete your rider profile, and start earning by delivering goods for vendors within your city or town.'
     },
     {
       question: 'Do I need special equipment to become a rider?',
       answer: 'No, you can use any reliable vehicle—bike, car, or van—that suits the type of deliveries in your area.'
     },
     {
-      question: 'Do I need a storefront to post an ad on myEKI?',
+      question: 'Do I need a storefront to post an ad on AfricanDiasporaMart?',
       answer:
-        'No storefront? No problem! With myEKI Ads, you can list your item or service directly, making it easy to reach potential buyers without setting up a store.'
+        'No storefront? No problem! With AfricanDiasporaMart Ads, you can list your item or service directly, making it easy to reach potential buyers without setting up a store.'
     },
     {
       question: 'What kinds of ads can I post?',
       answer:
         'You can post items for sale, services offered, or any classified listing to connect with customers or clients in your area.'
     },
-    {
-      question: 'What is the myEKI Directory, and how does it work?',
-      answer:
-        'The myEKI Directory is a comprehensive business listing platform. Simply create a profile to showcase your business, attract new clients, and increase your visibility locally and globally.'
-    },
-    {
-      question: 'Can I use the directory without selling products on myEKI?',
-      answer:
-        'Yes, the myEKI Directory is designed for all businesses—whether you sell products, provide services, or operate offline.'
-    }
   ]
 
   return (

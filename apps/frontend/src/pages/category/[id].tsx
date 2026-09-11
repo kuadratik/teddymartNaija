@@ -2,7 +2,6 @@
 
 import Category from '@/components/Auth/Products/components/Category'
 import NewNavigation from '@/components/Auth/Products/components/NewNavigation'
-import TeddyAdvert from '@/components/Auth/Products/components/TeddyAdvert'
 import BaseLayout from '@/components/Layout/BaseLayout'
 import CustomerLayout from '@/components/Layout/Customerlayout'
 import RecommendedStores from '@/components/Search/RecommendedStores'
@@ -134,8 +133,8 @@ const CategoryIdPage = ({category}: {category: any; seoData: any}) => {
       <Category open={open} setOpen={setOpen} />
       <NewNavigation />
       <SEOHead
-        title={`myEKI | ${categoryName}`}
-        description="myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs. Join myEKI today and start selling for free! Find products and services near you!!"
+        title={`AfricanDiasporaMart | ${categoryName}`}
+        description="AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!"
       />
       <CategoryStructuredData category={category} product={data?.data} />
       <BaseLayout>
@@ -184,9 +183,6 @@ const CategoryIdPage = ({category}: {category: any; seoData: any}) => {
           </div>
         </div>
       </BaseLayout>
-      <div className="mt-10 max-w-[1024px] lg:mx-auto lg:px-0">
-        <TeddyAdvert />
-      </div>
     </React.Fragment>
   )
 }
@@ -283,7 +279,7 @@ export const getServerSideProps = async (context: any) => {
     const products = productRes.data.data || []
 
     const seoData = {
-      title: `myEKI | ${categoryName}`,
+      title: `AfricanDiasporaMart | ${categoryName}`,
       description: primaryCategory.description || `Explore our ${categoryName} category`,
       slug: primaryCategory.slug
     }
@@ -298,7 +294,7 @@ export const getServerSideProps = async (context: any) => {
           isPartOf: {
             '@type': 'WebSite',
             '@id': 'https://myeki.market',
-            name: 'myEKI'
+            name: 'AfricanDiasporaMart'
           },
           breadcrumb: {
             '@type': 'BreadcrumbList',
@@ -340,16 +336,6 @@ export const getServerSideProps = async (context: any) => {
                   }
                 }
               })) || []
-          }
-        },
-        {
-          '@type': 'WebPage',
-          name: 'MEK Directory | myEKI',
-          description: 'Find products and services near you!! Get Listed on myEKI and start selling for free!',
-          isPartOf: {
-            '@type': 'WebSite',
-            '@id': 'https://myeki.market',
-            name: 'myEKI'
           }
         }
       ]
