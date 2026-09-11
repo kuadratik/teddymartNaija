@@ -1,0 +1,389 @@
+import useSendToVendor from '@/components/Clips/hooks/useSendToVendor'
+import CustomButton from '@/components/SharedUI/Buttons/Button'
+import DrawerContainer from '@/components/SharedUI/DrawerContainer'
+import PlannerModal from '@/components/SharedUI/ModalComponent'
+import SuccessModal from '@/components/SharedUI/States/Success/SuccessModal'
+import TextComponent from '@/components/SharedUI/TextComponent'
+import DetailsCard from '@/components/Store/components/DetailsCard'
+import DetailsCardSkeletonLoader from '@/components/Store/components/DetailsCardSkeletonLoader'
+import useAddToClipsQuery from '@/components/Store/hooks/useAddToClips'
+import TitleText from '@/components/Vendor/TitleText'
+import {useAppSelector} from '@/hooks/reduxHooks'
+import {useMediaQuery} from '@/hooks/use-media-query'
+import {useModalState} from '@/hooks/useModalState'
+import useWindowResize from '@/hooks/useWindowResize'
+import {toggleLargeOpenServiceModal} from '@/redux/features/openServiceModalSlice'
+import {Image} from 'antd'
+import {useRouter} from 'next/router'
+import {useEffect, useRef, useState} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
+
+interface IProps {
+  data: any
+  isLoading: boolean
+  selectedLanguage?: any
+}
+const Popularproduct = ({data, isLoading, selectedLanguage}: IProps) => {
+  const {type} = useSelector((state: any) => state.vendor)
+  const dispatch = useDispatch()
+  const router = useRouter()
+
+  // const {data: oldData, isLoading: oldIsLoading} = useGetPopularQuery({
+  //   listingType: type
+  // })
+
+  const {
+    isOpen: confirmIsOpen,
+    closeModal: confirmCloseModal,
+    openModal: confirmOpenModal,
+    setIsOpen: setConfirmIsOpen
+  } = useModalState()
+
+  const {
+    isOpen: successVendorIsOpen,
+    closeModal: successVendorCloseModal,
+    openModal: successVendorOpenModal,
+    setIsOpen: setSuccessVendorIsOpen
+  } = useModalState()
+
+  const {
+    isOpen: vendorIsOpen,
+    closeModal: vendorCloseModal,
+    openModal: vendorOpenModal,
+    setIsOpen: setVendorIsOpen
+  } = useModalState()
+
+  const {isLoading: sendToVendorLoading, handleSendToVendor} = useSendToVendor(() => {
+    confirmCloseModal()
+    successVendorOpenModal()
+  })
+
+  const [isLoadingImage, setIsLoadingImage] = useState(true)
+  const [currId, setCurrId] = useState<any>()
+  const [clipId, setClipId] = useState<any>()
+
+  const isAuthenticatedToken = useAppSelector(state => state.auth.token) // get authenticated token
+
+  const [swiperInstance, setSwiperInstance] = useState<any>(null)
+  const isDesktop = useMediaQuery('(min-width: 1024px)')
+  const {width} = useWindowResize()
+
+  const prevRef = useRef(null)
+  const nextRef = useRef(null)
+
+  const {isLoading: handleClipIsLoading, handleAddToClip} = useAddToClipsQuery()
+
+  // Ensure navigation is updated after Swiper initialization
+  useEffect(() => {
+    if (swiperInstance && swiperInstance.navigation) {
+      swiperInstance.navigation.update()
+    }
+  }, [swiperInstance])
+
+  const handleOpenLargeServiceModal = () => {
+    dispatch(toggleLargeOpenServiceModal())
+  }
+
+  return (
+    <div className="lg:mt-[10px]">
+      {' '}
+      <TextComponent as="p" className="text-center text-[18px] font-bold leading-[24px] lg:hidden">
+        {data?.data?.length ? `${type === 'product' ? `Popular Products` : 'Popular Services'}` : ''}
+      </TextComponent>
+      <div className="mt-[10px] w-full lg:mt-[30px]">
+        {/* {isDesktop ? (
+          <> */}
+        {isLoading ? (
+          <div className="my-4 flex w-full flex-row gap-4 px-4 lg:px-0">
+            <div className="grid w-full grid-cols-1 gap-[10px] sm:grid-cols-3 lg:grid-cols-4">
+              {Array(width > 1024 ? 4 : width > 640 ? 2 : 1)
+                .fill(0)
+                .map((_, index) => (
+                  <DetailsCardSkeletonLoader key={`skeleton-${index}`} />
+                ))}
+            </div>
+          </div>
+        ) : (
+          data?.data?.length > 0 && (
+            <div className="relative mt-4 w-full">
+              <div className="mt-[20px] grid h-full !w-full grid-cols-2 gap-2 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+                {data?.data?.map((listing: any, i: number) => (
+                  // <SwiperSlide className="w-full" key={i}>
+                  <div key={listing?.id || i}>
+                    <DetailsCard
+                      index={i}
+                      listing={listing}
+                      store_name={listing?.store?.name}
+                      store_slug={listing?.store?.slug}
+                    />
+                  </div>
+                  // </SwiperSlide>
+                ))}{' '}
+              </div>
+
+              {/* </Swiper> */}
+            </div>
+          )
+        )}
+      </div>
+      {!isDesktop && confirmIsOpen && (
+        <DrawerContainer
+          open={confirmIsOpen}
+          onClose={() => {
+            confirmCloseModal()
+          }}
+          title={`Confirmation`}
+          height={300}
+        >
+          <div className="flex w-full flex-col gap-5">
+            <TextComponent as="p" className="px-2 text-center text-[14px] font-normal leading-[18px] text-custom_grey">
+              <>{`Are you ready to send a message to ${clipId?.store?.name}  `}</>
+            </TextComponent>
+
+            <div className="flex w-full items-center gap-4">
+              <CustomButton
+                onClick={() => {
+                  confirmCloseModal()
+                }}
+                type="button"
+                className="w-[200px] rounded-[10px] border border-[#EDEDED] bg-[#EDEDED] px-1 py-4 text-[14px] text-black"
+              >
+                No
+              </CustomButton>
+
+              <CustomButton
+                onClick={() => {
+                  vendorOpenModal()
+                  confirmCloseModal()
+                }}
+                type="button"
+                className="w-full rounded-[10px] bg-[#000000] px-1 py-4 text-[14px] text-white"
+              >
+                {'Yes'}
+              </CustomButton>
+            </div>
+          </div>
+        </DrawerContainer>
+      )}
+      {isDesktop && confirmIsOpen && (
+        <PlannerModal
+          modalOpen={confirmIsOpen}
+          onCloseModal={() => {
+            confirmCloseModal()
+            setConfirmIsOpen(false)
+          }}
+          setModalOpen={setConfirmIsOpen}
+          maskCloseable={true}
+        >
+          <TitleText title={`Confirmation`} />
+          <div className="flex w-full flex-col gap-5">
+            <TextComponent as="p" className="px-2 text-center text-[14px] font-normal leading-[18px] text-custom_grey">
+              <>{`Are you ready to send a message to ${clipId?.store?.name}  `}</>
+            </TextComponent>
+
+            <div className="flex w-full items-center gap-4">
+              <CustomButton
+                onClick={() => {
+                  confirmCloseModal()
+                }}
+                type="button"
+                className="w-[200px] rounded-[10px] border border-[#EDEDED] bg-[#EDEDED] px-1 py-4 text-[14px] text-black"
+              >
+                No
+              </CustomButton>
+
+              <CustomButton
+                onClick={() => {
+                  vendorOpenModal()
+                  confirmCloseModal()
+                }}
+                type="button"
+                className="w-full rounded-[10px] bg-[#000000] px-1 py-4 text-[14px] text-white"
+              >
+                {'Yes'}
+              </CustomButton>
+            </div>
+          </div>
+        </PlannerModal>
+      )}
+      {!isDesktop && successVendorIsOpen && (
+        <DrawerContainer open={successVendorIsOpen} onClose={successVendorCloseModal} title={`Success`} height={400}>
+          <SuccessModal
+            successMessage="Thank you for using myEKI!"
+            successTitle={''}
+            primaryButtonText={`Contact ${clipId?.type === 'product' ? 'Vendor' : 'Provider'}`}
+            primaryButtonAction={() => {
+              successVendorCloseModal()
+              vendorOpenModal()
+            }}
+          />
+        </DrawerContainer>
+      )}
+      {isDesktop && successVendorIsOpen && (
+        <PlannerModal
+          modalOpen={successVendorIsOpen}
+          onCloseModal={() => {
+            successVendorCloseModal()
+            setSuccessVendorIsOpen(false)
+          }}
+          setModalOpen={setSuccessVendorIsOpen}
+          maskCloseable={true}
+        >
+          <TitleText title={`Success`} />
+          <SuccessModal
+            successMessage="Thank you for using myEKI!"
+            successTitle={''}
+            primaryButtonText={`Contact ${clipId?.type === 'product' ? 'Vendor' : 'Provider'}`}
+            primaryButtonAction={() => {
+              successVendorCloseModal()
+              vendorOpenModal()
+            }}
+          />
+        </PlannerModal>
+      )}
+      {!isDesktop && vendorIsOpen && (
+        <DrawerContainer
+          open={vendorIsOpen}
+          onClose={vendorCloseModal}
+          title={`${clipId?.type === 'product' ? 'Vendor' : 'Provider'} Information`}
+          height={400}
+        >
+          <div className="flex w-full flex-col gap-5">
+            <div className="flex flex-col items-center justify-center gap-4 py-8">
+              <Image
+                width={60}
+                height={60}
+                style={{
+                  borderRadius: '100px' // Set the border radius
+                }}
+                className={`${isLoadingImage ? 'blur-sm' : ''}`}
+                src={`${process.env.imageBaseUrl}/${clipId?.store?.profile_picture_path}`}
+                alt="vendor-pic"
+                onError={error => {
+                  error.currentTarget.src = '/assets/default_banner.jpg'
+                  setIsLoadingImage(false)
+                }}
+                onLoadStart={() => {
+                  setIsLoadingImage(true)
+                }}
+                onLoad={() => {
+                  setIsLoadingImage(false)
+                }}
+                // preview={false}
+              />
+              <div className="ga-2 flex flex-col items-center justify-center">
+                <TextComponent as="h5" className="text-[16px] font-semibold leading-[20px]">
+                  {clipId?.store?.name}
+                </TextComponent>
+                <TextComponent as="p" className="text-[11px] leading-[14px] text-[#9796A1]">
+                  {clipId?.store?.contact_number}
+                </TextComponent>
+              </div>
+            </div>
+
+            <div className="flex w-full items-center gap-4">
+              <CustomButton
+                onClick={() => {
+                  const phoneURL = `tel:${clipId?.store?.contact_number}`
+                  window.location.href = phoneURL
+
+                  // window.open(phoneURL, '_blank')
+                }}
+                type="button"
+                className="w-full rounded-[10px] border border-[#EDEDED] bg-[#EDEDED] px-1 py-4 text-[14px] text-black"
+              >
+                Call
+              </CustomButton>
+
+              <CustomButton
+                onClick={() => {
+                  const whatsappURL = `https://wa.me/${clipId?.store?.whatsapp_number}`
+                  window.open(whatsappURL, '_blank')
+                }}
+                type="button"
+                className="w-full rounded-[10px] bg-[#000000] px-1 py-4 text-[14px] text-white"
+              >
+                {/* {isAvailabilityLoading ? <Spinner /> : */}
+                WhatsApp
+                {/* // } */}
+              </CustomButton>
+            </div>
+
+            <TextComponent as="p" className="text-center text-[11px] leading-[12px] text-[#9796A1]">
+              Please note that myEKI does not process payment or shipping.
+            </TextComponent>
+          </div>
+        </DrawerContainer>
+      )}
+      {isDesktop && vendorIsOpen && (
+        <PlannerModal
+          modalOpen={vendorIsOpen}
+          onCloseModal={() => {
+            setVendorIsOpen(false)
+            vendorCloseModal()
+          }}
+          setModalOpen={setVendorIsOpen}
+          maskCloseable={true}
+        >
+          <TitleText title={`${clipId?.type === 'product' ? 'Vendor' : 'Provider'} Information`} />
+          <div className="flex w-full flex-col gap-5">
+            <div className="flex flex-col items-center justify-center gap-4 py-8">
+              <Image
+                width={60}
+                height={60}
+                style={{
+                  borderRadius: '100px' // Set the border radius
+                }}
+                src={`${process.env.imageBaseUrl}/${clipId?.store?.profile_picture_path}`}
+                alt="vendor-pic"
+                // preview={false}
+              />
+              <div className="ga-2 flex flex-col items-center justify-center">
+                <TextComponent as="h5" className="text-[16px] font-semibold leading-[20px]">
+                  {clipId?.store?.name}
+                </TextComponent>
+                <TextComponent as="p" className="text-[11px] leading-[14px] text-[#9796A1]">
+                  {clipId?.store?.contact_number}
+                </TextComponent>
+              </div>
+            </div>
+
+            <div className="flex w-full items-center gap-4">
+              <CustomButton
+                onClick={() => {
+                  const phoneURL = `tel:${clipId?.store?.contact_number}`
+                  window.location.href = phoneURL
+
+                  // window.open(phoneURL, '_blank')
+                }}
+                type="button"
+                className="w-full rounded-[10px] border border-[#EDEDED] bg-[#EDEDED] px-1 py-4 text-[14px] text-black"
+              >
+                Call
+              </CustomButton>
+
+              <CustomButton
+                onClick={() => {
+                  const whatsappURL = `https://wa.me/${clipId?.store?.whatsapp_number}`
+                  window.open(whatsappURL, '_blank')
+                }}
+                type="button"
+                className="w-full rounded-[10px] bg-[#000000] px-1 py-4 text-[14px] text-white"
+              >
+                {/* {isAvailabilityLoading ? <Spinner /> : */}
+                WhatsApp
+                {/* // } */}
+              </CustomButton>
+            </div>
+
+            <TextComponent as="p" className="text-center text-[11px] leading-[12px] text-[#9796A1]">
+              Please note that myEKI does not process payment or shipping.
+            </TextComponent>
+          </div>
+        </PlannerModal>
+      )}
+    </div>
+  )
+}
+
+export default Popularproduct
