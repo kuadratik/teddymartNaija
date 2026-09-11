@@ -1,0 +1,815 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  1. Use a more-intuitive box-sizing model.
+*/
+
+html,
+:host {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/*
+  2. Remove default margin
+*/
+
+* {
+  margin: 0;
+}
+
+:root {
+  font-family: 'DM Sans', sans-serif;
+}
+/* Reset Ant Design button styles */
+.ant-btn {
+  /* Reset position and display */
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  /* Reset spacing */
+  margin: 0 !important;
+
+  /* Allow Tailwind classes to work properly */
+  box-sizing: border-box !important;
+}
+
+/* Ensure icons inside buttons are properly positioned */
+.ant-btn .anticon,
+.ant-btn .ant-badge {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+/*
+  Typographic tweaks!
+  3. Add accessible line-height
+  4. Improve text rendering
+*/
+
+body {
+  background: #ffffff;
+  height: 'fit-content';
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* @media (max-width: 768px) {
+  .mobile-menu-button {
+    display: block !important;
+  }
+  .ant-menu-horizontal {
+    display: none !important;
+  }
+} */
+
+ant-table-container {
+  border: 1px solid #ededed;
+}
+
+.ant-table-tbody > tr > td {
+  color: #6b7280;
+  /* font-size: 14px; */
+  /* Set your desired text color here */
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: unset !important;
+  /* Remove background change */
+  cursor: default !important;
+  /* Remove pointer change */
+}
+
+.ant-table-container .ant-table-thead .ant-table-cell {
+  background-color: #f0f1f5;
+  border: none;
+  color: #000;
+  font-weight: 500;
+  /* font-size: 14px; */
+}
+
+.custom-table .ant-table-container .ant-table-thead .ant-table-cell {
+  background-color: #000;
+  border: none !important;
+  color: #fff;
+  font-weight: 500;
+  /* font-size: 14px; */
+}
+
+.ant-table-row-selected > td {
+  background-color: transparent !important;
+}
+
+/* Remove hover background color for selected rows */
+
+.ant-table-row-selected:hover > td {
+  background-color: transparent !important;
+}
+
+/* Remove default hover background for non-selected rows */
+
+.ant-table-tbody > tr:hover > td {
+  background-color: transparent !important;
+}
+
+.custom-left-tabs .ant-tabs-tab-active {
+  border-right: 4px solid #000;
+  background-color: #ededed;
+  /* Increase border size for the active tab */
+}
+
+.custom-tabs .ant-tabs-tab-active {
+  border-bottom: 2px solid #000;
+  /* Increase border size for the active tab */
+}
+
+.custom-active-tab .ant-tabs-tab-active {
+  border-bottom: 2px solid #000;
+  background-color: transparent !important;
+  border-right: none !important;
+  /* Increase border size for the active tab */
+}
+
+.ant-table-wrapper
+  .ant-table-thead
+  > tr
+  > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before,
+.ant-table-wrapper
+  .ant-table-thead
+  > tr
+  > td:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 0;
+  width: 1px;
+  height: 1.6em;
+  background-color: transparent !important;
+  transform: translateY(-50%);
+  content: '';
+}
+
+@media (min-width: 769px) {
+  .mobile-menu-button {
+    display: none !important;
+  }
+  .ant-menu-horizontal {
+    display: flex !important;
+  }
+}
+
+.landing-page {
+  background-size: cover;
+  background-position: center;
+}
+
+.browser-frame {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/*
+  5. prevents IOS from zooming in
+*/
+input[type='color'],
+input[type='date'],
+input[type='datetime'],
+input[type='datetime-local'],
+input[type='email'],
+input[type='month'],
+input[type='number'],
+input[type='password'],
+input[type='search'],
+input[type='tel'],
+input[type='text'],
+input[type='time'],
+input[type='url'],
+input[type='week'],
+select:focus,
+textarea {
+  font-size: 16px;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/*
+  6. Remove built-in form typography styles
+*/
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/*
+  7. Avoid text overflows
+*/
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/*
+  8. Create a root stacking context
+*/
+
+#root,
+#__next {
+  isolation: isolate;
+}
+
+/* Custom scrollbar styles */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.from-custom-blue {
+  --tw-gradient-from: #575cff;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(87, 92, 255, 0));
+}
+
+.to-custom-indigo-90 {
+  --tw-gradient-to: #33357df2;
+}
+
+.luckiest-guy {
+  font-family: 'Luckiest Guy', cursive;
+}
+
+/* stats card scroll bar */
+
+/* CSS */
+
+/* You may need to adjust these styles based on your design */
+
+/* CSS */
+
+/* For webkit-based browsers (Chrome, Safari) */
+
+.statsCard::-webkit-scrollbar {
+  display: none;
+  /* Hide scrollbar for webkit-based browsers */
+}
+
+/* CSS */
+
+/* For webkit-based browsers (Chrome, Safari) */
+
+.statsCardScroll::-webkit-scrollbar {
+  display: block;
+  /* Hide scrollbar for webkit-based browsers */
+}
+
+/* For Firefox */
+
+.statsCard {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.statsCard::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+  -webkit-appearance: none;
+  width: 0;
+  height: 0;
+}
+
+/* For Firefox */
+
+.statsCardScroll {
+  scrollbar-width: thin;
+  /* Hide scrollbar for Firefox */
+  /* Other styles */
+  overflow-y: none;
+  /* Ensure vertical scrollbar appears when needed */
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+div.ant-table-column-sorters {
+  display: inline !important;
+}
+
+@keyframes slideOutToRight {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+/* headway styles */
+.HW_frame_cont {
+  position: fixed !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  z-index: 9999 !important;
+}
+
+.HW_frame {
+  border: none !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.ant-pagination .ant-pagination-item-active {
+  font-weight: 400;
+  border-color: var(--dark-color);
+  background-color: var(--dark-color);
+}
+
+.ant-pagination .ant-pagination-item-active a {
+  font-weight: 400;
+  color: #fff;
+}
+
+.ant-pagination-prev {
+  color: #fff;
+  border-color: var(--dark-color);
+  background-color: var(--dark-color);
+}
+
+.ant-pagination-prev.ant-pagination-disabled {
+  background-color: transparent !important;
+  cursor: not-allowed;
+}
+
+.ant-pagination .ant-pagination-prev button {
+  color: white;
+  cursor: pointer;
+  -webkit-user-select: none; /* Safari */
+  user-select: none;
+}
+
+.ant-pagination-next {
+  color: #fff;
+  border-color: var(--dark-color);
+  background-color: var(--dark-color);
+}
+
+.ant-pagination-next.ant-pagination-disabled {
+  background-color: transparent !important;
+  cursor: not-allowed;
+}
+
+.ant-pagination .ant-pagination-next button {
+  color: white;
+  cursor: pointer;
+  -webkit-user-select: none; /* Safari */
+  user-select: none;
+}
+
+.custom-phone-input .form-control {
+  color: #ff5733;
+  /* Your desired text color */
+  font-weight: 300;
+  /* Light font weight */
+}
+
+/* For WebKit browsers (Chrome, Safari, etc.) */
+
+::-webkit-scrollbar {
+  height: 0px;
+  /* Adjust the height for the horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  /* Track color */
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  /* Thumb (scrollbar handle) color */
+  border-radius: 10px;
+  /* Rounded corners for the thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: transparent;
+  /* Thumb color on hover */
+}
+
+.swiper {
+  width: '100%';
+  height: '100%';
+}
+
+.ant-otp .ant-otp-input {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  padding-inline: 4px;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  height: 73px;
+  width: 63px;
+  border: 1px solid #ebebeb;
+}
+
+/* App.css */
+
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  /* Adjust this to your header height */
+  background-color: #fff;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 1000;
+  /* Add your desired margin-bottom */
+}
+
+.swiper-button-disabled {
+  opacity: 0;
+  /* Hide the button */
+  pointer-events: none;
+  /* Prevent clicking */
+}
+
+.custom-select .ant-select-selector .ant-select-selection-placeholder {
+  color: #9ca3af;
+  /* Change placeholder color */
+  font-size: 15px;
+  font-weight: 500;
+  /* Change placeholder font size */
+}
+
+/* custom.css */
+
+/* animation loading_state */
+
+.loading_state {
+  -webkit-animation: loading_state 1s cubic-bezier(0.215, 0.61, 0.355, 1) infinite alternate both;
+  animation: loading_state 1s cubic-bezier(0.215, 0.61, 0.355, 1) infinite alternate both;
+}
+
+@-webkit-keyframes loading_state {
+  0% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes loading_state {
+  0% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.swiper-button-disabled {
+  opacity: 0;
+  /* Hide the button */
+  pointer-events: none;
+  /* Prevent clicking */
+}
+
+.swiper {
+  width: '100%';
+  height: '100%';
+}
+
+.ant-pagination .ant-pagination-item-active {
+  font-weight: 400;
+  border-color: black;
+  background-color: black;
+}
+
+.ant-pagination .ant-pagination-item-active a {
+  font-weight: 400;
+  color: #fff;
+}
+
+.ant-pagination-prev {
+  color: #fff;
+  border-color: black;
+  background-color: black;
+}
+
+.ant-pagination-prev.ant-pagination-disabled {
+  background-color: transparent !important;
+  cursor: not-allowed;
+}
+
+.ant-pagination .ant-pagination-prev button {
+  color: white;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ant-pagination-next {
+  color: #fff;
+  border-color: black;
+  background-color: black;
+}
+
+.ant-pagination-next.ant-pagination-disabled {
+  background-color: transparent !important;
+  cursor: not-allowed;
+}
+
+.ant-pagination .ant-pagination-next button {
+  color: white;
+  cursor: pointer;
+  user-select: none;
+}
+
+:where(.css-dev-only-do-not-override-ioi3mj).ant-collapse .ant-collapse-content {
+  border-top: none;
+}
+#scrollableDiv {
+  height: calc(50dvh - 100px);
+  overflow: auto;
+  display: flex;
+  flex-direction: column-reverse;
+}
+@media screen and (max-width: 768px) {
+  .fixed-message {
+    position: relative;
+    width: auto;
+    max-width: 90%;
+    margin: 0 auto;
+  }
+}
+
+.chat-loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 20px;
+}
+
+.chat-loader {
+  display: flex;
+  gap: 16px;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.chat-bubble {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #6b7280;
+  animation: chat-pulse 1.5s ease-in-out infinite;
+}
+
+.chat-bubble::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #6b7280;
+  animation: chat-pulse-shadow 1.5s ease-in-out infinite;
+  z-index: -1;
+}
+
+.chat-bubble:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.chat-bubble:nth-child(2)::after {
+  animation-delay: 0.2s;
+}
+
+.chat-bubble:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.chat-bubble:nth-child(3)::after {
+  animation-delay: 0.4s;
+}
+
+@keyframes chat-pulse {
+  0%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes chat-pulse-shadow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.2;
+  }
+}
+
+:where(.css-dev-only-do-not-override-1dvjtbv).ant-select-dropdown .ant-select-item-empty {
+  display: none;
+}
+button,
+:where(.css-esnuiy).ant-btn {
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+ */
+  user-select: none; /* Standard syntax */
+}
+.business-card {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+#invoice-order {
+  min-height: fit-content;
+  height: auto !important;
+  padding: 15px !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+}
+
+/* Custom landing page  styling */
+
+.playfair-display-font {
+  font-family: 'Playfair Display', serif;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-style: normal;
+}
+/* You can add this to your global CSS or in a style tag in the VirtualizedCarousel component */
+.virtualized-carousel-container {
+  position: relative;
+  /* width: 100%; */
+}
+
+.virtualized-carousel {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.virtualized-carousel::-webkit-scrollbar {
+  height: 4px;
+}
+
+.virtualized-carousel::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.virtualized-carousel::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.virtualized-carousel {
+  cursor: grab;
+}
+
+.virtualized-carousel:active {
+  cursor: grabbing;
+}
+.ql-content h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+.ql-content h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+.ql-content h3 {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin-bottom: 0.4em;
+}
+.ql-content h4 {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 0.3em;
+}
+.ql-content h5 {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-bottom: 0.2em;
+}
+.ql-content h6 {
+  font-size: 1em;
+  font-weight: bold;
+  margin-bottom: 0.1em;
+}
+.ql-content ul {
+  list-style-type: disc;
+  padding-left: 2em;
+  margin-bottom: 1em;
+}
+.ql-content ol {
+  list-style-type: decimal;
+  padding-left: 2em;
+  margin-bottom: 1em;
+}
+.ql-content blockquote {
+  border-left: 4px solid #ccc;
+  padding-left: 16px;
+  margin: 10px 0;
+  font-style: italic;
+}
+.ql-content p {
+  margin-bottom: 0.5em;
+}
+.ql-content a {
+  color: #0d6efd;
+  text-decoration: underline;
+}
+.ql-content strong {
+  font-weight: bold;
+}
+.ql-content em {
+  font-style: italic;
+}
+.ql-content s {
+  text-decoration: line-through;
+}
+
+/* Add your existing message styling here */
