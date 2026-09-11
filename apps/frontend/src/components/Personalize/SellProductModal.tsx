@@ -27,7 +27,6 @@ const SkeletonCard = () => (
 )
 interface IProps {
   setSellProductModal: React.Dispatch<React.SetStateAction<boolean>>
-  setListBusinessModal: React.Dispatch<React.SetStateAction<boolean>>
   setLisAdsModal: React.Dispatch<React.SetStateAction<boolean>>
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   whatTodoModal: boolean
@@ -40,7 +39,6 @@ const SellProductModal = ({
   setWhatTodoModal,
   whatTodoModal,
   setSellProductModal,
-  setListBusinessModal,
   setLisAdsModal,
   sellProductModal
 }: IProps) => {
@@ -95,7 +93,6 @@ const SellProductModal = ({
     setModalOpen(false)
     setWhatTodoModal(false)
     setSellProductModal(false)
-    setListBusinessModal(false)
     setLisAdsModal(false)
   }
 
@@ -114,7 +111,6 @@ const SellProductModal = ({
     {
       id: 3,
       defaultName: 'List a Business',
-      setModal: setListBusinessModal,
       color: '#2E00D7'
     },
     {

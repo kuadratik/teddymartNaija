@@ -51,8 +51,8 @@ const ContactUsPage = () => {
   return (
     <>
       <SEOHead
-        title={`myEKI | Contact Us`}
-        description="myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs. Join myEKI today and start selling for free! Find products and services near you!!"
+        title={`AfricanDiasporaMart | Contact Us`}
+        description="AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!"
       />
       <BaseLayout>
         <div className="mt-10 flex h-full w-full items-center justify-center lg:mt-20">
@@ -132,7 +132,7 @@ export async function getStaticProps() {
     '@graph': [
       {
         '@type': 'WebSite', // Add WebSite
-        name: 'myEKI',
+        name: 'AfricanDiasporaMart',
         url: 'https://myeki.market',
         potentialAction: {
           '@type': 'SearchAction',
@@ -142,7 +142,7 @@ export async function getStaticProps() {
       },
       {
         '@type': 'Organization', // Add Organization
-        name: 'myEKI Market',
+        name: 'AfricanDiasporaMart Market',
         url: 'https://myeki.market',
         logo: 'https://myeki.market/assets/WhiteLogo.svg', // Add logo
         // address: {
@@ -165,7 +165,7 @@ export async function getStaticProps() {
       {
         '@type': 'ContactPage', // ContactPage is now correctly related
         name: 'Contact Us',
-        description: 'Get in touch with myEKI Market',
+        description: 'Get in touch with AfricanDiasporaMart Market',
         url: 'https://myeki.market/contact-us', // Add url
         isPartOf: {
           '@type': 'WebSite',

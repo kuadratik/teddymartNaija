@@ -209,7 +209,7 @@ const Popularproduct = ({data, isLoading, selectedLanguage}: IProps) => {
       {!isDesktop && successVendorIsOpen && (
         <DrawerContainer open={successVendorIsOpen} onClose={successVendorCloseModal} title={`Success`} height={400}>
           <SuccessModal
-            successMessage="Thank you for using myEKI!"
+            successMessage="Thank you for using AfricanDiasporaMart!"
             successTitle={''}
             primaryButtonText={`Contact ${clipId?.type === 'product' ? 'Vendor' : 'Provider'}`}
             primaryButtonAction={() => {
@@ -231,7 +231,7 @@ const Popularproduct = ({data, isLoading, selectedLanguage}: IProps) => {
         >
           <TitleText title={`Success`} />
           <SuccessModal
-            successMessage="Thank you for using myEKI!"
+            successMessage="Thank you for using AfricanDiasporaMart!"
             successTitle={''}
             primaryButtonText={`Contact ${clipId?.type === 'product' ? 'Vendor' : 'Provider'}`}
             primaryButtonAction={() => {
@@ -310,7 +310,7 @@ const Popularproduct = ({data, isLoading, selectedLanguage}: IProps) => {
             </div>
 
             <TextComponent as="p" className="text-center text-[11px] leading-[12px] text-[#9796A1]">
-              Please note that myEKI does not process payment or shipping.
+              Please note that AfricanDiasporaMart does not process payment or shipping.
             </TextComponent>
           </div>
         </DrawerContainer>
@@ -377,7 +377,7 @@ const Popularproduct = ({data, isLoading, selectedLanguage}: IProps) => {
             </div>
 
             <TextComponent as="p" className="text-center text-[11px] leading-[12px] text-[#9796A1]">
-              Please note that myEKI does not process payment or shipping.
+              Please note that AfricanDiasporaMart does not process payment or shipping.
             </TextComponent>
           </div>
         </PlannerModal>

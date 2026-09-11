@@ -57,8 +57,8 @@ const SuperAdminLoginPage = () => {
   return (
     <>
       <SEOHead
-        title="Admin Login | myEKI"
-        description="Secure login portal for myEKI platform administrators. Access the admin dashboard to manage brands, users, and platform operations."
+        title="Admin Login | AfricanDiasporaMart"
+        description="Secure login portal for AfricanDiasporaMart platform administrators. Access the admin dashboard to manage brands, users, and platform operations."
       />
       <div>
         {/* Logo Header */}
@@ -66,7 +66,7 @@ const SuperAdminLoginPage = () => {
           <div className="flex items-center gap-1 p-4">
             <VendorLogo />
             <div className="flex flex-col">
-              <p className="text-[19px] font-bold leading-tight">myEKI</p>
+              <p className="text-[19px] font-bold leading-tight">AfricanDiasporaMart</p>
               <p className="text-[10px] font-normal text-gray-500">Admin</p>
             </div>
           </div>

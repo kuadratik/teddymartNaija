@@ -62,7 +62,7 @@ class VendorOrderUpdateReminder extends Notification implements ShouldQueue
             ->line('')
             ->line("**Shipping Fee:** {$shippingFee} {$currency}")
             ->line("**Shipping Date:** {$shippingDate}")
-            ->line("If the order has already been delivered, please update the status to \"Delivered\" in the myEKI vendor portal. If you require any assistance or have further questions, please don't hesitate to contact us.")
+            ->line("If the order has already been delivered, please update the status to \"Delivered\" in the AfricanDiasporaMart vendor portal. If you require any assistance or have further questions, please don't hesitate to contact us.")
             ->line("Thank you for your prompt attention to this matter, and your continued partnership.");
     }
 }

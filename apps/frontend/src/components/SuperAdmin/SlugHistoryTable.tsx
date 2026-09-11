@@ -589,7 +589,7 @@ const SlugHistoryTable: React.FC<SlugHistoryTableProps> = ({ searchQuery, curren
                               Old Affiliate url
                             </th>
                             <th className="border-r border-white px-4 py-4 text-left text-[13px] font-semibold">
-                              Old myEKI url
+                              Old AfricanDiasporaMart url
                             </th>
                             <th className="border-r border-white px-4 py-4 text-left text-[13px] font-semibold">
                               New Slug
@@ -598,7 +598,7 @@ const SlugHistoryTable: React.FC<SlugHistoryTableProps> = ({ searchQuery, curren
                               New Affiliate url
                             </th>
                             <th className="border-r border-white px-4 py-4 text-left text-[13px] font-semibold">
-                              New myEKI url
+                              New AfricanDiasporaMart url
                             </th>
                             <th className="border-r border-white px-4 py-4 text-left text-[13px] font-semibold">
                               Changed At

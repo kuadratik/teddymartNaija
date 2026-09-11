@@ -43,7 +43,7 @@ class AdsExpiredNotification extends Notification implements ShouldQueue
             ->priority(1)
             ->subject('Oops! Your Ad Has Expired – Renew to Reach More Customers!!')
             ->greeting("Dear {$notifiable->first_name}")
-            ->line('We wanted to let you know that your ad on myEKI has now expired. We hope it brought great visibility to your offerings! Your ad will now be listed as a free ad, but you can easily renew it as a paid ad to continue reaching even more customers.')
+            ->line('We wanted to let you know that your ad on AfricanDiasporaMart has now expired. We hope it brought great visibility to your offerings! Your ad will now be listed as a free ad, but you can easily renew it as a paid ad to continue reaching even more customers.')
             ->line(new HtmlString($line1))
             ->line('If you have any questions, feel free to contact us. We are here to support.');
     }

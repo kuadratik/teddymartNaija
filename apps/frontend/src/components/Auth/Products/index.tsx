@@ -32,7 +32,6 @@ import NewAdvert from './components/NewAdvert'
 import NewNavigation from './components/NewNavigation'
 import Popularproduct from './components/Popularproduct'
 import SwiperBanner from './components/SwiperBanner'
-import TeddyAdvert from './components/TeddyAdvert'
 
 const PREFETCHED_CATEGORY_KEYS = new Set<string>()
 
@@ -435,7 +434,7 @@ const LandingPage = () => {
               formattedCategoryIds={formattedCategoryIds}
               selectedOnclickCountry={selectedOnclickCountry}
               type={type}
-              categoryTitle="New to myEKI"
+              categoryTitle="New to AfricanDiasporaMart"
               selectedLanguage={selectedLanguage}
             />
             <MemoizedCategorySection
@@ -498,10 +497,6 @@ const LandingPage = () => {
           </div>
         )}
 
-        {/* Temporarily commented out because of Google Adsense approval hindrance */}
-        {/* <div className="">
-          <MemoizedTeddyAdvert />
-        </div> */}
       </div>
 
       {/* Add system to monitor scroll position and optimize prefetching */}
@@ -800,5 +795,4 @@ const MemoizedNewAdvert = memo(NewAdvert)
 const MemoizedSwiperBanner = memo(SwiperBanner)
 const MemoizedTopLowestDeals = memo(TopLowestDeals)
 // const MemoizedRecommended = memo(Recommended)
-const MemoizedTeddyAdvert = memo(TeddyAdvert)
 export default memo(LandingPage)

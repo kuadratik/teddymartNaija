@@ -90,11 +90,6 @@ const CustomerLayout: React.FC<{children: React.ReactNode} & CustomerLayoutInter
       id: 3,
       link: '/ads-gallery',
       name: 'Classified Ads'
-    },
-    {
-      id: 4,
-      link: '/mek-directory',
-      name: 'Directory'
     }
   ]
 

@@ -1,8 +1,7 @@
-import {BusinessIndustryTopLevel} from '@/types/business'
 import {api} from '..'
 
 const apiWithTag = api.enhanceEndpoints({
-  addTagTypes: ['categoryApi', 'IndustryApi']
+  addTagTypes: ['categoryApi']
 })
 
 export const CategoryEndpoint = apiWithTag.injectEndpoints({
@@ -46,19 +45,9 @@ export const CategoryEndpoint = apiWithTag.injectEndpoints({
         }
       },
       providesTags: ['categoryApi']
-    }),
-
-    getAllIndustries: build.query<BusinessIndustryTopLevel, {}>({
-      query: arg => {
-        return {
-          url: `/front/business-industries`,
-          method: 'GET'
-        }
-      },
-      providesTags: ['IndustryApi']
     })
   }),
   overrideExisting: true
 })
 
-export const {useGetAllCategoriesQuery, useGetRecordInteractionQuery, useGetAllIndustriesQuery} = CategoryEndpoint
+export const {useGetAllCategoriesQuery, useGetRecordInteractionQuery} = CategoryEndpoint

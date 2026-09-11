@@ -22,7 +22,7 @@ const ReferralModal = ({
   isAuthenticatedUser,
   referralLink,
   title = 'Invite a Lister',
-  description = 'Invite a friend to list on myEKI today!'
+  description = 'Invite a friend to list on AfricanDiasporaMart today!'
 }: IProps) => {
   const {handleCopy} = useCopyToClipboard()
 

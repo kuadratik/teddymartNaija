@@ -30,7 +30,7 @@ const CountryInput = ({
     search: search
   })
 
-  // * restrict the country dropdown to countries that myEKI currently supports
+  // * restrict the country dropdown to countries that AfricanDiasporaMart currently supports
   const filterCountries = useMemo(() => {
     return data?.data?.filter((item: {currency_code: string}, id: any) => {
       return (

@@ -66,14 +66,14 @@ const BrandCard: React.FC<BrandCardProps> = ({ brand, onEdit, onArchive, onViewL
     },
     {
       key: 'copy-url',
-      label: 'Copy myEKI URL',
+      label: 'Copy AfricanDiasporaMart URL',
       icon: <Icon icon="heroicons:clipboard-document" className="text-base" />,
       onClick: () => {
         const url = 'source_url' in brand && brand.source_url
         if (url) {
           handleCopy(url, {
-            successTitle: 'myEKI URL Copied',
-            successMessage: 'The myEKI URL has been copied to your clipboard'
+            successTitle: 'AfricanDiasporaMart URL Copied',
+            successMessage: 'The AfricanDiasporaMart URL has been copied to your clipboard'
           })
         }
       }

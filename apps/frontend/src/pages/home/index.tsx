@@ -24,8 +24,8 @@ const LandingHomePage = () => {
   return (
     <React.Fragment>
       <SEOHead
-        title={`myEKI | Home`}
-        description="myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs. Join myEKI today and start selling for free! Find products and services near you!!"
+        title={`AfricanDiasporaMart | Home`}
+        description="AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!"
       />
 
       <BaseLayout className="">
@@ -63,7 +63,7 @@ const LandingHomePage = () => {
               </div>
               <Image
                 src={'/assets/landing/hero-landing.png'}
-                alt="myEKI"
+                alt="AfricanDiasporaMart"
                 width={300}
                 height={300}
                 className="w-full lg:aspect-square lg:w-[55%] lg:object-contain"
@@ -119,9 +119,9 @@ export async function getStaticProps() {
     '@graph': [
       {
         '@type': 'WebSite',
-        name: 'myEKI',
+        name: 'AfricanDiasporaMart',
         description:
-          'myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs...',
+          'AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs...',
         url: 'https://myeki.market',
         potentialAction: {
           '@type': 'SearchAction',
@@ -131,18 +131,18 @@ export async function getStaticProps() {
       },
       {
         '@type': 'Organization',
-        name: 'myEKI',
+        name: 'AfricanDiasporaMart',
         url: 'https://myeki.market',
         logo: 'https://myeki.market/assets/WhiteLogo.svg',
         description:
-          'myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience.',
+          'AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience.',
         sameAs: ['https://www.facebook.com/myekimarket', 'https://www.instagram.com/myekimarket/']
       },
       {
         '@type': 'WebPage',
-        name: 'myEKI | Home', // Or "myEKI | Ads Gallery", etc.
+        name: 'AfricanDiasporaMart | Home', // Or "AfricanDiasporaMart | Ads Gallery", etc.
         description:
-          'myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs. Join myEKI today and start selling for free! Find products and services near you!!', // Update description as needed
+          'AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!', // Update description as needed
         url: 'https://myeki.market/', // Correct URL for the page
         isPartOf: {
           '@type': 'WebSite',
@@ -171,7 +171,7 @@ export async function getStaticProps() {
               item: {
                 '@type': 'Offer',
                 name: 'Start Selling',
-                description: 'Create your store and start selling on myEKI',
+                description: 'Create your store and start selling on AfricanDiasporaMart',
                 url: 'https://myeki.market/auth/sign-up?redirect=/mek/onboarding'
               }
             }

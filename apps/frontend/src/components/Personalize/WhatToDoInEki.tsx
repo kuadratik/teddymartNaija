@@ -22,7 +22,6 @@ const useIsMobile = () => {
 
 interface IProps {
   setSellProductModal: React.Dispatch<React.SetStateAction<boolean>>
-  setListBusinessModal: React.Dispatch<React.SetStateAction<boolean>>
   setLisAdsModal: React.Dispatch<React.SetStateAction<boolean>>
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>
   whatTodoModal: boolean
@@ -34,7 +33,6 @@ const WhatToDoInEki = ({
   setWhatTodoModal,
   whatTodoModal,
   setSellProductModal,
-  setListBusinessModal,
   setLisAdsModal
 }: IProps) => {
   const router = useRouter()
@@ -44,7 +42,6 @@ const WhatToDoInEki = ({
     setModalOpen(false)
     setWhatTodoModal(false)
     setSellProductModal(false)
-    setListBusinessModal(false)
     setLisAdsModal(false)
   }
 
@@ -68,15 +65,6 @@ const WhatToDoInEki = ({
       tooltip: 'Start selling today, retail or wholesale – fast, easy, and secure.'
     },
     {
-      name: 'List a Business',
-      onclick: () => {
-        closeAllModal()
-        setListBusinessModal(true)
-      },
-      icon: 'streamline-emojis:briefcase',
-      tooltip: 'Put your brand on the map. Be seen. Get customers.'
-    },
-    {
       name: 'Create a Quick Ad',
       onclick: () => {
         closeAllModal()
@@ -98,10 +86,10 @@ const WhatToDoInEki = ({
             icon={'fluent:chevron-left-16-filled'}
             className="w-[10%] cursor-pointer text-lg hover:opacity-50"
           />
-          <h2 className="w-[80%] text-center text-lg font-bold">Welcome to myEKI</h2>
+          <h2 className="w-[80%] text-center text-lg font-bold">Welcome to AfricanDiasporaMart</h2>
           <div className="w-[10%]"></div>
         </div>
-        <h4 className="pt-3 text-center text-[14px] font-[500]">What do you want to do today on myEKI?</h4>
+        <h4 className="pt-3 text-center text-[14px] font-[500]">What do you want to do today on AfricanDiasporaMart?</h4>
 
         <div className="mt-6 grid w-full grid-cols-2 gap-6">
           {productList.map((item, index) => (

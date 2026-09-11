@@ -987,7 +987,7 @@ const VendorNewLayout: React.FC<{children: React.ReactNode} & CustomerLayoutInte
           </Content>
         )}
 
-        <Footer style={{textAlign: 'center', backgroundColor: '#fff'}}>{new Date().getFullYear()} © myEKI</Footer>
+        <Footer style={{textAlign: 'center', backgroundColor: '#fff'}}>{new Date().getFullYear()} © AfricanDiasporaMart</Footer>
       </Layout>
       <PlannerModal
         modalOpen={comingSoon}

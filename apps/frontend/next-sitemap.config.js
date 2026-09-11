@@ -19,7 +19,6 @@ module.exports = {
       {loc: '/terms-of-service', lastmod: new Date().toISOString()},
       {loc: '/home', lastmod: new Date().toISOString()},
       {loc: '/ads-gallery', lastmod: new Date().toISOString()},
-      {loc: '/mek-directory', lastmod: new Date().toISOString()},
       {loc: '/find-vendor', lastmod: new Date().toISOString()}
     )
 

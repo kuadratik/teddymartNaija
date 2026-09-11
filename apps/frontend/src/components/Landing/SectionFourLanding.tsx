@@ -24,7 +24,7 @@ const SectionFourLanding = () => {
     <div className="flex h-fit flex-col items-center justify-between gap-6 lg:flex-row">
       <Image
         src={'/assets/landing/sec4-img1-landing.png'}
-        alt="myEKI"
+        alt="AfricanDiasporaMart"
         width={300}
         height={300}
         className="w-full lg:aspect-square lg:h-[663px] lg:w-[25%] lg:object-contain"
@@ -34,12 +34,12 @@ const SectionFourLanding = () => {
           <span className="text-[#000]">Join the MEK Delivery Network</span>
         </h2>
         <p className="font-[500] leading-[24px] text-[#4D4D4D]">
-          myEKI’s Delivery Network combines the efficiency of local riders with the global reach of international
+          AfricanDiasporaMart’s Delivery Network combines the efficiency of local riders with the global reach of international
           shippers. Local riders ensure fast deliveries within cities, while international shippers connect vendors to
           customers worldwide.
         </p>
         <p className="pt-3 font-[500] leading-[24px] text-[#4D4D4D]">
-          Are you a shipper looking to elevate your logistics business? myEKI is your gateway to endless opportunities
+          Are you a shipper looking to elevate your logistics business? AfricanDiasporaMart is your gateway to endless opportunities
           and efficiency in shipping and logistics.
         </p>
         <div className="mt-3">
@@ -64,7 +64,7 @@ const SectionFourLanding = () => {
         role="button"
         onClick={() => showComingSoon(!comingSoon)}
         src={'/assets/landing/sec4-img2-landing.png'}
-        alt="myEKI"
+        alt="AfricanDiasporaMart"
         width={300}
         height={300}
         className="w-full hover:opacity-60 lg:h-[663px] lg:w-[25%] lg:object-contain"

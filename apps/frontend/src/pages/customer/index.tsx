@@ -4,7 +4,6 @@
 // import SavedProducts from '@/components/Customer/dashboard/SavedProducts'
 import Advert from '@/components/Customer/Advert'
 import CustomerProfile from '@/components/Customer/CustomerProfile'
-import MyDirectory from '@/components/Customer/MyDirectory'
 import OrderDetails from '@/components/Customer/OrderDetails'
 import OrderHistory from '@/components/Customer/OrderHistory'
 import SavedItems from '@/components/Customer/SavedItems'
@@ -114,24 +113,6 @@ const CustomerPage = () => {
             onClick={() => {
               router.push({
                 pathname: '/customer',
-                query: {tab: 'directory'}
-              })
-            }}
-          >
-            <Icon icon="clarity:directory-line" className="hidden flex-shrink-0 text-[19px] lg:block" />
-            <p className="p_">My Directory</p>
-          </TabBodyWrapper>
-        ),
-        tabBody: <MyDirectory />,
-        path: 'directory'
-      },
-      {
-        tabTitle: (
-          <TabBodyWrapper
-            className=""
-            onClick={() => {
-              router.push({
-                pathname: '/customer',
                 query: {tab: 'profile'}
               })
             }}
@@ -169,8 +150,8 @@ const CustomerPage = () => {
   return (
     <>
       <SEOHead
-        title={`myEKI | Customer ${capitalizeFirstLetter(router.query?.tab as string)}`}
-        description="myEKI is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, myEKI makes it easy for sellers to showcase their products or services and reach a wider audience. myEKI empowers businesses to grow without extra costs. Join myEKI today and start selling for free! Find products and services near you!!"
+        title={`AfricanDiasporaMart | Customer ${capitalizeFirstLetter(router.query?.tab as string)}`}
+        description="AfricanDiasporaMart is a local marketplace designed to connect small businesses and vendors with customers in their community. Offering free storefronts with unique URLs, AfricanDiasporaMart makes it easy for sellers to showcase their products or services and reach a wider audience. AfricanDiasporaMart empowers businesses to grow without extra costs. Join AfricanDiasporaMart today and start selling for free! Find products and services near you!!"
       />
 
       <div className="flex w-full flex-col gap-6 lg:gap-[34px]">

@@ -37,7 +37,7 @@ class StaffCreatedNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject('Account setup')
             ->greeting("Dear {$notifiable->first_name}")
-            ->line("Welcome to myEKI Super Admin! Your account has been created by {$this->adminName}. Here is your temporary password: {$this->password}.")
+            ->line("Welcome to AfricanDiasporaMart Super Admin! Your account has been created by {$this->adminName}. Here is your temporary password: {$this->password}.")
             ->line("To get started, please set up your password in your profile section by clicking the link below:")
             ->action('View dashboard', env('FRONT_URL', 'myeki.market'));
     }

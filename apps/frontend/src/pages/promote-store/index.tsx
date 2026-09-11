@@ -184,7 +184,7 @@ const PromoteStorePage = () => {
         <div className="mx-auto w-full bg-white px-5 py-[46px] lg:max-w-[1094px] lg:rounded-[13px]">
           <div className="mx-auto flex w-full max-w-[644px] flex-col items-center justify-center gap-[47px]">
             <TextComponent as="h1" className="text-[24px] font-bold leading-[31px] text-[#141414] lg:text-center">
-              Ready for More Customers? Promote your Store on myEKI and Watch your Sales Grow!
+              Ready for More Customers? Promote your Store on AfricanDiasporaMart and Watch your Sales Grow!
             </TextComponent>
 
             <div className="flex w-full flex-col gap-[34px]">
@@ -256,7 +256,7 @@ const PromoteStorePage = () => {
           <div className="h-full w-full rounded-[8px] bg-[url('/assets/banner-advert.jpg')] bg-cover bg-center">
             <div className="w-[341px] p-12">
               <h3 className="pb-5 text-[27px] font-semibold leading-[32px] text-white">
-                Ready to Grow? Get on myEKI today!
+                Ready to Grow? Get on AfricanDiasporaMart today!
               </h3>
               <CustomButton
                 className="flex h-[30px] w-[152px] cursor-pointer items-center justify-center rounded-[5px] bg-white py-2"

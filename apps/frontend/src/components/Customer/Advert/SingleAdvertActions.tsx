@@ -49,9 +49,9 @@ const SingleAdvertActions = ({data, adsRatedRefetch, isWishlisted, refetchSingle
     const adUrl = window.location.href // or your specific URL for the advertisement
     const body = encodeURIComponent(
       `Hello!\n\n` +
-        `I found this Ad on myEKI and thought you might be interested:\n` +
+        `I found this Ad on AfricanDiasporaMart and thought you might be interested:\n` +
         `${data.title}: ${adUrl}\n\n` +
-        `Join myEKI Community\n` +
+        `Join AfricanDiasporaMart Community\n` +
         `Facebook: https://www.facebook.com/myekimarket\n` +
         `Instagram: https://www.instagram.com/myekimarket/\n` +
         `Website: https://myeki.market`

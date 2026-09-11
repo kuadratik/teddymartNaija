@@ -48,7 +48,7 @@ const ActivatePayment = ({title_header, verificationStatus}: IProps) => {
             Complete Your Store Setup
           </TextComponent>
           <TextComponent as="p" className="mt-2 text-[14px] leading-[20px] text-[#6B7280]">
-            Before you can start selling, you'll need to pay a one-time admin fee to activate your store on myEKI. The
+            Before you can start selling, you'll need to pay a one-time admin fee to activate your store on AfricanDiasporaMart. The
             fee and payment method depend on your store location. Once payment is successful, your store will be
             automatically approved and you'll gain access to your dashboard.
           </TextComponent>

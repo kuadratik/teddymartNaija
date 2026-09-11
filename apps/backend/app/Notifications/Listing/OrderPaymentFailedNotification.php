@@ -36,12 +36,12 @@ class OrderPaymentFailedNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->priority(1)
-            ->subject('Oh no! Payment unsuccessful for myEKI Order #' . $this->order->order_number)
+            ->subject('Oh no! Payment unsuccessful for AfricanDiasporaMart Order #' . $this->order->order_number)
             ->greeting('Dear ' . $notifiable->first_name . ',')
-            ->line('We are sorry to inform you that we were unable to process the payment for your recent order on myEKI.')
+            ->line('We are sorry to inform you that we were unable to process the payment for your recent order on AfricanDiasporaMart.')
             ->line('To ensure that your order is processed, we recommend that you check your payment method to make sure it is valid and up-to-date. Once you have done so, you can try placing your order again.')
             ->line('If you continue to have issues with your payment, please contact your bank or payment provider to determine the cause of the decline. Alternatively, you can contact our customer support team for assistance with placing your order.')
-            ->line('Thank you for choosing myEKI. We apologize for any inconvenience this may have caused.');
+            ->line('Thank you for choosing AfricanDiasporaMart. We apologize for any inconvenience this may have caused.');
     }
 
     /**

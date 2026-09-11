@@ -261,7 +261,7 @@ const StoreFrontLayout: React.FC<{children: React.ReactNode}> = ({children}) => 
         <div className="p-[8px] md:p-[20px]">{children}</div>
       </Content>
 
-      <Footer style={{textAlign: 'center', backgroundColor: '#fff'}}>2024 © myEKI</Footer>
+      <Footer style={{textAlign: 'center', backgroundColor: '#fff'}}>2024 © AfricanDiasporaMart</Footer>
     </Layout>
   )
 }

@@ -72,7 +72,7 @@ const HeadwayWidget = () => {
             improvement: 'Updates',
             fix: 'Fixes'
           },
-          footer: 'myEKI Changelogs'
+          footer: 'AfricanDiasporaMart Changelogs'
         },
         position: 'bottom',
         enabled: true,

@@ -38,7 +38,7 @@ class OnboardingUserNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("Welcome to myEKI!")
+            ->subject("Welcome to AfricanDiasporaMart!")
             ->markdown("emails.notifications.welcome", ['notifiable' => $notifiable]);
     }
 

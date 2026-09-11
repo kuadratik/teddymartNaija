@@ -121,9 +121,9 @@ const DetailsCard = ({listing, store_name, store_slug, deleteMode = false, saved
     const adUrl = baseUrl + `/store/details/${store_slug ?? listing?.store?.slug}?slug=${listing.slug}` // or your specific URL for the advertisement
     const body = encodeURIComponent(
       `Hello!\n\n` +
-        `I found this ${type} on myEKI and thought you might be interested:\n` +
+        `I found this ${type} on AfricanDiasporaMart and thought you might be interested:\n` +
         `${listing?.name}: ${adUrl}\n\n` +
-        `Join myEKI Community\n` +
+        `Join AfricanDiasporaMart Community\n` +
         `Facebook: https://www.facebook.com/myekimarket\n` +
         `Instagram: https://www.instagram.com/myekimarket/\n` +
         `Website: https://myeki.market`
@@ -611,7 +611,7 @@ const DetailsCard = ({listing, store_name, store_slug, deleteMode = false, saved
       {!isDesktop && successVendorIsOpen && (
         <DrawerContainer open={successVendorIsOpen} onClose={successVendorCloseModal} title={`Success`} height={400}>
           <SuccessModal
-            successMessage="Thank you for using myEKI!"
+            successMessage="Thank you for using AfricanDiasporaMart!"
             successTitle={''}
             primaryButtonText={`Contact ${type === 'product' ? 'Vendor' : 'Provider'}`}
             primaryButtonAction={() => {
@@ -633,7 +633,7 @@ const DetailsCard = ({listing, store_name, store_slug, deleteMode = false, saved
         >
           <TitleText title={`Success`} />
           <SuccessModal
-            successMessage="Thank you for using myEKI!"
+            successMessage="Thank you for using AfricanDiasporaMart!"
             successTitle={''}
             primaryButtonText={`Contact ${type === 'product' ? 'Vendor' : 'Provider'}`}
             primaryButtonAction={() => {
@@ -702,7 +702,7 @@ const DetailsCard = ({listing, store_name, store_slug, deleteMode = false, saved
             </div>
 
             <TextComponent as="p" className="text-center text-[11px] leading-[12px] text-[#9796A1]">
-              Please note that myEKI does not process payment or shipping.
+              Please note that AfricanDiasporaMart does not process payment or shipping.
             </TextComponent>
           </div>
         </DrawerContainer>
@@ -780,7 +780,7 @@ const DetailsCard = ({listing, store_name, store_slug, deleteMode = false, saved
             </div>
 
             <TextComponent as="p" className="text-center text-[11px] leading-[12px] text-[#9796A1]">
-              Please note that myEKI does not process payment or shipping.
+              Please note that AfricanDiasporaMart does not process payment or shipping.
             </TextComponent>
           </div>
         </PlannerModal>

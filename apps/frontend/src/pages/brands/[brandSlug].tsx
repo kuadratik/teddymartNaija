@@ -29,7 +29,7 @@ const BrandSlugPage = ({brandSlug}: BrandSlugPageProps) => {
   if (isLoading) {
     return (
       <>
-        <SEOHead title="myEKI | Loading Brand..." description="Loading brand information..." />
+        <SEOHead title="AfricanDiasporaMart | Loading Brand..." description="Loading brand information..." />
         <BaseLayout className="px-0">
           <div className="flex min-h-[60vh] items-center justify-center">
             <Spin size="large" />
@@ -43,7 +43,7 @@ const BrandSlugPage = ({brandSlug}: BrandSlugPageProps) => {
   if (!brandResponse?.data || error) {
     return (
       <>
-        <SEOHead title="myEKI | Brand Coming Soon" description="This brand is coming soon to myEKI marketplace." />
+        <SEOHead title="AfricanDiasporaMart | Brand Coming Soon" description="This brand is coming soon to AfricanDiasporaMart marketplace." />
         <BaseLayout className="px-0">
           {/* Fixed Overlay Modal - Cannot be dismissed */}
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-5 py-8 backdrop-blur-sm">
@@ -109,7 +109,7 @@ const BrandSlugPage = ({brandSlug}: BrandSlugPageProps) => {
   // This should not be reached due to the useEffect redirect, but just in case
   return (
     <>
-      <SEOHead title="myEKI | Redirecting..." description="Redirecting to brand page..." />
+      <SEOHead title="AfricanDiasporaMart | Redirecting..." description="Redirecting to brand page..." />
       <BaseLayout className="px-0">
         <div className="flex min-h-[60vh] items-center justify-center">
           <div className="text-center">

@@ -41,7 +41,7 @@ class OutOfStockNotification extends Notification implements ShouldQueue
             ->greeting("Dear {$this->vendorName},")
             ->line('We are writing to notify you that the inventory level for some of your products on our platform is critically low (< 2).')
             ->line('As a result, we need you to take immediate action to restock your inventory as acting quickly will help you avoid losing sales opportunities and ensure customers can continue purchasing from your store.')
-            ->line('At myEKI, stock availability is based on the following business rules:')
+            ->line('At AfricanDiasporaMart, stock availability is based on the following business rules:')
             ->line('In Stock = Inventory > 5')
             ->line('Low Stock = Inventory < 5')
             ->line('Out of Stock = Inventory <= 2')
@@ -54,6 +54,6 @@ class OutOfStockNotification extends Notification implements ShouldQueue
             ->line('')
             ->line('If you have any questions or need assistance, feel free to contact us.')
             ->line('')
-            ->line('Thank you for your prompt attention, and we appreciate your partnership on myEKI!');
+            ->line('Thank you for your prompt attention, and we appreciate your partnership on AfricanDiasporaMart!');
     }
 }
