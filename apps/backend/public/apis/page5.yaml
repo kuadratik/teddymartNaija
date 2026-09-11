@@ -1,0 +1,1046 @@
+openapi: 3.0.0
+info:
+  title: TeddyMart Admin API
+  version: 1.0.0
+  description: Admin authentication, brand management, and store management endpoints for TeddyMart backend
+
+servers:
+  - url: /api
+    description: Local development server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /admin/login:
+    post:
+      tags:
+        - Admin Authentication
+      summary: Admin login
+      description: Authenticate admin user and receive access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: admin@myeki.market
+                password:
+                  type: string
+                  format: password
+                  example: password123
+      responses:
+        default:
+          description: success
+
+  /admin/logout:
+    post:
+      tags:
+        - Admin Authentication
+      summary: Admin logout
+      description: Logout admin user and revoke access token
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: success
+
+  /admin/brands:
+    get:
+      tags:
+        - Brands
+      summary: List brands
+      description: Retrieve all brands, with optional filters and search
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Search by brand name or description
+          required: false
+          schema:
+            type: string
+            example: "Nike"
+        - name: category_id
+          in: query
+          description: Filter by brand category ID
+          required: false
+          schema:
+            type: integer
+            example: 3
+        - name: is_active
+          in: query
+          description: Filter by active status (true or false)
+          required: false
+          schema:
+            type: boolean
+            example: true
+        - name: include_archived
+          in: query
+          description: Include archived brands (true or false)
+          required: false
+          schema:
+            type: boolean
+            example: false
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: per_page
+          in: query
+          description: Number of results per page
+          required: false
+          schema:
+            type: integer
+            example: 5
+      responses:
+        default:
+          description: success
+    post:
+      tags:
+        - Brands
+      summary: Create new brand
+      description: Create a new brand entry
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - category_ids
+              properties:
+                name:
+                  type: string
+                  example: Nike
+                category_ids:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 2, 3]
+                description:
+                  type: string
+                  example: Sportswear brand
+                logo_url:
+                  type: string
+                  example: /uploads/temp/nike.png
+                source_url:
+                  type: string
+                  example: https://nike.com
+                target_url:
+                  type: string
+                  example: https://store.nike.com
+                is_active:
+                  type: boolean
+                  example: true
+      responses:
+        default:
+          description: success
+
+  /admin/brands/{brand}:
+    get:
+      tags:
+        - Brands
+      summary: Get brand details
+      description: Retrieve a single brand by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: brand
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 5
+      responses:
+        default:
+          description: success
+    put:
+      tags:
+        - Brands
+      summary: Update brand
+      description: Update existing brand information
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: brand
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 5
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Adidas
+                category_ids:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 2]
+                description:
+                  type: string
+                  example: Updated sportswear brand
+                logo_url:
+                  type: string
+                  example: /uploads/temp/adidas.png
+                source_url:
+                  type: string
+                  example: https://adidas.com
+                target_url:
+                  type: string
+                  example: https://store.adidas.com
+                is_active:
+                  type: boolean
+                  example: false
+      responses:
+        default:
+          description: success
+    delete:
+      tags:
+        - Brands
+      summary: Delete brand
+      description: Remove a brand by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: brand
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 5
+      responses:
+        default:
+          description: success
+
+  /admin/brands/{brand}/archive:
+    patch:
+      tags:
+        - Brands
+      summary: Archive a brand
+      description: Archive a brand by setting `is_archived` to true
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: brand
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 5
+      responses:
+        default:
+          description: success
+
+  /admin/brands/{brand}/unarchive:
+    patch:
+      tags:
+        - Brands
+      summary: Unarchive a brand
+      description: Restore a previously archived brand by setting `is_archived` to false
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: brand
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 5
+      responses:
+        default:
+          description: success
+
+  /admin/brands/slug-recommendation:
+    post:
+      tags:
+        - Brands
+      summary: Generate slug recommendation
+      description: Generate a URL-friendly slug from brand name
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  example: "Nike Air Max"
+      responses:
+        default:
+          description: success
+
+  /admin/brands/categories/all:
+    get:
+      tags:
+        - Brand Categories
+      summary: Get all brand categories
+      description: Retrieve a list of brand categories
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: success
+
+  /admin/brands/categories:
+    post:
+      tags:
+        - Brand Categories
+      summary: Create new brand category
+      description: Create a new brand category entry
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  example: Sportswear
+      responses:
+        default:
+          description: success
+
+  /admin/brands/history/all:
+    get:
+      tags:
+        - Brand History
+      summary: Get brand change history
+      description: Retrieve brand modification history with optional search
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Search across brand name, admin name, slugs, and URLs
+          required: false
+          schema:
+            type: string
+            example: "nike"
+        - name: brand_id
+          in: query
+          description: Filter history by specific brand ID
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: start_date
+          in: query
+          description: Filter history from this date (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-01-01"
+        - name: end_date
+          in: query
+          description: Filter history up to this date (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-12-31"
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            example: 1
+      responses:
+        default:
+          description: success
+
+  /admin/brands/history/{historyId}/note:
+    patch:
+      tags:
+        - Brand History
+      summary: Update brand history note
+      description: Update the note field for a specific brand history record
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: historyId
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 10
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - note
+              properties:
+                note:
+                  type: string
+                  example: "Updated brand URL due to rebranding"
+      responses:
+        default:
+          description: success
+
+  # /admin/stores/{store}/deactivate:
+  #   patch:
+  #     tags:
+  #       - Store Management
+  #     summary: Deactivate store
+  #     description: Deactivate a store by setting active to false
+  #     security:
+  #       - bearerAuth: []
+  #     parameters:
+  #       - name: store
+  #         in: path
+  #         required: true
+  #         schema:
+  #           type: string
+  #         example: nike-store
+  #     responses:
+  #       default:
+  #         description: success
+
+  /admin/stores/activation:
+    patch:
+      tags:
+        - Store Management
+      summary: Activate store
+      description: Activate a store by setting active to true
+      security:
+        - bearerAuth: []
+      operationId: storesActivation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - note
+              properties:
+                all_stores:
+                  type: boolean
+                  example: false
+                active: 
+                 type: boolean
+                 example: true
+                payment_status: 
+                  type: string;
+                  example: 'success'
+                note:
+                  type: string
+                  example: "Updated note content"
+                stores: 
+                  type: array
+                  example: [1]
+      responses:
+        default:
+          description: success
+
+  /admin/stores:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Store Management
+      summary: Get all stores
+      description: Get all stores
+      operationId: getAllStoresByVendors
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: 
+        - in: query
+          name: active
+          schema:
+            type: boolean
+            example: 
+        - in: query
+          name: payment_status
+          schema:
+            type: string
+            example: 
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/brands/history-notes/all:
+    get:
+      tags:
+        - Brand History Notes
+      summary: List all history notes
+      description: Retrieve all brand history notes
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: string
+                    example: ["Note 1", "Note 2"]
+
+  /admin/brands/history-notes:
+
+    post:
+      tags:
+        - Brand History Notes
+      summary: Create history note
+      description: Create a new brand history note
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - note
+              properties:
+                note:
+                  type: string
+                  example: "Brand updated with new logo"
+      responses:
+        200:
+          description: Success
+
+  /admin/brands/history-notes/{id}:
+    get:
+      tags:
+        - Brand History Notes
+      summary: Get history note
+      description: Retrieve a single history note by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        200:
+          description: Success
+    put:
+      tags:
+        - Brand History Notes
+      summary: Update history note
+      description: Update an existing history note
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - note
+              properties:
+                note:
+                  type: string
+                  example: "Updated note content"
+      responses:
+        200:
+          description: Success
+    delete:
+      tags:
+        - Brand History Notes
+      summary: Delete history note
+      description: Remove a history note by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        200:
+          description: Success
+
+  /admin/navigations:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Navigation
+      summary: Get all navigation
+      description: Get all navigation
+      operationId: getallnavs
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+            example: "bottom"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/navigations/create:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Navigation
+      summary: create navigation
+      description: create navigation
+      operationId: createnavigation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: "bottom|top"
+                name:
+                  type: string
+                  example: "Good nav"
+                link:
+                  type: string
+                  example: "https:myeki.market"
+                active: 
+                  type: boolean
+                  example: true
+                coming_soon:
+                  type: boolean
+                  example: true
+                icon:
+                  type: string
+                  example: "svg string"
+                ordering: 
+                  type: string
+                  example: "1A"
+                subnav: 
+                  type: array
+                  example: [{
+                    "name": "goood nav",
+                    "link": "https:myeki.market",
+                    "active": true,
+                    "coming_soon": true,
+                    "icon": "svg string",
+                  }]
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/navigations/{navigationId}/update:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Navigation
+      summary: update navigation
+      description: update navigation
+      operationId: updatenavigation
+      parameters:
+        - in: path
+          name: navigationId
+          schema:
+            type: number
+            example: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: "bottom|top"
+                name:
+                  type: string
+                  example: "Good nav"
+                link:
+                  type: string
+                  example: "https:myeki.market"
+                active: 
+                  type: boolean
+                  example: true
+                coming_soon:
+                  type: boolean
+                  example: true
+                icon:
+                  type: string
+                  example: "svg string"
+                ordering: 
+                  type: string
+                  example: "1A"
+                subnav: 
+                  type: array
+                  example: [{
+                    "name": "goood nav",
+                    "link": "https:myeki.market",
+                    "active": true,
+                    "coming_soon": true,
+                    "icon": "svg string",
+                  }]
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/navigations/{navigationId}/delete:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Navigation
+      summary: delete navigation
+      description: delete navigation
+      operationId: deletenavigation
+      parameters:
+        - in: path
+          name: navigationId
+          schema:
+            type: number
+            example: 1
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/profile-update:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: update profile
+      description: update profile
+      operationId: updateprofile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: "Sunny"
+                last_name:
+                  type: string
+                  example: "sunny"
+                email: 
+                  type: string
+                  example: 'logic@myeki.market'
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/password-update:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: update password
+      description: update password
+      operationId: upatePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_password:
+                  type: string
+                  example: "password123"
+                password:
+                  type: string
+                  example: "password234"
+                password_confirmation: 
+                  type: boolean
+                  example: 'password234'
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/staff:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: Get all staff
+      description: Get all staff
+      operationId: staff
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: 
+        - in: query
+          name: active
+          schema:
+            type: boolean
+            example: 
+        - in: query
+          name: role
+          schema:
+            type: string
+            example: 
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/staff/{admin}/details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: Get all staff
+      description: Get all staff
+      operationId: getsinglestaffinformation
+      parameters:
+        - in: path
+          name: admin
+          schema:
+            type: string
+            example: 
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/staff/{admin}/update:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: Get all staff
+      description: Get all staff
+      operationId: uppdatestaffinformation
+      parameters:
+        - in: path
+          name: admin
+          schema:
+            type: string
+            example: 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: "james"
+                last_name:
+                  type: string
+                  example: "james"
+                email:
+                  type: string
+                  example: "afuwapesunday12@gmail.com"
+                role:
+                  type: string
+                  example: "product_manager"
+                password:
+                  type: string
+                  example: "password234"
+                permissions: 
+                  type: array
+                  example: ["manage-brands"]
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/profile:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: Get admin profile
+      description: Get admin profile
+      operationId: getadminprofile
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/staff/{admin}/delete:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: delete staff information
+      description: delete staff information
+      operationId: softdeletestaffinformation
+      parameters:
+        - in: path
+          name: admin
+          schema:
+            type: string
+            example: 
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/staff/create:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: Create new Staff
+      description: Create new Staff
+      operationId: createnewstaff
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: "james"
+                last_name:
+                  type: string
+                  example: "james"
+                email:
+                  type: string
+                  example: "afuwapesunday12@gmail.com"
+                role:
+                  type: string
+                  example: "product_manager"
+                password:
+                  type: string
+                  example: "password234"
+                permissions: 
+                  type: array
+                  example: ["manage-brands"]
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /admin/permissions:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User
+      summary: Get all permisisons
+      description: Get all permisisons
+      operationId: permisisons
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object

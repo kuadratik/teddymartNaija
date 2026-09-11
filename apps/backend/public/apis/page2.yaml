@@ -1,0 +1,1532 @@
+openapi: "3.0.0"
+info:
+  description: Teddyed apis
+  version: 1.0.0
+  title: Teddyed
+
+servers:
+  - url: /api
+    description: v1 baseUrl
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /store/user-store:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Get User Store Info
+      description: "Get User Store Info"
+      operationId: GetUserStoreTnfo
+      parameters:
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: false
+          description: Currency code to filter listings by.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/user-store/{userStore}/overall-metrics:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Get User Store Overall Metrics
+      description: "Get User Store Overall Metrics"
+      operationId: GetUserStoreOverallMetrics
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/user-store/{userStore}/metrics:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Get User Store Metrics
+      description: "Get User Store Metrics"
+      operationId: GetUserStoreMetrics
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: product
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/create/1:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Create User Store
+      description: Create User Store
+      operationId: CreateUserStore-step1
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id: 
+                  type: number
+                  example: 5
+                categories:
+                  type: array
+                  example: [50, 52]
+                name:
+                  type: string
+                  example: "Amala Sky"
+                contact_number:
+                  type: string
+                  example: "1234567898"
+                whatsapp_number:
+                  type: string
+                  example: "1234567890"
+                description:
+                  type: string
+                  example: "The best amala in ibadan"
+                address1:
+                  type: string
+                  example: "oluyole ibadan"
+                address2:
+                  type: string
+                  example: "Good arena , eleyele ibadan"
+                state:
+                  type: string
+                  example: "oyo"
+                city:
+                  type: string
+                  example: "ibadan"
+                postal_code:
+                  type: string
+                  example: "100001"
+                country_id:
+                  type: integer
+                  example: 38
+                offers_service:
+                  type: string
+                  example: false
+                offers_product:
+                  type: string
+                  example: true
+                type: 
+                  type: string
+                  example: 'product'
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/create/2:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Create User Store
+      description: Create User Store
+      operationId: CreateUserStore-step2
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id: 
+                  type: number
+                  example: 5
+                profile_picture_path:
+                  type: string
+                  example: ""
+                banner_path:
+                  type: string
+                  example: ""
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/create/3:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Create User Store
+      description: Create User Store
+      operationId: CreateUserStore-step3
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id: 
+                  type: number
+                  example: 5
+                return_url:
+                  type: string
+                  example: "https://myeki.market"
+                cancel_url:
+                  type: string
+                  example: "https://myeki.market"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/{userStore}/update:
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Update User Store
+      description: Update User Store
+      operationId: UpdateUserStore
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Amala Sky"
+                categories: 
+                  type: array.
+                  example: [50, 51]
+                contact_number:
+                  type: string
+                  example: "1234567898"
+                whatsapp_number:
+                  type: string
+                  example: "1234567890"
+                profile_picture_path:
+                  type: string
+                  example: ""
+                banner_path:
+                  type: string
+                  example: ""
+                description:
+                  type: string
+                  example: "The best amala in ibadan"
+                address1:
+                  type: string
+                  example: "oluyole ibadan"
+                address2:
+                  type: string
+                  example: "Good arena , eleyele ibadan"
+                state:
+                  type: string
+                  example: "oyo"
+                city:
+                  type: string
+                  example: "ibadan"
+                postal_code:
+                  type: string
+                  example: "100001"
+                country_id:
+                  type: integer
+                  example: 38
+                type: 
+                example: "product"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/{userStore}/listings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Get User Store Listings
+      description: "Get User Store Listings"
+      operationId: GetUserStoreListings
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+        - in: query
+          name: listingType
+          schema:
+            type: string
+            example: "product"
+          required: true
+        - in: query
+          name: availability
+          schema:
+            type: boolean
+            example: true
+          required: false
+        - in: query
+          name: is_draft
+          schema:
+            type: boolean
+            example: false
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "amala"
+          required: false
+        - in: query
+          name: sort_date
+          schema:
+            type: string
+            enum:
+              - oldest
+              - newest
+            example: "newest"
+          required: false
+        - in: query
+          name: sort_price
+          schema:
+            type: string
+            enum:
+              - highest
+              - lowest
+            example: "lowest"
+          required: false
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/{userStore}/listings/create:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Create User Store Listing
+      description: Create a new listing for a user store with details such as name, price, attributes, and variants.
+      operationId: CreateUserStoreListing
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Amala Full Plate"
+                type:
+                  type: string
+                  enum:
+                    - product
+                    - service
+                  example: "product"
+                price:
+                  type: number
+                  example: 1000
+                  description: Required if type is "product."
+                weight:
+                  type: string
+                  example: "500"
+                  description: Weight of the product (e.g., "500g", "1kg").
+                description:
+                  type: string
+                  maxLength: 500
+                  example: "Delicious Amala served with your choice of soup."
+                additional_information:
+                  type: string
+                  maxLength: 1000
+                  example: "Can be customized with different soups."
+                quantity:
+                  type: integer
+                  minimum: 0
+                  example: 50
+                images:
+                  type: array
+                  items:
+                    type: string
+                  example:
+                    - "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
+                    - "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
+                category:
+                  type: integer
+                  example: 11
+                  description: Must exist in the categories table.
+                discount:
+                  type: number
+                  minimum: 0
+                  maximum: 100
+                  example: 10
+                discount_start_date:
+                  type: string
+                  format: date
+                  example: "2024-11-01"
+                  description: Required if discount is provided.
+                discount_end_date:
+                  type: string
+                  format: date
+                  example: "2024-11-30"
+                  description: Must be after discount_start_date.
+                sku:
+                  type: string
+                  maxLength: 50
+                  example: "AMALAFP001"
+                is_draft:
+                  type: boolean
+                  example: false
+                attributes:
+                  type: object
+                  properties:
+                    measurement:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          value:
+                            type: number
+                            example: 10
+                          unit:
+                            type: string
+                            example: "inches"
+                    product_model:
+                      type: string
+                      example: "Amala2024"
+                    brand:
+                      type: string
+                      example: "Amala Heaven"
+                    material:
+                      type: string
+                      example: "Wheat flour"
+                    color:
+                      type: string
+                      example: "Brown"
+                    size:
+                      type: array
+                      items:
+                        type: string
+                      example: ["Large", "Medium", "Small"]
+                    tags:
+                      type: array
+                      items:
+                        type: string
+                      example: ["amala", "food", "delicious"]
+                    size_chart_html:
+                      type: string
+                      example: "<h3>Size Chart</h3><ul><li>Large: 10x10 inches</li><li>Medium: 8x8 inches</li></ul>"
+                    size_chart_image:
+                      type: string
+                      example: "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
+                variants:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "Amala with Goat Meat"
+                      quantity:
+                        type: integer
+                        minimum: 0
+                        example: 50
+                      price:
+                        type: number
+                        minimum: 0
+                        example: 1500
+                      weight:
+                        type: string
+                        example: "500"
+                        description: Weight of the product variant (e.g., "500g", "1kg").
+                      discount:
+                        type: number
+                        minimum: 0
+                        maximum: 100
+                        example: 5
+                      size:
+                        type: string
+                        example: "Large"
+                      color:
+                        type: string
+                        example: "Brown"
+                      measurement:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            value:
+                              type: number
+                              example: 10
+                            unit:
+                              type: string
+                              example: "inches"
+                      discount_start_date:
+                        type: string
+                        format: date
+                        example: "2024-11-01"
+                      discount_end_date:
+                        type: string
+                        format: date
+                        example: "2024-11-30"
+                      images:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                          - "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
+                          - "teddymart/images/UqcW7siP6S4VYg4ZjrGB.png"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/listings/{userStore}/listing/{listing}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Get User Store Listing
+      description: "Get User Store Listing"
+      operationId: GetUserStoreListing
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: pounded-yam
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/listings/{userStore}/listing/{listing}/set-availability:
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Set Availability User Store Listing
+      description: Set Availability User Store Listing
+      operationId: SetAvailabilityUserStoreListing
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: pounded-yam
+          required: true
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_available:
+                  type: number
+                  example: 0
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/listings/{userStore}/listing/{listing}/update:
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Update User Store Listing
+      description: >
+        Comprehensive endpoint for updating a store listing with support for
+        main listing details, attributes, and product variants.
+      operationId: UpdateUserStoreListing
+      parameters:
+        - in: path
+          name: userStore
+          required: true
+          schema:
+            type: string
+            description: Store slug/identifier
+            example: amala-sky
+        - in: path
+          name: listing
+          required: true
+          schema:
+            type: string
+            description: Listing slug/identifier
+            example: pounded-yam
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Listing name
+                  example: "Amala Full plate"
+                type:
+                  type: string
+                  description: Listing type
+                  enum:
+                    - product
+                    - service
+                  example: "product"
+                price:
+                  type: string
+                  description: Listing price
+                  example: "1000"
+                weight:
+                  type: string
+                  description: Weight of the product (e.g., "500g", "1kg").
+                  example: "500"
+                currency:
+                  type: string
+                  description: Currency for pricing
+                  example: "USD"
+                description:
+                  type: string
+                  description: Detailed listing description
+                  example: "Delicious Amala served with your choice of soup."
+                additional_information:
+                  type: string
+                  description: Extra listing details
+                  example: "Can be customized with different soups."
+                images:
+                  type: array
+                  description: List of listing images
+                  items:
+                    type: string
+                  example: ["image1.jpg", "image2.jpg"]
+                category:
+                  type: integer
+                  description: Category ID for the listing
+                  example: 11
+                discount:
+                  type: number
+                  description: Discount percentage
+                  example: 10
+                discount_start_date:
+                  type: string
+                  format: date
+                  description: Discount start date
+                  example: "2024-11-01"
+                discount_end_date:
+                  type: string
+                  format: date
+                  description: Discount end date
+                  example: "2024-11-30"
+                sku:
+                  type: string
+                  description: Stock Keeping Unit
+                  example: "AMALAFP001"
+                is_draft:
+                  type: boolean
+                  description: Draft status of the listing
+                  example: false
+
+                attributes:
+                  type: object
+                  description: Product-specific attributes
+                  properties:
+                    measurement:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          value:
+                            type: number
+                            example: 10
+                          unit:
+                            type: string
+                            example: "inches"
+                    product_model:
+                      type: string
+                      example: "Amala2024"
+                    brand:
+                      type: string
+                      example: "Amala Heaven"
+                    material:
+                      type: string
+                      example: "Wheat flour"
+                    color:
+                      type: string
+                      example: "Brown"
+                    size:
+                      type: array
+                      items:
+                        type: string
+                      example: ["Large", "Medium", "Small"]
+                    tags:
+                      type: array
+                      items:
+                        type: string
+                      example: ["amala", "food", "delicious"]
+                    size_chart_html:
+                      type: string
+                      description: HTML representation of size chart
+                      example: "<h3>Size Chart</h3><ul><li>Large: 10x10 inches</li><li>Medium: 8x8 inches</li></ul>"
+                    size_chart_image:
+                      type: string
+                      description: Size chart image URL
+                      example: "size_chart_image.jpg"
+
+                variants:
+                  type: array
+                  description: Product variants
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "Amala with Goat Meat"
+                      quantity:
+                        type: integer
+                        example: 50
+                      price:
+                        type: string
+                        example: "1500"
+                      discount:
+                        type: number
+                        example: 5
+                      size:
+                        type: string
+                        example: "Large"
+                      weight:
+                        type: string
+                        description: Weight of the product variant (e.g., "500g", "1kg").
+                        example: "500"
+                      color:
+                        type: string
+                        example: "Brown"
+                      measurement:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            value:
+                              type: number
+                              example: 10
+                            unit:
+                              type: string
+                              example: "inches"
+                      discount_start_date:
+                        type: string
+                        format: date
+                        example: "2024-11-01"
+                      discount_end_date:
+                        type: string
+                        format: date
+                        example: "2024-11-30"
+                      images:
+                        type: array
+                        items:
+                          type: string
+                        example: ["variant_image1.jpg", "variant_image2.jpg"]
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/listings/{userStore}/listing/{listing}/delete:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Listings
+      summary: Delete User Store Listing
+      description: "Delete User Store Listing"
+      operationId: DeleteUserStoreListing
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+        - in: path
+          name: listing
+          schema:
+            type: string
+            example: pounded-yam
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/shipping/save-method:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Shipping Methods
+      summary: Save User Store Shipping Method
+      description: Save User Store Shipping Method
+      operationId: SaveUserStoreShippingMethod
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                method_type:
+                  type: string
+                  example: "store pick-up"
+                  required: true
+                pick_up_time:
+                  type: string
+                  example: "40 years and 30mins"
+                pick_up_location:
+                  type: string
+                  example: "ojuelegba street"
+                fulfilled_amount:
+                  type: string
+                  example: "200"
+                fulfilled_location:
+                  type: string
+                  example: "surulere street"
+                duration_number:
+                  type: integer
+                  example: 1
+                duration_type:
+                  type: string
+                  enum:
+                    - minutes
+                    - hours
+                    - days
+                    - years
+                    - weeks
+                    - months
+                    - seconds
+                  example: "days"
+      responses:
+        default:
+          description: "success"
+          content:
+          application/json:
+            schema:
+            type: object
+
+  /store/shipping/remove-method-type:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Shipping Methods
+      summary: Remove User Store Shipping Method Type
+      description: Remove User Store Shipping Method Type
+      operationId: RemoveUserStoreShippingMethodType
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                method_type:
+                  type: string
+                  example: "store pick-up"
+                  required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/shipping/delete-method/{shippingMethod}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Shipping Methods
+      summary: Delete User Store Shipping Method
+      description: "Delete User Store Shipping Method"
+      operationId: DeleteUserStoreShippingMethod
+      parameters:
+        - in: path
+          name: shippingMethod
+          schema:
+            type: integer
+            example: 1
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/shipping/{userStore}/methods:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Shipping Methods
+      summary: Get User Store Shipping Methods
+      description: "Get User Store Shipping Methods"
+      operationId: GetUserStoreShippingMethods
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/{userStore}/ratings:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Ratings
+      summary: Get User Store Ratings
+      description: "Get User Store Ratings"
+      operationId: GetUserStoreRatings
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+        - in: query
+          name: product
+          schema:
+            type: string
+            example: yam
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/payout/{userStore}/requestable-payouts:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Get User Store Requestable Payouts
+      description: "Get User Store Requestable Payouts"
+      operationId: GetUserStoreRequestablePayouts
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/payout/{userStore}/processed-payouts:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Get User Store Processed Payouts
+      description: "Get User Store Processed Payouts"
+      operationId: GetUserStoreProcessedPayouts
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/payout/{userStore}/store/{payout}/process-payout:
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Process User Store Payout
+      description: "Process User Store Payout"
+      operationId: ProcesstUserStorePayout
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+        - in: path
+          name: payout
+          schema:
+            type: number
+            example: 1
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/payout/save-detail:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Save User Store Payout Detail
+      description: Save User Store Payout Detail
+      operationId: SaveUserStorePayoutDetail
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                detail_type:
+                  type: string
+                  example: "local"
+                  required: true
+                bank_name:
+                  type: string
+                  example: "Opay"
+                  required: true
+                account_name:
+                  type: string
+                  example: "Pa James"
+                  required: true
+                account_number:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                bank_code:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                sort_code:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                iban:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                institution_number:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                transit_number:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                interac_information:
+                  type: string
+                  example: "1234567890"
+                  required: true
+                zelle_information:
+                  type: string
+                  example: "1234567890"
+                  required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/payout/{userStore}/payout-details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Get User Store Payout Details
+      description: "Get User Store Payout Details"
+      operationId: GetUserStorePayoutDetails
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/payout/{storePayoutDetail}/payout-detail:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Get User Store Payout Detail
+      description: "Get User Store Payout Detail"
+      operationId: GetUserStorePayoutDetail
+      parameters:
+        - in: path
+          name: storePayoutDetail
+          schema:
+            type: string
+            example: 1
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/payout/update-detail/{storePayoutDetail}:
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Update User Store Payout Detail
+      description: Update User Store Payout Detail
+      operationId: UpdateUserStorePayoutDetail
+      parameters:
+        - in: path
+          name: storePayoutDetail
+          schema:
+            type: string
+            example: 1
+          required: true
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                bank_name:
+                  type: string
+                  example: "Opay"
+                  required: true
+                account_name:
+                  type: string
+                  example: "Pa James"
+                  required: true
+                account_number:
+                  type: string
+                  example: "1234567890"
+                  required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/payout/{userStore}/store/{storePayoutDetail}/set-default:
+    patch:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Set User Store Payout To Default
+      description: "Set User Store Payout To Default"
+      operationId: SetUserStorePayoutToDefault
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+        - in: path
+          name: storePayoutDetail
+          schema:
+            type: number
+            example: 1
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/payout/delete-detail/{storePayoutDetail}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Delete User Store Payout Detail
+      description: Delete User Store Payout Detail
+      operationId: DeleteUserStorePayoutDetail
+      parameters:
+        - in: path
+          name: storePayoutDetail
+          schema:
+            type: string
+            example: 1
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/payout/list-banks:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Get List of Banks
+      description: Retrieve a list of banks supported by the payment gateway.
+      operationId: GetPaymentBanks
+      parameters:
+        - in: query
+          name: payment_gateway
+          schema:
+            type: string
+            example: "paystack"
+          required: false
+          description: The payment gateway to fetch banks from.
+
+        - in: query
+          name: next
+          schema:
+            type: string
+            example: "next_cursor"
+          required: false
+          description: Cursor for pagination (next page).
+        - in: query
+          name: prev
+          schema:
+            type: string
+            example: "prev_cursor"
+          required: false
+          description: Cursor for pagination (previous page).
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            example: 100
+          required: false
+          description: Number of banks to return per page.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+  /store/payout/validate-bank-details:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Validate Bank Details
+      description: Validate the provided bank account details.
+      operationId: ValidateBankDetails
+      parameters:
+        - in: query
+          name: payment_gateway
+          schema:
+            type: string
+            example: "paystack"
+          required: false
+          description: The payment gateway to validate the bank details with.
+        - in: query
+          name: account_number
+          schema:
+            type: string
+            example: "1234567890"
+          required: true
+          description: The bank account number to validate.
+        - in: query
+          name: bank_code
+          schema:
+            type: string
+            example: "057"
+          required: true
+          description: The bank code corresponding to the account.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/payout/{userStore}/send-otp:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Send OTP for Payout Details
+      description: Send a one-time password (OTP) to the user's email for payout details verification.
+      operationId: SendPayoutDetailsOtp
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+          description: The slug or identifier of the user store.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
+  /store/payout/{userStore}/verify-otp:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store Payouts
+      summary: Verify OTP for Payout Details
+      description: Verify the one-time password (OTP) sent to the user's email for payout details verification.
+      operationId: VerifyPayoutDetailsOtp
+      parameters:
+        - in: path
+          name: userStore
+          schema:
+            type: string
+            example: amala-sky
+          required: true
+          description: The slug or identifier of the user store.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                otp:
+                  type: string
+                  example: "123456"
+                  description: The OTP sent to the user's email.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/duplicate/{store_id}:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - User Store
+      summary: Duplicate Store With Products (No Price)
+      description: >
+        Duplicate a store with all its products and quantities, but set product prices to null.
+      operationId: DuplicateUserStore
+      parameters:
+        - in: path
+          name: store_id
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+          description: The slug of the store to duplicate.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "USD"
+          required: true
+          description: The currency for the duplicated store.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+
+
+
+

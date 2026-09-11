@@ -1,0 +1,1860 @@
+openapi: "3.0.0"
+info:
+  description: myEKI apis
+  version: 1.0.0
+  title: myeki
+
+servers:
+  - url: /api
+    description: v1 baseUrl
+
+components:
+  securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+
+paths:
+  /front/cart/add/{product}:
+    post:
+      tags:
+        - Cart
+      summary: add product to cart
+      description: add product to cart
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  example: 1
+                  required: false
+                variant_id:
+                  type: integer
+                  example: 1
+                  required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/cart/edit/{product}:
+    put:
+      tags:
+        - Cart
+      summary: Update product quantity in cart
+      description: Modify the quantity of a specific product/variant in the user's cart.Setting quantity to 0 removes the item from the cart.
+      operationId: EditCart
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          description: Product slug identifier
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: session-uid
+          description: Session identifier for guest users
+          schema:
+            type: string
+            example: "guest_7s8d9f7g8h9j0k"
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 0
+                  maximum: 999
+                  example: 3
+                  description: New quantity (0 removes item from cart)
+                variant_id:
+                  type: integer
+                  nullable: true
+                  example: 1
+                  description: "Required if product has variants"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/cart/remove/{product}:
+    delete:
+      tags:
+        - Cart
+      summary: remove product from cart
+      description: remove product from cart
+      operationId: RemoveCart
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: query
+          name: variant_id
+          description: Variant ID for products with options
+          schema:
+            type: integer
+            example: 1
+          required: false
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/cart/clear:
+    delete:
+      tags:
+        - Cart
+      summary: clear cart
+      description: clear cart
+      operationId: ClearCart
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/cart:
+    get:
+      tags:
+        - Cart
+      summary: get cart
+      description: get cart
+      operationId: GetCart
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/user/shipping-address/create:
+    post:
+      tags:
+        - Shipping
+      summary: create shipping new address for cart order
+      description: create shipping new address for cart order
+      operationId: CreateShippingAddress
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                city:
+                  type: string
+                  example: "Ikeja"
+                  required: true
+                state:
+                  type: string
+                  example: "Lagos"
+                  required: true
+                country:
+                  type: string
+                  example: "Nigeria"
+                  required: true
+                lga:
+                  type: string
+                  example: "Ikeja"
+                  required: true
+                address:
+                  type: string
+                  example: "2, Ajegunle street"
+                  required: true
+                landmark:
+                  type: string
+                  example: ""
+                  required: false
+                saved:
+                  type: boolean
+                  example: true
+                  required: true
+                first_name:
+                  type: string
+                  example: "Teddy"
+                  required: true
+                last_name:
+                  type: string
+                  example: "Larson"
+                  required: true
+                phone:
+                  type: string
+                  example: "08012345678"
+                  required: true
+                email:
+                  type: string
+                  example: "teddy@gmail.com"
+                  required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/user/shipping-address/{shippingAddress}/delete:
+    delete:
+      tags:
+        - Shipping
+      summary: delete shipping address
+      description: delete shipping address
+      operationId: DeleteShippingAddress
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: shippingAddress
+          schema:
+            type: integer
+            example: 1
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/user/shipping-address/{shippingAddress}/edit:
+    put:
+      tags:
+        - Shipping
+      summary: edit shipping address
+      description: edit shipping address
+      operationId: EditShippingAddress
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: shippingAddress
+          schema:
+            type: integer
+            example: 1
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                city:
+                  type: string
+                  example: "Ikeja"
+                  required: true
+                state:
+                  type: string
+                  example: "Lagos"
+                  required: true
+                country:
+                  type: string
+                  example: "Nigeria"
+                  required: true
+                lga:
+                  type: string
+                  example: "Ikeja"
+                  required: false
+                address:
+                  type: string
+                  example: "2, Ajegunle street"
+                  required: true
+                first_name:
+                  type: string
+                  example: "Teddy"
+                  required: true
+                last_name:
+                  type: string
+                  example: "Larson"
+                  required: true
+                phone:
+                  type: string
+                  example: "08012345678"
+                  required: true
+                email:
+                  type: string
+                  example: "teddy@gmail.com"
+                  required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/user/shipping-address:
+    get:
+      tags:
+        - Shipping
+      summary: get shipping address
+      description: get shipping address
+      operationId: GetShippingAddress
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/order:
+    get:
+      tags:
+        - Cart
+      summary: get user orders
+      description: get user orders also by status (incart, pending, completed)
+      operationId: Get user Orders
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: query
+          name: order_status
+          schema:
+            type: string
+            example: "incart"
+          required: false
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/{order}/order:
+    get:
+      tags:
+        - Cart
+      summary: get order details
+      description: get order details
+      operationId: GetOrderDetails
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: order
+          schema:
+            type: integer
+            example: 1
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/add/{product}:
+    post:
+      tags:
+        - Wishlist
+      summary: add product to wishlist
+      description: add product to wishlist
+      operationId: AddToWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/advert/add/{advert}:
+    post:
+      tags:
+        - Wishlist
+      summary: add advert to wishlist
+      description: add advert to wishlist
+      operationId: AddAdvertToWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/add-from-cart/{product}:
+    post:
+      tags:
+        - Wishlist
+      summary: add product to wishlist from cart
+      description: add product to wishlist from cart
+      operationId: AddFromCartToWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                variant_id:
+                  type: integer
+                  example: 1
+                  required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/advert/remove/{advert}:
+    delete:
+      tags:
+        - Wishlist
+      summary: remove advert from wishlist
+      description: remove advert from wishlist
+      operationId: RemoveAdvertFromWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/remove/{product}:
+    delete:
+      tags:
+        - Wishlist
+      summary: remove product from wishlist
+      description: remove product from wishlist
+      operationId: RemoveFromWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist:
+    get:
+      tags:
+        - Wishlist
+      summary: get wishlist
+      description: get wishlist
+      operationId: GetWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/advert:
+    get:
+      tags:
+        - Wishlist
+      summary: get wishlist adverts
+      description: get wishlist adverts
+      operationId: GetWishlistAdverts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+          type: string
+          example:
+          required: true
+        - in: query
+          name: search
+          schema:
+          type: string
+          example: "yam"
+          required: false
+          description: "Search term to filter wishlist adverts"
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/wishlist/add-to-cart/{product}:
+    post:
+      tags:
+        - Wishlist
+      summary: add product to cart from wishlist
+      description: add product to cart from wishlist
+      operationId: AddToCartFromWishlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: product
+          schema:
+            type: string
+            example: "pounded-yam"
+          required: true
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/cart/{cart}/payment:
+    post:
+      tags:
+        - Payment
+      summary: Make payment for cart order
+      description: Make payment for cart order, supporting multiple stores with individual shipping methods.
+      operationId: MakePayment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example: "abc123-session-id"
+          required: true
+          description: "Session UID for the authenticated user"
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: "NGN"
+          required: true
+        - in: path
+          name: cart
+          schema:
+            type: string
+            example: "1"
+          required: true
+          description: "Cart ID to process the order"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment_gateway:
+                  type: string
+                  example: "paypal"
+                  description: "Selected payment gateway (paystack, paypal, stripe)"
+                  required: true
+                currency_code:
+                  type: string
+                  example: "USD"
+                  description: "Currency code for the payment"
+                  required: true
+                first_name:
+                  type: string
+                  example: "Teddy"
+                  description: "Customer's first name"
+                  required: true
+                last_name:
+                  type: string
+                  example: "Edwardson"
+                  description: "Customer's last name"
+                  required: true
+                email:
+                  type: string
+                  example: "teddyedward@teddyed.com"
+                  description: "Customer's email address"
+                  required: true
+                phone:
+                  type: string
+                  example: "2348012345678"
+                  description: "Customer's phone number"
+                  required: true
+                shipping_address_id:
+                  type: integer
+                  example: 1
+                  description: "ID of the shipping address to be used"
+                  required: true
+                store_shipping_methods:
+                  type: array
+                  description: "Array of shipping methods selected for each store"
+                  items:
+                    type: object
+                    properties:
+                      store_id:
+                        type: integer
+                        example: 1
+                        description: "ID of the store"
+                        required: true
+                      shipping_method_id:
+                        type: integer
+                        example: 2
+                        description: "ID of the shipping method selected for the store"
+                        required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/payment/{gateway}/verify:
+    post:
+      tags:
+        - Payment
+      summary: Verify payment
+      description: Verify payment
+      operationId: VerifyPayment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: path
+          name: gateway
+          schema:
+            type: string
+            example: "paystack"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: "paystack-reference"
+                  required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/order-history:
+    get:
+      tags:
+        - Customer Order
+      summary: Get Order History
+      description: Get Order History
+      operationId: GetOrderHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: false
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/service-history:
+    get:
+      tags:
+        - Customer Order
+      summary: Get Service History
+      description: Get Service History
+      operationId: GetServiceHistory
+      security:
+        - bearerAuth: []
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/{order}/recieve-order:
+    patch:
+      tags:
+        - Customer Order
+      summary: Recieve Store Order
+      description: Recieve Store Order
+      operationId: RecieveStoreOrder
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: order
+          schema:
+            type: number
+            example: 1
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/listings/add-rating:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rating
+      summary: Add Store Listing Rating
+      description: "Add Store Listing Rating"
+      operationId: AddStoreListingRating
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                listing_id:
+                  type: integer
+                  example: 1
+                  required: true
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                rating:
+                  type: integer
+                  example: 1
+                  required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/create:
+    post:
+      tags:
+        - Advertisement
+      summary: Create advert listing
+      description: Create advert listing
+      operationId: CreateAdvert
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Teddy's Yams"
+                  required: true
+                description:
+                  type: string
+                  example: "Teddy's Yams"
+                  required: true
+                quantity:
+                  type: integer
+                  example: 100
+                  required: true
+                category_id:
+                  type: integer
+                  example: 1
+                  required: true
+                type:
+                  type: string
+                  example: "product"
+                  required: true
+                price_on_request:
+                  type: boolean
+                  example: false
+                  required: true
+                price:
+                  type: number
+                  example: 1000
+                  required: false
+                is_available:
+                  type: boolean
+                  example: true
+                  required: true
+                media:
+                  type: array
+                  items:
+                    type: string
+                    description: media file paths
+                    example: ""
+                state:
+                  type: string
+                  example: "Lagos"
+                  required: true
+                country_id:
+                  type: integer
+                  example: 1
+                  required: true
+                phone_number:
+                  type: string
+                  example: "2348012345678"
+                  required: true
+                promote_plan_id:
+                  type: integer
+                  example: 9
+                  required: true
+                country_code:
+                  type: string
+                  example: "NG"
+                  required: true
+                return_url:
+                  type: string
+                  example: https://staging.eki.market"
+                  required: false
+                cancel_url:
+                  type: string
+                  example: "https://staging.eki.market"
+                  required: false
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/{advert}/update:
+    put:
+      tags:
+        - Advertisement
+      summary: Update advert listing
+      description: Update advert listing
+      operationId: UpdateAdvert
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Teddy's Yams"
+                  required: true
+                description:
+                  type: string
+                  example: "Teddy's Yams"
+                  required: true
+                quantity:
+                  type: integer
+                  example: 100
+                  required: true
+                category_id:
+                  type: integer
+                  example: 1
+                  required: true
+                type:
+                  type: string
+                  example: "product"
+                  required: true
+                price_on_request:
+                  type: boolean
+                  example: false
+                  required: true
+                price:
+                  type: number
+                  example: 1000
+                  required: false
+                is_available:
+                  type: boolean
+                  example: true
+                  required: false
+                media:
+                  type: array
+                  items:
+                    type: string
+                    description: media file paths
+                    example: ""
+                state:
+                  type: string
+                  example: "Lagos"
+                  required: true
+                country_id:
+                  type: integer
+                  example: 1
+                  required: true
+                phone_number:
+                  type: string
+                  example: "2348012345678"
+                  required: true
+                promote_plan_id:
+                  type: integer
+                  example: 9
+                  required: false
+                country_code:
+                  type: string
+                  example: "NG"
+                  required: true
+                return_url:
+                  type: string
+                  example: https://staging.eki.market"
+                  required: false
+                cancel_url:
+                  type: string
+                  example: "https://staging.eki.market"
+                  required: false
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/{advert}/delete:
+    delete:
+      tags:
+        - Advertisement
+      summary: Delete advert listing
+      description: Delete advert listing
+      operationId: DeleteAdvert
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/plans:
+    get:
+      tags:
+        - Advertisement
+      summary: get advert listing plans
+      description: get advert listing plans
+      operationId: GetAdvertListingPlans
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert:
+    get:
+      tags:
+        - Advertisement
+      summary: Get user advert listings
+      description: Retrieve a list of advert listings for the authenticated user with optional filters
+      operationId: GetUserAdvertListing
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: Session UID of the user
+        - in: query
+          name: status
+          schema:
+            type: string
+          required: false
+          description: Status of the advert's promotion plan
+        - in: query
+          name: category_id
+          schema:
+            type: integer
+          required: false
+          description: Category ID to filter listings
+        - in: query
+          name: type
+          schema:
+            type: string
+          required: false
+          description: Type of the listing
+
+        - in: query
+          name: search
+          schema:
+            type: string
+          required: false
+          description: Keyword to search within titles and descriptions
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [created_at, price]
+          required: false
+          description: Field to sort by (created_at or price)
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+          required: false
+          description: Sort order, either asc or desc
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 15
+          required: false
+          description: Number of items per page for pagination
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/gallery:
+    get:
+      tags:
+        - Advertisement
+      summary: Get all advert listings with filters and pagination
+      description: |
+        Retrieve all advert listings with optional filtering, sorting, and pagination.
+        Filters include status, category IDs, type, price range, country, state, and search term.
+        Results are sorted by promotion price descending by default.
+      operationId: GetAllAdverts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by
+        - in: query
+          name: category_ids
+          schema:
+            type: array
+            items:
+              type: integer
+              example: 1
+          style: form
+          explode: true
+          description: Array of category IDs to filter by
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, inactive]
+            example: active
+          description: Filter by promotion status
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [product, service]
+          description: Filter by listing type
+        - in: query
+          name: price_min
+          schema:
+            type: number
+            format: float
+            example: 10.00
+          description: Minimum promotion price filter
+        - in: query
+          name: price_max
+          schema:
+            type: number
+            format: float
+            example: 100.00
+          description: Maximum promotion price filter
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search term to match in title or description
+        - in: query
+          name: country_id
+          schema:
+            type: integer
+            example: 1
+          description: Filter by country ID
+        - in: query
+          name: state
+          schema:
+            type: string
+            example: California
+          description: Filter by state/province
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 15
+          description: Number of results per page
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            default: 15
+          description: Number of results
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/{advert}/gallery:
+    get:
+      tags:
+        - Advertisement
+      summary: Get advert gallery
+      description: Retrieve a list of media files for a specific advert
+      operationId: GetAdvertGallery
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+
+        - in: path
+          name: advert
+          schema:
+            type: integer
+          required: true
+          example: 1
+          description: The ID of the advert to retrieve the gallery for.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/advert/promote:
+    post:
+      tags:
+        - Advertisement
+      summary: Store advert promotion
+      description: Store advert promotion
+      operationId: StoreAdvertPromotion
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                store_promote_plan_id:
+                  type: integer
+                  example: 1
+                  required: true
+                return_url:
+                  type: string
+                  example: https://staging.eki.market"
+                  required: false
+                cancel_url:
+                  type: string
+                  example: "https://staging.eki.market"
+                  required: false
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/advert/promote/update:
+    put:
+      tags:
+        - Advertisement
+      summary: Update Store advert promotion
+      description: Update Store advert promotion
+      operationId: UpdateStoreAdvertPromotion
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                store_id:
+                  type: integer
+                  example: 1
+                  required: true
+                store_promote_plan_id:
+                  type: integer
+                  example: 1
+                  required: true
+                return_url:
+                  type: string
+                  example: https://staging.eki.market"
+                  required: false
+                cancel_url:
+                  type: string
+                  example: "https://staging.eki.market"
+                  required: false
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/store/promote/update:
+    get:
+      tags:
+        - Advertisement
+      summary: get  promoted stores
+      description: get  promoted stores
+      operationId: GetPromotedStores
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by.
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/advert/store/promoted-store:
+    get:
+      tags:
+        - Advertisement
+      summary: get user  promoted stores
+      description: get authicated user promoted stores
+      operationId: GetUserPromotedStores
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/promoted-plans:
+    get:
+      tags:
+        - Advertisement
+      summary: get store promotion  plans
+      description: get store promotion  plans
+      operationId: GetPromotePlans
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: true
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/{advert}/rate:
+    post:
+      tags:
+        - Advertisement
+      summary: Rate and review advert listing
+      description: Rate and review advert listing as a user or a guest
+      operationId: Advertisement
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: false
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: integer
+                  example: 1
+                  required: true
+                review:
+                  type: string
+                  example: "This is a review"
+                  required: false
+                name:
+                  type: string
+                  example: "John Doe"
+                  required: false
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/advert/{advert}/ratings:
+    get:
+      tags:
+        - Advertisement
+      summary: Get advert ratings and reviews
+      description: Get advert ratings and reviews
+      operationId: GetAdvertRatings
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+            example:
+          required: false
+        - in: path
+          name: advert
+          schema:
+            type: integer
+            example: 1
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/{store}/shipping/methods:
+    get:
+      tags:
+        - Shipping
+      summary: Get shipping methods
+      description: Get shipping methods
+      operationId: GetShippingMethods
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+          description: The store name of the user.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /front/cart/{cart}/shipping/methods:
+    get:
+      tags:
+        - Shipping
+      summary: Get shipping methods from cart id
+      description: Get shipping methods carts
+      operationId: GetShippingMethodsCarts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: session-uid
+          schema:
+            type: string
+          required: true
+          description: The unique session identifier for the user.
+        - in: header
+          name: currency
+          schema:
+            type: string
+            example: USD
+          required: true
+          description: Currency code to filter listings by.
+        - in: path
+          name: cart
+          schema:
+            type: integer
+            example: 1
+          required: true
+          description: The cart Id.
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/{store}/order/history:
+    get:
+      tags:
+        - Vendor Order
+      summary: Get Store Order History
+      description: Get Store Order History
+      operationId: GetStoreOrderHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+        - in: query
+          name: order_status
+          schema:
+            type: string
+            example: "new"
+          required: false
+          description: Filter by order status (new, shipped, delivered)
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "amala"
+          required: false
+          description: Search term to match in ['order_number', 'first_name', 'last_name', 'email', 'phone'].
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/{store}/order/{order}/status/update:
+    put:
+      tags:
+        - Vendor Order
+      summary: Update Store Order Status
+      description: Update Store Order Status
+      operationId: UpdateStoreOrderStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+        - in: path
+          name: order
+          schema:
+            type: string
+            example: "1"
+          required: true
+        - in: query
+          name: status
+          schema:
+            type: string
+            example: "completed"
+            description: "order status (completed, inprogress, cancelled,'pending','shipped')"
+          required: true
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /store/{store}/order/{order}/view:
+    get:
+      tags:
+        - Vendor Order
+      summary: View single order Invoice
+      description: View single order Invoice
+      operationId: ViewOrderDetailsInvoice
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: store
+          schema:
+            type: string
+            example: "amala-sky"
+          required: true
+        - in: path
+          name: order
+          schema:
+            type: string
+            example: "1"
+          required: true
+
+      responses:
+        default:
+          description: "success"
+          content:
+            application/json:
+              schema:
+                type: object

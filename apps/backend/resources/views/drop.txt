@@ -1,0 +1,63 @@
+$currency = strtoupper($request->header('currency', 'USD'));
+        $cacheKey = "alpha-vendors-{$currency}";
+        $stores = Cache::get($currency);
+
+        if (!$stores) {
+            $stores = (new ())->fetch($currency);
+            $stores = Cache::remember($cacheKey, 1800, function () use () {
+                
+            }); put($cacheKey, $stores);
+        }
+
+
+Route::get('/scrape', function () {
+    $client = new Client([
+        'headers' => [
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        ],
+        'verify' => false, // In case SSL verification causes issues
+    ]);
+
+    $categories = [
+        'home-appliances', 'kitchen-appliances', 'fashion-and-beauty'
+    ];
+
+    $scrapedData = [];
+
+    foreach ($categories as $category) {
+        $url = "https://jiji.ng/$category";
+
+        try {
+            $response = $client->get($url);
+            $html = $response->getBody()->getContents();
+            $crawler = new Crawler($html);
+
+            $vendors = $crawler->filter('.b-list-advert__item')->each(function ($node) {
+                return [
+                    'name' => $node->filter('.b-advert-title')->count() ? trim($node->filter('.b-advert-title')->text()) : 'N/A',
+                    'phone' => 'Hidden (Requires Login)', // Jiji hides contact details
+                    'email' => 'N/A',
+                    'category' => 'N/A'
+                ];
+            });
+
+            $scrapedData[$category] = $vendors;
+
+            foreach ($vendors as $vendor) {
+                Log::info("Vendor Found: " . json_encode($vendor));
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Failed to scrape $url: " . $e->getMessage());
+            continue;
+        }
+    }
+
+    // Save results in a file
+    file_put_contents(storage_path('logs/jiji_vendors.json'), json_encode($scrapedData, JSON_PRETTY_PRINT));
+
+    return response()->json([
+        'message' => 'Scraping completed successfully!',
+        'data' => $scrapedData
+    ]);
+});

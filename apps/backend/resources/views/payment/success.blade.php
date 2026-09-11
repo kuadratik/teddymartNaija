@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Success</title>
+</head>
+
+<body>
+    <h1>{{ $message }}</h1>
+    <p>Your payment was successful. Thank you for your purchase!</p>
+</body>
+
+</html>
