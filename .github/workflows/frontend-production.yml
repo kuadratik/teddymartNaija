@@ -1,8 +1,10 @@
-name: Production deployment
+name: Frontend production deployment
 
 on:
   push:
     branches: [production]
+    paths: ['apps/frontend/**']
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -22,5 +24,6 @@ jobs:
             git stash
             git stash clear
             git pull origin production
+            cd apps/frontend
             chmod +x .docker/deploy.sh
             sh .docker/deploy.sh martfront-prod 4020

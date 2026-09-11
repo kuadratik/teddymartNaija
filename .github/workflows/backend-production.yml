@@ -1,8 +1,10 @@
-name: Production
+name: Backend production deployment
 
 on:
   push:
     branches: [production]
+    paths: ['apps/backend/**']
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -20,5 +22,6 @@ jobs:
             git stash
             git stash clear
             git pull origin production
+            cd apps/backend
             chmod +x .docker/deploy.sh
             sh .docker/deploy.sh teddymart-prod

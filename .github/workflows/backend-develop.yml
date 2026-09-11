@@ -1,8 +1,10 @@
-name: Staging
+name: Backend develop deployment
 
 on:
   push:
-    branches: [staging]
+    branches: [develop]
+    paths: ['apps/backend/**']
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,9 +18,10 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script_stop: true
           script: |
-            cd /var/www/backend/staging
+            cd /var/www/backend/develop
             git stash
             git stash clear
-            git pull origin staging
+            git pull origin develop
+            cd apps/backend
             chmod +x .docker/deploy.sh
-            sh .docker/deploy.sh teddymart-staging
+            sh .docker/deploy.sh teddymart-dev
