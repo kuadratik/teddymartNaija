@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  martfront-prod:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+      args:
+        NEXTJS_PORT: 4020
+    container_name: martfront-prod
+    restart: always
+    ports:
+      - "4020:4020"
+    volumes:
+      - .:/var/www
