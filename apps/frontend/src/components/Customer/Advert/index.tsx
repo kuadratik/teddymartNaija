@@ -7,7 +7,7 @@ const AdvertComponent = () => {
     <div>
       <div className="flex h-[70px] w-[579px] items-center justify-between gap-6 rounded-[8px] bg-[#000000] p-4">
         <div>
-          <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={100} height={57} />{' '}
+          <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={150} height={20} />{' '}
         </div>
         <TextInput placeholder="" errorMessage={''} onChange={() => {}} name={'advert'} value={''} type={'text'} />
         <Button className="rounded-[5px] bg-[#fff] font-semibold text-[#000000]">{'Click here'}</Button>

@@ -156,7 +156,7 @@ const InvoiceView = ({data}: any) => {
           <div id="invoice-order" className={isLoadingInvoice ? 'blur-md' : ''}>
             <div className="flex justify-between gap-4 border-b-[1.5px] border-dashed py-8 pb-10 md:p-3">
               <div>
-                <Image src={'/assets/dark_logo.svg'} alt="logo" width={90} height={90} />
+                <Image src={'/assets/dark_logo.svg'} alt="logo" width={140} height={19} />
                 <div className="mt-2 flex flex-col gap-2">
                   {' '}
                   <TextComponentContent as="p">Address</TextComponentContent>

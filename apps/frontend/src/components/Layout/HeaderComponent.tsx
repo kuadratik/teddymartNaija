@@ -50,7 +50,7 @@ const HeaderComponent = () => {
         <div className="fixed top-0 z-50 flex h-[78px] w-full items-center bg-[#222222]">
           <div className="mx-auto flex w-full max-w-7xl items-center justify-between">
             <Link href="/" className="!border-none !p-0">
-              <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={100} height={76} />
+              <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={150} height={20} />
             </Link>
 
             <div className="flex items-center gap-3">
@@ -148,7 +148,7 @@ const HeaderComponent = () => {
         <div className="fixed top-0 z-50 flex h-[78px] w-full items-center bg-[#222222]">
           <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4">
             <Link href="/" className="!border-none !p-0">
-              <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={90} height={70} />
+              <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={130} height={17} />
             </Link>
 
             <div className="flex items-center gap-2">

@@ -435,7 +435,7 @@ const VendorNewLayout: React.FC<{children: React.ReactNode} & CustomerLayoutInte
               </Link>
             ) : (
               <Link href="/" className="!border-none !p-0">
-                <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={100} height={100} />
+                <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={150} height={20} />
                 <TextComponent as="p" className="text-[10px] font-normal leading-[16px] text-white">
                   Find what you love, easily!
                 </TextComponent>{' '}

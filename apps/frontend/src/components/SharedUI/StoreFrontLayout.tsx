@@ -100,7 +100,7 @@ const StoreFrontLayout: React.FC<{children: React.ReactNode}> = ({children}) => 
           {' '}
           {/* Logo */}
           <Link href="/" className="!border-none !p-0">
-            <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={100} height={100} />
+            <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={150} height={20} />
           </Link>
           <Menu theme="dark" mode="horizontal" selectedKeys={[router.pathname]} style={{backgroundColor: 'black'}}>
             {MenuItems?.map(menu => {

@@ -286,7 +286,7 @@ const CustomerLayout: React.FC<{children: React.ReactNode} & CustomerLayoutInter
               </Link>
             ) : (
               <Link href={isHome} className="!border-none !p-0">
-                <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={100} height={100} />
+                <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={150} height={20} />
                 <TextComponent as="p" className="text-[10px] font-normal leading-[22px] text-white">
                   Find what you love, easily!
                 </TextComponent>{' '}
@@ -949,7 +949,7 @@ const CustomerLayout: React.FC<{children: React.ReactNode} & CustomerLayoutInter
             </Link>
           ) : (
             <Link href={isHome} className="!border-none !p-0">
-              <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={100} height={100} />
+              <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={150} height={20} />
               <TextComponent as="p" className="text-[10px] font-normal leading-[22px] text-white">
                 Find what you love, easily!
               </TextComponent>{' '}

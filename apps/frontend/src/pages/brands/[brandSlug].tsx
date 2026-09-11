@@ -50,7 +50,7 @@ const BrandSlugPage = ({brandSlug}: BrandSlugPageProps) => {
             <div className="relative mx-auto w-full max-w-md">
               <div className="flex flex-col items-center justify-center gap-6 rounded-3xl bg-black px-6 py-12 text-center shadow-2xl">
                 <div className="flex flex-col items-center justify-center">
-                  <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={100} height={100} />
+                  <Image src={'/assets/WhiteLogo.svg'} alt="logo" width={150} height={20} />
                   <TextComponent as="p" className="text-[10px] font-normal leading-[22px] text-white">
                     Find what you love, easily!
                   </TextComponent>
