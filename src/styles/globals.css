@@ -1,0 +1,326 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  1. Use a more-intuitive box-sizing model.
+*/
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+
+/*
+  2. Remove default margin
+*/
+
+* {
+    margin: 0;
+}
+
+:root {
+    font-family: 'DM Sans', sans-serif;
+}
+
+
+/*
+  Typographic tweaks!
+  3. Add accessible line-height
+  4. Improve text rendering
+*/
+
+body {
+    background: #ffffff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15.5px;
+    font-weight: 400;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+
+/*
+  5. Improve media defaults
+*/
+
+img,
+picture,
+video,
+canvas,
+svg {
+    display: block;
+    max-width: 100%;
+}
+
+
+/*
+  6. Remove built-in form typography styles
+*/
+
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+
+/*
+  7. Avoid text overflows
+*/
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    overflow-wrap: break-word;
+}
+
+
+/*
+  8. Create a root stacking context
+*/
+
+#root,
+#__next {
+    isolation: isolate;
+}
+
+
+/* Custom scrollbar styles */
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.from-custom-blue {
+    --tw-gradient-from: #575cff;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(87, 92, 255, 0));
+}
+
+.to-custom-indigo-90 {
+    --tw-gradient-to: #33357df2;
+}
+
+.luckiest-guy {
+    font-family: 'Luckiest Guy', cursive;
+}
+
+
+/* stats card scroll bar */
+
+
+/* CSS */
+
+
+/* You may need to adjust these styles based on your design */
+
+
+/* CSS */
+
+
+/* For webkit-based browsers (Chrome, Safari) */
+
+.statsCard::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar for webkit-based browsers */
+}
+
+
+/* CSS */
+
+
+/* For webkit-based browsers (Chrome, Safari) */
+
+.statsCardScroll::-webkit-scrollbar {
+    display: block;
+    /* Hide scrollbar for webkit-based browsers */
+}
+
+
+/* For Firefox */
+
+.statsCard {
+    scrollbar-width: none;
+    /* Hide scrollbar for Firefox */
+    /* Other styles */
+    overflow-y: scroll;
+    /* Ensure vertical scrollbar appears when needed */
+}
+
+
+/* For Firefox */
+
+.statsCardScroll {
+    scrollbar-width: thin;
+    /* Hide scrollbar for Firefox */
+    /* Other styles */
+    overflow-y: none;
+    /* Ensure vertical scrollbar appears when needed */
+}
+
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
+}
+
+div.ant-table-column-sorters {
+    display: inline !important;
+}
+
+@keyframes slideOutToRight {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.ant-pagination .ant-pagination-item-active {
+    font-weight: 400;
+    border-color: var(--dark-color);
+    background-color: var(--dark-color);
+}
+
+.ant-pagination .ant-pagination-item-active a {
+    font-weight: 400;
+    color: #fff;
+}
+
+.ant-pagination-prev {
+    color: #fff;
+    border-color: var(--dark-color);
+    background-color: var(--dark-color);
+}
+
+.ant-pagination-prev.ant-pagination-disabled {
+    background-color: transparent !important;
+    cursor: not-allowed;
+}
+
+.ant-pagination .ant-pagination-prev button {
+    color: white;
+    cursor: pointer;
+    user-select: none;
+}
+
+.ant-pagination-next {
+    color: #fff;
+    border-color: var(--dark-color);
+    background-color: var(--dark-color);
+}
+
+.ant-pagination-next.ant-pagination-disabled {
+    background-color: transparent !important;
+    cursor: not-allowed;
+}
+
+.ant-pagination .ant-pagination-next button {
+    color: white;
+    cursor: pointer;
+    user-select: none;
+}
+
+.custom-phone-input .form-control {
+    color: #ff5733;
+    /* Your desired text color */
+    font-weight: 300;
+    /* Light font weight */
+}
+
+
+/* For WebKit browsers (Chrome, Safari, etc.) */
+
+::-webkit-scrollbar {
+    height: 0px;
+    /* Adjust the height for the horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+    /* Track color */
+}
+
+::-webkit-scrollbar-thumb {
+    background: transparent;
+    /* Thumb (scrollbar handle) color */
+    border-radius: 10px;
+    /* Rounded corners for the thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: transparent;
+    /* Thumb color on hover */
+}
+
+.swiper {
+    width: '100%';
+    height: '100%';
+}
+
+.ant-otp .ant-otp-input {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    padding-inline: 4px;
+    background-color: #f9fafb;
+    border-radius: 12px;
+    height: 73px;
+    width: 63px;
+    border: 1px solid #f9fafb;
+}
+
+
+/* App.css */
+
+.fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    /* Adjust this to your header height */
+    background-color: #fff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+    /* Add your desired margin-bottom */
+}
+
+.custom-select .ant-select-selector .ant-select-selection-placeholder {
+    color: #9ca3af;
+    /* Change placeholder color */
+    font-size: 15px;
+    font-weight: 500;
+    /* Change placeholder font size */
+}
+
+
+/* custom.css */

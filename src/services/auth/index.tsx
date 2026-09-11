@@ -1,0 +1,80 @@
+import {setCredentials} from '@/redux/apiSlice/authSlice'
+import {setCookie} from 'nookies'
+import {api} from '..'
+import {
+  ActiveUserLevel,
+  BaseResponse,
+  LoginRequestModel,
+  SignUpRequestModel,
+  TopLoginUserLevel,
+  VerifyRequestModel
+} from '../../types/types'
+
+const apiWithTag = api.enhanceEndpoints({
+  addTagTypes: ['authUser']
+})
+
+export const authApi = apiWithTag.injectEndpoints({
+  overrideExisting: true,
+  endpoints: builder => ({
+    login: builder.mutation<TopLoginUserLevel, LoginRequestModel>({
+      query: body => ({
+        url: 'front/login',
+        method: 'POST',
+        body: body
+      }),
+      async onQueryStarted(arg, {dispatch, queryFulfilled}) {
+        try {
+          const {data} = await queryFulfilled
+          // Set the token in cookies
+          setCookie(null, 'token', (data as any)?.data?.token, {
+            maxAge: 30 * 24 * 60 * 60, // 30 days
+            path: '/',
+            sameSite: 'lax', // Recommended for security reasons
+            secure: process.env.NODE_ENV !== 'development' // Only set secure cookies in production
+          })
+
+          // Store the token and user in localStorage
+          // Correctly destructure the setter function from useLocalStorage
+          dispatch(setCredentials({token: (data as any)?.data?.token, user: data?.data.user}))
+        } catch (error) {
+          // Handle error
+        }
+      }
+    }),
+    signUp: builder.mutation<BaseResponse, SignUpRequestModel>({
+      query: body => ({
+        url: 'front/register',
+        method: 'POST',
+        body
+      })
+    }),
+    verify: builder.mutation<BaseResponse, VerifyRequestModel>({
+      query: body => ({
+        url: 'front/register/verify',
+        method: 'POST',
+        body
+      })
+    }),
+    resendOtp: builder.mutation<BaseResponse, {email?: string}>({
+      query: body => ({
+        url: 'front/register/otp-resend',
+        method: 'POST',
+        body: {
+          email: body.email
+        }
+      })
+    }),
+
+    activeUser: builder.query<ActiveUserLevel, any>({
+      query: body => ({
+        url: 'front/user/profile',
+        method: 'GET'
+      }),
+      providesTags: ['authUser']
+    })
+  })
+})
+
+export const {useLoginMutation, useSignUpMutation, useActiveUserQuery, useVerifyMutation, useResendOtpMutation} =
+  authApi
