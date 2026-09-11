@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  martfront-staging:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+      args:
+        NEXTJS_PORT: 4010
+    container_name: martfront-staging
+    restart: always
+    ports:
+      - "4010:4010"
+    volumes:
+      - .:/var/www
